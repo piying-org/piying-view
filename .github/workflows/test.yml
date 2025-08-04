@@ -1,8 +1,8 @@
-name: publish
+name: test
 on:
   push:
     tags:
-      - 'master'
+      - 'main'
 permissions:
   contents: write
 jobs:
