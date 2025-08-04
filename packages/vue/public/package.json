@@ -1,0 +1,26 @@
+{
+  "name": "@piying/view-vue",
+  "version": "0.0.0-PLACEHOLDER",
+  "type": "module",
+  "dependencies": {
+    "@piying/view-core": "^0.6.31",
+    "fast-equals": "^5.2.2",
+    "rfdc": "^1.4.1",
+    "static-injector": "^6.1.2"
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "vue": "^3.4.21"
+  },
+  "module": "index.js",
+  "typings": "index.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  }
+}

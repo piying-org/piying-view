@@ -1,0 +1,30 @@
+{
+  "name": "@piying/view-vue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -p tsconfig.app.json && vite build && vue-tsc -p tsconfig.type.json",
+    "preview": "vite preview",
+    "test": "vitest",
+    "lint": "eslint ./src --fix && prettier ./src --write",
+    "local-publish": "npm run build && npm --registry=http://lan-server.chloc:5555 publish ./dist",
+    "remote-publish": "npm run build && npm publish --access=public --registry=https://registry.npmjs.org ./dist"
+  },
+  "dependencies": {
+    "vue": "3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.5.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint-plugin-playwright": "^2.2.0",
+    "eslint-plugin-vue": "~10.0.0",
+    "jsdom": "^26.1.0",
+    "vitest-browser-vue": "^0.2.0",
+    "vue-tsc": "^2.2.10"
+  }
+}

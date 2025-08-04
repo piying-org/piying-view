@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "./test/**/*.ts",
+    "./test/**/*.tsx",
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@piying/view-react": [
+        "./src/index.ts"
+      ]
+    }
+  }
+}

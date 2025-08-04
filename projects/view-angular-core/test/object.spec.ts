@@ -1,0 +1,280 @@
+import * as v from 'valibot';
+
+import { asControl } from '@piying/valibot-visit';
+import {
+  _PiResolvedCommonViewFieldConfig,
+  formConfig,
+  NFCSchema,
+} from '@piying/view-angular-core';
+import { createBuilder } from './util/create-builder';
+import {
+  assertFieldArray,
+  assertFieldControl,
+  assertFieldGroup,
+  assertFieldLogicGroup,
+} from './util/is-field';
+import { getField } from './util/action';
+// 用于测试fields和model变动时,数值是否正确
+describe('对象', () => {
+  it('普通对象', () => {
+    const obj = v.object({
+      key1: v.pipe(
+        v.object({
+          test1: v.optional(v.string(), 'value1'),
+        }),
+      ),
+    });
+    const list = createBuilder(obj).fieldGroup!();
+    assertFieldGroup(list[0].form.control);
+    expect(list.length).toBe(1);
+    expect(list[0].fieldGroup?.().length).toBe(1);
+  });
+  it('对象视为控件', () => {
+    const obj = v.object({
+      key1: v.pipe(
+        v.object({
+          test1: v.pipe(v.optional(v.string(), 'value1'), v.minLength(1)),
+        }),
+        asControl(),
+      ),
+    });
+    const list = createBuilder(obj).fieldGroup!();
+    expect(list.length).toBe(1);
+    assertFieldControl(list[0].form.control);
+    expect(list[0].formConfig().defaultValue).toEqual({
+      test1: 'value1',
+    });
+  });
+  it('对象控件验证', async () => {
+    const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.object({
+      key1: v.pipe(
+        v.object({
+          test1: v.pipe(v.optional(v.string(), 'value1'), v.minLength(1000)),
+        }),
+        getField(field$),
+        asControl(),
+      ),
+    });
+    const result = createBuilder(obj).fieldGroup!();
+    expect(result.length).toBe(1);
+
+    const field = await field$.promise;
+    expect(field.form.control!.errors).toBeTruthy();
+  });
+  it('元组视为控件', () => {
+    const obj = v.object({
+      key1: v.pipe(
+        v.tuple([
+          v.pipe(v.optional(v.string(), '1'), v.minLength(1)),
+          v.optional(v.number(), 2),
+        ]),
+        asControl(),
+      ),
+    });
+    const list = createBuilder(obj).fieldGroup!();
+    expect(list.length).toBe(1);
+    expect(list[0].formConfig().defaultValue).toEqual(['1', 2]);
+  });
+
+  it('内部存在Object多个处理', () => {
+    const obj = v.object({
+      l1: v.pipe(
+        v.object({
+          l2: v.object({
+            k1: v.optional(v.string(), '1'),
+            k2: v.optional(v.number(), 2),
+          }),
+        }),
+        asControl(),
+      ),
+    });
+    const list = createBuilder(obj).fieldGroup!();
+
+    expect(list.length).toBe(1);
+    expect(list[0].formConfig().defaultValue).toEqual({
+      l2: {
+        k1: '1',
+        k2: 2,
+      },
+    });
+  });
+  it('union或处理', () => {
+    const obj = v.object({
+      l1: v.union([v.object({ k1: v.string() }), v.object({ k2: v.number() })]),
+    });
+    const list = createBuilder(obj).fieldGroup!();
+    assertFieldLogicGroup(list[0].form.control);
+    expect(list.length).toBe(1);
+    expect(list[0].fieldGroup?.().length).toBe(2);
+  });
+  it('对象视为控件(一维数组)', async () => {
+    const fields$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.object({
+      l1: v.pipe(
+        v.object({
+          l2: v.array(v.pipe(v.string(), v.maxLength(2))),
+        }),
+        asControl(),
+        getField(fields$),
+      ),
+    });
+    const list = createBuilder(obj).fieldGroup!();
+    assertFieldControl(list[0].form.control);
+    const field = await fields$.promise;
+    expect(field.form.control!.errors).toBeTruthy();
+  });
+  it('对象视为控件(二维数组)', async () => {
+    const fields$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.object({
+      l1: v.pipe(
+        v.object({
+          l2: v.array(v.array(v.pipe(v.string(), v.maxLength(2)))),
+        }),
+        asControl(),
+        getField(fields$),
+      ),
+    });
+    const rBuilder = createBuilder(obj);
+    const list = rBuilder.fieldGroup!();
+    assertFieldControl(list[0].form.control);
+    rBuilder.form.control?.updateValue({ l1: { l2: [['111']] } });
+    const field = await fields$.promise;
+    expect(field.form.control!.errors).toBeTruthy();
+    rBuilder.form.control?.updateValue({ l1: { l2: [['11']] } });
+    expect(field.form.control!.errors).toBeFalsy();
+  });
+  it('对象视为控件(数组,对象,数组)', async () => {
+    const fields$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+
+    const obj = v.object({
+      l1: v.pipe(
+        v.object({
+          l2: v.array(
+            v.object({ i1: v.array(v.pipe(v.string(), v.maxLength(2))) }),
+          ),
+        }),
+        asControl(),
+        getField(fields$),
+      ),
+    });
+    const resolved = createBuilder(obj);
+    const list = resolved.fieldGroup!();
+    assertFieldControl(list[0].form.control);
+    resolved.form.control?.updateValue({ l1: { l2: [{ i1: ['111'] }] } });
+    const field = await fields$.promise;
+    expect(field.form.control!.errors).toBeTruthy();
+    resolved.form.control?.updateValue({ l1: { l2: [{ i1: ['11'] }] } });
+    expect(field.form.control!.errors).toBeFalsy();
+  });
+  it('数组视为控件', async () => {
+    const fields$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.object({
+      l1: v.pipe(
+        v.array(v.pipe(v.string(), v.maxLength(2))),
+        asControl(),
+        getField(fields$),
+      ),
+    });
+    const resolved = createBuilder(obj);
+    const list = resolved.fieldGroup!();
+    assertFieldControl(list[0].form.control);
+    resolved.form.control?.updateValue({ l1: ['111'] });
+
+    const field = await fields$.promise;
+    expect(field.form.control!.errors).toBeTruthy();
+    resolved.form.control?.updateValue({ l1: ['11'] });
+    expect(field.form.control!.errors).toBeFalsy();
+  });
+  it('对象视为控件-必填', async () => {
+    const fields$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.object({
+      l1: v.pipe(
+        v.object({
+          l2: v.string(),
+        }),
+        asControl(),
+        getField(fields$),
+      ),
+    });
+    const resolved = createBuilder(obj);
+    const list = resolved.fieldGroup!();
+    assertFieldControl(list[0].form.control);
+    resolved.form.control?.updateValue({ l1: { l2: undefined } });
+
+    const field = await fields$.promise;
+    expect(field.form.control!.errors).toBeTruthy();
+    resolved.form.control?.updateValue({ l1: { l2: '' } });
+    expect(field.form.control!.errors).toBeFalsy();
+  });
+  it('对象视为控件-交叉类型', async () => {
+    const fields$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.object({
+      l1: v.pipe(
+        v.object({
+          l2: v.intersect([
+            v.object({ k1: v.string() }),
+            v.object({ k2: v.string() }),
+          ]),
+        }),
+        asControl(),
+        getField(fields$),
+      ),
+    });
+    const resolved = createBuilder(obj);
+    const list = resolved.fieldGroup!();
+    assertFieldControl(list[0].form.control);
+    resolved.form.control?.updateValue({ l1: { l2: { k1: '1' } } });
+
+    const field = await fields$.promise;
+    expect(field.form.control!.errors).toBeTruthy();
+    resolved.form.control?.updateValue({ l1: { l2: { k1: '1', k2: '2' } } });
+    expect(field.form.control!.errors).toBeFalsy();
+  });
+
+  it('元组赋值变更', async () => {
+    const obj = v.pipe(v.object({ a: v.pipe(v.tuple([v.string()])) }));
+    const resolved = createBuilder(obj);
+    const list = resolved.fieldGroup!();
+    assertFieldArray(list[0].form.control);
+    resolved.form.control?.updateValue({ a: ['value2'] });
+    expect(resolved.form.control?.value$$()).toEqual({ a: ['value2'] });
+  });
+  it('NFC-group', () => {
+    const obj = v.object({
+      key1: NFCSchema,
+    });
+    const list = createBuilder(obj).fieldGroup!();
+    expect(list.length).toBe(1);
+    expect(list[0].form.control).toBeFalsy();
+  });
+
+  it('toModel/toView', async () => {
+    let index = 0;
+    const obj = v.pipe(
+      v.object({
+        k1: v.string(),
+      }),
+      formConfig({
+        transfomer: {
+          toModel(value, control) {
+            if (value) {
+              expect(value).toEqual({ k1: '2' });
+              index++;
+            }
+            return { k1: '3' };
+          },
+          toView(value, control) {
+            expect(value).toEqual({ k1: '1' });
+            index++;
+            return { k1: '2' };
+          },
+        },
+      }),
+    );
+    const result = createBuilder(obj);
+    result.form.control?.updateValue({ k1: '1' });
+    expect(result.form.control?.value$$()).toEqual({ k1: '3' });
+    expect(index).toEqual(2);
+  });
+});

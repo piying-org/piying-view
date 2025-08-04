@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "lib": {
+    "entryFile": "index.ts"
+  },
+  "deleteDestPath": true,
+  "dest": "../../dist/view-angular-core",
+  "allowedNonPeerDependencies": [
+    "@piying/valibot-visit",
+    "rfdc",
+    "fast-equals",
+    "clsx"
+  ]
+}

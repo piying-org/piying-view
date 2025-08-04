@@ -1,0 +1,160 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "test-view-angular": {
+      "projectType": "library",
+      "root": "projects",
+      "sourceRoot": "projects",
+      "prefix": "piying",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "sourceMap": true,
+            "tsConfig": "projects/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "codeCoverageExclude": [
+              "projects/**/test/*",
+              "projects/view-core/**/*",
+              "projects/view-angular/test/**/*",
+              "projects/view-angular/lib/hook/directive_matching.ts",
+              "projects/view-angular/lib/hook/selector.ts",
+              "projects/view-angular-core/test/**/*"
+            ]
+          }
+        }
+      }
+    },
+    "view-angular": {
+      "projectType": "library",
+      "root": "projects/view-angular",
+      "sourceRoot": "projects/view-angular",
+      "prefix": "piying",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/view-angular/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/view-angular/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/view-angular/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "sourceMap": true,
+            "tsConfig": "projects/view-angular/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "codeCoverageExclude": [
+              "projects/view-angular/test/**/*"
+            ]
+          }
+        }
+      }
+    },
+    "view-angular-core": {
+      "projectType": "library",
+      "root": "projects/view-angular-core",
+      "sourceRoot": "projects/view-angular-core",
+      "prefix": "piying",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/view-angular-core/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/view-angular-core/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/view-angular-core/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "sourceMap": true,
+            "tsConfig": "projects/view-angular-core/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "codeCoverageExclude": [
+              "projects/view-angular-core/test/**/*"
+            ]
+          }
+        }
+      }
+    },
+    "view-core": {
+      "projectType": "library",
+      "root": "projects/view-core",
+      "sourceRoot": "projects/view-core",
+      "prefix": "piying",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/view-core/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/view-core/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/view-core/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "sourceMap": true,
+            "tsConfig": "projects/view-core/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "codeCoverageExclude": [
+              "projects/view-core/test/**/*"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

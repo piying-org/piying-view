@@ -1,0 +1,29 @@
+{
+  "name": "@piying/view-react",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.app.json && vite build && tsc -p tsconfig.type.json",
+    "lint": "eslint . --fix && prettier ./src --write",
+    "preview": "vite preview",
+    "test": "vitest",
+    "remote-publish": "npm run build && npm publish --access=public --registry=https://registry.npmjs.org ./dist"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "@vitejs/plugin-react": "^4.6.0"
+  }
+}

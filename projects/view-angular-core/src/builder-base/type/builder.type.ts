@@ -1,0 +1,41 @@
+import { WritableSignal } from '@angular/core';
+
+import { _PiResolvedCommonViewFieldConfig } from './common-field-config';
+import { FieldGroup } from '../../field/field-group';
+import { FieldArray } from '../../field/field-array';
+import { CoreSchemaHandle } from '../../convert';
+
+export interface BuildRootInputItem<
+  SchemaHandle extends CoreSchemaHandle<any, any>,
+> {
+  field: SchemaHandle;
+  resolvedField$: WritableSignal<_PiResolvedCommonViewFieldConfig | undefined>;
+}
+export interface BuildRootItem {
+  type: 'root';
+  field: {
+    fieldGroup?: undefined;
+    fullPath: [];
+  };
+  form?: undefined;
+  resolvedField$: WritableSignal<_PiResolvedCommonViewFieldConfig | undefined>;
+  append: (input: _PiResolvedCommonViewFieldConfig) => void;
+}
+export interface BuildGroupItem<
+  SchemaHandle extends CoreSchemaHandle<any, any>,
+> {
+  type: 'group';
+  fields: SchemaHandle[];
+  form: FieldGroup;
+  field: _PiResolvedCommonViewFieldConfig;
+  append: (input: _PiResolvedCommonViewFieldConfig) => void;
+}
+export interface BuildArrayItem<
+  SchemaHandle extends CoreSchemaHandle<any, any>,
+> {
+  type: 'array';
+  templateField: SchemaHandle;
+  form: FieldArray;
+  field: _PiResolvedCommonViewFieldConfig;
+  append: (input: _PiResolvedCommonViewFieldConfig) => void;
+}

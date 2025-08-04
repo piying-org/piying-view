@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "declarationDir": "../../dist/view-react",
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+  },
+  "files": [
+    "./src/index.ts"
+  ]
+}

@@ -1,0 +1,30 @@
+name: publish
+on:
+  push:
+    tags:
+      - '*.*.*'
+env:
+  PUBLISH_VERSION: ${{github.ref_name}}
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: init
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@gmail.com"
+      - uses: actions/checkout@v4
+      - name: install-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - run: npm install
+      - run: npm run build
+      - run: npm run test:all
+      - name: Setup npmrc
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+      - run: npm run publish-only
+

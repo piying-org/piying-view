@@ -1,0 +1,9 @@
+<div class="test1-div-input1">{{ input1() }}</div>
+<div class="test1-div-modelValue">{{ value() }}</div>
+
+<input
+  type="text"
+  [ngModel]="value()"
+  (ngModelChange)="valueChange($event)"
+  [disabled]="disabled$()"
+/>

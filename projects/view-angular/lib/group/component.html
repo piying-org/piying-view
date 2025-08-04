@@ -1,0 +1,5 @@
+@for (field of fields(); track field.id || $index) {
+  <ng-container
+    *ngTemplateOutlet="fieldTemplateRef(); context: { $implicit: field }"
+  ></ng-container>
+}

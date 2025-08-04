@@ -1,0 +1,29 @@
+{
+  "name": "@piying/view-react",
+  "version": "0.0.0-PLACEHOLDER",
+  "type": "module",
+  "dependencies": {
+    "@piying/view-core": "0.0.0-PLACEHOLDER",
+    "fast-equals": "^5.2.2",
+    "static-injector": "^6.1.2",
+    "valibot": "^1.1.0"
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "module": "index.js",
+  "typings": "index.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  }
+}
