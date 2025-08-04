@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 import { shallowRef } from 'vue';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import { delay } from './util/delay';
 import { getField } from '@piying/view-core/test';
 describe('array', () => {

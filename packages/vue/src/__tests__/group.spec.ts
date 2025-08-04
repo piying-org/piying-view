@@ -4,7 +4,7 @@ import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 import { shallowRef } from 'vue';
 import { componentClass, patchAsyncInputs, setComponent } from '@piying/view-core';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import { signal } from 'static-injector';
 import GroupSwap from './component/group-swap.vue';
 import { delay } from './util/delay';

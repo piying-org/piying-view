@@ -5,7 +5,7 @@ import { createComponent } from './util/create-component';
 import { shallowRef } from 'vue';
 import { NFCSchema, setComponent, setOutputs } from '@piying/view-core';
 import { getField } from './util/actions';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import OutputTest from './component/output-test.vue';
 describe('output', () => {
   it('赋值', async () => {

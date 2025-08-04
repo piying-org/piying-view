@@ -5,7 +5,7 @@ import { createComponent } from './util/create-component';
 import { nextTick, shallowRef, type ComputedRef } from 'vue';
 import InputsTest from './component/inputs-test.vue';
 import { getField } from './util/actions';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import { NFCSchema, setComponent, setWrappers } from '@piying/view-core';
 import Wrapper1 from './component/wrapper1.vue';
 import Wrapper2 from './component/wrapper2.vue';

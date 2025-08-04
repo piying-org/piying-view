@@ -4,10 +4,10 @@ import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 import { nextTick, shallowRef } from 'vue';
 import InputsTest from './component/inputs-test.vue';
-import { rawConfig } from '../formly/action';
+import { rawConfig } from '../action';
 import { NFCSchema } from '@piying/view-core';
 import { getField } from './util/actions';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import { delay } from './util/delay';
 
 describe('inputs', () => {

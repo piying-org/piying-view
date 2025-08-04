@@ -1,7 +1,4 @@
-import type {
-  ConfigMergeStrategyObject,
-  ReactSchemaHandle,
-} from '../schema-handle';
+import type { ReactSchemaHandle } from '../schema-handle';
 import type {
   ConfigMergeStrategy,
   CoreResolvedComponentDefine,
@@ -71,3 +68,7 @@ export interface PiViewConfig {
   /** merge 数组/对象会合并 replace 优先自身/组件/全局 */
   defaultConfigMergeStrategy?: ConfigMergeStrategy | ConfigMergeStrategyObject;
 }
+export type ConfigMergeStrategyObject = Record<
+  keyof PiDefaultRawViewFieldConfig,
+  ConfigMergeStrategy
+>;

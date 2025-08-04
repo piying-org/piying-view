@@ -5,7 +5,7 @@ import { createComponent } from './util/create-component';
 import { shallowRef } from 'vue';
 import InputsTest from './component/inputs-test.vue';
 import { getField } from './util/actions';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import { NFCSchema, setComponent } from '@piying/view-core';
 
 describe('no-form-control', () => {

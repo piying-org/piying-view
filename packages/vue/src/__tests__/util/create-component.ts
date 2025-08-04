@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils';
-import PiView from '../../formly/piying-view.vue';
+import PiView from '../../piying-view.vue';
 import type { BaseSchema, SchemaWithPipe } from 'valibot';
-import type { PiViewConfig } from '../../formly/type/group';
+import type { PiViewConfig } from '../../type/group';
 import { computed, markRaw, nextTick, type ShallowRef } from 'vue';
 import PiInput from '../component/input.vue';
 import BlockWrapper from '../component/block-wrapper.vue';
-import PiGroup from '../../formly/component/group.vue';
+import PiGroup from '../../component/group.vue';
 import PiInputNumber from '../component/input-number.vue';
 import PiInputCheckbox from '../component/input-checkbox.vue';
 import PiInputSelect from '../component/input-select.vue';
@@ -56,7 +56,7 @@ export async function createComponent(
     },
   }));
   // todo 渲染组件测试?
-  // let xx = render(PiFormly, {
+  // let xx = render(PiView, {
   //   props: {
   //     schema: schema,
   //     options: options.value,

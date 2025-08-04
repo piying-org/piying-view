@@ -4,7 +4,7 @@ import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 import { nextTick, shallowRef } from 'vue';
 import { getField } from './util/actions';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import { NFCSchema, setAttributes, setComponent, setInputs } from '@piying/view-core';
 import EmptyCmp from './component/empty-cmp.vue';
 import { delay } from './util/delay';

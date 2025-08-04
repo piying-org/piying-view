@@ -6,7 +6,7 @@ import { shallowRef } from 'vue';
 import { nextTick } from 'vue';
 import { delay } from './util/delay';
 import { getField } from './util/actions';
-import type { PiResolvedViewFieldConfig } from '../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 
 describe('输入参数变化', () => {
   it('string变number', async () => {

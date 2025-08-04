@@ -4,7 +4,7 @@ import * as v from 'valibot';
 import CInput from './input.vue';
 import { PiyingView } from '../../index';
 import { getField } from '../util/actions';
-import type { PiResolvedViewFieldConfig } from '../../formly/type/group';
+import type { PiResolvedViewFieldConfig } from '../../type/group';
 const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
 
 const props = defineProps<{
