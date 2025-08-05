@@ -1,5 +1,34 @@
 {
   "name": "@piying/view-angular",
+  "homepage": "https://piying-org.github.io/website/docs/client/intro",
+  "repository": {
+    "url": "https://github.com/piying-org/piying-view"
+  },
+  "bugs": {
+    "url": "https://github.com/piying-org/piying-view/issues"
+  },
+  "author": {
+    "name": "wszgrcy",
+    "url": "https://github.com/wszgrcy",
+    "email": "wszgrcy@gmail.com"
+  },
+  "keywords": [
+    "React",
+    "Vue",
+    "React",
+    "form",
+    "valibot",
+    "validation",
+    "validator",
+    "layout",
+    "listen",
+    "field",
+    "control",
+    "group",
+    "array",
+    "control",
+    "metadata"
+  ],
   "version": "0.0.0-PLACEHOLDER",
   "peerDependencies": {
     "valibot": "^1.1.0"

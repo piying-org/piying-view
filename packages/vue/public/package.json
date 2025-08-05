@@ -2,6 +2,35 @@
   "name": "@piying/view-vue",
   "version": "0.0.0-PLACEHOLDER",
   "type": "module",
+  "homepage": "https://piying-org.github.io/website/docs/client/intro",
+  "repository": {
+    "url": "https://github.com/piying-org/piying-view"
+  },
+  "bugs": {
+    "url": "https://github.com/piying-org/piying-view/issues"
+  },
+  "author": {
+    "name": "wszgrcy",
+    "url": "https://github.com/wszgrcy",
+    "email": "wszgrcy@gmail.com"
+  },
+  "keywords": [
+    "Vue",
+    "Vue 3",
+    "VueJs",
+    "form",
+    "valibot",
+    "validation",
+    "validator",
+    "layout",
+    "listen",
+    "field",
+    "control",
+    "group",
+    "array",
+    "control",
+    "metadata"
+  ],
   "dependencies": {
     "@piying/view-core": "^0.6.31",
     "fast-equals": "^5.2.2",

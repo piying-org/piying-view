@@ -1,6 +1,34 @@
 {
   "name": "@piying/view-angular-core",
   "version": "0.0.0-PLACEHOLDER",
+  "homepage": "https://piying-org.github.io/website/docs/client/intro",
+  "repository": {
+    "url": "https://github.com/piying-org/piying-view"
+  },
+  "bugs": {
+    "url": "https://github.com/piying-org/piying-view/issues"
+  },
+  "author": {
+    "name": "wszgrcy",
+    "url": "https://github.com/wszgrcy",
+    "email": "wszgrcy@gmail.com"
+  },
+  "keywords": [
+    "Angular",
+    "Angular 20",
+    "form",
+    "valibot",
+    "validation",
+    "validator",
+    "layout",
+    "listen",
+    "field",
+    "control",
+    "group",
+    "array",
+    "control",
+    "metadata"
+  ],
   "peerDependencies": {
     "valibot": "^1.1.0"
   },
