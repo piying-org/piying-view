@@ -1,8 +1,12 @@
 {
   "name": "@piying/view-angular",
+  "version": "0.0.0-PLACEHOLDER",
+  "description": "Piying view For Angular;Valibot to Component",
   "homepage": "https://piying-org.github.io/website/docs/client/intro",
   "repository": {
-    "url": "https://github.com/piying-org/piying-view"
+    "url": "https://github.com/piying-org/piying-view",
+    "directory": "projects/view-angular",
+    "type": "git"
   },
   "bugs": {
     "url": "https://github.com/piying-org/piying-view/issues"
@@ -29,7 +33,7 @@
     "control",
     "metadata"
   ],
-  "version": "0.0.0-PLACEHOLDER",
+  "license": "MIT",
   "peerDependencies": {
     "valibot": "^1.1.0"
   },

@@ -10,5 +10,8 @@
     "rfdc",
     "fast-equals",
     "clsx"
+  ],
+  "assets": [
+    "./readme.md"
   ]
 }

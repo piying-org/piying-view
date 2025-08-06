@@ -1,11 +1,12 @@
-## website
-- https://piying-org.github.io/website/
+## document
+- https://piying-org.github.io/website/docs/client/intro
 
 ## start
 - npm i 
 - npm run create-view-core
 
 ## test
+- npx playwright install
 - npm run test:all
 
 ### test Core/Angular

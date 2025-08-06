@@ -1,10 +1,13 @@
 {
   "name": "@piying/view-vue",
   "version": "0.0.0-PLACEHOLDER",
+  "description": "Piying view For Vue;Valibot to Component",
   "type": "module",
   "homepage": "https://piying-org.github.io/website/docs/client/intro",
   "repository": {
-    "url": "https://github.com/piying-org/piying-view"
+    "url": "https://github.com/piying-org/piying-view",
+    "directory": "packages/vue",
+    "type": "git"
   },
   "bugs": {
     "url": "https://github.com/piying-org/piying-view/issues"
@@ -31,6 +34,7 @@
     "control",
     "metadata"
   ],
+  "license": "MIT",
   "dependencies": {
     "@piying/view-core": "^0.6.31",
     "fast-equals": "^5.2.2",
