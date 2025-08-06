@@ -13,7 +13,7 @@
     "coverage": "ng test test-view-angular --no-watch --code-coverage",
     "lint": "eslint --fix ./projects && prettier ./projects --write && npm run lint -ws --if-present",
     "publish-only": "tsx ./script/change-version.ts && tsx ./script/publish.ts",
-    "changeLog": "conventional-changelog -p angular -i CHANGELOG.md -r 0"
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -r 0"
   },
   "private": true,
   "workspaces": [
