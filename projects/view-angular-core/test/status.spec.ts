@@ -95,6 +95,12 @@ describe('status', () => {
     expect(statusList.includes('dirty')).toBeTruthy();
     expect(resolved.form.control?.pristine).toBe(false);
   });
+  it('disabled', async () => {
+    const k1Schema = v.pipe(v.string(), formConfig({ disabled: true }));
+    const resolved = createBuilder(k1Schema);
+    let statusList = controlStatusList(resolved.form.control);
+    expect(statusList.includes('disabled')).toBeTrue();
+  });
   it('校验异常清空', async () => {
     const k1Schema = v.pipe(
       v.number(),
@@ -144,6 +150,8 @@ describe('status', () => {
     resolved.form.control?.updateValue({ k1: '1', k2: '2' });
     const status = resolved.form.control?.status$$();
     expect(status).toEqual(PENDING);
+    let list = controlStatusList(resolved.form.control);
+    expect(list.includes('pending')).toBeTrue();
   });
 
   it('touch all', async () => {
@@ -173,5 +181,8 @@ describe('status', () => {
     const resolved = createBuilder(k1Schema);
     resolved.form.control?.disable();
     expect(resolved.form.control?.status$$()).toEqual(VALID);
+  });
+  it('empty', async () => {
+    expect(controlStatusList(undefined)).toEqual([]);
   });
 });

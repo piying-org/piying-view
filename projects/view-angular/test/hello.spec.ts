@@ -5,6 +5,7 @@ import { htmlInput } from './util/input';
 import * as v from 'valibot';
 import {
   componentClass,
+  controlStatusList,
   NFCSchema,
   setInputs,
   setOutputs,
@@ -586,6 +587,8 @@ describe('初始化', () => {
     htmlBlur(inputEl);
     await fixture.whenStable();
     fixture.detectChanges();
+    let list = controlStatusList(field.form.control);
+    expect(list.includes('touched')).toBeTrue();
     expect(field.form.control?.touched).toEqual(true);
     field.form.control!.markAsUntouched();
     expect(field.form.control?.touched).toEqual(false);
