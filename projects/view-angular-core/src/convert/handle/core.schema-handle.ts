@@ -31,7 +31,7 @@ import {
   HookConfig,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
-import { QueryPath } from '../../util';
+import { KeyPath, QueryPath } from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
 
 export class CoreSchemaHandle<
@@ -43,7 +43,7 @@ export class CoreSchemaHandle<
   wrappers?: CoreRawWrapperConfig[];
   attributes?: Record<string, any>;
   alias?: string;
-  movePath?: QueryPath;
+  movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;
   /** todo 非表单应该可选 */
   formConfig: FieldFormConfig = {};

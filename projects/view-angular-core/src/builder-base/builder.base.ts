@@ -47,6 +47,7 @@ import {
   clone,
   QueryPath,
   toArray,
+  KeyPath,
 } from '../util';
 
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
@@ -477,7 +478,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   ): WritableSignal<UnWrapSignal<NonNullable<T>>> {
     return signal(this.configMergeRaw(list, isArray, strategy));
   }
-  #moveViewField(key: QueryPath, inputField: _PiResolvedCommonViewFieldConfig) {
+  #moveViewField(key: KeyPath, inputField: _PiResolvedCommonViewFieldConfig) {
     const parent = fieldQuery(
       key,
       inputField,

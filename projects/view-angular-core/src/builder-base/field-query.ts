@@ -1,4 +1,4 @@
-import { QueryPath, ArraryIterable, arrayStartsWith } from '../util';
+import { QueryPath, ArraryIterable, arrayStartsWith, KeyPath } from '../util';
 import {
   _PiResolvedCommonViewFieldConfig,
   PiResolvedCommonViewFieldConfig,
@@ -6,16 +6,11 @@ import {
 import { groupGenerator } from './util/group-flat';
 
 export function fieldQuery(
-  key: QueryPath,
+  keyPath: KeyPath,
   field: PiResolvedCommonViewFieldConfig<any, any>,
   aliasMap: Map<string, PiResolvedCommonViewFieldConfig<any, any>>,
   root: PiResolvedCommonViewFieldConfig<any, any>,
 ) {
-  const keyPath = Array.isArray(key)
-    ? key
-    : typeof key === 'number'
-      ? [key]
-      : key.split('.');
   const firstPath = keyPath[0];
   let list:
     | ArraryIterable<{
