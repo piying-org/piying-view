@@ -101,6 +101,7 @@ describe('禁用操作', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await fields$.promise;
+    expect(field.form.control!.enabled).toEqual(true);
     field.form.control!.disable();
     await fixture.whenStable();
     fixture.detectChanges();

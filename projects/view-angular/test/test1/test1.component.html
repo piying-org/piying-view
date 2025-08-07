@@ -7,4 +7,5 @@
   [ngModel]="value()"
   (ngModelChange)="valueChange($event)"
   [disabled]="disabled$()"
+  (blur)="touched()"
 />

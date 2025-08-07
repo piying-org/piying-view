@@ -30,9 +30,6 @@ export interface AsyncValidatorFn {
     | Promise<ValidationErrors | undefined>
     | Observable<ValidationErrors | undefined>;
 }
-function shortCircuitFalse(value: boolean): boolean {
-  return !value;
-}
 
 function shortCircuitTrue(value: boolean): boolean {
   return value;
@@ -67,7 +64,6 @@ export abstract class AbstractControl<TValue = any> {
   abstract children$$?: Signal<AbstractControl[]>;
   /** disabled */
   readonly selfDisabled$$ = computed(() => this.config$?.().disabled ?? false);
-  readonly selfEnabled$$ = computed(() => !this.selfDisabled$$());
   /** `self` || `parent` */
   readonly disabled$$: Signal<boolean> = computed(
     () => (this.parent?.disabled$$() || this.selfDisabled$$()) ?? false,
@@ -268,18 +264,22 @@ export abstract class AbstractControl<TValue = any> {
 
   markAllAsDirty(): void {
     this.markAsDirty();
+    this._forEachChild((control) => control.markAllAsDirty());
+  }
 
-    this._forEachChild((control: AbstractControl) => control.markAllAsDirty());
+  markAllAsPristine(): void {
+    this.markAsPristine();
+    this._forEachChild((control) => control.markAllAsPristine());
   }
 
   markAllAsTouched(): void {
     this.markAsTouched();
-
-    this._forEachChild((control: AbstractControl) =>
-      control.markAllAsTouched(),
-    );
+    this._forEachChild((control) => control.markAllAsTouched());
   }
-
+  markAllAsUntouched(): void {
+    this.markAsUntouched();
+    this._forEachChild((control) => control.markAllAsUntouched());
+  }
   markAsUntouched(): void {
     this.selfTouched$.set(false);
   }

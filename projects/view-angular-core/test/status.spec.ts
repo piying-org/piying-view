@@ -145,4 +145,33 @@ describe('status', () => {
     const status = resolved.form.control?.status$$();
     expect(status).toEqual(PENDING);
   });
+
+  it('touch all', async () => {
+    const k1Schema = v.pipe(v.object({ k1: v.string() }));
+    const resolved = createBuilder(k1Schema);
+    expect(resolved.form.control?.untouched).toEqual(true);
+    resolved.form.control?.markAllAsTouched();
+    expect(resolved.form.control?.touched).toEqual(true);
+    expect(resolved.fieldGroup!()[0].form.control?.touched).toEqual(true);
+    resolved.form.control?.markAllAsUntouched();
+    expect(resolved.form.control?.touched).toEqual(false);
+    expect(resolved.fieldGroup!()[0].form.control?.touched).toEqual(false);
+  });
+  it('dirty all', async () => {
+    const k1Schema = v.pipe(v.object({ k1: v.string() }));
+    const resolved = createBuilder(k1Schema);
+    expect(resolved.form.control?.pristine).toEqual(true);
+    resolved.form.control?.markAllAsDirty();
+    expect(resolved.form.control?.pristine).toEqual(false);
+    expect(resolved.fieldGroup!()[0].form.control?.pristine).toEqual(false);
+    resolved.form.control?.markAllAsPristine();
+    expect(resolved.form.control?.pristine).toEqual(true);
+    expect(resolved.fieldGroup!()[0].form.control?.pristine).toEqual(true);
+  });
+  it('disable', async () => {
+    const k1Schema = v.string();
+    const resolved = createBuilder(k1Schema);
+    resolved.form.control?.disable();
+    expect(resolved.form.control?.status$$()).toEqual(VALID);
+  });
 });

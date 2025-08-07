@@ -56,7 +56,10 @@ export class Test1Component implements ControlValueAccessor {
   registerOnChange(fn: any): void {
     this.fn = fn;
   }
-  registerOnTouched(fn: any): void {}
+  touched: any;
+  registerOnTouched(fn: any): void {
+    this.touched = fn;
+  }
   valueChange(value: string) {
     this.output1.emit(value);
     this.output2.emit(value);

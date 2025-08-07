@@ -15,6 +15,9 @@ import {
   formConfig,
   renderConfig,
 } from '@piying/view-angular-core';
+import { PiResolvedViewFieldConfig } from '../lib/type';
+import { getField } from './util/action';
+import { htmlBlur } from './util/touch';
 
 describe('初始化', () => {
   it('存在', async () => {
@@ -562,5 +565,31 @@ describe('初始化', () => {
     fixture.detectChanges();
     value = instance.form$().value$$();
     expect(value).toBe('value2');
+  });
+  it('touch item', async () => {
+    const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const define = v.pipe(
+      v.string(),
+      setComponent(Test1Component),
+      getField(fields$),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    let field = await fields$.promise;
+
+    expect(field.form.control?.untouched).toEqual(true);
+    const inputEl = element.querySelector('input')!;
+    htmlBlur(inputEl);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control?.touched).toEqual(true);
+    field.form.control!.markAsUntouched();
+    expect(field.form.control?.touched).toEqual(false);
+    field.form.control!.markAsTouched();
+    expect(field.form.control?.touched).toEqual(true);
   });
 });
