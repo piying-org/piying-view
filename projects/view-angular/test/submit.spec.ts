@@ -11,6 +11,7 @@ import {
   assertFieldLogicGroup,
 } from '@piying/view-angular-core/test';
 import { htmlInput } from './util/input';
+import { htmlBlur } from './util/touch';
 
 describe('submit', () => {
   it('control', async () => {
@@ -30,13 +31,16 @@ describe('submit', () => {
     fixture.detectChanges();
     const field = await field$.promise;
     assertFieldControl(field.form.control);
-    const inputEl = element.querySelector('input');
+    const inputEl = element.querySelector('input')!;
     htmlInput(inputEl as any, '1234');
+    htmlBlur(inputEl);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control.value).toEqual(undefined);
+    expect(field.form.control.touched).toBeFalse()
     field.form.control.emitSubmit();
     expect(field.form.control.value).toEqual('1234');
+    expect(field.form.control.touched).toBeTrue()
   });
   it('in group', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
