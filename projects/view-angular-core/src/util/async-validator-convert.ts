@@ -36,8 +36,6 @@ export function asyncValidatorToSignal(input: any) {
   } else if (isObservable(input)) {
     return observableToSignal(input);
   } else {
-    return computed(() => {
-      return { value: input() };
-    });
+    return computed(() => ({ value: input() }));
   }
 }

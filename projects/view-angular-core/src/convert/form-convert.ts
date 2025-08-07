@@ -46,7 +46,7 @@ export function convert<
       },
       {
         provide: PI_VIEW_CONFIG_TOKEN,
-        useValue: options.fieldGlobalConfig ,
+        useValue: options.fieldGlobalConfig,
       },
       {
         provide: PI_CONTEXT_TOKEN,

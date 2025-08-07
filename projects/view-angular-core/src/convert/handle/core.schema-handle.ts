@@ -31,7 +31,7 @@ import {
   HookConfig,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
-import { KeyPath, QueryPath } from '../../util';
+import { KeyPath } from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
 
 export class CoreSchemaHandle<

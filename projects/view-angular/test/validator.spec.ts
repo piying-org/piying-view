@@ -115,17 +115,13 @@ describe('验证', () => {
     expect(field.form.control?.valid).toEqual(true);
   });
   it('异步验证-signal', async () => {
-    let testSignal = signal({ value: '1' });
+    const testSignal = signal({ value: '1' });
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({
       v1: v.pipe(
         v.number(),
         formConfig({
-          asyncValidators: [
-            (control) => {
-              return testSignal;
-            },
-          ],
+          asyncValidators: [(control) => testSignal],
         }),
         getField(field$),
       ),

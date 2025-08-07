@@ -52,7 +52,7 @@ describe('wrapper', () => {
         position: 'head',
       }),
     );
-    let result = createBuilder(k1Schema, { wrappers: ['w1', 'w2'] });
+    const result = createBuilder(k1Schema, { wrappers: ['w1', 'w2'] });
 
     expect(result.wrappers().map((item) => ({ type: item.type }))).toEqual([
       { type: 'w1' },
@@ -61,7 +61,7 @@ describe('wrapper', () => {
   });
   it('remove', async () => {
     const k1Schema = v.pipe(v.string(), removeWrappers(['w1']));
-    let result = createBuilder(k1Schema);
+    const result = createBuilder(k1Schema);
     expect(result.wrappers().map((item) => ({ type: item.type }))).toEqual([]);
   });
 });

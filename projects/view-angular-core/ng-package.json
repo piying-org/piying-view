@@ -11,7 +11,5 @@
     "fast-equals",
     "clsx"
   ],
-  "assets": [
-    "./readme.md"
-  ]
+  "assets": ["./readme.md"]
 }

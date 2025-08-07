@@ -160,7 +160,7 @@ describe('指令', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let ngControl = await ngControl$.promise;
+    const ngControl = await ngControl$.promise;
     expect(ngControl.value).toEqual('d1');
     expect(ngControl.valid).toBeTrue();
     expect(ngControl.invalid).toBeFalse();

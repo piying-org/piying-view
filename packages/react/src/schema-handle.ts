@@ -1,4 +1,4 @@
-import { CoreSchemaHandle} from '@piying/view-core';
+import { CoreSchemaHandle } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from './type/group';
 
 export class ReactSchemaHandle extends CoreSchemaHandle<
@@ -9,6 +9,3 @@ export class ReactSchemaHandle extends CoreSchemaHandle<
 
   // contents?: any[];
 }
-
-
-

@@ -1,4 +1,4 @@
-import { QueryPath, ArraryIterable, arrayStartsWith, KeyPath } from '../util';
+import { ArraryIterable, arrayStartsWith, KeyPath } from '../util';
 import {
   _PiResolvedCommonViewFieldConfig,
   PiResolvedCommonViewFieldConfig,
@@ -24,7 +24,7 @@ export function fieldQuery(
   } else if (firstPath === '..') {
     list = [{ field: field.parent!, level: 1 }];
   } else if (typeof firstPath === 'string' && firstPath.startsWith('@')) {
-    let queryField = aliasMap.get(firstPath.slice(1));
+    const queryField = aliasMap.get(firstPath.slice(1));
     list = [{ field: queryField!, level: 1 }];
   } else if (field.fieldGroup) {
     list = groupGenerator(field.fieldGroup())

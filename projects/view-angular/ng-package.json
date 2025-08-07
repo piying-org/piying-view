@@ -5,10 +5,6 @@
   },
   "deleteDestPath": true,
   "dest": "../../dist/view-angular",
-  "allowedNonPeerDependencies": [
-    "@piying/view-angular"
-  ],
-  "assets": [
-    "./readme.md"
-  ]
+  "allowedNonPeerDependencies": ["@piying/view-angular"],
+  "assets": ["./readme.md"]
 }

@@ -37,10 +37,10 @@ describe('submit', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control.value).toEqual(undefined);
-    expect(field.form.control.touched).toBeFalse()
+    expect(field.form.control.touched).toBeFalse();
     field.form.control.emitSubmit();
     expect(field.form.control.value).toEqual('1234');
-    expect(field.form.control.touched).toBeTrue()
+    expect(field.form.control.touched).toBeTrue();
   });
   it('in group', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

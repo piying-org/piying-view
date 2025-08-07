@@ -103,9 +103,9 @@ describe('array', () => {
     assertFieldArray(result.form.control);
     result.form.control!.updateValue(['v1', 'v2']);
     expect(result.form.control.value).toEqual(['v1', 'v2']);
-    result.form.control.clear()
+    result.form.control.clear();
     expect(result.form.control.controls).toEqual([]);
-    result.form.control.clear()
+    result.form.control.clear();
     expect(result.form.control.controls).toEqual([]);
   });
 });

@@ -43,7 +43,7 @@ describe('field', () => {
     const result = createBuilder(obj);
     expect(result.fieldArray).toBeFalsy();
     expect(result.fieldGroup).toBeFalsy();
-    let field = await field$.promise;
+    const field = await field$.promise;
     expect(field.form.root).toBe(result.form.control!);
     // expect(result.type).toBe('string');
     assertFieldControl(result.form.control);
@@ -67,7 +67,7 @@ describe('field', () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
     const obj = v.object({ t1: v.pipe(v.string(), getField(field$)) });
     const result = createBuilder(obj);
-    let field = await field$.promise;
+    const field = await field$.promise;
     expect(field.form.control?.root).toBe(result.form.control);
   });
   it('getRawValue group', async () => {

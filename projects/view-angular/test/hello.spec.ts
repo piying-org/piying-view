@@ -581,7 +581,7 @@ describe('初始化', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = await fields$.promise;
+    const field = await fields$.promise;
 
     expect(field.form.control?.untouched).toEqual(true);
     const inputEl = element.querySelector('input')!;
@@ -595,7 +595,7 @@ describe('初始化', () => {
     fixture.detectChanges();
     expect(field.form.control?.value).toEqual('1234');
 
-    let list = controlStatusList(field.form.control);
+    const list = controlStatusList(field.form.control);
     expect(list.includes('touched')).toBeTrue();
     expect(field.form.control?.touched).toEqual(true);
     field.form.control!.markAsUntouched();

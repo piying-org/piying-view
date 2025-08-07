@@ -1,4 +1,4 @@
-import { Directive, inject, input, output } from '@angular/core';
+import { Directive, inject, output } from '@angular/core';
 import { FieldControlDirective } from '../../lib/directives/field-control-directive';
 
 @Directive({

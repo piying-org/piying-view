@@ -1,4 +1,4 @@
-import { CoreSchemaHandle, type ConfigMergeStrategy } from '@piying/view-core';
+import { CoreSchemaHandle } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from './type/group';
 
 export class VueSchemaHandle extends CoreSchemaHandle<
@@ -9,5 +9,3 @@ export class VueSchemaHandle extends CoreSchemaHandle<
 
   contents?: any[];
 }
-
-

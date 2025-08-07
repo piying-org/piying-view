@@ -45,7 +45,6 @@ import {
   SignalInputValue,
   UnWrapSignal,
   clone,
-  QueryPath,
   toArray,
   KeyPath,
 } from '../util';
