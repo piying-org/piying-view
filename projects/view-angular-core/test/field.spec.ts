@@ -63,4 +63,11 @@ describe('field', () => {
     const result = createBuilder(obj, { context: { value: 1 } });
     expect(result.form.control!.context.value).toEqual(1);
   });
+  it('get root', async () => {
+    const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.object({ t1: v.pipe(v.string(), getField(field$)) });
+    const result = createBuilder(obj);
+    let field = await field$.promise;
+    expect(field.form.control?.root).toBe(result.form.control);
+  });
 });
