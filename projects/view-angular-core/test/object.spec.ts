@@ -277,4 +277,17 @@ describe('对象', () => {
     expect(result.form.control?.value$$()).toEqual({ k1: '3' });
     expect(index).toEqual(2);
   });
+
+  it('reset', () => {
+    const obj = v.object({
+      key1: v.optional(v.string(), '1'),
+      key2: v.string(),
+    });
+    const list = createBuilder(obj);
+    list.form.root.updateValue({ key1: '2' });
+
+    expect(list.form.root.value).toEqual({ key1: '2' });
+    list.form.root.reset();
+    expect(list.form.root.value).toEqual({ key1: '1' });
+  });
 });
