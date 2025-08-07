@@ -4,7 +4,7 @@ import {
   type AbstractControl,
   type ValidationErrors,
 } from '@angular/forms';
-import { FieldControl } from '@piying/view-angular-core';
+import { FieldControl, PENDING } from '@piying/view-angular-core';
 
 export type InteropSharedKeys =
   | 'value'
@@ -39,7 +39,7 @@ export class InteropNgControl extends NgControl {
   }
 
   override get pending(): boolean | null {
-    return false;
+    return this.field().status$$() === PENDING;
   }
 
   override get disabled(): boolean {
@@ -56,11 +56,11 @@ export class InteropNgControl extends NgControl {
   }
 
   override get pristine(): boolean {
-    return true;
+    return this.field().pristine;
   }
 
   override get dirty(): boolean {
-    return false;
+    return this.field().dirty;
   }
 
   override get touched(): boolean {

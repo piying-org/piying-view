@@ -11,6 +11,10 @@ import {
   setDirectives,
 } from '../lib/schema/action/directive';
 import { BehaviorSubject } from 'rxjs';
+import { TestNgControlDirective } from './directive/test-ng-control.directive';
+import { Test1Component } from './test1/test1.component';
+import { InteropNgControl } from '../lib/directives/interop_ng_control';
+import { Validators } from '@angular/forms';
 describe('指令', () => {
   it('自定义指令', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -132,5 +136,44 @@ describe('指令', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('#setId')).toBeTruthy();
+  });
+  it('test ngControl', async () => {
+    const ngControl$ = Promise.withResolvers<InteropNgControl>();
+
+    const define = v.pipe(
+      v.string(),
+      setComponent(Test1Component),
+      setDirectives([
+        {
+          type: TestNgControlDirective,
+          outputs: {
+            dataChange: (event: any) => {
+              ngControl$.resolve(event);
+            },
+          },
+        },
+      ]),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    let ngControl = await ngControl$.promise;
+    expect(ngControl.value).toEqual('d1');
+    expect(ngControl.valid).toBeTrue();
+    expect(ngControl.invalid).toBeFalse();
+    expect(ngControl.pending).toBeFalse();
+    expect(ngControl.disabled).toBeFalse();
+    expect(ngControl.enabled).toBeTrue();
+    expect(ngControl.errors).toEqual(null);
+    expect(ngControl.pristine).toBeTrue();
+    expect(ngControl.dirty).toBeFalse();
+    expect(ngControl.touched).toBeFalse();
+    expect(ngControl.untouched).toBeTrue();
+    expect(ngControl.statusChanges).toBeTruthy();
+    expect(ngControl.hasValidator(Validators.required)).toBeTrue();
+    expect(ngControl.hasValidator(1)).toBeFalse();
   });
 });
