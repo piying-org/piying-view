@@ -1,6 +1,8 @@
 import { EnvironmentInjector, Injectable, Injector } from '@angular/core';
 import {
   _PiResolvedCommonViewFieldConfig,
+  ConfigMergeStrategy,
+  DefaultConfigKey,
   FormBuilder,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
@@ -13,8 +15,9 @@ export function createBuilder(
     context?: any;
     handle?: any;
     environments?: string[];
-    types?: string[];
-    wrappers?: string[];
+    types?: string[] | Record<string, any>;
+    wrappers?: string[] | Record<string, any>;
+    defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
   },
 ) {
   const injector = Injector.create({
@@ -51,17 +54,22 @@ export function createBuilder(
         any: {} as any,
         custom: {} as any,
         union: {} as any,
-        ...options?.types?.reduce((obj, name) => {
-          obj[name] = { type: name };
-          return obj;
-        }, {} as any),
+        ...(Array.isArray(options?.types)
+          ? options?.types?.reduce((obj, name) => {
+              obj[name] = { type: name };
+              return obj;
+            }, {} as any)
+          : (options?.types ?? {})),
       },
       wrappers: {
-        ...options?.wrappers?.reduce((obj, name) => {
-          obj[name] = { type: name };
-          return obj;
-        }, {} as any),
+        ...(Array.isArray(options?.wrappers)
+          ? options?.wrappers?.reduce((obj, name) => {
+              obj[name] = { type: name };
+              return obj;
+            }, {} as any)
+          : (options?.wrappers ?? {})),
       },
+      defaultConfigMergeStrategy: options?.defaultConfigMergeStrategy,
     },
   });
   return result as _PiResolvedCommonViewFieldConfig;

@@ -410,7 +410,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     if (typeof type === 'string') {
       const config = this.#globalConfig?.types?.[type];
       if (!config) {
-        throw new Error(`define:未注册[${type}]`);
+        throw new Error(`🈳define:[${type}]❗`);
       }
       defaultConfig = config;
       if (Object.keys(config).length) {
@@ -488,12 +488,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     if (!parent) {
       throw new Error('移动视图项失败');
     }
-    const index = inputField.parent
-      .fieldGroup?.()
-      .findIndex((item) => item === inputField);
-    if (typeof index === 'number' && index !== -1) {
-      inputField.parent.fieldGroup?.().splice(index, 1);
-    }
     const newKeyPath = inputField.fullPath.slice(parent.fullPath.length);
     (inputField as any).keyPath = newKeyPath;
     inputField.parent = parent as any;
@@ -507,7 +501,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       if (typeof wrapper === 'string') {
         const config = this.#globalConfig?.wrappers?.[wrapper];
         if (!config) {
-          throw new Error(`wrapper:未注册[${wrapper}]`);
+          throw new Error(`🈳wrapper:[${wrapper}]❗`);
         }
         return {
           ...config,
@@ -518,7 +512,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         // 查引用2
         const config = this.#globalConfig?.wrappers?.[wrapper.type];
         if (!config) {
-          throw new Error(`wrapper:未注册[${wrapper.type}]`);
+          throw new Error(`🈳wrapper:[${wrapper.type}]❗`);
         }
         return {
           inputs: signal({ ...config.inputs, ...wrapper.inputs }),
