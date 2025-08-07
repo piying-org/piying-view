@@ -114,6 +114,32 @@ describe('验证', () => {
     expect(instance.model$()).toEqual({ v1: 2 });
     expect(field.form.control?.valid).toEqual(true);
   });
+  it('异步验证-signal', async () => {
+    let testSignal = signal({ value: '1' });
+    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const define = v.object({
+      v1: v.pipe(
+        v.number(),
+        formConfig({
+          asyncValidators: [
+            (control) => {
+              return testSignal;
+            },
+          ],
+        }),
+        getField(field$),
+      ),
+    });
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal({ v1: 0 }),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = await field$.promise;
+    expect(field.form.control?.valid).toEqual(false);
+    expect(field.form.control?.errors).toEqual({ value: '1' });
+  });
   it('同步验证', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({

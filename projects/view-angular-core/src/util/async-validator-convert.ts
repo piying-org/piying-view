@@ -1,7 +1,6 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { isObservable, Observable } from 'rxjs';
 import { isPromise } from '../convert/util/is-promise';
-import { Signal } from 'static-injector';
 export const ValidatorPending = Symbol('PENDING');
 export type AsyncValidatorEvent =
   | {
@@ -37,6 +36,8 @@ export function asyncValidatorToSignal(input: any) {
   } else if (isObservable(input)) {
     return observableToSignal(input);
   } else {
-    return input as Signal<AsyncValidatorEvent>;
+    return computed(() => {
+      return { value: input() };
+    });
   }
 }

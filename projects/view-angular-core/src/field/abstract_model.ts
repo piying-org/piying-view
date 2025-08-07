@@ -28,7 +28,8 @@ export interface AsyncValidatorFn {
     control: AbstractControl,
   ):
     | Promise<ValidationErrors | undefined>
-    | Observable<ValidationErrors | undefined>;
+    | Observable<ValidationErrors | undefined>
+    | Signal<ValidationErrors | undefined>;
 }
 
 function shortCircuitTrue(value: boolean): boolean {
