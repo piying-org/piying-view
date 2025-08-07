@@ -4,7 +4,12 @@ import * as v from 'valibot';
 import { getField } from './util/action';
 import { createSchemaComponent } from './util/create-component';
 import { formConfig, setComponent } from '@piying/view-angular-core';
-import { assertFieldControl } from '@piying/view-angular-core/test';
+import {
+  assertFieldArray,
+  assertFieldControl,
+  assertFieldGroup,
+  assertFieldLogicGroup,
+} from '@piying/view-angular-core/test';
 import { htmlInput } from './util/input';
 
 describe('submit', () => {
@@ -35,14 +40,17 @@ describe('submit', () => {
   });
   it('in group', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const define = v.object({
-      k1: v.pipe(
-        v.string(),
-        formConfig({ updateOn: 'submit' }),
-        getField(field$),
-        setComponent('test1'),
-      ),
-    });
+    const define = v.pipe(
+      v.object({
+        k1: v.pipe(
+          v.string(),
+          formConfig({ updateOn: 'submit' }),
+
+          setComponent('test1'),
+        ),
+      }),
+      getField(field$),
+    );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
       signal(undefined),
@@ -51,27 +59,29 @@ describe('submit', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    assertFieldControl(field.form.control);
+    assertFieldGroup(field.form.control);
     const inputEl = element.querySelector('input');
     htmlInput(inputEl as any, '1234');
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control.value).toEqual(undefined);
     field.form.control.emitSubmit();
-    expect(field.form.control.value).toEqual('1234');
+    expect(field.form.control.value).toEqual({ k1: '1234' });
     await fixture.whenStable();
     fixture.detectChanges();
     expect(instance.model$()).toEqual({ k1: '1234' });
   });
   it('in array', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const define = v.array(
-      v.pipe(
-        v.string(),
-        formConfig({ updateOn: 'submit' }),
-        getField(field$),
-        setComponent('test1'),
+    const define = v.pipe(
+      v.array(
+        v.pipe(
+          v.string(),
+          formConfig({ updateOn: 'submit' }),
+          setComponent('test1'),
+        ),
       ),
+      getField(field$),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -81,15 +91,15 @@ describe('submit', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    assertFieldControl(field.form.control);
+    assertFieldArray(field.form.control);
     const inputEl = element.querySelector('input');
     htmlInput(inputEl as any, '1234');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.form.control.value).toEqual('1');
+    expect(field.form.control.value).toEqual(['1']);
     expect(field.form.control.dirty).toEqual(false);
     field.form.control.emitSubmit();
-    expect(field.form.control.value).toEqual('1234');
+    expect(field.form.control.value).toEqual(['1234']);
     expect(field.form.control.dirty).toEqual(true);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -97,16 +107,18 @@ describe('submit', () => {
   });
   it('in logicgroup', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const define = v.intersect([
-      v.object({
-        k1: v.pipe(
-          v.string(),
-          formConfig({ updateOn: 'submit' }),
-          getField(field$),
-          setComponent('test1'),
-        ),
-      }),
-    ]);
+    const define = v.pipe(
+      v.intersect([
+        v.object({
+          k1: v.pipe(
+            v.string(),
+            formConfig({ updateOn: 'submit' }),
+            setComponent('test1'),
+          ),
+        }),
+      ]),
+      getField(field$),
+    );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
       signal(undefined),
@@ -115,7 +127,7 @@ describe('submit', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    assertFieldControl(field.form.control);
+    assertFieldLogicGroup(field.form.control);
     const inputEl = element.querySelector('input');
     htmlInput(inputEl as any, '1234');
     await fixture.whenStable();
@@ -124,7 +136,7 @@ describe('submit', () => {
     expect(field.form.control.dirty).toEqual(false);
 
     field.form.control.emitSubmit();
-    expect(field.form.control.value).toEqual('1234');
+    expect(field.form.control.value).toEqual({ k1: '1234' });
     expect(field.form.control.dirty).toEqual(true);
 
     await fixture.whenStable();
