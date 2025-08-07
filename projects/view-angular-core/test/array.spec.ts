@@ -71,4 +71,41 @@ describe('array', () => {
     expect(result.form.control?.value$$()).toEqual(['3']);
     expect(index).toEqual(2);
   });
+
+  it('数组默认值添加', async () => {
+    const obj = v.pipe(
+      v.array(v.string()),
+      formConfig({ deletionMode: 'mark' }),
+    );
+    const result = createBuilder(obj);
+    result.form.control!.updateValue([0, 'v2']);
+    expect(result.form.control!.value).toEqual([undefined, 'v2']);
+  });
+  it('length', async () => {
+    const obj = v.pipe(v.array(v.string()));
+    const result = createBuilder(obj);
+    result.form.control!.updateValue(['v1', 'v2']);
+    assertFieldArray(result.form.control);
+    expect(result.form.control.length).toEqual(2);
+  });
+  it('reset', async () => {
+    const obj = v.pipe(v.array(v.string()));
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    result.form.control!.updateValue(['v1', 'v2']);
+    expect(result.form.control.value).toEqual(['v1', 'v2']);
+    result.form.control.reset(['v3', 'v4']);
+    expect(result.form.control.value).toEqual(['v3', 'v4']);
+  });
+  it('clear', async () => {
+    const obj = v.pipe(v.array(v.string()));
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    result.form.control!.updateValue(['v1', 'v2']);
+    expect(result.form.control.value).toEqual(['v1', 'v2']);
+    result.form.control.clear()
+    expect(result.form.control.controls).toEqual([]);
+    result.form.control.clear()
+    expect(result.form.control.controls).toEqual([]);
+  });
 });
