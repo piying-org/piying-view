@@ -3,6 +3,8 @@ import { createBuilder } from './util/create-builder';
 import { getField } from './util/action';
 import {
   _PiResolvedCommonViewFieldConfig,
+  patchWrappers,
+  removeWrappers,
   setWrappers,
 } from '@piying/view-angular-core';
 import { isEmpty } from './util/is-empty';
@@ -41,5 +43,25 @@ describe('wrapper', () => {
       expect(item.inputs()).toEqual({ i1: '1' });
       isEmpty(item.attributes());
     });
+  });
+  it('patch', async () => {
+    const k1Schema = v.pipe(
+      v.string(),
+      patchWrappers([{ type: 'w2' }]),
+      patchWrappers([{ type: 'w1' }], {
+        position: 'head',
+      }),
+    );
+    let result = createBuilder(k1Schema, { wrappers: ['w1', 'w2'] });
+
+    expect(result.wrappers().map((item) => ({ type: item.type }))).toEqual([
+      { type: 'w1' },
+      { type: 'w2' },
+    ]);
+  });
+  it('remove', async () => {
+    const k1Schema = v.pipe(v.string(), removeWrappers(['w1']));
+    let result = createBuilder(k1Schema);
+    expect(result.wrappers().map((item) => ({ type: item.type }))).toEqual([]);
   });
 });

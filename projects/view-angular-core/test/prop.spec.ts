@@ -4,6 +4,7 @@ import { createBuilder } from './util/create-builder';
 import {
   patchAsyncProps,
   patchProps,
+  removeProps,
   setProps,
 } from '../src/convert/action/prop';
 
@@ -49,5 +50,15 @@ describe('prop', () => {
     await wait$.promise;
     inputs = resolved.props();
     expect(inputs['value1']).toBe(1);
+  });
+  it('remove', async () => {
+    let obj = v.pipe(v.string(), removeProps(['k1']));
+    let resolved = createBuilder(obj);
+    let inputs = resolved.props();
+    expect(Object.keys(inputs).length).toEqual(0);
+    let obj2 = v.pipe(v.string(), setProps({ k1: '1' }), removeProps(['k1']));
+    resolved = createBuilder(obj2);
+    inputs = resolved.props();
+    expect(Object.keys(inputs).length).toEqual(0);
   });
 });

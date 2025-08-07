@@ -1,6 +1,11 @@
 import * as v from 'valibot';
 
-import { patchAsyncInputs, patchInputs } from '@piying/view-angular-core';
+import {
+  patchAsyncInputs,
+  patchInputs,
+  removeInputs,
+  removeOutputs,
+} from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { BehaviorSubject } from 'rxjs';
 
@@ -72,5 +77,17 @@ describe('input/output action', () => {
     expect('value1' in inputs).toBeTrue();
     inputs = resolved.inputs();
     expect(inputs['value1']).toBe(1);
+  });
+  it('remove input', async () => {
+    const obj = v.pipe(v.string(), removeInputs(['k1']));
+    const resolved = createBuilder(obj);
+    let inputs = resolved.inputs();
+    expect(Object.keys(inputs).length).toBe(0);
+  });
+  it('remove output', async () => {
+    const obj = v.pipe(v.string(), removeOutputs(['k1']));
+    const resolved = createBuilder(obj);
+    let outputs = resolved.outputs();
+    expect(Object.keys(outputs).length).toBe(0);
   });
 });
