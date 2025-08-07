@@ -573,6 +573,7 @@ describe('初始化', () => {
       v.string(),
       setComponent(Test1Component),
       getField(fields$),
+      formConfig({ updateOn: 'blur' }),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -584,9 +585,16 @@ describe('初始化', () => {
 
     expect(field.form.control?.untouched).toEqual(true);
     const inputEl = element.querySelector('input')!;
+    htmlInput(inputEl, '1234');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control?.value).toEqual('');
+
     htmlBlur(inputEl);
     await fixture.whenStable();
     fixture.detectChanges();
+    expect(field.form.control?.value).toEqual('1234');
+
     let list = controlStatusList(field.form.control);
     expect(list.includes('touched')).toBeTrue();
     expect(field.form.control?.touched).toEqual(true);
