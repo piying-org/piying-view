@@ -312,4 +312,11 @@ describe('对象相交', () => {
     expect(result.form.control?.value$$()).toEqual({ k1: '3' });
     expect(index).toEqual(2);
   });
+  it('root union', () => {
+    const obj = v.union([v.string(), v.number()]);
+    const result = createBuilder(obj);
+    expect(result.fieldGroup!().length).toBe(2);
+    assertFieldLogicGroup(result.form.control);
+    expect(result.form.control.type()).toBe('or');
+  });
 });
