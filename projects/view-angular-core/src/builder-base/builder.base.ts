@@ -234,20 +234,13 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           return rootForm();
         },
       },
-      get: (
-        keyPath: any,
-        aliasNotFoundFn?: (
-          name: string,
-          field: PiResolvedCommonViewFieldConfig<any, any>,
-        ) => PiResolvedCommonViewFieldConfig<any, any>,
-      ) =>
+      get: (keyPath: any) =>
         untracked(() =>
           fieldQuery(
             keyPath,
             resolvedConfig,
             this.#scopeMap,
             this.#options.resolvedField$(),
-            aliasNotFoundFn,
           ),
         ),
       parent: parent.field,
@@ -507,45 +500,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       inputField,
       this.#scopeMap,
       this.#options.resolvedField$(),
-      (name, field) => {
-        const rootForm = this.#options.form$$;
-        const aliasField = {
-          alias: name,
-          parent: field,
-          get fullPath() {
-            return field.fullPath;
-          },
-          form: {
-            parent: field.form.control ?? field.form.parent,
-            control: undefined,
-            get root() {
-              return rootForm();
-            },
-          },
-          get: (keyPath: any, fn: any) =>
-            fieldQuery(
-              keyPath,
-              aliasField,
-              this.#scopeMap,
-              this.#options.resolvedField$(),
-              fn,
-            ),
-          fieldGroup: signal(
-            new SortedArray<_PiResolvedCommonViewFieldConfig>(
-              (a, b) => a.priority - b.priority,
-            ) as any,
-          ),
-          priority: 0,
-          renderConfig: signal({}),
-          wrappers: signal([]),
-        } as any as _PiResolvedCommonViewFieldConfig;
-        this.#scopeMap.set(name, aliasField);
-        if (inputField === field) {
-          throw new Error(`添加位置不可为自身`);
-        }
-        field.fieldGroup!().push(aliasField);
-        return aliasField;
-      },
     );
 
     if (!parent) {

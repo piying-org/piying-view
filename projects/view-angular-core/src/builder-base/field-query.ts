@@ -10,10 +10,6 @@ export function fieldQuery(
   field: PiResolvedCommonViewFieldConfig<any, any>,
   aliasMap: Map<string, PiResolvedCommonViewFieldConfig<any, any>>,
   root: PiResolvedCommonViewFieldConfig<any, any>,
-  aliasNotFoundFn?: (
-    name: string,
-    field: PiResolvedCommonViewFieldConfig<any, any>,
-  ) => PiResolvedCommonViewFieldConfig<any, any>,
 ) {
   const keyPath = Array.isArray(key)
     ? key
@@ -34,9 +30,6 @@ export function fieldQuery(
     list = [{ field: field.parent!, level: 1 }];
   } else if (typeof firstPath === 'string' && firstPath.startsWith('@')) {
     let queryField = aliasMap.get(firstPath.slice(1));
-    if (!queryField && aliasNotFoundFn) {
-      queryField = aliasNotFoundFn(firstPath.slice(1), field);
-    }
     list = [{ field: queryField!, level: 1 }];
   } else if (field.fieldGroup) {
     list = groupGenerator(field.fieldGroup())
@@ -59,7 +52,7 @@ export function fieldQuery(
     if (keyPath.length === item.level) {
       return item.field;
     }
-    const res = item.field.get(keyPath.slice(item.level), aliasNotFoundFn);
+    const res = item.field.get(keyPath.slice(item.level));
     if (res) {
       return res;
     }

@@ -4,6 +4,7 @@ import { rawConfig } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { assertFieldArray, assertFieldControl } from './util/is-field';
 import { _PiResolvedCommonViewFieldConfig } from '@piying/view-angular-core';
+import { getField } from './util/action';
 
 // 用于测试fields和model变动时,数值是否正确
 describe('field', () => {
@@ -38,20 +39,12 @@ describe('field', () => {
   it('control', async () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
 
-    const obj = v.pipe(
-      v.string(),
-      rawConfig((field) => {
-        field.hooks = {
-          allFieldsResolved(field) {
-            field$.resolve(field);
-          },
-        };
-        return field;
-      }),
-    );
+    const obj = v.pipe(v.string(), getField(field$));
     const result = createBuilder(obj);
     expect(result.fieldArray).toBeFalsy();
     expect(result.fieldGroup).toBeFalsy();
+    let field = await field$.promise;
+    expect(field.form.root).toBe(result.form.control!);
     // expect(result.type).toBe('string');
     assertFieldControl(result.form.control);
     result.form.control.updateValue('v1');

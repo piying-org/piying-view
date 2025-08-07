@@ -1,12 +1,27 @@
 import * as v from 'valibot';
 import { createBuilder } from './util/create-builder';
-import { asVirtualGroup, layout } from '@piying/view-angular-core';
+import { asVirtualGroup, layout, setAlias } from '@piying/view-angular-core';
 import { rawConfig } from '@piying/view-angular-core';
 import { keyEqual } from './util/key-equal';
-import { assertFieldControl } from './util/is-field';
+import { assertFieldControl, assertFieldGroup } from './util/is-field';
 
 // 用于测试fields和model变动时,数值是否正确
 describe('layout', () => {
+  it('移动布局', async () => {
+    const define = v.intersect([
+      v.pipe(v.object({}), setAlias('ly1')),
+      v.object({
+        input0: v.pipe(v.string()),
+        input1: v.pipe(v.string(), layout({ keyPath: ['#', '@ly1'] })),
+      }),
+    ]);
+    const list = createBuilder(define).fieldGroup!();
+    expect(list.length).toEqual(2);
+    expect(list[0].fieldGroup!().length).toEqual(1);
+    expect(list[1].fieldGroup!().length).toEqual(1);
+    keyEqual(list[0].fieldGroup!()[0].keyPath, 'input1');
+    keyEqual(list[1].fieldGroup!()[0].keyPath, 'input0');
+  });
   // 将子级提权到父级
   it('位置变化', () => {
     const obj = v.object({
@@ -25,16 +40,21 @@ describe('layout', () => {
     keyEqual(list[1].keyPath, ['key1', 'test1']);
   });
   it('设置alias', () => {
-    const obj = v.object({
-      key1: v.pipe(
+    const obj = v.pipe(
+      v.intersect([
+        v.pipe(v.object({}), setAlias('scope1')),
         v.object({
-          test1: v.pipe(
-            v.optional(v.string(), 'value1'),
-            layout({ keyPath: ['#', '@scope1'] }),
+          key1: v.pipe(
+            v.object({
+              test1: v.pipe(
+                v.optional(v.string(), 'value1'),
+                layout({ keyPath: ['#', '@scope1'] }),
+              ),
+            }),
           ),
         }),
-      ),
-    });
+      ]),
+    );
     const list = createBuilder(obj).fieldGroup!();
     expect(list.length).toBe(2);
     const item = list.find((item) => item.alias === 'scope1');
@@ -43,20 +63,25 @@ describe('layout', () => {
     keyEqual(item!.fieldGroup!()[0].keyPath, ['key1', 'test1']);
   });
   it('设置alias(多个)', () => {
-    const obj = v.object({
-      key1: v.pipe(
+    const obj = v.pipe(
+      v.intersect([
+        v.pipe(v.object({}), setAlias('scope1')),
         v.object({
-          test1: v.pipe(
-            v.optional(v.string(), 'value1'),
-            layout({ keyPath: ['#', '@scope1'], priority: 2 }),
-          ),
-          test2: v.pipe(
-            v.optional(v.string(), 'value2'),
-            layout({ keyPath: ['#', '@scope1'], priority: 3 }),
+          key1: v.pipe(
+            v.object({
+              test1: v.pipe(
+                v.optional(v.string(), 'value1'),
+                layout({ keyPath: ['#', '@scope1'], priority: 2 }),
+              ),
+              test2: v.pipe(
+                v.optional(v.string(), 'value2'),
+                layout({ keyPath: ['#', '@scope1'], priority: 3 }),
+              ),
+            }),
           ),
         }),
-      ),
-    });
+      ]),
+    );
     const resolved = createBuilder(obj);
     const list = resolved.fieldGroup!();
     expect(list.length).toBe(2);
@@ -150,48 +175,61 @@ describe('layout', () => {
     keyEqual(list[0].fieldGroup!()[1].keyPath, ['test1']);
   });
   it('权重检查正序', () => {
-    const obj = v.object({
-      key1: v.pipe(
+    const obj = v.pipe(
+      v.intersect([
+        v.pipe(v.object({}), setAlias('abc')),
         v.object({
-          test1: v.pipe(
-            v.string(),
-            layout({ keyPath: ['#', '@abc'], priority: 2 }),
-          ),
-          test2: v.pipe(
-            v.string(),
-            layout({ keyPath: ['#', '@abc'], priority: 3 }),
+          key1: v.pipe(
+            v.object({
+              test1: v.pipe(
+                v.string(),
+                layout({ keyPath: ['#', '@abc'], priority: 2 }),
+              ),
+              test2: v.pipe(
+                v.string(),
+                layout({ keyPath: ['#', '@abc'], priority: 3 }),
+              ),
+            }),
           ),
         }),
-      ),
-    });
+      ]),
+      asVirtualGroup(),
+    );
+
     const resolved = createBuilder(obj);
     const newField = resolved.get(['@abc']);
     expect(newField?.fieldGroup?.().length).toEqual(2);
-    expect(newField?.form.control).toBeFalsy();
+    assertFieldGroup(newField?.form.control);
     assertFieldControl(newField?.fieldGroup!()[0].form.control);
     keyEqual(newField?.fieldGroup!()[0].keyPath, ['key1', 'test1']);
     assertFieldControl(newField?.fieldGroup!()[1].form.control);
     keyEqual(newField?.fieldGroup!()[1].keyPath, ['key1', 'test2']);
   });
   it('权重检查倒序', () => {
-    const obj = v.object({
-      key1: v.pipe(
+    const obj = v.pipe(
+      v.intersect([
+        v.pipe(v.object({}), setAlias('abc')),
         v.object({
-          test1: v.pipe(
-            v.string(),
-            layout({ keyPath: ['#', '@abc'], priority: 3 }),
-          ),
-          test2: v.pipe(
-            v.string(),
-            layout({ keyPath: ['#', '@abc'], priority: 2 }),
+          key1: v.pipe(
+            v.object({
+              test1: v.pipe(
+                v.string(),
+                layout({ keyPath: ['#', '@abc'], priority: 3 }),
+              ),
+              test2: v.pipe(
+                v.string(),
+                layout({ keyPath: ['#', '@abc'], priority: 2 }),
+              ),
+            }),
           ),
         }),
-      ),
-    });
+      ]),
+      asVirtualGroup(),
+    );
     const resolved = createBuilder(obj);
     const newField = resolved.get(['@abc']);
     expect(newField?.fieldGroup?.().length).toEqual(2);
-    expect(newField?.form.control).toBeFalsy();
+    assertFieldGroup(newField?.form.control);
     assertFieldControl(newField?.fieldGroup!()[1].form.control);
     keyEqual(newField?.fieldGroup!()[1].keyPath, ['key1', 'test1']);
     assertFieldControl(newField?.fieldGroup!()[0].form.control);
