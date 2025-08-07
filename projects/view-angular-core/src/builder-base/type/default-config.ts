@@ -8,9 +8,7 @@ export interface PiCommonConfig {
   types?: Record<string, PiCommonDefaultConfig>;
 
   defaultConfig?: PiCommonDefaultConfig;
-  defaultConfigMergeStrategy?:
-    | ConfigMergeStrategy
-    | Record<DefaultConfigKey, ConfigMergeStrategy>;
+  defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
   wrappers?: Record<
     string,
     Omit<CoreWrapperConfig1, 'type'> & {

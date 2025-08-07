@@ -33,5 +33,5 @@ export interface PiViewConfig {
   >;
   defaultConfig?: PiDefaultRawViewFieldConfig;
   /** merge 数组/对象会合并 replace 优先自身/组件/全局 */
-  defaultConfigMergeStrategy?: ConfigMergeStrategy | ConfigMergeStrategyObject;
+  defaultConfigMergeStrategy?: ConfigMergeStrategyObject;
 }

@@ -56,11 +56,11 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #options = inject(PI_FORM_BUILDER_OPTIONS_TOKEN);
   #injector = inject(Injector);
   #envInjector = inject(EnvironmentInjector);
-  #globalConfig = inject(PI_VIEW_CONFIG_TOKEN, { optional: true }) ?? undefined;
+  #globalConfig = inject(PI_VIEW_CONFIG_TOKEN);
   #allFieldInitHookList: (() => void)[] = [];
 
   buildRoot(item: BuildRootInputItem<SchemaHandle>) {
-    const field = this.#buildControl(
+    this.#buildControl(
       {
         type: 'root',
         field: { fullPath: [] },
@@ -122,9 +122,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field.inputs,
       ],
       false,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.inputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.inputs),
+      mergeStrategy?.inputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.inputs,
     );
     const outputs = this.configMerge(
       [
@@ -133,9 +131,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field.outputs,
       ],
       false,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.outputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.outputs),
+      mergeStrategy?.outputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.outputs,
     );
     const attributes = this.configMerge(
       [
@@ -144,10 +140,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field.attributes,
       ],
       false,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.attributes ??
-            DCONFIG_EFAULT_MERGE_STRAGEGY.attributes),
+      mergeStrategy?.attributes ?? DCONFIG_EFAULT_MERGE_STRAGEGY.attributes,
     );
     const wrappers1 = this.configMergeRaw(
       [
@@ -156,9 +149,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field.wrappers,
       ],
       true,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.wrappers ?? DCONFIG_EFAULT_MERGE_STRAGEGY.wrappers),
+      mergeStrategy?.wrappers ?? DCONFIG_EFAULT_MERGE_STRAGEGY.wrappers,
     );
     const wrappers = this.#resolveWrappers(wrappers1);
     const props = this.configMerge(
@@ -168,9 +159,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field.props,
       ],
       false,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.props ?? DCONFIG_EFAULT_MERGE_STRAGEGY.props),
+      mergeStrategy?.props ?? DCONFIG_EFAULT_MERGE_STRAGEGY.props,
     );
 
     const formConfig$ = this.configMerge(
@@ -180,10 +169,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field.formConfig,
       ],
       false,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.formConfig ??
-            DCONFIG_EFAULT_MERGE_STRAGEGY.formConfig),
+      mergeStrategy?.formConfig ?? DCONFIG_EFAULT_MERGE_STRAGEGY.formConfig,
     );
     const renderConfig = this.configMerge(
       [
@@ -192,10 +178,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field.renderConfig,
       ],
       false,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.renderConfig ??
-            DCONFIG_EFAULT_MERGE_STRAGEGY.renderConfig),
+      mergeStrategy?.renderConfig ?? DCONFIG_EFAULT_MERGE_STRAGEGY.renderConfig,
     );
     let control;
     let keyPath: RawKeyPath | undefined = field.key;

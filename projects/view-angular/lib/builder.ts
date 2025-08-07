@@ -13,8 +13,7 @@ import { NgSchemaHandle } from './schema/ng-schema';
 
 @Injectable()
 export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
-  #globalConfig: PiViewConfig | undefined =
-    inject(PI_VIEW_CONFIG_TOKEN, { optional: true }) ?? (undefined as any);
+  #globalConfig: PiViewConfig = inject(PI_VIEW_CONFIG_TOKEN) as any;
   override afterResolveConfig(
     rawConfig: NgSchemaHandle,
     config: PiResolvedViewFieldConfig,
@@ -24,7 +23,7 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
     let componentDefaultConfig: PiComponentDefaultConfig | undefined;
     let define;
     const mergeStrategy = this.#globalConfig
-      ?.defaultConfigMergeStrategy as ConfigMergeStrategyObject;
+      .defaultConfigMergeStrategy as ConfigMergeStrategyObject;
 
     if (type) {
       const result = this.#resolveComponent(type);
@@ -35,10 +34,7 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
     const directives = this.configMerge(
       [componentDefaultConfig?.directives, field.directives],
       true,
-      typeof mergeStrategy === 'string'
-        ? mergeStrategy
-        : (mergeStrategy?.directives ??
-            NG_CONFIG_DEFAULT_MERGE_STRAGEGY.directives),
+      mergeStrategy?.directives ?? NG_CONFIG_DEFAULT_MERGE_STRAGEGY.directives,
     );
     return {
       ...config,
@@ -54,7 +50,7 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
     let defaultConfig;
     // 查引用
     if (typeof type === 'string') {
-      const config = this.#globalConfig?.types?.[type];
+      const config = this.#globalConfig.types?.[type];
       if (!config) {
         throw new Error(`未注册${type}`);
       }
