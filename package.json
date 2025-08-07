@@ -1,6 +1,15 @@
 {
   "name": "piying-view",
   "version": "0.6.31",
+  "repository": {
+    "url": "https://github.com/piying-org/piying-view"
+  },
+  "homepage": "https://piying-org.github.io/website/docs/client/intro",
+  "author": {
+    "name": "wszgrcy",
+    "email": "wszgrcy@gmail.com"
+  },
+  "license": "MIT",
   "scripts": {
     "ng": "ng",
     "create-view-core": "rimraf projects/view-core && cpx \"projects/view-angular-core/**/*\" projects/view-core && tsx ./script/replace-pkg.ts",
