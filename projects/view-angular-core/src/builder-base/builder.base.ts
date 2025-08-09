@@ -60,7 +60,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #allFieldInitHookList: (() => void)[] = [];
 
   buildRoot(item: BuildRootInputItem<SchemaHandle>) {
-    this.#buildControl(
+    let field = this.#buildControl(
       {
         type: 'root',
         field: { fullPath: [] },
@@ -71,7 +71,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       item.field,
       0,
     );
-
+    field.form.control?.updateInitValue(undefined);
     this.allFieldInitHookCall();
   }
   allFieldInitHookCall() {
@@ -350,6 +350,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           const list = [...arrayItem.field.fieldArray!()];
           list[index] = result;
           arrayItem.field.fieldArray!.set(list);
+          result.form.control?.updateInitValue(
+            arrayItem.field.form.control?.config$().defaultValue?.[index],
+          );
           this.allFieldInitHookCall();
           result.form.control!.updateValue(value);
         });
@@ -370,7 +373,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     arrayItem.field.fieldArray = signal([]);
     arrayItem.field.hooks?.afterChildrenInit?.(arrayItem.field);
 
-    form.beforeUpdateList.push((input) => {
+    form.beforeUpdateList.push((input = []) => {
       const controlLength = form.controls$().length;
       if (controlLength < input.length) {
         const list = arrayItem.field.fieldArray!().slice();

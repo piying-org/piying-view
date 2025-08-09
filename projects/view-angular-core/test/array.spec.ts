@@ -59,8 +59,10 @@ describe('array', () => {
             return ['3'];
           },
           toView(value, control) {
-            expect(value).toEqual(['1']);
-            index++;
+            if (value) {
+              expect(value).toEqual(['1']);
+              index++;
+            }
             return ['2'];
           },
         },
@@ -107,5 +109,18 @@ describe('array', () => {
     expect(result.form.control.controls).toEqual([]);
     result.form.control.clear();
     expect(result.form.control.controls).toEqual([]);
+  });
+  it('array default value', async () => {
+    const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.pipe(
+      v.optional(v.array(v.optional(v.string(), 'default')), ['1', '2']),
+      getField(field$),
+    );
+    const result = createBuilder(obj);
+    const resolved = await field$.promise;
+    assertFieldArray(resolved.form.control);
+    expect(resolved.form.control.value).toEqual(['1', '2']);
+    resolved.action.set(undefined, 2);
+    expect(resolved.form.control.value).toEqual(['1', '2', 'default']);
   });
 });

@@ -299,8 +299,10 @@ describe('对象相交', () => {
             return { k1: '3' };
           },
           toView(value, control) {
-            expect(value).toEqual({ k1: '1' });
-            index++;
+            if (value) {
+              expect(value).toEqual({ k1: '1' });
+              index++;
+            }
             return { k1: '2' };
           },
         },
@@ -318,5 +320,23 @@ describe('对象相交', () => {
     expect(result.fieldGroup!().length).toBe(2);
     assertFieldLogicGroup(result.form.control);
     expect(result.form.control.type()).toBe('or');
+  });
+  it('intersect default value', async () => {
+    const obj = v.pipe(
+      v.optional(
+        v.intersect([
+          v.pipe(
+            v.object({
+              k1: v.string(),
+              k2: v.optional(v.string(), 'k2-value'),
+            }),
+          ),
+        ]),
+        { k1: '2' },
+      ),
+    );
+
+    const result = createBuilder(obj);
+    expect(result.form.control?.value$$()).toEqual({ k1: '2', k2: 'k2-value' });
   });
 });

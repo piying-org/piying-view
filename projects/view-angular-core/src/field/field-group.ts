@@ -128,4 +128,13 @@ export class FieldGroup<
       control.updateValue(viewValue?.[key]);
     }
   }
+  override updateInitValue(value: any): void {
+    let initValue = this.getInitValue(value);
+    const viewValue =
+      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
+    for (const key in this.controls$()) {
+      const control = this.controls$()[key];
+      control.updateInitValue( viewValue?.[key]);
+    }
+  }
 }

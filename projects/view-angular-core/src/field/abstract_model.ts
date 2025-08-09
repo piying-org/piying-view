@@ -327,7 +327,10 @@ export abstract class AbstractControl<TValue = any> {
   initConfig(config: any) {
     this.config$ = config;
   }
-
+  protected getInitValue(value: any) {
+    return value ?? this.config$().defaultValue;
+  }
+  abstract updateInitValue(value: any): void;
   find(name: string | number): AbstractControl | null {
     return null;
   }

@@ -119,13 +119,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     this.modelValue$.set(value);
     this.value$$.set(value);
   }
-  override initConfig(config: any): void {
-    super.initConfig(config);
-    if ('defaultValue' in this.config$!()) {
-      this.modelValue$.set(this.config$!().defaultValue);
-      this.value$$.set(this.config$!().defaultValue);
-    }
-  }
+
   override emitSubmit(): void {
     const pendingStatus = this.pendingStatus();
     if (pendingStatus.touched) {
@@ -135,5 +129,10 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
       this.viewValueChange(pendingStatus.value);
     }
     this.pendingStatus.set(InitPendingValue);
+  }
+  override updateInitValue(value: any): void {
+    let initValue = this.getInitValue(value);
+    this.modelValue$.set(initValue);
+    this.value$$.set(initValue);
   }
 }

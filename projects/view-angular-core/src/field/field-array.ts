@@ -106,4 +106,13 @@ export class FieldArray<
       control.updateValue(viewValue[i]);
     });
   }
+  override updateInitValue(value: any): void {
+    let initValue = this.getInitValue(value);
+    const viewValue =
+      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
+    this.beforeUpdateList.forEach((item) => item(viewValue));
+    this.controls$().forEach((control, i) => {
+      control.updateInitValue(viewValue?.[i]);
+    });
+  }
 }

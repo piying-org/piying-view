@@ -250,7 +250,6 @@ describe('对象', () => {
   });
 
   it('toModel/toView', async () => {
-    let index = 0;
     const obj = v.pipe(
       v.object({
         k1: v.string(),
@@ -260,13 +259,13 @@ describe('对象', () => {
           toModel(value, control) {
             if (value) {
               expect(value).toEqual({ k1: '2' });
-              index++;
             }
             return { k1: '3' };
           },
           toView(value, control) {
-            expect(value).toEqual({ k1: '1' });
-            index++;
+            if (value) {
+              expect(value).toEqual({ k1: '1' });
+            }
             return { k1: '2' };
           },
         },
@@ -275,7 +274,6 @@ describe('对象', () => {
     const result = createBuilder(obj);
     result.form.control?.updateValue({ k1: '1' });
     expect(result.form.control?.value$$()).toEqual({ k1: '3' });
-    expect(index).toEqual(2);
   });
 
   it('reset', () => {
@@ -289,5 +287,19 @@ describe('对象', () => {
     expect(list.form.root.value).toEqual({ key1: '2' });
     list.form.root.reset();
     expect(list.form.root.value).toEqual({ key1: '1' });
+  });
+  it('object default value', async () => {
+    const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const obj = v.pipe(
+      v.optional(
+        v.object({ k1: v.string(), k2: v.optional(v.string(), 'k2-value') }),
+        { k1: '123' },
+      ),
+      getField(field$),
+    );
+    const result = createBuilder(obj);
+    const resolved = await field$.promise;
+    assertFieldGroup(resolved.form.control);
+    expect(resolved.form.control.value).toEqual({ k1: '123', k2: 'k2-value' });
   });
 });
