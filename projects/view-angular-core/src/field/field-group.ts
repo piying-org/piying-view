@@ -56,9 +56,12 @@ export class FieldGroup<
     if (control) this.registerControl(name, control);
   }
 
-  override reset(value: any = {}): void {
+  override reset(value?: any): void {
+    let initValue = this.getInitValue(value);
+    const viewValue =
+      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
     this._forEachChild((control: AbstractControl, name) => {
-      control.reset(value ? (value as any)[name] : undefined);
+      control.reset(viewValue ? (viewValue as any)[name] : undefined);
     });
   }
 
@@ -134,7 +137,7 @@ export class FieldGroup<
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
     for (const key in this.controls$()) {
       const control = this.controls$()[key];
-      control.updateInitValue( viewValue?.[key]);
+      control.updateInitValue(viewValue?.[key]);
     }
   }
 }

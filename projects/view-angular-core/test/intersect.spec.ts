@@ -339,4 +339,25 @@ describe('对象相交', () => {
     const result = createBuilder(obj);
     expect(result.form.control?.value$$()).toEqual({ k1: '2', k2: 'k2-value' });
   });
+  it('intersect default reset', async () => {
+    const obj = v.pipe(
+      v.optional(
+        v.intersect([
+          v.pipe(
+            v.object({
+              k1: v.string(),
+              k2: v.optional(v.string(), 'k2-value'),
+            }),
+          ),
+        ]),
+        { k1: '2' },
+      ),
+    );
+
+    const result = createBuilder(obj);
+    result.form.root.updateValue({ k1: '1', k2: '2' });
+    expect(result.form.root.value).toEqual({ k1: '1', k2: '2' });
+    result.form.root.reset()
+    expect(result.form.control?.value$$()).toEqual({ k1: '2', k2: 'k2-value' });
+  });
 });

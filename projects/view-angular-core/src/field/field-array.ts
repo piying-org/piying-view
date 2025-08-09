@@ -59,9 +59,13 @@ export class FieldArray<
     return this.controls$().length;
   }
 
-  override reset(value: any[] = []): void {
+  override reset(value?: any[]): void {
+    let initValue = this.getInitValue(value);
+    const viewValue =
+      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
+    this.beforeUpdateList.forEach((item) => item(viewValue));
     this._forEachChild((control: AbstractControl, index: number) => {
-      control.reset(value[index]);
+      control.reset(initValue[index]);
     });
   }
 

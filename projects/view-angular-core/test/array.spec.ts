@@ -123,4 +123,14 @@ describe('array', () => {
     resolved.action.set(undefined, 2);
     expect(resolved.form.control.value).toEqual(['1', '2', 'default']);
   });
+  it('array default reset', async () => {
+    const obj = v.pipe(
+      v.optional(v.array(v.optional(v.string(), 'default')), ['1', '2']),
+    );
+    const result = createBuilder(obj);
+    result.form.root.updateValue(['3', '4']);
+    expect(result.form.root.value).toEqual(['3', '4']);
+    result.form.root.reset();
+    expect(result.form.root.value).toEqual(['1', '2']);
+  });
 });
