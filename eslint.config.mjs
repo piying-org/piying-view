@@ -1,13 +1,13 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
+import globals from 'globals';
+import pluginJs from '@eslint/js';
+import tseslint from 'typescript-eslint';
 import unusedImports from 'eslint-plugin-unused-imports';
-
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    files: ["**/*.{js,mjs,cjs,ts}"], plugins: {
+    files: ['**/*.{js,mjs,cjs,ts}'],
+    plugins: {
       'unused-imports': unusedImports,
     },
     rules: {
@@ -29,7 +29,7 @@ export default [
   ...tseslint.configs.recommended,
   {
     rules: {
-      'arrow-body-style': ["warn", "as-needed"],
+      'arrow-body-style': ['warn', 'as-needed'],
       '@typescript-eslint/no-explicit-any': 'off',
       'no-unused-private-class-members': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
@@ -46,12 +46,18 @@ export default [
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
-      'eqeqeq': "warn",
+      eqeqeq: 'warn',
       'no-useless-computed-key': 'warn',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/no-unsafe-declaration-merging': 'off',
       'no-prototype-builtins': 'off',
-      '@typescript-eslint/no-this-alias': 'off'
+      '@typescript-eslint/no-this-alias': 'off',
+    },
+  },
+  {
+    files: ['**/*.js'],
+    rules: {
+      'no-undef': 'off',
     },
   },
 ];

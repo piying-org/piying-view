@@ -36,12 +36,10 @@ export class FieldGroup<
     initValue: boolean,
   ) => void)[] = [];
 
-  #control$$ = computed(() => {
-    return {
-      ...this.selfControls$(),
-      ...this.resetControls$(),
-    };
-  });
+  #control$$ = computed(() => ({
+    ...this.selfControls$(),
+    ...this.resetControls$(),
+  }));
   get controls() {
     return this.#control$$();
   }
@@ -57,15 +55,13 @@ export class FieldGroup<
   }
 
   override setControl(name: string, control: AbstractControl): void {
-    let control$ = this.#inited ? this.resetControls$ : this.selfControls$;
-    control$.update((controls) => {
-      return { ...controls, [name]: control };
-    });
+    const control$ = this.#inited ? this.resetControls$ : this.selfControls$;
+    control$.update((controls) => ({ ...controls, [name]: control }));
     control.setParent(this);
   }
 
   override reset(value?: any): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     this.#updateValue(initValue, UpdateType.reset);
   }
 
@@ -113,7 +109,7 @@ export class FieldGroup<
       this.initedValue = viewValue;
     }
     if (this.config$().groupMode === 'reset') {
-      let resetObj = this.#getResetValue(viewValue);
+      const resetObj = this.#getResetValue(viewValue);
       this.beforeUpdateList.forEach((fn) =>
         fn(resetObj, type !== UpdateType.init),
       );
@@ -123,7 +119,7 @@ export class FieldGroup<
         : this.config$().groupMode === 'default' ||
           this.config$().groupMode === 'loose'
     ) {
-      let resetObj = this.#getResetValue(viewValue);
+      const resetObj = this.#getResetValue(viewValue);
       this.resetValue$.set(resetObj);
     }
     this._forEachChild((control, key) => {
@@ -143,7 +139,7 @@ export class FieldGroup<
     this.#updateValue(value, UpdateType.update);
   }
   #getResetValue(inputValue: any) {
-    let controls = this.selfControls$();
+    const controls = this.selfControls$();
     return inputValue
       ? Object.keys(inputValue).reduce(
           (obj, item) => {
@@ -160,7 +156,7 @@ export class FieldGroup<
   initedValue: any;
   override updateInitValue(value: any): void {
     this.#inited = true;
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     this.#updateValue(initValue, UpdateType.init);
   }
 }

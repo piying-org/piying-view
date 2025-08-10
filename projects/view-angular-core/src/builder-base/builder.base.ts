@@ -60,7 +60,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #allFieldInitHookList: (() => void)[] = [];
 
   buildRoot(item: BuildRootInputItem<SchemaHandle>) {
-    let field = this.#buildControl(
+    const field = this.#buildControl(
       {
         type: 'root',
         field: { fullPath: [] },
@@ -308,16 +308,14 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       field.fieldRestGroup = signal([]);
       const fieldGroup = field.form.control as FieldGroup;
       const updateItem = (key: string, initValue: boolean) => {
-        let result = this.#createObjectRestItem(
+        const result = this.#createObjectRestItem(
           { ...groupItem, skipAppend: true },
           {
             ...groupItem.templateField!,
             key,
           },
         );
-        field.fieldRestGroup!.update((list) => {
-          return [...list, result];
-        });
+        field.fieldRestGroup!.update((list) => [...list, result]);
         if (initValue) {
           result.form.control?.updateInitValue(fieldGroup.initedValue?.[key]);
         }
@@ -325,7 +323,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       };
       function removeItem(key: string) {
         field.fieldRestGroup!.update((list) => {
-          let index = list.findIndex(
+          const index = list.findIndex(
             (item) => item.keyPath.slice(-1)[0] === key,
           );
           list = [...list];
@@ -358,7 +356,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       field.action = {
         set: (value, key: string) => {
           untracked(() => {
-            let result = updateItem(key, true);
+            const result = updateItem(key, true);
             this.allFieldInitHookCall();
             result.form.control!.updateValue(value);
           });

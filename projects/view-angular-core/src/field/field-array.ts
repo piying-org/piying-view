@@ -60,7 +60,7 @@ export class FieldArray<
   }
 
   override reset(value?: any[]): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
     this.beforeUpdateList.forEach((item) => item(viewValue, false));
@@ -112,7 +112,7 @@ export class FieldArray<
   }
   initedValue: any;
   override updateInitValue(value: any): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
     this.initedValue = viewValue;

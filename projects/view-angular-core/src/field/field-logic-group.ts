@@ -49,7 +49,7 @@ export class FieldLogicGroup extends FieldArray {
     return Object.keys(result).length ? result : this.emptyValue$$();
   }
   override reset(value?: any[]): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
     this.controls$().forEach((control, i) => {
@@ -69,7 +69,7 @@ export class FieldLogicGroup extends FieldArray {
     });
   }
   override updateInitValue(value: any): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
     this.controls$().forEach((control, i) => {

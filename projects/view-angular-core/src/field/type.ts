@@ -1,4 +1,4 @@
-import { Signal, WritableSignal } from '@angular/core';
+import { WritableSignal } from '@angular/core';
 import {
   AbstractControl,
   AsyncValidatorFn,
@@ -33,10 +33,8 @@ export interface FieldFormConfig<T = any> {
   /** array  */
   deletionMode?: ArrayDeletionMode;
   /** group */
-  groupMode?:'loose'|'default'|'strict'|'reset'
+  groupMode?: 'loose' | 'default' | 'strict' | 'reset';
 }
-
-
 
 export type FieldFormConfig$ = WritableSignal<FieldFormConfig>;
 export type FieldGroupConfig$ = WritableSignal<

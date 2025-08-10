@@ -131,7 +131,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     this.pendingStatus.set(InitPendingValue);
   }
   override updateInitValue(value: any): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     this.modelValue$.set(initValue);
     this.value$$.set(initValue);
   }
