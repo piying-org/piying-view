@@ -28,12 +28,15 @@ export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
   const fieldGroup = useSignalToRef(props.field, (field) =>
     field.fieldGroup?.(),
   );
+  const fieldRestGroup = useSignalToRef(props.field, (field) =>
+    field.fieldRestGroup?.(),
+  );
   const fieldArray = useSignalToRef(props.field, (field) =>
     field.fieldArray?.(),
   );
   const groupInputs = useMemo(
-    () => ({ ...fieldInputs, fields: fieldGroup }),
-    [fieldInputs, fieldGroup],
+    () => ({ ...fieldInputs, fields: fieldGroup, restFields: fieldRestGroup }),
+    [fieldInputs, fieldGroup, fieldRestGroup],
   );
   const arrayInputs = useMemo(
     () => ({ ...fieldInputs, fields: fieldArray }),

@@ -3,6 +3,7 @@ import { PiyingFieldTemplate } from './field-template';
 
 export interface PiyingGroupProps {
   fields: PiResolvedViewFieldConfig[];
+  restFields: PiResolvedViewFieldConfig[];
 }
 export function PiyingGroup(props: PiyingGroupProps) {
   return (
