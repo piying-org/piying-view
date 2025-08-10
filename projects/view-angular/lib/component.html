@@ -14,7 +14,11 @@
             [ngComponentOutletInputs]="
               (
                 groupInputsValue
-                | pure: field.inputs : field.fieldGroup() : dynamicComponent
+                | pure
+                  : field.inputs
+                  : field.fieldGroup()
+                  : field.fieldRestGroup?.()
+                  : dynamicComponent
               )?.()
             "
             [ngComponentOutletOutputs]="field.outputs()"
@@ -30,7 +34,11 @@
           [ngComponentOutletInputs]="
             (
               groupInputsValue
-              | pure: field.inputs : field.fieldArray() : dynamicComponent
+              | pure
+                : field.inputs
+                : field.fieldArray()
+                : undefined
+                : dynamicComponent
             )?.()
           "
           [ngComponentOutletOutputs]="field.outputs()"

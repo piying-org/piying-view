@@ -74,9 +74,9 @@ export class FieldGroup<
 
   /** @internal */
   override _forEachChild(cb: (v: any, k: any) => void): void {
-    Object.keys(this.selfControls$()).forEach((key) => {
-      const control = this.selfControls$()[key];
-      control && cb(control, key);
+    const controls = this.#control$$();
+    Object.keys(controls).forEach((key) => {
+      cb(controls[key], key);
     });
   }
 

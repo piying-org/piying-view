@@ -146,11 +146,13 @@ export class PiyingView implements OnChanges {
   groupInputsValue = (
     inputs: PiResolvedViewFieldConfig['inputs'],
     fields: PiResolvedViewFieldConfig[],
+    restFields: PiResolvedViewFieldConfig[] | undefined,
     fieldTemplateRef: TemplateRef<any>,
   ) =>
     computed(() => ({
       ...inputs(),
       fields,
+      restFields,
       fieldTemplateRef,
     }));
 
@@ -167,11 +169,16 @@ export class PiyingView implements OnChanges {
   groupHidden = (field: PiResolvedViewFieldConfig) =>
     computed(() => this.#groupHidden(field));
   #groupHidden(field: PiResolvedViewFieldConfig): boolean {
-    if (field.fieldGroup) {
-      if (!field.fieldGroup().length) {
+    if (field.fieldGroup || field.fieldRestGroup) {
+      if (!field.fieldGroup?.().length && !field.fieldRestGroup?.().length) {
         return true;
       } else {
-        return field.fieldGroup().every((field) => this.#groupHidden(field));
+        return (
+          (!field.fieldGroup ||
+            field.fieldGroup().every((field) => this.#groupHidden(field))) &&
+          (!field.fieldRestGroup ||
+            field.fieldRestGroup().every((field) => this.#groupHidden(field)))
+        );
       }
     } else {
       return !field.define || !!field.renderConfig().hidden;
