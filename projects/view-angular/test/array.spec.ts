@@ -277,4 +277,21 @@ describe('默认数组', () => {
     fixture.detectChanges();
     expect(isDelete).toBe(true);
   });
+
+  it('empty-show', async () => {
+    const define = v.array(
+      v.object({
+        key1: v.pipe(v.string(), setComponent(Test1Component)),
+      }),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal([]),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    const input1Div = element.querySelector('piying-view-group') as HTMLElement;
+    expect(input1Div).toBeTruthy();
+  });
 });

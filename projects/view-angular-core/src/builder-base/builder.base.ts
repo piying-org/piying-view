@@ -264,7 +264,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       field.isLogicOr ||
       field.isTuple
     ) {
-      resolvedConfig.fieldGroup = signal(
+      resolvedConfig.fixedChildren = signal(
         new SortedArray<_PiResolvedCommonViewFieldConfig>(
           (a, b) => a.priority - b.priority,
         ),
@@ -276,7 +276,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field: resolvedConfig,
         form: (control || parent.form) as FieldGroup,
         append: (field) => {
-          resolvedConfig.fieldGroup!().push(field);
+          resolvedConfig.fixedChildren!().push(field);
         },
       });
     } else if (isArray(field)) {
@@ -305,7 +305,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     /** 虚拟group不存在hooks */
     const field = groupItem.field as PiResolvedCommonViewFieldConfig<any, any>;
     if (field.form.control && groupItem.templateField) {
-      field.fieldRestGroup = signal([]);
+      field.restChildren = signal([]);
       const fieldGroup = field.form.control as FieldGroup;
       const updateItem = (key: string, initValue: boolean) => {
         const result = this.#createObjectRestItem(
@@ -315,14 +315,14 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             key,
           },
         );
-        field.fieldRestGroup!.update((list) => [...list, result]);
+        field.restChildren!.update((list) => [...list, result]);
         if (initValue) {
           result.form.control?.updateInitValue(fieldGroup.initedValue?.[key]);
         }
         return result;
       };
       function removeItem(key: string) {
-        field.fieldRestGroup!.update((list) => {
+        field.restChildren!.update((list) => {
           const index = list.findIndex(
             (item) => item.keyPath.slice(-1)[0] === key,
           );
@@ -410,7 +410,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   }
   #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
     const { templateField, form, field } = arrayItem;
-    field.fieldArray = signal([]);
+    field.fixedChildren = signal([]);
 
     const updateItem = (
       list: _PiResolvedCommonViewFieldConfig[],
@@ -438,18 +438,18 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     form.beforeUpdateList.push((input = [], initUpdate) => {
       const controlLength = form.controls$().length;
       if (controlLength < input.length) {
-        const list = [...arrayItem.field.fieldArray!()];
+        const list = [...arrayItem.field.fixedChildren!()];
         for (let index = controlLength; index < input.length; index++) {
           updateItem(list, index, initUpdate);
         }
-        arrayItem.field.fieldArray!.set(list);
+        arrayItem.field.fixedChildren!.set(list);
         this.allFieldInitHookCall();
       } else if (input.length < controlLength) {
-        const list = [...arrayItem.field.fieldArray!()];
+        const list = [...arrayItem.field.fixedChildren!()];
         for (let index = list.length - 1; index >= input.length; index--) {
           removeItem(list, index);
         }
-        arrayItem.field.fieldArray!.set(list);
+        arrayItem.field.fixedChildren!.set(list);
       }
     });
     field.action = {
@@ -458,20 +458,20 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           index = (
             typeof index === 'number'
               ? index
-              : (arrayItem.field.fieldArray?.().length ?? 0)
+              : (arrayItem.field.fixedChildren?.().length ?? 0)
           )!;
-          const list = [...arrayItem.field.fieldArray!()];
+          const list = [...arrayItem.field.fixedChildren!()];
           const result = updateItem(list, index, true);
-          arrayItem.field.fieldArray!.set(list);
+          arrayItem.field.fixedChildren!.set(list);
           this.allFieldInitHookCall();
           result.form.control!.updateValue(value);
         });
       },
       remove: (index: number) => {
         untracked(() => {
-          const list = [...arrayItem.field.fieldArray!()];
+          const list = [...arrayItem.field.fixedChildren!()];
           removeItem(list, index);
-          arrayItem.field.fieldArray!.set(list);
+          arrayItem.field.fixedChildren!.set(list);
         });
       },
     };
@@ -565,7 +565,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const newKeyPath = inputField.fullPath.slice(parent.fullPath.length);
     (inputField as any).keyPath = newKeyPath;
     inputField.parent = parent as any;
-    parent.fieldGroup!().push(inputField);
+    parent.fixedChildren!().push(inputField);
   }
   #resolveWrappers(
     wrappers?: CoreRawWrapperConfig[],

@@ -15,8 +15,7 @@ describe('自定义handle', () => {
     const obj = v.object({
       key1: v.pipe(v.string()),
     });
-    const list = createBuilder(obj, { handle: HiddenType as any })
-      .fieldGroup!();
+    const list = createBuilder(obj, { handle: HiddenType as any }).fixedChildren!();
     expect(list.length).toBe(1);
     assertFieldControl(list[0].form.control);
 
@@ -42,7 +41,7 @@ describe('自定义handle', () => {
     const list = createBuilder(obj, {
       handle: HiddenType as any,
       types: ['abc'],
-    }).fieldGroup!();
+    }).fixedChildren!();
     expect(list.length).toBe(1);
     assertFieldControl(list[0].form.control);
 
@@ -77,7 +76,7 @@ describe('自定义handle', () => {
       handle: HiddenType as any,
       environments: ['t1'],
       types: ['abc'],
-    }).fieldGroup!();
+    }).fixedChildren!();
     expect(list.length).toBe(1);
     assertFieldControl(list[0].form.control);
 

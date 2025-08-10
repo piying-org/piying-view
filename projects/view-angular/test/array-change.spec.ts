@@ -28,7 +28,7 @@ describe('数组配置切换', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
   });
   it('model添加后删除', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -45,17 +45,17 @@ describe('数组配置切换', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     instance.model$.set({ a1: ['v1', 'v2'] });
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.fieldArray?.().length).toBe(2);
+    expect(field.fixedChildren?.().length).toBe(2);
     expect(instance.model$()).toEqual({ a1: ['v1', 'v2'] });
     expect((field.form.control as FieldArray).controls.length).toBe(2);
     instance.model$.set({ a1: ['v1'] });
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     expect(instance.model$()).toEqual({ a1: ['v1'] });
     expect((field.form.control as FieldArray).controls.length).toBe(1);
   });
@@ -76,12 +76,12 @@ describe('数组配置切换', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(2);
+    expect(field.fixedChildren?.().length).toBe(2);
     expect((field.form.control as FieldArray).controls.length).toBe(2);
     instance.model$.set({ a1: ['v1'] });
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     expect(instance.model$()).toEqual({ a1: ['v1'] });
     expect((field.form.control as FieldArray).controls.length).toBe(1);
   });
@@ -102,12 +102,12 @@ describe('数组配置切换', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(4);
+    expect(field.fixedChildren?.().length).toBe(4);
     expect((field.form.control as FieldArray).controls.length).toBe(4);
     instance.model$.set({ a1: ['v1'] });
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     expect(instance.model$()).toEqual({ a1: ['v1'] });
     expect((field.form.control as FieldArray).controls.length).toBe(1);
   });
@@ -128,18 +128,18 @@ describe('数组配置切换', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     expect((field.form.control as FieldArray).controls.length).toBe(1);
     field.action.set('v2');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.fieldArray?.().length).toBe(2);
+    expect(field.fixedChildren?.().length).toBe(2);
     expect(instance.model$()).toEqual({ a1: ['v1', 'v2'] });
     expect((field.form.control as FieldArray).controls.length).toBe(2);
     field.action.remove(1);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     expect(instance.model$()).toEqual({ a1: ['v1'] });
     expect((field.form.control as FieldArray).controls.length).toBe(1);
   });
@@ -160,7 +160,7 @@ describe('数组配置切换', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     expect((field.form.control as FieldArray).controls.length).toBe(1);
     field.action.set('v2');
     await fixture.whenStable();
@@ -180,7 +180,7 @@ describe('数组配置切换', () => {
     fixture.detectChanges();
 
     const field2 = await field2$.promise;
-    expect(field2.fieldArray?.().length).toBe(1);
+    expect(field2.fixedChildren?.().length).toBe(1);
     expect((field2.form.control as FieldArray).controls.length).toBe(1);
 
     expect(isFieldGroup(field2.form.root)).toBeTrue();
@@ -376,13 +376,13 @@ describe('数组配置切换', () => {
     fixture.detectChanges();
 
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     let list = element.querySelectorAll('app-test1');
     expect(list.length).toBe(1);
     instance.model$.set({ a1: ['v1', 'v2'] });
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field.fieldArray?.().length).toBe(2);
+    expect(field.fixedChildren?.().length).toBe(2);
     list = element.querySelectorAll('app-test1');
     expect(list.length).toBe(2);
   });
@@ -401,7 +401,7 @@ describe('数组配置切换', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(1);
+    expect(field.fixedChildren?.().length).toBe(1);
     let list = element.querySelectorAll('app-test1');
     expect(list.length).toBe(1);
     field.action.remove(0);
@@ -426,7 +426,7 @@ describe('数组配置切换', () => {
     fixture.detectChanges();
 
     const field = await field$.promise;
-    expect(field.fieldArray?.().length).toBe(2);
+    expect(field.fixedChildren?.().length).toBe(2);
     let list = element.querySelectorAll('app-test1');
     expect(list.length).toBe(2);
     instance.model$.set({ a1: ['v1'] });

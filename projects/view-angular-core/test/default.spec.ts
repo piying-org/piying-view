@@ -8,7 +8,7 @@ describe('默认值', () => {
     const obj = v.object({
       key1: v.optional(v.string(), 'default'),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
     expect(list[0].formConfig().defaultValue).toBe('default');
   });
@@ -16,7 +16,7 @@ describe('默认值', () => {
     const obj = v.object({
       key1: v.nullable(v.string(), 'default'),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
     expect(list[0].formConfig().defaultValue).toBe('default');
   });
@@ -24,7 +24,7 @@ describe('默认值', () => {
     const obj = v.object({
       key1: v.literal('default'),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
     expect(list[0].formConfig().defaultValue).toBe('default');
   });
@@ -32,7 +32,7 @@ describe('默认值', () => {
     const obj = v.object({
       key1: v.pipe(v.optional(v.string(), 'default')),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
     expect(list[0].formConfig().defaultValue).toBe('default');
   });
@@ -40,28 +40,28 @@ describe('默认值', () => {
     const obj = v.object({
       key1: v.nonNullish(v.nullish(v.string())),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
   });
   it('多wrap可选-nonNullable', () => {
     const obj = v.object({
       key1: v.nonNullable(v.nullable(v.string())),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
   });
   it('多wrap可选-nonOptional', () => {
     const obj = v.object({
       key1: v.nonOptional(v.optional(v.string())),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
   });
   it('多wrap可选-nonNullable去除一个', () => {
     const obj = v.object({
       key1: v.nonNullable(v.nullish(v.string())),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
   });
 });

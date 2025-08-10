@@ -25,9 +25,7 @@ describe('field', () => {
       ),
     );
     const result = createBuilder(obj);
-    expect(result.fieldArray).toBeTruthy();
-    expect(result.fieldGroup).toBeFalsy();
-    // expect(result.type).toBe('array');
+    expect(result.fixedChildren).toBeTruthy();
     assertFieldArray(result.form.control);
     result.form.control?.updateValue(['v1']);
     expect(result.form.control.controls$().length).toEqual(1);
@@ -41,8 +39,8 @@ describe('field', () => {
 
     const obj = v.pipe(v.string(), getField(field$));
     const result = createBuilder(obj);
-    expect(result.fieldArray).toBeFalsy();
-    expect(result.fieldGroup).toBeFalsy();
+    expect(result.fixedChildren).toBeFalsy();
+    expect(result.restChildren).toBeFalsy();
     const field = await field$.promise;
     expect(field.form.root).toBe(result.form.control!);
     // expect(result.type).toBe('string');
@@ -81,7 +79,7 @@ describe('field', () => {
     const obj = v.array(v.string());
     const result = createBuilder(obj);
     result.form.control!.updateValue(['1']);
-    result.fieldArray!()[0].form.control!.disable();
+    result.fixedChildren!()[0].form.control!.disable();
     expect(result.form.control?.getRawValue()).toEqual(['1']);
   });
   it('getRawValue logicGroup', async () => {

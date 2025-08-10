@@ -6,7 +6,7 @@
     @let wrappersResource = resolvedWrapper | pure: field.wrappers();
     @let wrappers = wrappersResource.value();
     @if (type) {
-      @if (field.fieldGroup) {
+      @if (field.fixedChildren) {
         @if (!(groupHidden | pure: field)()) {
           <!-- 自定义group -->
           <ng-container
@@ -16,8 +16,8 @@
                 groupInputsValue
                 | pure
                   : field.inputs
-                  : field.fieldGroup()
-                  : field.fieldRestGroup?.()
+                  : field.fixedChildren()
+                  : field.restChildren?.()
                   : dynamicComponent
               )?.()
             "
@@ -27,25 +27,6 @@
             [ngComponentOutletDirectives]="field.directives"
           ></ng-container>
         }
-      } @else if (field.fieldArray) {
-        <!-- 自定义array -->
-        <ng-container
-          [ngComponentOutlet]="type"
-          [ngComponentOutletInputs]="
-            (
-              groupInputsValue
-              | pure
-                : field.inputs
-                : field.fieldArray()
-                : undefined
-                : dynamicComponent
-            )?.()
-          "
-          [ngComponentOutletOutputs]="field.outputs()"
-          [ngComponentOutletWrappers]="wrappers"
-          [ngComponentOutletField]="field"
-          [ngComponentOutletDirectives]="field.directives"
-        ></ng-container>
       } @else {
         <ng-container
           [ngComponentOutlet]="type"
