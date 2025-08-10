@@ -321,7 +321,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         if (initValue) {
           result.form.control?.updateInitValue(fieldGroup.initedValue?.[key]);
         }
-        this.allFieldInitHookCall();
         return result;
       };
       function removeItem(key: string) {
@@ -336,7 +335,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         fieldGroup.removeRestControl(key);
       }
 
-      fieldGroup.beforeUpdateList.push((restObj, initUpdate) => {
+      fieldGroup.beforeUpdateList.push((restObj = {}, initUpdate) => {
         const restControl = fieldGroup.resetControls$();
         for (const key in restControl) {
           if (key in restObj) {
@@ -344,17 +343,23 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           }
           removeItem(key);
         }
+        let isUpdateItem = false;
         for (const key in restObj) {
           if (key in restControl) {
             continue;
           }
+          isUpdateItem = true;
           updateItem(key, initUpdate);
+        }
+        if (isUpdateItem) {
+          this.allFieldInitHookCall();
         }
       });
       field.action = {
         set: (value, key: string) => {
           untracked(() => {
             let result = updateItem(key, true);
+            this.allFieldInitHookCall();
             result.form.control!.updateValue(value);
           });
         },
@@ -406,8 +411,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return result;
   }
   #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
-    arrayItem.field.fieldArray = signal([]);
-    const { templateField, form } = arrayItem;
+    const { templateField, form, field } = arrayItem;
+    field.fieldArray = signal([]);
 
     const updateItem = (
       list: _PiResolvedCommonViewFieldConfig[],
@@ -449,8 +454,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         arrayItem.field.fieldArray!.set(list);
       }
     });
-    arrayItem.field.action = {
-      set: (value, index) => {
+    field.action = {
+      set: (value, index: number) => {
         untracked(() => {
           index = (
             typeof index === 'number'
