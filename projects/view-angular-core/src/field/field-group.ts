@@ -3,7 +3,11 @@ import { computed, signal } from '@angular/core';
 import { AbstractControl } from './abstract_model';
 import { deepEqual } from 'fast-equals';
 import { isFieldLogicGroup } from './is-field';
-
+const enum UpdateType {
+  init = 0,
+  update = 1,
+  reset = 2,
+}
 export class FieldGroup<
   TControl extends { [K in keyof TControl]: AbstractControl<any> } = any,
 > extends AbstractControl {
@@ -23,23 +27,28 @@ export class FieldGroup<
       this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
     );
   });
-  override children$$ = computed(() => Object.values(this.controls$()));
+  override children$$ = computed(() => Object.values(this.selfControls$()));
 
-  controls$ = signal<Record<string, AbstractControl>>({});
+  selfControls$ = signal<Record<string, AbstractControl>>({});
+  resetControls$ = signal<Record<string, AbstractControl>>({});
+  beforeUpdateList: ((
+    value: Record<string, any>,
+    initValue: boolean,
+  ) => void)[] = [];
+
+  #control$$ = computed(() => {
+    return {
+      ...this.selfControls$(),
+      ...this.resetControls$(),
+    };
+  });
   get controls() {
-    return this.controls$();
+    return this.#control$$();
   }
 
-  registerControl(name: string, control: AbstractControl) {
-    if (this.controls$()[name]) return this.controls$()[name];
-    this.controls$.update((controls) => ({ ...controls, [name]: control }));
-    control.setParent(this);
-    return control;
-  }
-
-  removeControl(name: string): void {
-    if (this.controls$()[name]) {
-      this.controls$.update((controls) => {
+  removeRestControl(name: string): void {
+    if (this.resetControls$()[name]) {
+      this.resetControls$.update((controls) => {
         controls = { ...controls };
         delete controls[name];
         return controls;
@@ -48,21 +57,16 @@ export class FieldGroup<
   }
 
   override setControl(name: string, control: AbstractControl): void {
-    this.controls$.update((controls) => {
-      controls = { ...controls };
-      delete controls[name];
-      return controls;
+    let control$ = this.#inited ? this.resetControls$ : this.selfControls$;
+    control$.update((controls) => {
+      return { ...controls, [name]: control };
     });
-    if (control) this.registerControl(name, control);
+    control.setParent(this);
   }
 
   override reset(value?: any): void {
     let initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this._forEachChild((control: AbstractControl, name) => {
-      control.reset(viewValue ? (viewValue as any)[name] : undefined);
-    });
+    this.#updateValue(initValue, UpdateType.reset);
   }
 
   override getRawValue() {
@@ -74,8 +78,8 @@ export class FieldGroup<
 
   /** @internal */
   override _forEachChild(cb: (v: any, k: any) => void): void {
-    Object.keys(this.controls$()).forEach((key) => {
-      const control = this.controls$()[key];
+    Object.keys(this.selfControls$()).forEach((key) => {
+      const control = this.selfControls$()[key];
       control && cb(control, key);
     });
   }
@@ -93,51 +97,70 @@ export class FieldGroup<
   }
 
   override find(name: string): AbstractControl | null {
-    return this.controls$()[name];
+    return this.selfControls$()[name];
   }
   looseValue$$ = computed(() => {
-    const resetValue = this.#inputValue$();
+    const resetValue = this.resetValue$();
     if (!resetValue || isFieldLogicGroup(this.parent)) {
-      return {};
+      return undefined;
     }
-    const controls = this.controls$();
-    const looseValue = {} as any;
-    for (const key in resetValue) {
-      if (!(key in controls)) {
-        looseValue[key] = resetValue[key];
-      }
-    }
-    return looseValue;
+    return resetValue;
   });
-  /**
-   * loose object
-   * todo 动态添加
-   *  */
-  #inputValue$ = signal({} as Record<string, any>);
-  #setInputValue(obj: any) {
-    this.#inputValue$.set(obj);
+  resetValue$ = signal<any>(undefined);
+  #updateValue(value: any, type: UpdateType) {
+    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
+    if (type === UpdateType.init) {
+      this.initedValue = viewValue;
+    }
+    if (this.config$().groupMode === 'reset') {
+      let resetObj = this.#getResetValue(viewValue);
+      this.beforeUpdateList.forEach((fn) =>
+        fn(resetObj, type !== UpdateType.init),
+      );
+    } else if (
+      type === UpdateType.init
+        ? this.config$().groupMode === 'loose'
+        : this.config$().groupMode === 'default' ||
+          this.config$().groupMode === 'loose'
+    ) {
+      let resetObj = this.#getResetValue(viewValue);
+      this.resetValue$.set(resetObj);
+    }
+    this._forEachChild((control, key) => {
+      if (type === UpdateType.init) {
+        control.updateInitValue(viewValue?.[key]);
+      } else if (type === UpdateType.update) {
+        control.updateValue(viewValue?.[key]);
+      } else {
+        control.reset(viewValue ? (viewValue as any)[key] : undefined);
+      }
+    });
   }
   override updateValue(value: any): void {
     if (deepEqual(value, this.value$$())) {
       return;
     }
-    if (!deepEqual(value, this.#inputValue$())) {
-      this.#setInputValue(value);
-    }
-    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-
-    for (const key in this.controls$()) {
-      const control = this.controls$()[key];
-      control.updateValue(viewValue?.[key]);
-    }
+    this.#updateValue(value, UpdateType.update);
   }
+  #getResetValue(inputValue: any) {
+    let controls = this.selfControls$();
+    return inputValue
+      ? Object.keys(inputValue).reduce(
+          (obj, item) => {
+            if (!(item in controls)) {
+              obj[item] = inputValue[item];
+            }
+            return obj;
+          },
+          {} as Record<string, any>,
+        )
+      : {};
+  }
+  #inited = false;
+  initedValue: any;
   override updateInitValue(value: any): void {
+    this.#inited = true;
     let initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    for (const key in this.controls$()) {
-      const control = this.controls$()[key];
-      control.updateInitValue(viewValue?.[key]);
-    }
+    this.#updateValue(initValue, UpdateType.init);
   }
 }

@@ -25,10 +25,13 @@ export interface BuildGroupItem<
   SchemaHandle extends CoreSchemaHandle<any, any>,
 > {
   type: 'group';
+  templateField?: SchemaHandle;
+
   fields: SchemaHandle[];
   form: FieldGroup;
   field: _PiResolvedCommonViewFieldConfig;
   append: (input: _PiResolvedCommonViewFieldConfig) => void;
+  skipAppend?: boolean;
 }
 export interface BuildArrayItem<
   SchemaHandle extends CoreSchemaHandle<any, any>,

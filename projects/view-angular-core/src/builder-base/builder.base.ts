@@ -246,7 +246,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     if (field.movePath) {
       this.#moveViewField(field.movePath, resolvedConfig);
     } else {
-      parent.append(resolvedConfig);
+      if (parent.type === 'group' && !parent.skipAppend) {
+        parent.append(resolvedConfig);
+      }
     }
     if (field.alias) {
       this.#scopeMap.set(field.alias, resolvedConfig);
@@ -269,6 +271,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       );
       this.#buildField({
         type: 'group' as const,
+        templateField: field.arrayChild,
         fields: field.children,
         field: resolvedConfig,
         form: (control || parent.form) as FieldGroup,
@@ -296,12 +299,73 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
 
   #buildGroup(groupItem: BuildGroupItem<SchemaHandle>) {
     for (let index = 0; index < groupItem.fields.length; index++) {
-      const field = groupItem.fields[index];
-      this.#buildControl(groupItem, field, index);
+      this.#buildControl(groupItem, groupItem.fields[index], index);
     }
 
     /** 虚拟group不存在hooks */
     const field = groupItem.field as PiResolvedCommonViewFieldConfig<any, any>;
+    if (field.form.control && groupItem.templateField) {
+      field.fieldRestGroup = signal([]);
+      const fieldGroup = field.form.control as FieldGroup;
+
+      function removeResetGroup(key: string) {
+        field.fieldRestGroup!.update((list) => {
+          let index = list.findIndex(
+            (item) => item.keyPath.slice(-1)[0] === key,
+          );
+          list = [...list];
+          list.splice(index, 1);
+          return list;
+        });
+        fieldGroup.removeRestControl(key);
+      }
+      const updateResetGroup = (key: string, initValue: boolean) => {
+        let result = this.createObjectRestItem(
+          { ...groupItem, skipAppend: true },
+          {
+            ...groupItem.templateField!,
+            key,
+          },
+        );
+        field.fieldRestGroup!.update((list) => {
+          return [...list, result];
+        });
+        if (initValue) {
+          result.form.control?.updateInitValue(fieldGroup.initedValue?.[key]);
+        }
+        this.allFieldInitHookCall();
+        return result;
+      };
+      fieldGroup.beforeUpdateList.push((restObj, initValue) => {
+        let restControl = fieldGroup.resetControls$();
+        for (const key in restControl) {
+          if (key in restObj) {
+            continue;
+          }
+          removeResetGroup(key);
+        }
+        for (const key in restObj) {
+          if (key in restControl) {
+            continue;
+          }
+          updateResetGroup(key, initValue);
+        }
+      });
+      field.action = {
+        // 因为数组需要有动态添加的能力,所以才加上,group不需要
+        set: (value, key: string) => {
+          untracked(() => {
+            let result = updateResetGroup(key, true);
+            result.form.control!.updateValue(value);
+          });
+        },
+        remove: (key: string) => {
+          untracked(() => {
+            removeResetGroup(key);
+          });
+        },
+      };
+    }
     field.hooks?.afterChildrenInit?.(field);
   }
   createArrayItem(
@@ -334,9 +398,40 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     result.injector = injector.get(EnvironmentInjector);
     return result;
   }
+  createObjectRestItem(
+    parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
+    // 单独一项
+    field: AnyCoreSchemaHandle,
+  ) {
+    const result = this.#buildControl(parent, field as any, 0);
+    this.#allFieldInitHookList.push(() => this.allFieldInitHookCall());
+    return result;
+  }
   #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
     const { templateField, form } = arrayItem;
-
+    const updateItem = (
+      list: _PiResolvedCommonViewFieldConfig[],
+      index: number,
+      initValue: boolean,
+    ) => {
+      const result = this.createArrayItem(arrayItem, templateField, index);
+      list[index] = result;
+      if (initValue) {
+        result.form.control?.updateInitValue(form.initedValue?.[index]);
+      }
+      return result;
+    };
+    function removeItem(
+      list: _PiResolvedCommonViewFieldConfig[],
+      index: number,
+    ) {
+      const [deletedItem] = list!.splice(index, 1);
+      form.removeAt(index);
+      if (deletedItem) {
+        deletedItem.injector!.destroy();
+        deletedItem.injector = undefined;
+      }
+    }
     arrayItem.field.action = {
       // 因为数组需要有动态添加的能力,所以才加上,group不需要
       set: (value, index) => {
@@ -346,13 +441,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
               ? index
               : (arrayItem.field.fieldArray?.().length ?? 0)
           )!;
-          const result = this.createArrayItem(arrayItem, templateField, index);
           const list = [...arrayItem.field.fieldArray!()];
-          list[index] = result;
+          const result = updateItem(list, index, true);
           arrayItem.field.fieldArray!.set(list);
-          result.form.control?.updateInitValue(
-            arrayItem.field.form.control?.config$().defaultValue?.[index],
-          );
+          arrayItem.field.hooks?.afterChildrenInit?.(arrayItem.field);
           this.allFieldInitHookCall();
           result.form.control!.updateValue(value);
         });
@@ -360,45 +452,26 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       remove: (index: number) => {
         untracked(() => {
           const list = [...arrayItem.field.fieldArray!()];
-          const [deletedItem] = list!.splice(index, 1);
+          removeItem(list, index);
           arrayItem.field.fieldArray!.set(list);
-          form.removeAt(index);
-          if (deletedItem) {
-            deletedItem.injector!.destroy();
-            deletedItem.injector = undefined;
-          }
         });
       },
     };
     arrayItem.field.fieldArray = signal([]);
-    arrayItem.field.hooks?.afterChildrenInit?.(arrayItem.field);
 
-    form.beforeUpdateList.push((input = []) => {
+    form.beforeUpdateList.push((input = [], initUpdate) => {
       const controlLength = form.controls$().length;
       if (controlLength < input.length) {
-        const list = arrayItem.field.fieldArray!().slice();
+        const list = [...arrayItem.field.fieldArray!()];
         for (let index = controlLength; index < input.length; index++) {
-          const result = this.createArrayItem(
-            arrayItem,
-            arrayItem.templateField,
-            index,
-          );
-          list[index] = result;
+          updateItem(list, index, initUpdate);
         }
         arrayItem.field.fieldArray!.set(list);
+        arrayItem.field.hooks?.afterChildrenInit?.(arrayItem.field);
       } else if (input.length < controlLength) {
         const list = arrayItem.field.fieldArray!().slice();
-        for (
-          let index = arrayItem.field.fieldArray!().length - 1;
-          index >= input.length;
-          index--
-        ) {
-          const [deletedItem] = list.splice(index, 1);
-          form.removeAt(index);
-          if (deletedItem) {
-            deletedItem.injector?.destroy();
-            deletedItem.injector = undefined;
-          }
+        for (let index = list.length - 1; index >= input.length; index--) {
+          removeItem(list, index);
         }
         arrayItem.field.fieldArray!.set(list);
       }

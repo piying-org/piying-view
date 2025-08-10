@@ -63,7 +63,7 @@ export class FieldArray<
     let initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.beforeUpdateList.forEach((item) => item(viewValue));
+    this.beforeUpdateList.forEach((item) => item(viewValue, false));
     this._forEachChild((control: AbstractControl, index: number) => {
       control.reset(initValue[index]);
     });
@@ -99,22 +99,24 @@ export class FieldArray<
   override find(name: number): AbstractControl {
     return this.controls$()[this._adjustIndex(name)];
   }
-  beforeUpdateList: ((value: any[]) => void)[] = [];
+  beforeUpdateList: ((value: any[], initValue: boolean) => void)[] = [];
   override updateValue(value: any[] = []): void {
     if (deepEqual(value, this.value$$())) {
       return;
     }
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-    this.beforeUpdateList.forEach((item) => item(viewValue));
+    this.beforeUpdateList.forEach((item) => item(viewValue, true));
     this.controls$().forEach((control, i) => {
       control.updateValue(viewValue[i]);
     });
   }
+  initedValue: any;
   override updateInitValue(value: any): void {
     let initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.beforeUpdateList.forEach((item) => item(viewValue));
+    this.initedValue = viewValue;
+    this.beforeUpdateList.forEach((item) => item(viewValue, false));
     this.controls$().forEach((control, i) => {
       control.updateInitValue(viewValue?.[i]);
     });

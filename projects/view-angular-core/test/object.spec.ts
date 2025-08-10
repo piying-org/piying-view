@@ -5,6 +5,7 @@ import {
   _PiResolvedCommonViewFieldConfig,
   formConfig,
   NFCSchema,
+  setComponent,
 } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import {
@@ -314,5 +315,86 @@ describe('对象', () => {
     expect(result.form.root.value).toEqual({ k1: '1', k2: '2' });
     result.form.root.reset();
     expect(result.form.root.value).toEqual({ k1: '123', k2: 'k2-value' });
+  });
+
+  it('object rest', () => {
+    const obj = v.pipe(
+      v.objectWithRest(
+        {
+          key1: v.string(),
+        },
+        v.number(),
+      ),
+      setComponent('object'),
+    );
+    const resolved = createBuilder(obj);
+    assertFieldGroup(resolved.form.control);
+    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
+      0,
+    );
+    expect(resolved.fieldGroup!().length).toEqual(1);
+    expect(resolved.fieldRestGroup!().length).toEqual(0);
+    resolved.action.set(11, 'r1');
+    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
+      1,
+    );
+    expect(resolved.fieldGroup!().length).toEqual(1);
+    expect(resolved.fieldRestGroup!().length).toEqual(1);
+    expect(resolved.fieldRestGroup!()![0].form.parent).toBe(
+      resolved.form.control,
+    );
+    resolved.action.remove('r1');
+    expect(resolved.fieldGroup!().length).toEqual(1);
+    expect(resolved.fieldRestGroup!().length).toEqual(0);
+    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
+      0,
+    );
+  });
+  it('object rest default', () => {
+    const obj = v.pipe(
+      v.optional(
+        v.objectWithRest(
+          {
+            key1: v.string(),
+          },
+          v.string(),
+        ),
+        { key1: '1', key2: '2' },
+      ),
+      setComponent('object'),
+    );
+    const resolved = createBuilder(obj);
+    assertFieldGroup(resolved.form.control);
+    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      1,
+    );
+    resolved.action.set(11, 'r1');
+    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      2,
+    );
+    expect(resolved.fieldRestGroup!().length).toEqual(2);
+    resolved.form.control.reset();
+    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      1,
+    );
+    expect(resolved.fieldRestGroup!().length).toEqual(1);
   });
 });

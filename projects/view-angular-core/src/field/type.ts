@@ -32,13 +32,11 @@ export interface FieldFormConfig<T = any> {
   emptyValue?: any;
   /** array  */
   deletionMode?: ArrayDeletionMode;
+  /** group */
+  groupMode?:'loose'|'default'|'strict'|'reset'
 }
 
-type MakeSignal<T> = {
-  [K in keyof T]: T[K] extends Signal<infer A>
-    ? WritableSignal<A>
-    : WritableSignal<T[K]>;
-};
+
 
 export type FieldFormConfig$ = WritableSignal<FieldFormConfig>;
 export type FieldGroupConfig$ = WritableSignal<

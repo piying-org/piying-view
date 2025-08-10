@@ -47,6 +47,7 @@ export type PiResolvedCommonViewFieldConfig<
   readonly props: WritableSignal<Record<string, any>>;
   fieldGroup?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   fieldArray?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
+  fieldRestGroup?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   parent: ReturnType<SelfResolvedFn>;
   readonly form: {
     readonly control?: FieldGroup | FieldArray | FieldControl | FieldLogicGroup;
@@ -71,8 +72,8 @@ export type PiResolvedCommonViewFieldConfig<
     ) => PiResolvedCommonViewFieldConfig<any, any>,
   ) => ReturnType<SelfResolvedFn> | undefined;
   action: {
-    set: (value: any, index?: number) => void;
-    remove: (index: number) => void;
+    set: (value: any, index?: any) => void;
+    remove: (index: any) => void;
   };
   readonly define?: Define;
 
