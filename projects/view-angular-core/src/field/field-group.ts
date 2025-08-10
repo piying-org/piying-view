@@ -27,21 +27,24 @@ export class FieldGroup<
       this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
     );
   });
-  override children$$ = computed(() => Object.values(this.selfControls$()));
+  override children$$ = computed(() => [
+    ...Object.values(this.fixedControls$()),
+    ...Object.values(this.resetControls$()),
+  ]);
 
-  selfControls$ = signal<Record<string, AbstractControl>>({});
+  fixedControls$ = signal<Record<string, AbstractControl>>({});
   resetControls$ = signal<Record<string, AbstractControl>>({});
   beforeUpdateList: ((
     value: Record<string, any>,
     initValue: boolean,
   ) => void)[] = [];
 
-  #control$$ = computed(() => ({
-    ...this.selfControls$(),
+  #controls$$ = computed(() => ({
+    ...this.fixedControls$(),
     ...this.resetControls$(),
   }));
   get controls() {
-    return this.#control$$();
+    return this.#controls$$();
   }
 
   removeRestControl(name: string): void {
@@ -55,7 +58,7 @@ export class FieldGroup<
   }
 
   override setControl(name: string, control: AbstractControl): void {
-    const control$ = this.#inited ? this.resetControls$ : this.selfControls$;
+    const control$ = this.#inited ? this.resetControls$ : this.fixedControls$;
     control$.update((controls) => ({ ...controls, [name]: control }));
     control.setParent(this);
   }
@@ -74,7 +77,7 @@ export class FieldGroup<
 
   /** @internal */
   override _forEachChild(cb: (v: any, k: any) => void): void {
-    const controls = this.#control$$();
+    const controls = this.#controls$$();
     Object.keys(controls).forEach((key) => {
       cb(controls[key], key);
     });
@@ -93,7 +96,7 @@ export class FieldGroup<
   }
 
   override find(name: string): AbstractControl | null {
-    return this.selfControls$()[name];
+    return this.#controls$$()[name];
   }
   looseValue$$ = computed(() => {
     const resetValue = this.resetValue$();
@@ -139,7 +142,7 @@ export class FieldGroup<
     this.#updateValue(value, UpdateType.update);
   }
   #getResetValue(inputValue: any) {
-    const controls = this.selfControls$();
+    const controls = this.fixedControls$();
     return inputValue
       ? Object.keys(inputValue).reduce(
           (obj, item) => {

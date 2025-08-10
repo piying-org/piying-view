@@ -21,9 +21,9 @@ export class FieldLogicGroup extends FieldArray {
     if (this.activateControl$()) {
       list = this.activateControl$()!;
     } else if (this.type() === 'and') {
-      list = this.controls$();
+      list = this.fixedControls$();
     } else if (this.type() === 'or') {
-      list = [this.controls$()[this.activateIndex$()]];
+      list = [this.fixedControls$()[this.activateIndex$()]];
     } else {
       throw new Error('');
     }
@@ -52,7 +52,7 @@ export class FieldLogicGroup extends FieldArray {
     const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.controls$().forEach((control, i) => {
+    this.fixedControls$().forEach((control, i) => {
       control.reset(viewValue);
     });
   }
@@ -64,7 +64,7 @@ export class FieldLogicGroup extends FieldArray {
       return;
     }
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-    this.controls$().forEach((control, i) => {
+    this.fixedControls$().forEach((control, i) => {
       control.updateValue(viewValue);
     });
   }
@@ -72,7 +72,7 @@ export class FieldLogicGroup extends FieldArray {
     const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.controls$().forEach((control, i) => {
+    this.fixedControls$().forEach((control, i) => {
       control.updateInitValue(viewValue);
     });
   }

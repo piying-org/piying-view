@@ -434,7 +434,6 @@ describe('子级解析', () => {
   it('or-禁用测试', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const fields1$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const fields2$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({
       v1: v.pipe(
         v.union([
@@ -443,7 +442,6 @@ describe('子级解析', () => {
               v.pipe(
                 v.optional(v.string(), 'k1-value'),
                 getField(fields1$),
-
                 setComponent('test4'),
               ),
             ]),
@@ -469,7 +467,6 @@ describe('子级解析', () => {
     const field1 = await fields1$.promise;
 
     expect(field1.form.control!.value).toEqual('k1-value');
-
     expect(instance.model$()).toEqual({
       v1: { k1: ['k1-value'] },
     });

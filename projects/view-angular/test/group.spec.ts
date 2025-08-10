@@ -154,8 +154,6 @@ describe('group初始化', () => {
     expect(displayValueEl.innerHTML).toBe('value2');
   });
   it('多级路径删除', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       v1: v.object({
         key1: v.pipe(
@@ -163,14 +161,6 @@ describe('group初始化', () => {
           setComponent(Test1Component),
           setInputs({
             input1: 'div-display',
-          }),
-          setOutputs({
-            output1: (value) => {
-              subject1.next(value);
-            },
-            output2: (value) => {
-              subject2.next(value);
-            },
           }),
         ),
       }),

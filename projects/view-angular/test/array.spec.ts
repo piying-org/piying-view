@@ -239,7 +239,7 @@ describe('默认数组', () => {
     const field = await field$.promise;
     assertFieldArray(field.form.control);
     let isDelete = false;
-    field.form.control.controls$()[0].valueChanges.subscribe({
+    field.form.control.resetControls$()[0].valueChanges.subscribe({
       complete: () => {
         isDelete = true;
       },
@@ -262,7 +262,7 @@ describe('默认数组', () => {
     const field = await field$.promise;
     assertFieldArray(field.form.control);
     let isDelete = false;
-    field.form.control.controls$()[0].valueChanges.subscribe({
+    field.form.control.resetControls$()[0].valueChanges.subscribe({
       complete: () => {
         isDelete = true;
       },

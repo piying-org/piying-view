@@ -329,7 +329,7 @@ describe('对象', () => {
     );
     const resolved = createBuilder(obj);
     assertFieldGroup(resolved.form.control);
-    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
       1,
     );
     expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
@@ -338,7 +338,7 @@ describe('对象', () => {
     expect(resolved.fixedChildren!().length).toEqual(1);
     expect(resolved.restChildren!().length).toEqual(0);
     resolved.action.set(11, 'r1');
-    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
       1,
     );
     expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
@@ -352,7 +352,7 @@ describe('对象', () => {
     resolved.action.remove('r1');
     expect(resolved.fixedChildren!().length).toEqual(1);
     expect(resolved.restChildren!().length).toEqual(0);
-    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
       1,
     );
     expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
@@ -374,14 +374,14 @@ describe('对象', () => {
     );
     const resolved = createBuilder(obj);
     assertFieldGroup(resolved.form.control);
-    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
       1,
     );
     expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
       1,
     );
     resolved.action.set(11, 'r1');
-    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
       1,
     );
     expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
@@ -389,7 +389,7 @@ describe('对象', () => {
     );
     expect(resolved.restChildren!().length).toEqual(2);
     resolved.form.control.reset();
-    expect(Object.keys(resolved.form.control.selfControls$()).length).toEqual(
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
       1,
     );
     expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(

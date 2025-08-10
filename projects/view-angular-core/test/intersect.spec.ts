@@ -49,7 +49,8 @@ describe('对象相交', () => {
     const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(2);
     keyEqual(
-      result[0].fixedChildren!()[0].fixedChildren!()[0].fixedChildren!()[0].keyPath,
+      result[0].fixedChildren!()[0].fixedChildren!()[0].fixedChildren!()[0]
+        .keyPath,
       'bar',
     );
     keyEqual(result[1].keyPath, ['l1', 'l2', 0]);
@@ -84,7 +85,8 @@ describe('对象相交', () => {
     const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(2);
     keyEqual(
-      result[0].fixedChildren!()[0].fixedChildren!()[1].fixedChildren!()[0].keyPath,
+      result[0].fixedChildren!()[0].fixedChildren!()[1].fixedChildren!()[0]
+        .keyPath,
       'bar',
     );
     keyEqual(result[1].keyPath, ['l1', 'l2', 0, 'foo']);
@@ -128,9 +130,17 @@ describe('对象相交', () => {
     assertFieldGroup(result.fixedChildren!()[0].form.control);
     assertFieldGroup(result.fixedChildren!()[1].form.control);
     keyEqual(result.fixedChildren!()[0].fixedChildren!()[0].keyPath, 'k1');
-    keyEqual(result.fixedChildren!()[0].fixedChildren!()[0].fixedChildren!()[0].keyPath, 'k2');
+    keyEqual(
+      result.fixedChildren!()[0].fixedChildren!()[0].fixedChildren!()[0]
+        .keyPath,
+      'k2',
+    );
     keyEqual(result.fixedChildren!()[1].fixedChildren!()[0].keyPath, 'k1');
-    keyEqual(result.fixedChildren!()[1].fixedChildren!()[0].fixedChildren!()[0].keyPath, 'k3');
+    keyEqual(
+      result.fixedChildren!()[1].fixedChildren!()[0].fixedChildren!()[0]
+        .keyPath,
+      'k3',
+    );
   });
 
   it('intersect转移位置', () => {

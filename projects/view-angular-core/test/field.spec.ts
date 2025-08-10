@@ -28,7 +28,7 @@ describe('field', () => {
     expect(result.fixedChildren).toBeTruthy();
     assertFieldArray(result.form.control);
     result.form.control?.updateValue(['v1']);
-    expect(result.form.control.controls$().length).toEqual(1);
+    expect(result.form.control.resetControls$().length).toEqual(1);
     expect(result.form.control.value$$()).toEqual(['v1']);
     result.form.control?.updateValue([1]);
     expect(result.form.control.errors).toBeTruthy();

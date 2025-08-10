@@ -184,7 +184,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     let keyPath: RawKeyPath | undefined = field.key;
 
     if (isFieldLogicGroup(parent.form)) {
-      keyPath ??= parent.form.controls$().length;
+      keyPath ??= parent.form.fixedControls$().length;
     } else if (isFieldArray(parent.form)) {
       keyPath ??= index;
     }
@@ -429,14 +429,14 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       index: number,
     ) {
       const [deletedItem] = list!.splice(index, 1);
-      form.removeAt(index);
+      form.removeRestControl(index);
       if (deletedItem) {
         deletedItem.injector!.destroy();
         deletedItem.injector = undefined;
       }
     }
     form.beforeUpdateList.push((input = [], initUpdate) => {
-      const controlLength = form.controls$().length;
+      const controlLength = form.resetControls$().length;
       if (controlLength < input.length) {
         const list = [...arrayItem.field.fixedChildren!()];
         for (let index = controlLength; index < input.length; index++) {

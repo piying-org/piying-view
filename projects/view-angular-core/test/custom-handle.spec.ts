@@ -15,7 +15,8 @@ describe('自定义handle', () => {
     const obj = v.object({
       key1: v.pipe(v.string()),
     });
-    const list = createBuilder(obj, { handle: HiddenType as any }).fixedChildren!();
+    const list = createBuilder(obj, { handle: HiddenType as any })
+      .fixedChildren!();
     expect(list.length).toBe(1);
     assertFieldControl(list[0].form.control);
 
