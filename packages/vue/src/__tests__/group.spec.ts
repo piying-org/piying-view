@@ -9,6 +9,7 @@ import { signal } from 'static-injector';
 import GroupSwap from './component/group-swap.vue';
 import { delay } from './util/delay';
 import GroupAttr from './component/group-attributes.vue';
+import RestGroup from './component/group/rest-group.vue';
 describe('group', () => {
   it('切换', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -55,5 +56,28 @@ describe('group', () => {
     });
     const el = instance.find('.test1.group-attr');
     expect(el.exists()).true;
+  });
+  it('rest', async () => {
+    const define = v.pipe(
+      v.objectWithRest(
+        {
+          k1: v.pipe(v.string()),
+        },
+        v.pipe(v.string()),
+      ),
+      setComponent(RestGroup),
+    );
+
+    const value = shallowRef({ k1: 'value1', k2: '22' });
+    const { instance } = await createComponent(define, value, {});
+    expect(instance.find('.fields input').exists()).true;
+    expect(instance.find('.rest-fields input').exists()).true;
+    instance.setProps({
+      ...instance.props(),
+      modelValue: { k1: 'value1' },
+    });
+    await delay(10);
+    expect(instance.find('.fields input').exists()).true;
+    expect(instance.find('.rest-fields input').exists()).false;
   });
 });

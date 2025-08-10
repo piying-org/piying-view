@@ -25,8 +25,13 @@ const renderConfig = signalToRef(() => props.field.renderConfig());
 const attributes = signalToRef(() => props.field.attributes());
 const fieldInput = computed(() => ({ ...attributes.value, ...inputs.value }));
 const fieldGroup = signalToRef(() => props.field.fieldGroup?.());
+const fieldRestGroup = signalToRef(() => props.field.fieldRestGroup?.());
 const fieldArray = signalToRef(() => props.field.fieldArray?.());
-const groupInput = computed(() => ({ ...fieldInput.value, fields: fieldGroup.value }));
+const groupInput = computed(() => ({
+  ...fieldInput.value,
+  fields: fieldGroup.value,
+  restFields: fieldRestGroup.value,
+}));
 const arrayInput = computed(() => ({ ...fieldInput.value, fields: fieldArray.value }));
 const wrappers = signalToRef(() => props.field.wrappers());
 

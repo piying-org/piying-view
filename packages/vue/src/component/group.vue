@@ -4,6 +4,7 @@ import FieldTemplate from '../field-template.vue';
 
 const dInputs = defineProps<{
   fields: PiResolvedViewFieldConfig[];
+  restFields?: PiResolvedViewFieldConfig[];
 }>();
 </script>
 

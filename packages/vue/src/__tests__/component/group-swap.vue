@@ -8,6 +8,7 @@ import {
 } from '../../index';
 const dInputs = defineProps<{
   fields: PiResolvedViewFieldConfig[];
+  restFields?: PiResolvedViewFieldConfig[];
   activateIndex: number;
 }>();
 const field = inject(PI_VIEW_FIELD_TOKEN);
