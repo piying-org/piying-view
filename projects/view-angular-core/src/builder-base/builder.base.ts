@@ -412,71 +412,72 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const { templateField, form, field } = arrayItem;
     // todo tuple
     field.fixedChildren = signal([]);
-    field.restChildren = signal([]);
-
-    const updateItem = (
-      list: _PiResolvedCommonViewFieldConfig[],
-      index: number,
-      initValue: boolean,
-    ) => {
-      const result = this.createArrayItem(arrayItem, templateField, index);
-      list[index] = result;
-      if (initValue) {
-        result.form.control?.updateInitValue(form.initedValue?.[index]);
-      }
-      return result;
-    };
-    function removeItem(
-      list: _PiResolvedCommonViewFieldConfig[],
-      index: number,
-    ) {
-      const [deletedItem] = list!.splice(index, 1);
-      form.removeRestControl(index);
-      if (deletedItem) {
-        deletedItem.injector!.destroy();
-        deletedItem.injector = undefined;
-      }
-    }
-    form.beforeUpdateList.push((input = [], initUpdate) => {
-      const controlLength = form.resetControls$().length;
-      if (controlLength < input.length) {
-        const list = [...field.restChildren!()];
-        for (let index = controlLength; index < input.length; index++) {
-          updateItem(list, index, initUpdate);
+    if (templateField) {
+      field.restChildren = signal([]);
+      const updateItem = (
+        list: _PiResolvedCommonViewFieldConfig[],
+        index: number,
+        initValue: boolean,
+      ) => {
+        const result = this.createArrayItem(arrayItem, templateField, index);
+        list[index] = result;
+        if (initValue) {
+          result.form.control?.updateInitValue(form.initedValue?.[index]);
         }
-        field.restChildren!.set(list);
-        this.allFieldInitHookCall();
-      } else if (input.length < controlLength) {
-        const list = [...field.restChildren!()];
-        for (let index = list.length - 1; index >= input.length; index--) {
-          removeItem(list, index);
+        return result;
+      };
+      function removeItem(
+        list: _PiResolvedCommonViewFieldConfig[],
+        index: number,
+      ) {
+        const [deletedItem] = list!.splice(index, 1);
+        form.removeRestControl(index);
+        if (deletedItem) {
+          deletedItem.injector!.destroy();
+          deletedItem.injector = undefined;
         }
-        field.restChildren!.set(list);
       }
-    });
-    field.action = {
-      set: (value, index: number) => {
-        untracked(() => {
-          index = (
-            typeof index === 'number'
-              ? index
-              : (field.restChildren?.().length ?? 0)
-          )!;
+      form.beforeUpdateList.push((input = [], initUpdate) => {
+        const controlLength = form.resetControls$().length;
+        if (controlLength < input.length) {
           const list = [...field.restChildren!()];
-          const result = updateItem(list, index, true);
+          for (let index = controlLength; index < input.length; index++) {
+            updateItem(list, index, initUpdate);
+          }
           field.restChildren!.set(list);
           this.allFieldInitHookCall();
-          result.form.control!.updateValue(value);
-        });
-      },
-      remove: (index: number) => {
-        untracked(() => {
+        } else if (input.length < controlLength) {
           const list = [...field.restChildren!()];
-          removeItem(list, index);
+          for (let index = list.length - 1; index >= input.length; index--) {
+            removeItem(list, index);
+          }
           field.restChildren!.set(list);
-        });
-      },
-    };
+        }
+      });
+      field.action = {
+        set: (value, index: number) => {
+          untracked(() => {
+            index = (
+              typeof index === 'number'
+                ? index
+                : (field.restChildren?.().length ?? 0)
+            )!;
+            const list = [...field.restChildren!()];
+            const result = updateItem(list, index, true);
+            field.restChildren!.set(list);
+            this.allFieldInitHookCall();
+            result.form.control!.updateValue(value);
+          });
+        },
+        remove: (index: number) => {
+          untracked(() => {
+            const list = [...field.restChildren!()];
+            removeItem(list, index);
+            field.restChildren!.set(list);
+          });
+        },
+      };
+    }
   }
 
   #resolveComponent(type: string | any) {
