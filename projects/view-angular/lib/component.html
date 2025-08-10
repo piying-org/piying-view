@@ -6,7 +6,7 @@
     @let wrappersResource = resolvedWrapper | pure: field.wrappers();
     @let wrappers = wrappersResource.value();
     @if (type) {
-      @if (field.fixedChildren) {
+      @if (field.fixedChildren || field.restChildren) {
         @if (!(groupHidden | pure: field)()) {
           <!-- 自定义group -->
           <ng-container
@@ -16,7 +16,7 @@
                 groupInputsValue
                 | pure
                   : field.inputs
-                  : field.fixedChildren()
+                  : field.fixedChildren?.()
                   : field.restChildren?.()
                   : dynamicComponent
               )?.()

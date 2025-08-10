@@ -47,8 +47,8 @@ export class FieldArray<
   }
 
   override setControl(index: number, control: TControl): void {
-    const control$ = this.#inited ? this.resetControls$ : this.fixedControls$;
-    control$.update((list) => {
+    const controls$ = this.#inited ? this.resetControls$ : this.fixedControls$;
+    controls$.update((list) => {
       list = list.slice() as any;
       list[index] = control;
       return list;
@@ -71,7 +71,7 @@ export class FieldArray<
   }
 
   override getRawValue() {
-    return this.resetControls$().map((control: AbstractControl) =>
+    return this.children$$().map((control: AbstractControl) =>
       control.getRawValue(),
     );
   }
@@ -79,7 +79,7 @@ export class FieldArray<
   clear(): void {
     if (this.resetControls$().length < 1) return;
 
-    this.resetControls$.update(() => []);
+    this.beforeUpdateList.forEach((fn) => fn([], false));
   }
 
   /** @internal */

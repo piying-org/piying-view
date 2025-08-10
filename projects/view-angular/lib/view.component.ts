@@ -177,10 +177,7 @@ export class PiyingView implements OnChanges {
       if (!field.fixedChildren?.().length) {
         return true;
       } else {
-        return (
-          !field.fixedChildren ||
-          field.fixedChildren().every((field) => this.#groupHidden(field))
-        );
+        return field.fixedChildren().every((field) => this.#groupHidden(field));
       }
     } else {
       return !field.define || !!field.renderConfig().hidden;

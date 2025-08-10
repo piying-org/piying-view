@@ -79,7 +79,7 @@ describe('field', () => {
     const obj = v.array(v.string());
     const result = createBuilder(obj);
     result.form.control!.updateValue(['1']);
-    result.fixedChildren!()[0].form.control!.disable();
+    result.restChildren!()[0].form.control!.disable();
     expect(result.form.control?.getRawValue()).toEqual(['1']);
   });
   it('getRawValue logicGroup', async () => {

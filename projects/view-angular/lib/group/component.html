@@ -3,3 +3,8 @@
     *ngTemplateOutlet="fieldTemplateRef(); context: { $implicit: field }"
   ></ng-container>
 }
+@for (field of restFields(); track field.id || $index) {
+  <ng-container
+    *ngTemplateOutlet="fieldTemplateRef(); context: { $implicit: field }"
+  ></ng-container>
+}

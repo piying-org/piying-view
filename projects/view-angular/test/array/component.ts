@@ -4,7 +4,7 @@ import { PiyingViewGroup } from '@piying/view-angular';
 import { PiyingViewGroupBase } from '@piying/view-angular';
 
 @Component({
-  selector: 'app-group1',
+  selector: 'app-array1',
   templateUrl: './component.html',
   standalone: true,
   providers: [],

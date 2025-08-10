@@ -26,8 +26,12 @@ export function fieldQuery(
   } else if (typeof firstPath === 'string' && firstPath.startsWith('@')) {
     const queryField = aliasMap.get(firstPath.slice(1));
     list = [{ field: queryField!, level: 1 }];
-  } else if (field.fixedChildren) {
-    list = groupGenerator(field.fixedChildren())
+  } else if (field.fixedChildren || field.restChildren) {
+    let children = [
+      ...(field.fixedChildren?.() ?? []),
+      ...(field.restChildren?.() ?? []),
+    ];
+    list = groupGenerator(children)
       .filter(
         (field) => field.keyPath && arrayStartsWith(keyPath, field.keyPath),
       )

@@ -410,7 +410,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   }
   #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
     const { templateField, form, field } = arrayItem;
+    // todo tuple
     field.fixedChildren = signal([]);
+    field.restChildren = signal([]);
 
     const updateItem = (
       list: _PiResolvedCommonViewFieldConfig[],
@@ -438,18 +440,18 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     form.beforeUpdateList.push((input = [], initUpdate) => {
       const controlLength = form.resetControls$().length;
       if (controlLength < input.length) {
-        const list = [...arrayItem.field.fixedChildren!()];
+        const list = [...field.restChildren!()];
         for (let index = controlLength; index < input.length; index++) {
           updateItem(list, index, initUpdate);
         }
-        arrayItem.field.fixedChildren!.set(list);
+        field.restChildren!.set(list);
         this.allFieldInitHookCall();
       } else if (input.length < controlLength) {
-        const list = [...arrayItem.field.fixedChildren!()];
+        const list = [...field.restChildren!()];
         for (let index = list.length - 1; index >= input.length; index--) {
           removeItem(list, index);
         }
-        arrayItem.field.fixedChildren!.set(list);
+        field.restChildren!.set(list);
       }
     });
     field.action = {
@@ -458,20 +460,20 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           index = (
             typeof index === 'number'
               ? index
-              : (arrayItem.field.fixedChildren?.().length ?? 0)
+              : (field.restChildren?.().length ?? 0)
           )!;
-          const list = [...arrayItem.field.fixedChildren!()];
+          const list = [...field.restChildren!()];
           const result = updateItem(list, index, true);
-          arrayItem.field.fixedChildren!.set(list);
+          field.restChildren!.set(list);
           this.allFieldInitHookCall();
           result.form.control!.updateValue(value);
         });
       },
       remove: (index: number) => {
         untracked(() => {
-          const list = [...arrayItem.field.fixedChildren!()];
+          const list = [...field.restChildren!()];
           removeItem(list, index);
-          arrayItem.field.fixedChildren!.set(list);
+          field.restChildren!.set(list);
         });
       },
     };

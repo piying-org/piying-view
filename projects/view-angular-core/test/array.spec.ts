@@ -107,8 +107,10 @@ describe('array', () => {
     expect(result.form.control.value).toEqual(['v1', 'v2']);
     result.form.control.clear();
     expect(result.form.control.controls).toEqual([]);
+    expect(result.restChildren!()).toEqual([]);
     result.form.control.clear();
     expect(result.form.control.controls).toEqual([]);
+    expect(result.restChildren!()).toEqual([]);
   });
   it('array default value', async () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();

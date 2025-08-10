@@ -42,10 +42,11 @@ describe('lazy', () => {
     const obj = v.object({
       key1: v.lazy(() => v.array(v.lazy(() => v.array(v.string())))),
     });
-    const result = createBuilder(obj).fixedChildren!();
-    assertFieldArray(result[0].form.control);
-    result[0].action.set([], 0);
-    expect(result[0].fixedChildren!().length).toEqual(1);
-    assertFieldArray(result[0].fixedChildren!()[0].form.control);
+    const result = createBuilder(obj);    
+    let list = result.fixedChildren!();
+    assertFieldArray(list[0].form.control);
+    list[0].action.set([], 0);
+    expect(list[0].restChildren!().length).toEqual(1);
+    assertFieldArray(list[0].restChildren!()[0].form.control);
   });
 });
