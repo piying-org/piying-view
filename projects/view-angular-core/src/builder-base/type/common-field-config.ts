@@ -24,8 +24,6 @@ export type CoreResolvedComponentDefine = SetWrapper$<
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
   fieldResolved?: (field: RESOLVED_FIELD) => void;
-  /** 子级已经初始化,每次array添加都会触发 */
-  afterChildrenInit?: (field: RESOLVED_FIELD) => void;
   /** 所有feilds初始化后执行,也就是可以进行表单监听 */
   allFieldsResolved?: (field: RESOLVED_FIELD) => void;
   /** todo 此hook暂时没有使用到 创建组件之前 */

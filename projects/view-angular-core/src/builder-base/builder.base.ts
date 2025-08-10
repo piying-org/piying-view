@@ -307,20 +307,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     if (field.form.control && groupItem.templateField) {
       field.fieldRestGroup = signal([]);
       const fieldGroup = field.form.control as FieldGroup;
-
-      function removeResetGroup(key: string) {
-        field.fieldRestGroup!.update((list) => {
-          let index = list.findIndex(
-            (item) => item.keyPath.slice(-1)[0] === key,
-          );
-          list = [...list];
-          list.splice(index, 1);
-          return list;
-        });
-        fieldGroup.removeRestControl(key);
-      }
-      const updateResetGroup = (key: string, initValue: boolean) => {
-        let result = this.createObjectRestItem(
+      const updateItem = (key: string, initValue: boolean) => {
+        let result = this.#createObjectRestItem(
           { ...groupItem, skipAppend: true },
           {
             ...groupItem.templateField!,
@@ -336,37 +324,47 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         this.allFieldInitHookCall();
         return result;
       };
-      fieldGroup.beforeUpdateList.push((restObj, initValue) => {
-        let restControl = fieldGroup.resetControls$();
+      function removeItem(key: string) {
+        field.fieldRestGroup!.update((list) => {
+          let index = list.findIndex(
+            (item) => item.keyPath.slice(-1)[0] === key,
+          );
+          list = [...list];
+          list.splice(index, 1);
+          return list;
+        });
+        fieldGroup.removeRestControl(key);
+      }
+
+      fieldGroup.beforeUpdateList.push((restObj, initUpdate) => {
+        const restControl = fieldGroup.resetControls$();
         for (const key in restControl) {
           if (key in restObj) {
             continue;
           }
-          removeResetGroup(key);
+          removeItem(key);
         }
         for (const key in restObj) {
           if (key in restControl) {
             continue;
           }
-          updateResetGroup(key, initValue);
+          updateItem(key, initUpdate);
         }
       });
       field.action = {
-        // 因为数组需要有动态添加的能力,所以才加上,group不需要
         set: (value, key: string) => {
           untracked(() => {
-            let result = updateResetGroup(key, true);
+            let result = updateItem(key, true);
             result.form.control!.updateValue(value);
           });
         },
         remove: (key: string) => {
           untracked(() => {
-            removeResetGroup(key);
+            removeItem(key);
           });
         },
       };
     }
-    field.hooks?.afterChildrenInit?.(field);
   }
   createArrayItem(
     parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
@@ -398,7 +396,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     result.injector = injector.get(EnvironmentInjector);
     return result;
   }
-  createObjectRestItem(
+  #createObjectRestItem(
     parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
     // 单独一项
     field: AnyCoreSchemaHandle,
@@ -408,7 +406,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return result;
   }
   #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
+    arrayItem.field.fieldArray = signal([]);
     const { templateField, form } = arrayItem;
+
     const updateItem = (
       list: _PiResolvedCommonViewFieldConfig[],
       index: number,
@@ -432,8 +432,24 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         deletedItem.injector = undefined;
       }
     }
+    form.beforeUpdateList.push((input = [], initUpdate) => {
+      const controlLength = form.controls$().length;
+      if (controlLength < input.length) {
+        const list = [...arrayItem.field.fieldArray!()];
+        for (let index = controlLength; index < input.length; index++) {
+          updateItem(list, index, initUpdate);
+        }
+        arrayItem.field.fieldArray!.set(list);
+        this.allFieldInitHookCall();
+      } else if (input.length < controlLength) {
+        const list = [...arrayItem.field.fieldArray!()];
+        for (let index = list.length - 1; index >= input.length; index--) {
+          removeItem(list, index);
+        }
+        arrayItem.field.fieldArray!.set(list);
+      }
+    });
     arrayItem.field.action = {
-      // 因为数组需要有动态添加的能力,所以才加上,group不需要
       set: (value, index) => {
         untracked(() => {
           index = (
@@ -444,7 +460,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           const list = [...arrayItem.field.fieldArray!()];
           const result = updateItem(list, index, true);
           arrayItem.field.fieldArray!.set(list);
-          arrayItem.field.hooks?.afterChildrenInit?.(arrayItem.field);
           this.allFieldInitHookCall();
           result.form.control!.updateValue(value);
         });
@@ -457,26 +472,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         });
       },
     };
-    arrayItem.field.fieldArray = signal([]);
-
-    form.beforeUpdateList.push((input = [], initUpdate) => {
-      const controlLength = form.controls$().length;
-      if (controlLength < input.length) {
-        const list = [...arrayItem.field.fieldArray!()];
-        for (let index = controlLength; index < input.length; index++) {
-          updateItem(list, index, initUpdate);
-        }
-        arrayItem.field.fieldArray!.set(list);
-        arrayItem.field.hooks?.afterChildrenInit?.(arrayItem.field);
-      } else if (input.length < controlLength) {
-        const list = arrayItem.field.fieldArray!().slice();
-        for (let index = list.length - 1; index >= input.length; index--) {
-          removeItem(list, index);
-        }
-        arrayItem.field.fieldArray!.set(list);
-      }
-      this.allFieldInitHookCall();
-    });
   }
 
   #resolveComponent(type: string | any) {
