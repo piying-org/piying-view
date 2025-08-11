@@ -370,40 +370,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       };
     }
   }
-  createArrayItem(
-    parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
-    // 单独一项
-    field: AnyCoreSchemaHandle,
-    index: number,
-  ) {
-    const Builder = this.constructor as any as typeof FormBuilder;
-    const injector = Injector.create({
-      providers: [
-        Builder,
-        {
-          provide: PI_FORM_BUILDER_ALIAS_MAP,
-          useValue: new ParentMap<
-            string,
-            PiResolvedCommonViewFieldConfig<any, any>
-          >(this.#scopeMap),
-        },
-        { provide: EnvironmentInjector, useFactory: () => injector },
-      ],
-      parent: this.#envInjector,
-    });
-    this.#envInjector.get(DestroyRef).onDestroy(() => {
-      result.injector?.destroy();
-    });
-    const instance = injector.get(Builder);
-    const result = instance.#buildControl(
-      { ...parent, skipAppend: true },
-      field,
-      index,
-    );
-    this.#allFieldInitHookList.push(() => instance.allFieldInitHookCall());
-    result.injector = injector.get(EnvironmentInjector);
-    return result;
-  }
   #createObjectRestItem(
     parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
     // 单独一项
@@ -413,6 +379,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     this.#allFieldInitHookList.push(() => this.allFieldInitHookCall());
     return result;
   }
+
   #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
     const { templateField, form, field, fields } = arrayItem;
     field.fixedChildren = signal(
@@ -430,7 +397,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         index: number,
         initValue: boolean,
       ) => {
-        const result = this.createArrayItem(arrayItem, templateField, index);
+        const result = this.#createArrayItem(arrayItem, templateField, index);
         list[index] = result;
         if (initValue) {
           result.form.control?.updateInitValue(form.initedValue?.[index]);
@@ -490,7 +457,40 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       };
     }
   }
-
+  #createArrayItem(
+    parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
+    // 单独一项
+    field: AnyCoreSchemaHandle,
+    index: number,
+  ) {
+    const Builder = this.constructor as any as typeof FormBuilder;
+    const injector = Injector.create({
+      providers: [
+        Builder,
+        {
+          provide: PI_FORM_BUILDER_ALIAS_MAP,
+          useValue: new ParentMap<
+            string,
+            PiResolvedCommonViewFieldConfig<any, any>
+          >(this.#scopeMap),
+        },
+        { provide: EnvironmentInjector, useFactory: () => injector },
+      ],
+      parent: this.#envInjector,
+    });
+    this.#envInjector.get(DestroyRef).onDestroy(() => {
+      result.injector?.destroy();
+    });
+    const instance = injector.get(Builder);
+    const result = instance.#buildControl(
+      { ...parent, skipAppend: true },
+      field,
+      index,
+    );
+    this.#allFieldInitHookList.push(() => instance.allFieldInitHookCall());
+    result.injector = injector.get(EnvironmentInjector);
+    return result;
+  }
   #resolveComponent(type: string | any) {
     let define;
     let defaultConfig;
