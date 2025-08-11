@@ -4,6 +4,7 @@ import {
   PI_VIEW_CONFIG_TOKEN,
 } from './type/token';
 import {
+  computed,
   DestroyRef,
   EnvironmentInjector,
   inject,
@@ -95,6 +96,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     } else {
       this.#buildArray(item);
     }
+    item.field.children = computed(() => [
+      ...item.field.fixedChildren!(),
+      ...(item.field.restChildren?.() ?? []),
+    ]);
   }
   afterResolveConfig(
     rawConfig: SchemaHandle,

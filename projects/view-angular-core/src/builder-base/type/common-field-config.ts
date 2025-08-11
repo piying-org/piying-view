@@ -43,6 +43,7 @@ export type PiResolvedCommonViewFieldConfig<
   readonly keyPath?: KeyPath | undefined;
   readonly fullPath: KeyPath;
   readonly props: WritableSignal<Record<string, any>>;
+  children?: Signal<ReturnType<SelfResolvedFn>[]>;
   fixedChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   restChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   parent: ReturnType<SelfResolvedFn>;

@@ -12,14 +12,7 @@
           <ng-container
             [ngComponentOutlet]="type"
             [ngComponentOutletInputs]="
-              (
-                groupInputsValue
-                | pure
-                  : field.inputs
-                  : field.fixedChildren?.()
-                  : field.restChildren?.()
-                  : dynamicComponent
-              )?.()
+              (groupInputsValue | pure: field.inputs : dynamicComponent)?.()
             "
             [ngComponentOutletOutputs]="field.outputs()"
             [ngComponentOutletWrappers]="wrappers"

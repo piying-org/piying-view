@@ -1,12 +1,12 @@
 <div class="fields">
-  @for (field of fields(); track field.id || $index) {
+  @for (field of field$$().fixedChildren!(); track field.id || $index) {
     <ng-container
       *ngTemplateOutlet="fieldTemplateRef(); context: { $implicit: field }"
     ></ng-container>
   }
 </div>
 <div class="rest-fields">
-  @for (field2 of restFields(); track field2.id || $index) {
+  @for (field2 of field$$().restChildren?.(); track field2.id || $index) {
     <ng-container
       *ngTemplateOutlet="fieldTemplateRef(); context: { $implicit: field2 }"
     ></ng-container>

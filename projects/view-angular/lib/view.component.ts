@@ -146,14 +146,11 @@ export class PiyingView implements OnChanges {
 
   groupInputsValue = (
     inputs: PiResolvedViewFieldConfig['inputs'],
-    fields: PiResolvedViewFieldConfig[],
-    restFields: PiResolvedViewFieldConfig[] | undefined,
+
     fieldTemplateRef: TemplateRef<any>,
   ) =>
     computed(() => ({
       ...inputs(),
-      fields,
-      restFields,
       fieldTemplateRef,
     }));
 
