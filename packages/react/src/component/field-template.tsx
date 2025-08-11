@@ -25,23 +25,10 @@ export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
     field.renderConfig(),
   );
 
-  const fieldGroup = useSignalToRef(props.field, (field) =>
-    field.fieldGroup?.(),
+  const fieldChildren = useSignalToRef(props.field, (field) =>
+    field.children?.(),
   );
-  const fieldRestGroup = useSignalToRef(props.field, (field) =>
-    field.fieldRestGroup?.(),
-  );
-  const fieldArray = useSignalToRef(props.field, (field) =>
-    field.fieldArray?.(),
-  );
-  const groupInputs = useMemo(
-    () => ({ ...fieldInputs, fields: fieldGroup, restFields: fieldRestGroup }),
-    [fieldInputs, fieldGroup, fieldRestGroup],
-  );
-  const arrayInputs = useMemo(
-    () => ({ ...fieldInputs, fields: fieldArray }),
-    [fieldInputs, fieldArray],
-  );
+
   const wrappers = useSignalToRef(props.field, (field) => field.wrappers());
 
   const control = props.field.form.control;
@@ -78,10 +65,8 @@ export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
       <PI_VIEW_FIELD_TOKEN value={props.field}>
         {!isHidden ? (
           <PiyingWrapper wrappers={wrappers}>
-            {fieldGroup ? (
-              <ComponentType {...groupInputs}></ComponentType>
-            ) : fieldArray ? (
-              <ComponentType {...arrayInputs}></ComponentType>
+            {fieldChildren ? (
+              <ComponentType {...fieldInputs}></ComponentType>
             ) : props.field.form.control ? (
               <ComponentType {...fieldControlInput}></ComponentType>
             ) : (
