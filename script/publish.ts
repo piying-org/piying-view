@@ -5,6 +5,10 @@ async function main() {
   let dir = path.join(process.cwd(), 'dist');
   let list = fs.readdirSync(dir);
   for (const item of list) {
+    await fs.promises.cp(
+      path.join(process.cwd(), 'readme.md'),
+      path.join(dir, item, 'readme.md'),
+    );
     await $({ stdio: 'inherit' })('npm', [
       'publish',
       '--access=public',
@@ -14,6 +18,6 @@ async function main() {
     ]);
     console.log(`⬆️${item}✅`);
   }
-  console.log(`⬆️🔚`);
+  console.log(`🏁⬆️🔚`);
 }
 main();
