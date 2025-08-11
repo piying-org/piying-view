@@ -4,7 +4,7 @@ import { inject } from 'vue';
 import { PI_VIEW_FIELD_TOKEN } from '../token';
 import { signalToRef } from '../util';
 
-const field = inject(PI_VIEW_FIELD_TOKEN);
+const field = inject(PI_VIEW_FIELD_TOKEN)!;
 const children = signalToRef(() => field?.value.children!());
 </script>
 
