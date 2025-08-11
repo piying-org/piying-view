@@ -2,6 +2,7 @@ import { computed, signal } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
 import { deepEqual } from 'fast-equals';
+import { UpdateType } from './type';
 
 export class FieldArray<
   TControl extends AbstractControl<any> = any,
@@ -63,13 +64,7 @@ export class FieldArray<
 
   override reset(value?: any[]): void {
     const initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    const resetValue = this.#getResetValue(viewValue);
-    this.beforeUpdateList.forEach((item) => item(resetValue, false));
-    this._forEachChild((control: AbstractControl, index: number) => {
-      control.reset(initValue[index]);
-    });
+    this.#updateValue(initValue, UpdateType.reset);
   }
 
   override getRawValue() {
@@ -113,29 +108,48 @@ export class FieldArray<
   #getResetValue(value: any[] = []) {
     return value.slice(this.fixedControls$().length);
   }
+  resetValue$ = signal<any>(undefined);
+
+  #updateValue(value: any, type: UpdateType) {
+    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
+    if (type === UpdateType.init) {
+      this.initedValue = viewValue;
+    }
+    if (this.config$().groupMode === 'reset') {
+      let restValue = this.#getResetValue(viewValue);
+      this.beforeUpdateList.forEach((fn) =>
+        fn(restValue, type !== UpdateType.init),
+      );
+    } else if (
+      type === UpdateType.init
+        ? this.config$().groupMode === 'loose'
+        : this.config$().groupMode === 'default' ||
+          this.config$().groupMode === 'loose'
+    ) {
+      const resetObj = this.#getResetValue(viewValue);
+      this.resetValue$.set(resetObj);
+    }
+    this._forEachChild((control, key) => {
+      if (type === UpdateType.init) {
+        control.updateInitValue(viewValue?.[key]);
+      } else if (type === UpdateType.update) {
+        control.updateValue(viewValue?.[key]);
+      } else {
+        control.reset(viewValue ? (viewValue as any)[key] : undefined);
+      }
+    });
+  }
   override updateValue(value: any[] = []): void {
     if (deepEqual(value, this.value$$())) {
       return;
     }
-    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-    const resetValue = this.#getResetValue(viewValue);
-    this.beforeUpdateList.forEach((item) => item(resetValue, true));
-    this._forEachChild((control, i) => {
-      control.updateValue(viewValue[i]);
-    });
+    this.#updateValue(value, UpdateType.update);
   }
   #inited = false;
   initedValue: any;
   override updateInitValue(value: any): void {
     this.#inited = true;
     const initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.initedValue = viewValue;
-    const resetValue = this.#getResetValue(viewValue);
-    this.beforeUpdateList.forEach((item) => item(resetValue, false));
-    this._forEachChild((control, i) => {
-      control.updateInitValue(viewValue?.[i]);
-    });
+    this.#updateValue(initValue, UpdateType.init);
   }
 }

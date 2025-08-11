@@ -3,11 +3,8 @@ import { computed, signal } from '@angular/core';
 import { AbstractControl } from './abstract_model';
 import { deepEqual } from 'fast-equals';
 import { isFieldLogicGroup } from './is-field';
-const enum UpdateType {
-  init = 0,
-  update = 1,
-  reset = 2,
-}
+import { UpdateType } from './type';
+
 export class FieldGroup<
   TControl extends { [K in keyof TControl]: AbstractControl<any> } = any,
 > extends AbstractControl {
@@ -74,7 +71,10 @@ export class FieldGroup<
       return acc;
     }) as any;
   }
-
+  clear(): void {
+    if (Object.keys(this.resetControls$()).length < 1) return;
+    this.beforeUpdateList.forEach((fn) => fn({}, false));
+  }
   /** @internal */
   override _forEachChild(cb: (v: any, k: any) => void): void {
     const controls = this.#controls$$();

@@ -46,3 +46,8 @@ export type FieldArrayConfig$ = WritableSignal<
 export type FieldLogicGroupConfig$ = WritableSignal<
   Omit<FieldFormConfig, 'defaultValue'>
 >;
+export const enum UpdateType {
+  init = 0,
+  update = 1,
+  reset = 2,
+}
