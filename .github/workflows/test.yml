@@ -1,8 +1,6 @@
 name: test
 on:
   push:
-    branches:
-      - 'main'
 permissions:
   contents: write
 jobs:
