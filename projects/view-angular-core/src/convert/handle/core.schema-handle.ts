@@ -116,6 +116,15 @@ export class CoreSchemaHandle<
       this.formConfig.groupMode = 'strict';
     }
   }
+  override recordSchema(
+    key: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+    value: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+  ): void {
+    super.recordSchema(key, value);
+    this.isGroup = true;
+    // equal {[name:string]:v.InferOutput< typeof value>}
+    this.restSchema(value);
+  }
   override restSchema(
     schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
   ): void {

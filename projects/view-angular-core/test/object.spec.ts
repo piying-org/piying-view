@@ -397,4 +397,26 @@ describe('对象', () => {
     );
     expect(resolved.restChildren!().length).toEqual(1);
   });
+  it('record rest default', () => {
+    const obj = v.pipe(
+      v.record(v.string(), v.number()),
+      setComponent('object'),
+    );
+    const resolved = createBuilder(obj);
+    assertFieldGroup(resolved.form.control);
+    resolved.form.control.updateValue({ v1: 1 });
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      0,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      1,
+    );
+    resolved.action.set('v2', 2);
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      0,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      2,
+    );
+  });
 });

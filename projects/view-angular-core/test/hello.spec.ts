@@ -142,7 +142,7 @@ describe('hello', () => {
     const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(1);
     // typeEqual(result[0].type, 'record');
-    assertFieldControl(result[0].form.control);
+    assertFieldGroup(result[0].form.control);
   });
   it('any', () => {
     const obj = v.object({
