@@ -82,6 +82,14 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #buildField(
     item: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
   ) {
+    item.field.fixedChildren = signal(
+      new SortedArray<_PiResolvedCommonViewFieldConfig>(
+        (a, b) => a.priority - b.priority,
+      ),
+    );
+    for (let index = 0; index < item.fields.length; index++) {
+      this.#buildControl(item, item.fields[index], index);
+    }
     if (item.type === 'group') {
       this.#buildGroup(item);
     } else {
@@ -294,15 +302,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   }
 
   #buildGroup(buildItem: BuildGroupItem<SchemaHandle>) {
-    const { templateField, form, field, fields } = buildItem;
-    field.fixedChildren = signal(
-      new SortedArray<_PiResolvedCommonViewFieldConfig>(
-        (a, b) => a.priority - b.priority,
-      ),
-    );
-    for (let index = 0; index < fields.length; index++) {
-      this.#buildControl(buildItem, fields[index], index);
-    }
+    const { templateField, form, field } = buildItem;
 
     if (templateField && field.form.control) {
       field.restChildren = signal([]);
@@ -378,15 +378,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   }
 
   #buildArray(buildItem: BuildArrayItem<SchemaHandle>) {
-    const { templateField, form, field, fields } = buildItem;
-    field.fixedChildren = signal(
-      new SortedArray<_PiResolvedCommonViewFieldConfig>(
-        (a, b) => a.priority - b.priority,
-      ),
-    );
-    for (let index = 0; index < fields.length; index++) {
-      this.#buildControl(buildItem, fields[index], index);
-    }
+    const { templateField, form, field } = buildItem;
+
     if (templateField && field.form.control) {
       const fixedLength = field.fixedChildren?.().length ?? 0;
       field.restChildren = signal([]);
@@ -421,14 +414,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       }
       form.beforeUpdateList.push((resetValue = [], initUpdate) => {
         const controlLength = form.resetControls$().length;
-        if (controlLength < resetValue.length) {
-          const list = [...field.restChildren!()];
-          for (let index = controlLength; index < resetValue.length; index++) {
-            updateItem(list, index, initUpdate);
-          }
-          field.restChildren!.set(list);
-          this.allFieldInitHookCall();
-        } else if (resetValue.length < controlLength) {
+        if (resetValue.length < controlLength) {
           const list = [...field.restChildren!()];
           for (
             let index = list.length - 1;
@@ -438,6 +424,13 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             removeItem(list, index);
           }
           field.restChildren!.set(list);
+        } else if (controlLength < resetValue.length) {
+          const list = [...field.restChildren!()];
+          for (let index = controlLength; index < resetValue.length; index++) {
+            updateItem(list, index, initUpdate);
+          }
+          field.restChildren!.set(list);
+          this.allFieldInitHookCall();
         }
       });
       field.action = {
