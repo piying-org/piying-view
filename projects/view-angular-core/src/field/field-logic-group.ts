@@ -16,7 +16,7 @@ export class FieldLogicGroup extends FieldArray {
     );
   });
 
-  getActivateControls() {
+  #getActivateControls() {
     let list;
     if (this.activateControl$()) {
       list = this.activateControl$()!;
@@ -31,8 +31,8 @@ export class FieldLogicGroup extends FieldArray {
   }
   getValue(rawData: boolean) {
     const controls = rawData
-      ? this.getActivateControls()
-      : this.getActivateControls().filter((control) =>
+      ? this.#getActivateControls()
+      : this.#getActivateControls().filter((control) =>
           control.shouldInclude$$(),
         );
     const control = controls[0];
@@ -68,6 +68,7 @@ export class FieldLogicGroup extends FieldArray {
       control.updateValue(viewValue);
     });
   }
+  /** @internal */
   override updateInitValue(value: any): void {
     const initValue = this.getInitValue(value);
     const viewValue =

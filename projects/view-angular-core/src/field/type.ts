@@ -32,7 +32,7 @@ export interface FieldFormConfig<T = any> {
   emptyValue?: any;
   /** array  */
   deletionMode?: ArrayDeletionMode;
-  /** group */
+  /** group/array */
   groupMode?: 'loose' | 'default' | 'strict' | 'reset';
 }
 

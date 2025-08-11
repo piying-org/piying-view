@@ -324,12 +324,14 @@ export abstract class AbstractControl<TValue = any> {
   _forEachChild(cb: (c: AbstractControl, key: any) => void) {}
   updateValue(value: any) {}
   config$: FieldFormConfig$ = signal({});
+  /** @internal */
   initConfig(config: any) {
     this.config$ = config;
   }
   protected getInitValue(value: any) {
     return value ?? this.config$().defaultValue;
   }
+  /** @internal */
   updateInitValue(value: any) {}
   find(name: string | number): AbstractControl | null {
     return null;

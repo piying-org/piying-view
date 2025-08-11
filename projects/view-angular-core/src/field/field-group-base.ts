@@ -5,9 +5,12 @@ import { deepEqual } from 'fast-equals';
 import { UpdateType } from './type';
 
 export class FieldGroupbase extends AbstractControl {
+  /** @internal */
   protected getResetValue(value: any[] = []) {}
+  /** @internal */
   beforeUpdateList: ((value: any, initValue: boolean) => void)[] = [];
   resetValue$ = signal<any>(undefined);
+  /** @internal */
   protected _updateValue(value: any, type: UpdateType) {
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
     if (type === UpdateType.init) {
@@ -40,7 +43,9 @@ export class FieldGroupbase extends AbstractControl {
   }
 
   protected inited = false;
+  /** @internal */
   initedValue: any;
+  /** @internal */
   override updateInitValue(value: any): void {
     this.inited = true;
     const initValue = this.getInitValue(value);
