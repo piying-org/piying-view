@@ -83,19 +83,13 @@ describe('hello', () => {
     expect(result[0].form.control?.value$$()).toEqual(['1']);
   });
   it('tuple', async () => {
-    const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
-
-    const obj = v.object({
-      key1: v.pipe(v.tuple([v.string(), v.number()]), getField(field$)),
-    });
-    const result = createBuilder(obj).fixedChildren!();
-
-    expect(result.length).toBe(1);
-    expect(result[0].fixedChildren).toBeTruthy();
-
-    assertFieldArray(result[0].form.control);
-    result[0].form.control?.updateValue(['1', 0]);
-    expect(result[0].form.control?.value$$()).toEqual(['1', 0]);
+    const obj = v.pipe(v.tuple([v.string(), v.number()]), )
+    const result = createBuilder(obj)
+    expect(result.fixedChildren?.().length).toBe(2);
+    expect(result.restChildren?.()).toBeFalsy();
+    assertFieldArray(result.form.control);
+    result.form.control?.updateValue(['1', 0]);
+    expect(result.form.control?.value$$()).toEqual(['1', 0]);
   });
   it('enum', () => {
     enum E1 {

@@ -246,7 +246,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     if (field.movePath) {
       this.#moveViewField(field.movePath, resolvedConfig);
     } else {
-      if (parent.type === 'group' && !parent.skipAppend) {
+      if (
+        (parent.type === 'group' || parent.type === 'array') &&
+        !parent.skipAppend
+      ) {
         parent.append(resolvedConfig);
       }
     }
@@ -258,12 +261,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       parent.resolvedField$.set(resolvedConfig);
     }
     // 递归进行解析
-    if (
-      isGroup(field) ||
-      field.isLogicAnd ||
-      field.isLogicOr ||
-      field.isTuple
-    ) {
+    if (isGroup(field) || field.isLogicAnd || field.isLogicOr) {
       resolvedConfig.fixedChildren = signal(
         new SortedArray<_PiResolvedCommonViewFieldConfig>(
           (a, b) => a.priority - b.priority,
@@ -279,13 +277,16 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           resolvedConfig.fixedChildren!().push(field);
         },
       });
-    } else if (isArray(field)) {
+    } else if (isArray(field) || field.isTuple) {
       this.#buildField({
         type: 'array' as const,
         templateField: field.arrayChild,
+        fields: field.children,
         field: resolvedConfig,
         form: control as FieldArray,
-        append: (field) => {},
+        append: (field) => {
+          resolvedConfig.fixedChildren!().push(field);
+        },
       });
     }
     if (resolvedConfig.hooks?.allFieldsResolved) {
@@ -394,7 +395,11 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       result.injector?.destroy();
     });
     const instance = injector.get(Builder);
-    const result = instance.#buildControl(parent, field, index);
+    const result = instance.#buildControl(
+      { ...parent, skipAppend: true },
+      field,
+      index,
+    );
     this.#allFieldInitHookList.push(() => instance.allFieldInitHookCall());
     result.injector = injector.get(EnvironmentInjector);
     return result;
@@ -409,9 +414,15 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return result;
   }
   #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
-    const { templateField, form, field } = arrayItem;
-    // todo tuple
-    field.fixedChildren = signal([]);
+    const { templateField, form, field, fields } = arrayItem;
+    field.fixedChildren = signal(
+      new SortedArray<_PiResolvedCommonViewFieldConfig>(
+        (a, b) => a.priority - b.priority,
+      ),
+    );
+    for (let index = 0; index < fields.length; index++) {
+      this.#buildControl(arrayItem, fields[index], index);
+    }
     if (templateField) {
       field.restChildren = signal([]);
       const updateItem = (

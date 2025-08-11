@@ -38,7 +38,9 @@ export interface BuildArrayItem<
 > {
   type: 'array';
   templateField: SchemaHandle;
+  fields: SchemaHandle[];
   form: FieldArray;
   field: _PiResolvedCommonViewFieldConfig;
   append: (input: _PiResolvedCommonViewFieldConfig) => void;
+  skipAppend?: boolean;
 }
