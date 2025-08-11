@@ -164,4 +164,49 @@ describe('array', () => {
     expect(result.form.control.resetControls$().length).toEqual(2);
     expect(result.form.control!.value).toEqual(['v1', 0, 1]);
   });
+  it('tuple loose optional', async () => {
+    const obj = v.pipe(
+      v.optional(v.looseTuple([v.string()]), ['v1', 0, 1]),
+      setComponent('array'),
+    );
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    expect(result.fixedChildren?.().length).toEqual(1);
+    expect(result.restChildren?.().length ?? 0).toEqual(0);
+    expect(result.form.control.fixedControls$().length).toEqual(1);
+    expect(result.form.control.resetControls$().length).toEqual(0);
+    expect(result.form.control!.value).toEqual(['v1', 0, 1]);
+  });
+  it('tuple loose reset', async () => {
+    const obj = v.pipe(
+      v.optional(v.looseTuple([v.string()]), ['v1', 0, 1]),
+      setComponent('array'),
+    );
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    result.form.control.updateValue(['v1']);
+    expect(result.fixedChildren?.().length).toEqual(1);
+    expect(result.restChildren?.().length ?? 0).toEqual(0);
+    expect(result.form.control.fixedControls$().length).toEqual(1);
+    expect(result.form.control.resetControls$().length).toEqual(0);
+    expect(result.form.control!.value).toEqual(['v1']);
+
+    result.form.control.reset();
+    expect(result.fixedChildren?.().length).toEqual(1);
+    expect(result.restChildren?.().length ?? 0).toEqual(0);
+    expect(result.form.control.fixedControls$().length).toEqual(1);
+    expect(result.form.control.resetControls$().length).toEqual(0);
+    expect(result.form.control!.value).toEqual(['v1', 0, 1]);
+  });
+  it('tuple loose update', async () => {
+    const obj = v.pipe(v.looseTuple([v.string()]), setComponent('array'));
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    result.form.control.updateValue(['v1', 0, 1]);
+    expect(result.fixedChildren?.().length).toEqual(1);
+    expect(result.restChildren?.().length ?? 0).toEqual(0);
+    expect(result.form.control.fixedControls$().length).toEqual(1);
+    expect(result.form.control.resetControls$().length).toEqual(0);
+    expect(result.form.control!.value).toEqual(['v1', 0, 1]);
+  });
 });

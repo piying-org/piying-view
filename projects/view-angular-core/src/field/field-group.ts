@@ -16,7 +16,8 @@ export class FieldGroup<
       }
       return acc;
     });
-    const result = { ...value, ...this.looseValue$$() };
+
+    const result = { ...value, ...this.#looseValue$$() };
     const returnResult = Object.keys(result).length
       ? result
       : this.emptyValue$$();
@@ -98,7 +99,7 @@ export class FieldGroup<
   override find(name: string): AbstractControl | null {
     return this.#controls$$()[name];
   }
-  looseValue$$ = computed(() => {
+  #looseValue$$ = computed(() => {
     const resetValue = this.resetValue$();
     if (!resetValue || isFieldLogicGroup(this.parent)) {
       return undefined;

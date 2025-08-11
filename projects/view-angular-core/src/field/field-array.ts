@@ -9,7 +9,7 @@ export class FieldArray<
 > extends AbstractControl {
   #deletionMode$$ = computed(() => this.config$().deletionMode ?? 'shrink');
   override value$$ = computed<any>(() => {
-    const list: any[] = [];
+    let list: any[] = [];
     this._reduceChildren(list, (acc, control, name) => {
       if (control && control.shouldInclude$$()) {
         list.push(control.value$$());
@@ -22,7 +22,7 @@ export class FieldArray<
       }
       return list;
     });
-
+    list = [...list, ...(this.resetValue$() ?? [])];
     const returnResult = list.length === 0 ? this.emptyValue$$() : list;
     return (
       this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
@@ -116,7 +116,7 @@ export class FieldArray<
       this.initedValue = viewValue;
     }
     if (this.config$().groupMode === 'reset') {
-      let restValue = this.#getResetValue(viewValue);
+      const restValue = this.#getResetValue(viewValue);
       this.beforeUpdateList.forEach((fn) =>
         fn(restValue, type !== UpdateType.init),
       );
@@ -126,8 +126,8 @@ export class FieldArray<
         : this.config$().groupMode === 'default' ||
           this.config$().groupMode === 'loose'
     ) {
-      const resetObj = this.#getResetValue(viewValue);
-      this.resetValue$.set(resetObj);
+      const resetValue = this.#getResetValue(viewValue);
+      this.resetValue$.set(resetValue);
     }
     this._forEachChild((control, key) => {
       if (type === UpdateType.init) {
