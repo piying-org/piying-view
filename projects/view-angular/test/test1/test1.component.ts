@@ -17,7 +17,7 @@ import {
   NG_VALUE_ACCESSOR,
   NgControl,
 } from '@angular/forms';
-import { PiResolvedViewFieldConfig } from '@piying/view-angular';
+import { BaseControl, PiResolvedViewFieldConfig } from '@piying/view-angular';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
 
 @Component({
@@ -30,7 +30,8 @@ import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Test1Component implements ControlValueAccessor {
+export class Test1Component extends BaseControl {
+  override defaultValue = '';
   // 理论上不应该放到自定义控件中,但是为了测试
   field = inject(PI_VIEW_FIELD_TOKEN);
   input1 = input();
@@ -42,36 +43,21 @@ export class Test1Component implements ControlValueAccessor {
   ngControlChange = output<NgControl | undefined>();
   destroyedChange = output<true>();
   injector = inject(Injector);
-  constructor() {}
   ngOnInit(): void {
     this.output3.emit(this.field);
     this.ngControlChange.emit(
       this.injector.get(NgControl, undefined, { optional: true }) ?? undefined,
     );
   }
-  writeValue(obj: any): void {
-    this.value.set(obj ?? '');
-  }
-  fn: any;
-  registerOnChange(fn: any): void {
-    this.fn = fn;
-  }
-  touched: any;
-  registerOnTouched(fn: any): void {
-    this.touched = fn;
-  }
-  valueChange(value: string) {
+
+  valueChange2(value: string) {
     this.output1.emit(value);
     this.output2.emit(value);
     this.value.set(value);
-    this.fn(value);
+    this.valueChange(value);
   }
   ngOnChanges(changes: SimpleChanges): void {}
   ngOnDestroy(): void {
     this.destroyedChange.emit(true);
-  }
-  disabled$ = signal(false);
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled$.set(isDisabled);
   }
 }

@@ -8,6 +8,7 @@ import { setComponent } from '@piying/view-angular-core';
 
 import {
   patchAsyncDirective,
+  patchDirectives,
   setDirectives,
 } from '../lib/schema/action/directive';
 import { BehaviorSubject } from 'rxjs';
@@ -23,6 +24,24 @@ describe('指令', () => {
         v.string(),
         setComponent('test1'),
         setDirectives([{ type: D1Directive }]),
+        getField(field$),
+      ),
+    });
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal<Record<string, any>>({ v1: 'd1' }),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('.d1')).toBeTruthy();
+  });
+  it('patchDirectives', async () => {
+    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const define = v.object({
+      v1: v.pipe(
+        v.string(),
+        setComponent('test1'),
+        patchDirectives([{ type: D1Directive }]),
         getField(field$),
       ),
     });

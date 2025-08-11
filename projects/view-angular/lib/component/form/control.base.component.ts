@@ -2,7 +2,8 @@ import { signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 
 export class BaseControl<T = any> implements ControlValueAccessor {
-  value$ = signal<T>(undefined as any);
+  readonly defaultValue: any=undefined;
+  value$ = signal<T>(this.defaultValue ?? (undefined as any));
 
   protected emitValue?: (value: any) => void;
   registerOnChange(fn: any): void {

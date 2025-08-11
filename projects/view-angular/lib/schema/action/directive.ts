@@ -13,8 +13,8 @@ export function setDirectives<T>(items: NgDirectiveConfig[]) {
     field.directives = items;
   });
 }
-export function patchDirectives(items: NgDirectiveConfig[]) {
-  return rawConfig((field) => {
+export function patchDirectives<T>(items: NgDirectiveConfig[]) {
+  return rawConfig<T>((field) => {
     field.directives ??= [];
     field.directives.push(...items);
   });
