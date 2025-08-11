@@ -419,4 +419,28 @@ describe('对象', () => {
       2,
     );
   });
+  it('clear', async () => {
+    const obj = v.pipe(
+      v.objectWithRest({}, v.string()),
+      setComponent('object'),
+    );
+    const result = createBuilder(obj);
+    assertFieldGroup(result.form.control);
+    result.form.control!.updateValue({ v1: '1' });
+    expect(result.form.control.value).toEqual({ v1: '1' });
+    expect(result.fixedChildren!().length).toEqual(0);
+    expect(result.restChildren!().length).toEqual(1);
+    expect(Object.keys(result.form.control.fixedControls$()).length).toEqual(0);
+    expect(Object.keys(result.form.control.resetControls$()).length).toEqual(1);
+    result.form.control.clear();
+    expect(result.fixedChildren!().length).toEqual(0);
+    expect(result.restChildren!().length).toEqual(0);
+    expect(Object.keys(result.form.control.fixedControls$()).length).toEqual(0);
+    expect(Object.keys(result.form.control.resetControls$()).length).toEqual(0);
+    result.form.control.clear();
+    expect(result.fixedChildren!().length).toEqual(0);
+    expect(result.restChildren!().length).toEqual(0);
+    expect(Object.keys(result.form.control.fixedControls$()).length).toEqual(0);
+    expect(Object.keys(result.form.control.resetControls$()).length).toEqual(0);
+  });
 });
