@@ -117,12 +117,7 @@ export class FieldGroup<
       this.beforeUpdateList.forEach((fn) =>
         fn(resetObj, type !== UpdateType.init),
       );
-    } else if (
-      type === UpdateType.init
-        ? this.config$().groupMode === 'loose'
-        : this.config$().groupMode === 'default' ||
-          this.config$().groupMode === 'loose'
-    ) {
+    } else if (this.config$().groupMode === 'loose') {
       const resetObj = this.#getResetValue(viewValue);
       this.resetValue$.set(resetObj);
     }

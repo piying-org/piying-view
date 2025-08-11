@@ -203,7 +203,10 @@ describe('group相关', () => {
 
   it('对象附加值', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const define = v.object({ k1: v.pipe(v.string(), getField(field$)) });
+    const define = v.pipe(
+      v.looseObject({ k1: v.pipe(v.string(), getField(field$)) }),
+      setComponent('object'),
+    );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
       signal<Record<string, any>>({ k1: 'v1', k2: 'v2' }),

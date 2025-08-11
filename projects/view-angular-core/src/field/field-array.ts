@@ -120,12 +120,7 @@ export class FieldArray<
       this.beforeUpdateList.forEach((fn) =>
         fn(restValue, type !== UpdateType.init),
       );
-    } else if (
-      type === UpdateType.init
-        ? this.config$().groupMode === 'loose'
-        : this.config$().groupMode === 'default' ||
-          this.config$().groupMode === 'loose'
-    ) {
+    } else if (this.config$().groupMode === 'loose') {
       const resetValue = this.#getResetValue(viewValue);
       this.resetValue$.set(resetValue);
     }
