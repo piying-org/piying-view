@@ -16,6 +16,7 @@ import {
   IntersectSchema,
   LazySchema,
   MetadataAction,
+  ObjectSchema,
   Schema,
   SchemaOrPipe,
   TupleSchema,
@@ -79,10 +80,15 @@ export class CoreSchemaHandle<
       return;
     } else {
       this.isArray = true;
-      const sh = new this.globalConfig.handle(this.globalConfig, this, schema);
+      const sh = new this.globalConfig.handle(
+        this.globalConfig,
+        this,
+        schema.item,
+      );
       sh.parent = this;
       this.arrayChild = sh;
       convertSchema(schema.item as SchemaOrPipe, sh);
+      this.formConfig.groupMode = 'reset';
     }
   }
 
@@ -92,6 +98,42 @@ export class CoreSchemaHandle<
   override tupleDefault(schema: TupleSchema): void {
     super.tupleDefault(schema);
     this.isTuple = true;
+    if (schema.type === 'tuple') {
+      this.formConfig.groupMode = 'default';
+    } else if (schema.type === 'loose_tuple') {
+      this.formConfig.groupMode = 'loose';
+    } else if (schema.type === 'strict_tuple') {
+      this.formConfig.groupMode = 'strict';
+    }
+  }
+  override objectDefault(schema: ObjectSchema): void {
+    super.objectDefault(schema);
+    if (schema.type === 'object') {
+      this.formConfig.groupMode = 'default';
+    } else if (schema.type === 'loose_object') {
+      this.formConfig.groupMode = 'loose';
+    } else if (schema.type === 'strict_object') {
+      this.formConfig.groupMode = 'strict';
+    }
+  }
+  override recordSchema(
+    key: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+    value: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+  ): void {
+    super.recordSchema(key, value);
+    this.isGroup = true;
+    // equal {[name:string]:v.InferOutput< typeof value>}
+    this.restSchema(value);
+  }
+  override restSchema(
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+  ): void {
+    super.restSchema(schema);
+    const sh = new this.globalConfig.handle(this.globalConfig, this, schema);
+    sh.parent = this;
+    this.arrayChild = sh;
+    convertSchema(schema as SchemaOrPipe, sh);
+    this.formConfig.groupMode = 'reset';
   }
   override enumSchema(schema: EnumSchema): void {
     this.props ??= {};

@@ -16,14 +16,14 @@ export class FieldLogicGroup extends FieldArray {
     );
   });
 
-  getActivateControls() {
+  #getActivateControls() {
     let list;
     if (this.activateControl$()) {
       list = this.activateControl$()!;
     } else if (this.type() === 'and') {
-      list = this.controls$();
+      list = this.fixedControls$();
     } else if (this.type() === 'or') {
-      list = [this.controls$()[this.activateIndex$()]];
+      list = [this.fixedControls$()[this.activateIndex$()]];
     } else {
       throw new Error('');
     }
@@ -31,8 +31,8 @@ export class FieldLogicGroup extends FieldArray {
   }
   getValue(rawData: boolean) {
     const controls = rawData
-      ? this.getActivateControls()
-      : this.getActivateControls().filter((control) =>
+      ? this.#getActivateControls()
+      : this.#getActivateControls().filter((control) =>
           control.shouldInclude$$(),
         );
     const control = controls[0];
@@ -49,10 +49,10 @@ export class FieldLogicGroup extends FieldArray {
     return Object.keys(result).length ? result : this.emptyValue$$();
   }
   override reset(value?: any[]): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.controls$().forEach((control, i) => {
+    this.fixedControls$().forEach((control, i) => {
       control.reset(viewValue);
     });
   }
@@ -64,15 +64,16 @@ export class FieldLogicGroup extends FieldArray {
       return;
     }
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-    this.controls$().forEach((control, i) => {
+    this.fixedControls$().forEach((control, i) => {
       control.updateValue(viewValue);
     });
   }
+  /** @internal */
   override updateInitValue(value: any): void {
-    let initValue = this.getInitValue(value);
+    const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.controls$().forEach((control, i) => {
+    this.fixedControls$().forEach((control, i) => {
       control.updateInitValue(viewValue);
     });
   }

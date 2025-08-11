@@ -1,122 +1,93 @@
 import { computed, signal } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
-import { deepEqual } from 'fast-equals';
+import { FieldGroupbase } from './field-group-base';
 
 export class FieldArray<
   TControl extends AbstractControl<any> = any,
-> extends AbstractControl {
+> extends FieldGroupbase {
   #deletionMode$$ = computed(() => this.config$().deletionMode ?? 'shrink');
   override value$$ = computed<any>(() => {
-    const list = [];
-    for (const control of this.controls$()) {
+    let list: any[] = [];
+    this._reduceChildren(list, (acc, control, name) => {
       if (control && control.shouldInclude$$()) {
         list.push(control.value$$());
       } else {
         if (this.#deletionMode$$() === 'shrink') {
-          continue;
+          return list;
         } else if (this.#deletionMode$$() === 'mark') {
           list.push(undefined);
         }
       }
-    }
+      return list;
+    });
+    list = [...list, ...(this.resetValue$() ?? [])];
     const returnResult = list.length === 0 ? this.emptyValue$$() : list;
     return (
       this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
     );
   });
-  override children$$ = computed(() => this.controls$());
+  override children$$ = computed(() => [
+    ...this.fixedControls$(),
+    ...this.resetControls$(),
+  ]);
 
-  controls$ = signal<AbstractControl[]>([]);
+  fixedControls$ = signal<AbstractControl[]>([]);
+  resetControls$ = signal<AbstractControl[]>([]);
   get controls() {
-    return this.controls$();
+    return this.children$$();
   }
 
-  removeAt(index: number): void {
-    const adjustedIndex = this._adjustIndex(index);
-
-    if (this.controls$()[adjustedIndex]) {
-      this.controls$.update((list) => {
-        list = list.slice() as any;
-        list.splice(adjustedIndex, 1);
-        return list;
-      });
+  removeRestControl(key: number): void {
+    if (!this.resetControls$()[key]) {
+      return;
     }
+    this.resetControls$.update((controls) => {
+      controls = controls.slice() as any;
+      controls.splice(key, 1);
+      return controls;
+    });
   }
 
-  override setControl(index: number, control: TControl): void {
-    const adjustedIndex = this._adjustIndex(index);
-
-    this.controls$.update((list) => {
+  override setControl(key: number, control: TControl): void {
+    const controls$ = this.inited ? this.resetControls$ : this.fixedControls$;
+    key = this.inited ? key - this.fixedControls$().length : key;
+    controls$.update((list) => {
       list = list.slice() as any;
-      list[adjustedIndex] = control;
+      list[key] = control;
       return list;
     });
     control.setParent(this);
   }
 
   get length(): number {
-    return this.controls$().length;
-  }
-
-  override reset(value?: any[]): void {
-    let initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.beforeUpdateList.forEach((item) => item(viewValue));
-    this._forEachChild((control: AbstractControl, index: number) => {
-      control.reset(initValue[index]);
-    });
+    return this.controls.length;
   }
 
   override getRawValue() {
-    return this.controls$().map((control: AbstractControl) =>
-      control.getRawValue(),
-    );
+    return this._reduceChildren([], (acc, control, key) => {
+      acc[key] = control.getRawValue();
+      return acc;
+    });
   }
-
   clear(): void {
-    if (this.controls$().length < 1) return;
-
-    this.controls$.update(() => []);
-  }
-
-  private _adjustIndex(index: number): number {
-    return index < 0 ? Math.max(index + this.length, 0) : index;
+    if (this.resetControls$().length < 1) return;
+    this.beforeUpdateList.forEach((fn) => fn([], false));
   }
 
   /** @internal */
-  override _forEachChild(
-    cb: (c: AbstractControl, index: number) => void,
-  ): void {
-    this.controls$().forEach((control: AbstractControl, index: number) => {
+  override _forEachChild(cb: (c: AbstractControl, key: number) => void): void {
+    this.children$$().forEach((control: AbstractControl, index: number) => {
       if (control) {
         cb(control, index);
       }
     });
   }
 
-  override find(name: number): AbstractControl {
-    return this.controls$()[this._adjustIndex(name)];
+  override find(key: number): AbstractControl {
+    return this.children$$()[key];
   }
-  beforeUpdateList: ((value: any[]) => void)[] = [];
-  override updateValue(value: any[] = []): void {
-    if (deepEqual(value, this.value$$())) {
-      return;
-    }
-    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-    this.beforeUpdateList.forEach((item) => item(viewValue));
-    this.controls$().forEach((control, i) => {
-      control.updateValue(viewValue[i]);
-    });
-  }
-  override updateInitValue(value: any): void {
-    let initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.beforeUpdateList.forEach((item) => item(viewValue));
-    this.controls$().forEach((control, i) => {
-      control.updateInitValue(viewValue?.[i]);
-    });
+  override getResetValue(value: any[] = []) {
+    return value.slice(this.fixedControls$().length);
   }
 }

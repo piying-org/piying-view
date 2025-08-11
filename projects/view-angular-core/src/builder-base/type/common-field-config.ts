@@ -24,8 +24,6 @@ export type CoreResolvedComponentDefine = SetWrapper$<
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
   fieldResolved?: (field: RESOLVED_FIELD) => void;
-  /** 子级已经初始化,每次array添加都会触发 */
-  afterChildrenInit?: (field: RESOLVED_FIELD) => void;
   /** 所有feilds初始化后执行,也就是可以进行表单监听 */
   allFieldsResolved?: (field: RESOLVED_FIELD) => void;
   /** todo 此hook暂时没有使用到 创建组件之前 */
@@ -45,8 +43,9 @@ export type PiResolvedCommonViewFieldConfig<
   readonly keyPath?: KeyPath | undefined;
   readonly fullPath: KeyPath;
   readonly props: WritableSignal<Record<string, any>>;
-  fieldGroup?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
-  fieldArray?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
+  children?: Signal<ReturnType<SelfResolvedFn>[]>;
+  fixedChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
+  restChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   parent: ReturnType<SelfResolvedFn>;
   readonly form: {
     readonly control?: FieldGroup | FieldArray | FieldControl | FieldLogicGroup;
@@ -71,8 +70,8 @@ export type PiResolvedCommonViewFieldConfig<
     ) => PiResolvedCommonViewFieldConfig<any, any>,
   ) => ReturnType<SelfResolvedFn> | undefined;
   action: {
-    set: (value: any, index?: number) => void;
-    remove: (index: number) => void;
+    set: (value: any, index?: any) => void;
+    remove: (index: any) => void;
   };
   readonly define?: Define;
 

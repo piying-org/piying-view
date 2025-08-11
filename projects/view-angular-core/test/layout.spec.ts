@@ -15,12 +15,12 @@ describe('layout', () => {
         input1: v.pipe(v.string(), layout({ keyPath: ['#', '@ly1'] })),
       }),
     ]);
-    const list = createBuilder(define).fieldGroup!();
+    const list = createBuilder(define).fixedChildren!();
     expect(list.length).toEqual(2);
-    expect(list[0].fieldGroup!().length).toEqual(1);
-    expect(list[1].fieldGroup!().length).toEqual(1);
-    keyEqual(list[0].fieldGroup!()[0].keyPath, 'input1');
-    keyEqual(list[1].fieldGroup!()[0].keyPath, 'input0');
+    expect(list[0].fixedChildren!().length).toEqual(1);
+    expect(list[1].fixedChildren!().length).toEqual(1);
+    keyEqual(list[0].fixedChildren!()[0].keyPath, 'input1');
+    keyEqual(list[1].fixedChildren!()[0].keyPath, 'input0');
   });
   // 将子级提权到父级
   it('位置变化', () => {
@@ -34,7 +34,7 @@ describe('layout', () => {
         }),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
 
     expect(list.length).toBe(2);
     keyEqual(list[1].keyPath, ['key1', 'test1']);
@@ -55,12 +55,12 @@ describe('layout', () => {
         }),
       ]),
     );
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(2);
     const item = list.find((item) => item.alias === 'scope1');
     expect(item).toBeTruthy();
-    expect(item!.fieldGroup!().length).toBe(1);
-    keyEqual(item!.fieldGroup!()[0].keyPath, ['key1', 'test1']);
+    expect(item!.fixedChildren!().length).toBe(1);
+    keyEqual(item!.fixedChildren!()[0].keyPath, ['key1', 'test1']);
   });
   it('设置alias(多个)', () => {
     const obj = v.pipe(
@@ -83,13 +83,13 @@ describe('layout', () => {
       ]),
     );
     const resolved = createBuilder(obj);
-    const list = resolved.fieldGroup!();
+    const list = resolved.fixedChildren!();
     expect(list.length).toBe(2);
     const item = list.find((item) => item.alias === 'scope1');
     expect(item).toBeTruthy();
-    expect(item!.fieldGroup!().length).toBe(2);
-    keyEqual(item!.fieldGroup!()[0].keyPath, ['key1', 'test1']);
-    keyEqual(item!.fieldGroup!()[1].keyPath, ['key1', 'test2']);
+    expect(item!.fixedChildren!().length).toBe(2);
+    keyEqual(item!.fixedChildren!()[0].keyPath, ['key1', 'test1']);
+    keyEqual(item!.fixedChildren!()[1].keyPath, ['key1', 'test2']);
   });
   it('非正常位置报错', () => {
     try {
@@ -122,11 +122,11 @@ describe('layout', () => {
         }),
       }),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
-    expect(list[0].fieldGroup?.().length).toBe(2);
-    expect(list[0].fieldGroup?.()[0].fieldGroup?.().length).toEqual(0);
-    keyEqual(list[0].fieldGroup?.()[1].keyPath, ['l2', 'content1']);
+    expect(list[0].fixedChildren?.().length).toBe(2);
+    expect(list[0].fixedChildren?.()[0].fixedChildren?.().length).toEqual(0);
+    keyEqual(list[0].fixedChildren?.()[1].keyPath, ['l2', 'content1']);
   });
   it('..查询', () => {
     const obj = v.object({
@@ -141,12 +141,12 @@ describe('layout', () => {
         }),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
 
     expect(list.length).toBe(1);
-    expect(list[0].fieldGroup?.().length).toBe(2);
-    expect(list[0].fieldGroup?.()[0].fieldGroup?.().length).toBe(0);
-    keyEqual(list[0].fieldGroup?.()[1].keyPath, ['l2', 'content1']);
+    expect(list[0].fixedChildren?.().length).toBe(2);
+    expect(list[0].fixedChildren?.()[0].fixedChildren?.().length).toBe(0);
+    keyEqual(list[0].fixedChildren?.()[1].keyPath, ['l2', 'content1']);
   });
   it('alias转换', () => {
     const obj = v.intersect([
@@ -169,10 +169,10 @@ describe('layout', () => {
       ),
     ]);
 
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toEqual(1);
-    expect(list[0].fieldGroup?.().length).toBe(2);
-    keyEqual(list[0].fieldGroup!()[1].keyPath, ['test1']);
+    expect(list[0].fixedChildren?.().length).toBe(2);
+    keyEqual(list[0].fixedChildren!()[1].keyPath, ['test1']);
   });
   it('权重检查正序', () => {
     const obj = v.pipe(
@@ -198,12 +198,12 @@ describe('layout', () => {
 
     const resolved = createBuilder(obj);
     const newField = resolved.get(['@abc']);
-    expect(newField?.fieldGroup?.().length).toEqual(2);
+    expect(newField?.fixedChildren?.().length).toEqual(2);
     assertFieldGroup(newField?.form.control);
-    assertFieldControl(newField?.fieldGroup!()[0].form.control);
-    keyEqual(newField?.fieldGroup!()[0].keyPath, ['key1', 'test1']);
-    assertFieldControl(newField?.fieldGroup!()[1].form.control);
-    keyEqual(newField?.fieldGroup!()[1].keyPath, ['key1', 'test2']);
+    assertFieldControl(newField?.fixedChildren!()[0].form.control);
+    keyEqual(newField?.fixedChildren!()[0].keyPath, ['key1', 'test1']);
+    assertFieldControl(newField?.fixedChildren!()[1].form.control);
+    keyEqual(newField?.fixedChildren!()[1].keyPath, ['key1', 'test2']);
   });
   it('权重检查倒序', () => {
     const obj = v.pipe(
@@ -228,11 +228,11 @@ describe('layout', () => {
     );
     const resolved = createBuilder(obj);
     const newField = resolved.get(['@abc']);
-    expect(newField?.fieldGroup?.().length).toEqual(2);
+    expect(newField?.fixedChildren?.().length).toEqual(2);
     assertFieldGroup(newField?.form.control);
-    assertFieldControl(newField?.fieldGroup!()[1].form.control);
-    keyEqual(newField?.fieldGroup!()[1].keyPath, ['key1', 'test1']);
-    assertFieldControl(newField?.fieldGroup!()[0].form.control);
-    keyEqual(newField?.fieldGroup!()[0].keyPath, ['key1', 'test2']);
+    assertFieldControl(newField?.fixedChildren!()[1].form.control);
+    keyEqual(newField?.fixedChildren!()[1].keyPath, ['key1', 'test1']);
+    assertFieldControl(newField?.fixedChildren!()[0].form.control);
+    keyEqual(newField?.fixedChildren!()[0].keyPath, ['key1', 'test2']);
   });
 });

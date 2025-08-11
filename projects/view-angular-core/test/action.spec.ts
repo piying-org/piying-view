@@ -53,7 +53,7 @@ describe('action', () => {
         }),
       ),
     });
-    const list = createBuilder(obj, { types: ['abc'] }).fieldGroup!();
+    const list = createBuilder(obj, { types: ['abc'] }).fixedChildren!();
     expect(list.length).toBe(1);
     assertFieldControl(list[0].form.control);
 
@@ -71,7 +71,7 @@ describe('action', () => {
         }),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list[0].props()).toEqual({ title: 'title1', k2: 'value2' });
   });
   it('description', async () => {
@@ -85,7 +85,7 @@ describe('action', () => {
         }),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list[0].props()).toEqual({ description: 'title1', k2: 'value2' });
   });
   it('options覆盖', async () => {
@@ -110,7 +110,7 @@ describe('action', () => {
         }),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list[0].props()).toEqual({
       metadata: { v1: 'title1' },
       k2: 'value2',
@@ -127,7 +127,7 @@ describe('action', () => {
         }),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect((list[0].props() as any)['title']).toBe('title1');
     expect((list[0].props() as any)['k2']).toBe('value2');
   });
@@ -137,7 +137,7 @@ describe('action', () => {
       v.pipe(v.object({ k1: v.pipe(v.string(), layout({ keyPath: ['#'] })) })),
       v.pipe(v.object({ k2: v.pipe(v.string(), layout({ keyPath: ['#'] })) })),
     ]);
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(4);
   });
   it('中间移动', async () => {
@@ -148,7 +148,7 @@ describe('action', () => {
       }),
       k3: v.string(),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(4);
     keyEqual(result[0].keyPath, 'k1');
     keyEqual(result[1].keyPath, ['o1']);
@@ -167,18 +167,18 @@ describe('action', () => {
         ),
       }),
     ]);
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(3);
-    expect(result[0].fieldGroup!()[0].fieldGroup?.().length).toBe(0);
-    expect(result[1].fieldGroup?.().length).toBe(0);
-    expect(result[2].fieldGroup?.().length).toBe(0);
+    expect(result[0].fixedChildren!()[0].fixedChildren?.().length).toBe(0);
+    expect(result[1].fixedChildren?.().length).toBe(0);
+    expect(result[2].fixedChildren?.().length).toBe(0);
   });
   it('权重修改(正常)', async () => {
     const obj = v.object({
       k1: v.pipe(v.string(), layout({ priority: 1 })),
       k2: v.pipe(v.string(), layout({ priority: 2 })),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(2);
     keyEqual(result[0].keyPath, 'k1');
     keyEqual(result[1].keyPath, 'k2');
@@ -188,7 +188,7 @@ describe('action', () => {
       k1: v.pipe(v.string(), layout({ priority: 2 })),
       k2: v.pipe(v.string(), layout({ priority: 1 })),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(2);
     keyEqual(result[0].keyPath, 'k2');
     keyEqual(result[1].keyPath, 'k1');
@@ -223,7 +223,7 @@ describe('action', () => {
     const result = createBuilder(obj, {
       context: { value: 1 },
       types: ['3'],
-    }).fieldGroup!();
+    }).fixedChildren!();
     assertFieldControl(result[0].form.control);
 
     // expect(result[0].type).toBe('3');
@@ -415,7 +415,7 @@ describe('action', () => {
     const obj = v.object({
       key1: v.pipe(v.string(), nonFieldControl()),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toEqual(1);
     expect(list[0].form.control).toBeFalsy();
   });

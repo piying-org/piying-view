@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import { inject } from 'vue';
-import {
-  PI_VIEW_FIELD_TOKEN,
-  type PiResolvedViewFieldConfig,
-  signalToRef,
-  PiyingFieldTemplate,
-} from '../../index';
+import { PI_VIEW_FIELD_TOKEN, signalToRef, PiyingFieldTemplate } from '../../index';
 const dInputs = defineProps<{
-  fields: PiResolvedViewFieldConfig[];
   activateIndex: number;
 }>();
 const field = inject(PI_VIEW_FIELD_TOKEN);
-const list = signalToRef(() => field?.value.fieldGroup!());
+const children = signalToRef(() => field?.value.children!());
 </script>
 
 <template>
-  <piying-field-template :field="list[dInputs.activateIndex]"></piying-field-template>
+  <piying-field-template :field="children[dInputs.activateIndex]"></piying-field-template>
 </template>
 
 <style scoped></style>

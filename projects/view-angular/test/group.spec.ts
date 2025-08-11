@@ -9,6 +9,7 @@ import { createSchemaComponent } from './util/create-component';
 import { UFCC } from './util/schema';
 import { setComponent } from '@piying/view-angular-core';
 import { setInputs, setOutputs } from '@piying/view-angular-core';
+import { RestGroupComponent } from './rest-group/component';
 
 describe('group初始化', () => {
   it('存在', async () => {
@@ -153,8 +154,6 @@ describe('group初始化', () => {
     expect(displayValueEl.innerHTML).toBe('value2');
   });
   it('多级路径删除', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       v1: v.object({
         key1: v.pipe(
@@ -162,14 +161,6 @@ describe('group初始化', () => {
           setComponent(Test1Component),
           setInputs({
             input1: 'div-display',
-          }),
-          setOutputs({
-            output1: (value) => {
-              subject1.next(value);
-            },
-            output2: (value) => {
-              subject2.next(value);
-            },
           }),
         ),
       }),
@@ -249,5 +240,34 @@ describe('group初始化', () => {
     const inputEl = element.querySelector('input')!;
     expect(inputEl.value).toBe('111');
     expect(instance.model$()['v2']).toEqual({ v3: '111' });
+  });
+
+  it('rest', async () => {
+    const define = v.pipe(
+      v.objectWithRest(
+        {
+          k1: v.pipe(v.string(), setComponent('test1')),
+        },
+        v.pipe(v.string(), setComponent('test1')),
+      ),
+      setComponent(RestGroupComponent),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal({ k1: 'value1', k2: '22' }),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const fieldsEl = element.querySelector('.fields') as HTMLElement;
+    expect(fieldsEl).toBeTruthy();
+    const restEl = element.querySelector('.rest-fields') as HTMLElement;
+    expect(restEl).toBeTruthy();
+    expect(fieldsEl.querySelector('input')).toBeTruthy();
+    expect(restEl.querySelector('input')).toBeTruthy();
+    instance.model$.set({ k1: 'value1' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fieldsEl.querySelector('input')).toBeTruthy();
+    expect(element.querySelector('.rest-fields input')).toBeFalsy();
   });
 });

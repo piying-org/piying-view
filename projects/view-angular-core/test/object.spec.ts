@@ -5,6 +5,7 @@ import {
   _PiResolvedCommonViewFieldConfig,
   formConfig,
   NFCSchema,
+  setComponent,
 } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import {
@@ -24,10 +25,10 @@ describe('对象', () => {
         }),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     assertFieldGroup(list[0].form.control);
     expect(list.length).toBe(1);
-    expect(list[0].fieldGroup?.().length).toBe(1);
+    expect(list[0].fixedChildren?.().length).toBe(1);
   });
   it('对象视为控件', () => {
     const obj = v.object({
@@ -38,7 +39,7 @@ describe('对象', () => {
         asControl(),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
     assertFieldControl(list[0].form.control);
     expect(list[0].formConfig().defaultValue).toEqual({
@@ -56,7 +57,7 @@ describe('对象', () => {
         asControl(),
       ),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(1);
 
     const field = await field$.promise;
@@ -72,7 +73,7 @@ describe('对象', () => {
         asControl(),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
     expect(list[0].formConfig().defaultValue).toEqual(['1', 2]);
   });
@@ -89,7 +90,7 @@ describe('对象', () => {
         asControl(),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
 
     expect(list.length).toBe(1);
     expect(list[0].formConfig().defaultValue).toEqual({
@@ -103,10 +104,10 @@ describe('对象', () => {
     const obj = v.object({
       l1: v.union([v.object({ k1: v.string() }), v.object({ k2: v.number() })]),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     assertFieldLogicGroup(list[0].form.control);
     expect(list.length).toBe(1);
-    expect(list[0].fieldGroup?.().length).toBe(2);
+    expect(list[0].fixedChildren?.().length).toBe(2);
   });
   it('对象视为控件(一维数组)', async () => {
     const fields$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
@@ -119,7 +120,7 @@ describe('对象', () => {
         getField(fields$),
       ),
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     assertFieldControl(list[0].form.control);
     const field = await fields$.promise;
     expect(field.form.control!.errors).toBeTruthy();
@@ -136,7 +137,7 @@ describe('对象', () => {
       ),
     });
     const rBuilder = createBuilder(obj);
-    const list = rBuilder.fieldGroup!();
+    const list = rBuilder.fixedChildren!();
     assertFieldControl(list[0].form.control);
     rBuilder.form.control?.updateValue({ l1: { l2: [['111']] } });
     const field = await fields$.promise;
@@ -159,7 +160,7 @@ describe('对象', () => {
       ),
     });
     const resolved = createBuilder(obj);
-    const list = resolved.fieldGroup!();
+    const list = resolved.fixedChildren!();
     assertFieldControl(list[0].form.control);
     resolved.form.control?.updateValue({ l1: { l2: [{ i1: ['111'] }] } });
     const field = await fields$.promise;
@@ -177,7 +178,7 @@ describe('对象', () => {
       ),
     });
     const resolved = createBuilder(obj);
-    const list = resolved.fieldGroup!();
+    const list = resolved.fixedChildren!();
     assertFieldControl(list[0].form.control);
     resolved.form.control?.updateValue({ l1: ['111'] });
 
@@ -198,7 +199,7 @@ describe('对象', () => {
       ),
     });
     const resolved = createBuilder(obj);
-    const list = resolved.fieldGroup!();
+    const list = resolved.fixedChildren!();
     assertFieldControl(list[0].form.control);
     resolved.form.control?.updateValue({ l1: { l2: undefined } });
 
@@ -222,7 +223,7 @@ describe('对象', () => {
       ),
     });
     const resolved = createBuilder(obj);
-    const list = resolved.fieldGroup!();
+    const list = resolved.fixedChildren!();
     assertFieldControl(list[0].form.control);
     resolved.form.control?.updateValue({ l1: { l2: { k1: '1' } } });
 
@@ -235,7 +236,7 @@ describe('对象', () => {
   it('元组赋值变更', async () => {
     const obj = v.pipe(v.object({ a: v.pipe(v.tuple([v.string()])) }));
     const resolved = createBuilder(obj);
-    const list = resolved.fieldGroup!();
+    const list = resolved.fixedChildren!();
     assertFieldArray(list[0].form.control);
     resolved.form.control?.updateValue({ a: ['value2'] });
     expect(resolved.form.control?.value$$()).toEqual({ a: ['value2'] });
@@ -244,7 +245,7 @@ describe('对象', () => {
     const obj = v.object({
       key1: NFCSchema,
     });
-    const list = createBuilder(obj).fieldGroup!();
+    const list = createBuilder(obj).fixedChildren!();
     expect(list.length).toBe(1);
     expect(list[0].form.control).toBeFalsy();
   });
@@ -314,5 +315,132 @@ describe('对象', () => {
     expect(result.form.root.value).toEqual({ k1: '1', k2: '2' });
     result.form.root.reset();
     expect(result.form.root.value).toEqual({ k1: '123', k2: 'k2-value' });
+  });
+
+  it('object rest', () => {
+    const obj = v.pipe(
+      v.objectWithRest(
+        {
+          key1: v.string(),
+        },
+        v.number(),
+      ),
+      setComponent('object'),
+    );
+    const resolved = createBuilder(obj);
+    assertFieldGroup(resolved.form.control);
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
+      0,
+    );
+    expect(resolved.fixedChildren!().length).toEqual(1);
+    expect(resolved.restChildren!().length).toEqual(0);
+    resolved.action.set(11, 'r1');
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
+      1,
+    );
+    expect(resolved.fixedChildren!().length).toEqual(1);
+    expect(resolved.restChildren!().length).toEqual(1);
+    expect(resolved.restChildren!()![0].form.parent).toBe(
+      resolved.form.control,
+    );
+    resolved.action.remove('r1');
+    expect(resolved.fixedChildren!().length).toEqual(1);
+    expect(resolved.restChildren!().length).toEqual(0);
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control!.resetControls$()).length).toEqual(
+      0,
+    );
+  });
+  it('object rest default', () => {
+    const obj = v.pipe(
+      v.optional(
+        v.objectWithRest(
+          {
+            key1: v.string(),
+          },
+          v.string(),
+        ),
+        { key1: '1', key2: '2' },
+      ),
+      setComponent('object'),
+    );
+    const resolved = createBuilder(obj);
+    assertFieldGroup(resolved.form.control);
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      1,
+    );
+    resolved.action.set(11, 'r1');
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      2,
+    );
+    expect(resolved.restChildren!().length).toEqual(2);
+    resolved.form.control.reset();
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      1,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      1,
+    );
+    expect(resolved.restChildren!().length).toEqual(1);
+  });
+  it('record rest default', () => {
+    const obj = v.pipe(
+      v.record(v.string(), v.number()),
+      setComponent('object'),
+    );
+    const resolved = createBuilder(obj);
+    assertFieldGroup(resolved.form.control);
+    resolved.form.control.updateValue({ v1: 1 });
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      0,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      1,
+    );
+    resolved.action.set('v2', 2);
+    expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
+      0,
+    );
+    expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
+      2,
+    );
+  });
+  it('clear', async () => {
+    const obj = v.pipe(
+      v.objectWithRest({}, v.string()),
+      setComponent('object'),
+    );
+    const result = createBuilder(obj);
+    assertFieldGroup(result.form.control);
+    result.form.control!.updateValue({ v1: '1' });
+    expect(result.form.control.value).toEqual({ v1: '1' });
+    expect(result.fixedChildren!().length).toEqual(0);
+    expect(result.restChildren!().length).toEqual(1);
+    expect(Object.keys(result.form.control.fixedControls$()).length).toEqual(0);
+    expect(Object.keys(result.form.control.resetControls$()).length).toEqual(1);
+    result.form.control.clear();
+    expect(result.fixedChildren!().length).toEqual(0);
+    expect(result.restChildren!().length).toEqual(0);
+    expect(Object.keys(result.form.control.fixedControls$()).length).toEqual(0);
+    expect(Object.keys(result.form.control.resetControls$()).length).toEqual(0);
+    result.form.control.clear();
+    expect(result.fixedChildren!().length).toEqual(0);
+    expect(result.restChildren!().length).toEqual(0);
+    expect(Object.keys(result.form.control.fixedControls$()).length).toEqual(0);
+    expect(Object.keys(result.form.control.resetControls$()).length).toEqual(0);
   });
 });

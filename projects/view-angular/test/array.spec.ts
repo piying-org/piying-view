@@ -239,7 +239,7 @@ describe('默认数组', () => {
     const field = await field$.promise;
     assertFieldArray(field.form.control);
     let isDelete = false;
-    field.form.control.controls$()[0].valueChanges.subscribe({
+    field.form.control.resetControls$()[0].valueChanges.subscribe({
       complete: () => {
         isDelete = true;
       },
@@ -262,7 +262,7 @@ describe('默认数组', () => {
     const field = await field$.promise;
     assertFieldArray(field.form.control);
     let isDelete = false;
-    field.form.control.controls$()[0].valueChanges.subscribe({
+    field.form.control.resetControls$()[0].valueChanges.subscribe({
       complete: () => {
         isDelete = true;
       },
@@ -276,5 +276,22 @@ describe('默认数组', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(isDelete).toBe(true);
+  });
+
+  it('empty-show', async () => {
+    const define = v.array(
+      v.object({
+        key1: v.pipe(v.string(), setComponent(Test1Component)),
+      }),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal([]),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    const input1Div = element.querySelector('piying-view-group') as HTMLElement;
+    expect(input1Div).toBeTruthy();
   });
 });

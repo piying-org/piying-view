@@ -61,8 +61,8 @@ export abstract class AbstractControl<TValue = any> {
   );
   readonly injector;
   /** model的value */
-  abstract value$$: Signal<TValue | undefined>;
-  abstract children$$?: Signal<AbstractControl[]>;
+  value$$!: Signal<TValue | undefined>;
+  children$$?: Signal<AbstractControl[]>;
   /** disabled */
   readonly selfDisabled$$ = computed(() => this.config$?.().disabled ?? false);
   /** `self` || `parent` */
@@ -293,7 +293,7 @@ export abstract class AbstractControl<TValue = any> {
     this.selfDirty$.set(false);
   }
 
-  abstract reset(value?: any): void;
+  reset(value?: any) {}
 
   getRawValue(): any {
     return this.value;
@@ -321,16 +321,18 @@ export abstract class AbstractControl<TValue = any> {
   }
 
   /** @internal */
-  abstract _forEachChild(cb: (c: AbstractControl) => void): void;
-  abstract updateValue(value: any): void;
+  _forEachChild(cb: (c: AbstractControl, key: any) => void) {}
+  updateValue(value: any) {}
   config$: FieldFormConfig$ = signal({});
+  /** @internal */
   initConfig(config: any) {
     this.config$ = config;
   }
   protected getInitValue(value: any) {
     return value ?? this.config$().defaultValue;
   }
-  abstract updateInitValue(value: any): void;
+  /** @internal */
+  updateInitValue(value: any) {}
   find(name: string | number): AbstractControl | null {
     return null;
   }

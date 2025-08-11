@@ -31,12 +31,6 @@ export const getField: GetFieldType<_PiResolvedCommonViewFieldConfig> = (
         };
         break;
       }
-      case 'chilrenInit': {
-        field.hooks.afterChildrenInit = (field) => {
-          field$.resolve(field as any);
-        };
-        break;
-      }
       case 'afterComponent': {
         field.hooks.afterCreateComponent = (field) => {
           field$.resolve(field as any);

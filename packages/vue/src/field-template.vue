@@ -24,10 +24,8 @@ const renderConfig = signalToRef(() => props.field.renderConfig());
 
 const attributes = signalToRef(() => props.field.attributes());
 const fieldInput = computed(() => ({ ...attributes.value, ...inputs.value }));
-const fieldGroup = signalToRef(() => props.field.fieldGroup?.());
-const fieldArray = signalToRef(() => props.field.fieldArray?.());
-const groupInput = computed(() => ({ ...fieldInput.value, fields: fieldGroup.value }));
-const arrayInput = computed(() => ({ ...fieldInput.value, fields: fieldArray.value }));
+const fieldChildren = signalToRef(() => props.field.children?.());
+
 const wrappers = signalToRef(() => props.field.wrappers());
 
 const componentType = computed(() =>
@@ -63,12 +61,8 @@ onUnmounted(() => {
     <template v-if="field.define?.type">
       <pi-wrapper v-bind:wrappers="wrappers!">
         <!-- group -->
-        <template v-if="fieldGroup">
-          <component :is="componentType" v-bind="groupInput" v-on="outputs"></component>
-        </template>
-        <!-- array -->
-        <template v-else-if="fieldArray">
-          <component :is="componentType" v-bind="arrayInput" v-on="outputs"></component>
+        <template v-if="fieldChildren">
+          <component :is="componentType" v-bind="fieldInput" v-on="outputs"></component>
         </template>
         <!-- control -->
         <template v-else>

@@ -31,6 +31,7 @@ import {
   FieldArray,
   FieldControl,
   FieldGroup,
+  isFieldArray,
 } from '@piying/view-angular-core';
 import { initListen } from './util/init-listen';
 import { AngularFormBuilder } from './builder';
@@ -145,12 +146,11 @@ export class PiyingView implements OnChanges {
 
   groupInputsValue = (
     inputs: PiResolvedViewFieldConfig['inputs'],
-    fields: PiResolvedViewFieldConfig[],
+
     fieldTemplateRef: TemplateRef<any>,
   ) =>
     computed(() => ({
       ...inputs(),
-      fields,
       fieldTemplateRef,
     }));
 
@@ -167,11 +167,14 @@ export class PiyingView implements OnChanges {
   groupHidden = (field: PiResolvedViewFieldConfig) =>
     computed(() => this.#groupHidden(field));
   #groupHidden(field: PiResolvedViewFieldConfig): boolean {
-    if (field.fieldGroup) {
-      if (!field.fieldGroup().length) {
+    if (isFieldArray(field.form.control) || field.restChildren) {
+      return false;
+    }
+    if (field.fixedChildren) {
+      if (!field.fixedChildren?.().length) {
         return true;
       } else {
-        return field.fieldGroup().every((field) => this.#groupHidden(field));
+        return field.fixedChildren().every((field) => this.#groupHidden(field));
       }
     } else {
       return !field.define || !!field.renderConfig().hidden;

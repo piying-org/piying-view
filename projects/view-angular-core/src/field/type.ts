@@ -1,4 +1,4 @@
-import { Signal, WritableSignal } from '@angular/core';
+import { WritableSignal } from '@angular/core';
 import {
   AbstractControl,
   AsyncValidatorFn,
@@ -32,13 +32,9 @@ export interface FieldFormConfig<T = any> {
   emptyValue?: any;
   /** array  */
   deletionMode?: ArrayDeletionMode;
+  /** group/array */
+  groupMode?: 'loose' | 'default' | 'strict' | 'reset';
 }
-
-type MakeSignal<T> = {
-  [K in keyof T]: T[K] extends Signal<infer A>
-    ? WritableSignal<A>
-    : WritableSignal<T[K]>;
-};
 
 export type FieldFormConfig$ = WritableSignal<FieldFormConfig>;
 export type FieldGroupConfig$ = WritableSignal<
@@ -50,3 +46,8 @@ export type FieldArrayConfig$ = WritableSignal<
 export type FieldLogicGroupConfig$ = WritableSignal<
   Omit<FieldFormConfig, 'defaultValue'>
 >;
+export const enum UpdateType {
+  init = 0,
+  update = 1,
+  reset = 2,
+}

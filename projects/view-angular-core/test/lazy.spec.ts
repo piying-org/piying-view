@@ -9,7 +9,7 @@ describe('lazy', () => {
     const obj = v.object({
       key1: v.lazy(() => v.string()),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(1);
     keyEqual(result[0].keyPath, 'key1');
   });
@@ -19,7 +19,7 @@ describe('lazy', () => {
       key1: v.lazy(() => v.pipe(v.string(), getField(field$), v.maxValue('1'))),
     });
     const bResult = createBuilder(obj);
-    const result = bResult.fieldGroup!();
+    const result = bResult.fixedChildren!();
     expect(result.length).toBe(1);
     keyEqual(result[0].keyPath, 'key1');
     assertFieldControl(result[0].form.control);
@@ -33,19 +33,20 @@ describe('lazy', () => {
     const obj = v.object({
       key1: v.lazy(() => v.array(v.string())),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(1);
     keyEqual(result[0].keyPath, 'key1');
-    expect(result[0].fieldArray).toBeTruthy();
+    expect(result[0].fixedChildren).toBeTruthy();
   });
   it('array-lazy-nest', () => {
     const obj = v.object({
       key1: v.lazy(() => v.array(v.lazy(() => v.array(v.string())))),
     });
-    const result = createBuilder(obj).fieldGroup!();
-    assertFieldArray(result[0].form.control);
-    result[0].action.set([], 0);
-    expect(result[0].fieldArray!().length).toEqual(1);
-    assertFieldArray(result[0].fieldArray!()[0].form.control);
+    const result = createBuilder(obj);
+    const list = result.fixedChildren!();
+    assertFieldArray(list[0].form.control);
+    list[0].action.set([], 0);
+    expect(list[0].restChildren!().length).toEqual(1);
+    assertFieldArray(list[0].restChildren!()[0].form.control);
   });
 });
