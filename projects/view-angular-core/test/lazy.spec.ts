@@ -42,8 +42,8 @@ describe('lazy', () => {
     const obj = v.object({
       key1: v.lazy(() => v.array(v.lazy(() => v.array(v.string())))),
     });
-    const result = createBuilder(obj);    
-    let list = result.fixedChildren!();
+    const result = createBuilder(obj);
+    const list = result.fixedChildren!();
     assertFieldArray(list[0].form.control);
     list[0].action.set([], 0);
     expect(list[0].restChildren!().length).toEqual(1);

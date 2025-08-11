@@ -5,6 +5,7 @@ import { getField } from './util/action';
 import {
   _PiResolvedCommonViewFieldConfig,
   formConfig,
+  setComponent,
 } from '@piying/view-angular-core';
 import { assertFieldArray } from './util/is-field';
 // 用于测试fields和model变动时,数值是否正确
@@ -134,5 +135,33 @@ describe('array', () => {
     expect(result.form.root.value).toEqual(['3', '4']);
     result.form.root.reset();
     expect(result.form.root.value).toEqual(['1', '2']);
+  });
+
+  it('tuple rest', async () => {
+    const obj = v.pipe(
+      v.tupleWithRest([v.string()], v.number()),
+      setComponent('array'),
+    );
+    const result = createBuilder(obj);
+    result.form.control!.updateValue(['v1', 0, 1]);
+    assertFieldArray(result.form.control);
+    expect(result.fixedChildren?.().length).toEqual(1);
+    expect(result.restChildren?.().length).toEqual(2);
+    expect(result.form.control.fixedControls$().length).toEqual(1);
+    expect(result.form.control.resetControls$().length).toEqual(2);
+    expect(result.form.control!.value).toEqual(['v1', 0, 1]);
+  });
+  it('tuple rest optional', async () => {
+    const obj = v.pipe(
+      v.optional(v.tupleWithRest([v.string()], v.number()), ['v1', 0, 1]),
+      setComponent('array'),
+    );
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    expect(result.fixedChildren?.().length).toEqual(1);
+    expect(result.restChildren?.().length).toEqual(2);
+    expect(result.form.control.fixedControls$().length).toEqual(1);
+    expect(result.form.control.resetControls$().length).toEqual(2);
+    expect(result.form.control!.value).toEqual(['v1', 0, 1]);
   });
 });

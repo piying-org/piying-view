@@ -48,6 +48,7 @@ export class FieldArray<
 
   override setControl(index: number, control: TControl): void {
     const controls$ = this.#inited ? this.resetControls$ : this.fixedControls$;
+    index = this.#inited ? index - this.fixedControls$().length : index;
     controls$.update((list) => {
       list = list.slice() as any;
       list[index] = control;
@@ -64,7 +65,8 @@ export class FieldArray<
     const initValue = this.getInitValue(value);
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.beforeUpdateList.forEach((item) => item(viewValue, false));
+    const resetValue = this.#getResetValue(viewValue);
+    this.beforeUpdateList.forEach((item) => item(resetValue, false));
     this._forEachChild((control: AbstractControl, index: number) => {
       control.reset(initValue[index]);
     });
@@ -108,12 +110,16 @@ export class FieldArray<
     return this.children$$()[name];
   }
   beforeUpdateList: ((value: any[], initValue: boolean) => void)[] = [];
+  #getResetValue(value: any[] = []) {
+    return value.slice(this.fixedControls$().length);
+  }
   override updateValue(value: any[] = []): void {
     if (deepEqual(value, this.value$$())) {
       return;
     }
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-    this.beforeUpdateList.forEach((item) => item(viewValue, true));
+    const resetValue = this.#getResetValue(viewValue);
+    this.beforeUpdateList.forEach((item) => item(resetValue, true));
     this._forEachChild((control, i) => {
       control.updateValue(viewValue[i]);
     });
@@ -126,7 +132,8 @@ export class FieldArray<
     const viewValue =
       this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
     this.initedValue = viewValue;
-    this.beforeUpdateList.forEach((item) => item(viewValue, false));
+    const resetValue = this.#getResetValue(viewValue);
+    this.beforeUpdateList.forEach((item) => item(resetValue, false));
     this._forEachChild((control, i) => {
       control.updateInitValue(viewValue?.[i]);
     });

@@ -83,8 +83,8 @@ describe('hello', () => {
     expect(result[0].form.control?.value$$()).toEqual(['1']);
   });
   it('tuple', async () => {
-    const obj = v.pipe(v.tuple([v.string(), v.number()]), )
-    const result = createBuilder(obj)
+    const obj = v.pipe(v.tuple([v.string(), v.number()]));
+    const result = createBuilder(obj);
     expect(result.fixedChildren?.().length).toBe(2);
     expect(result.restChildren?.()).toBeFalsy();
     assertFieldArray(result.form.control);

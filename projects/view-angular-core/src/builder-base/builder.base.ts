@@ -388,16 +388,23 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       this.#buildControl(buildItem, fields[index], index);
     }
     if (templateField && field.form.control) {
+      const fixedLength = field.fixedChildren?.().length ?? 0;
       field.restChildren = signal([]);
       const updateItem = (
         list: _PiResolvedCommonViewFieldConfig[],
         index: number,
         initValue: boolean,
       ) => {
-        const result = this.#createArrayItem(buildItem, templateField, index);
+        const result = this.#createArrayItem(
+          buildItem,
+          templateField,
+          fixedLength + index,
+        );
         list[index] = result;
         if (initValue) {
-          result.form.control?.updateInitValue(form.initedValue?.[index]);
+          result.form.control?.updateInitValue(
+            form.initedValue?.[fixedLength + index],
+          );
         }
         return result;
       };
@@ -412,18 +419,22 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           deletedItem.injector = undefined;
         }
       }
-      form.beforeUpdateList.push((input = [], initUpdate) => {
+      form.beforeUpdateList.push((resetValue = [], initUpdate) => {
         const controlLength = form.resetControls$().length;
-        if (controlLength < input.length) {
+        if (controlLength < resetValue.length) {
           const list = [...field.restChildren!()];
-          for (let index = controlLength; index < input.length; index++) {
+          for (let index = controlLength; index < resetValue.length; index++) {
             updateItem(list, index, initUpdate);
           }
           field.restChildren!.set(list);
           this.allFieldInitHookCall();
-        } else if (input.length < controlLength) {
+        } else if (resetValue.length < controlLength) {
           const list = [...field.restChildren!()];
-          for (let index = list.length - 1; index >= input.length; index--) {
+          for (
+            let index = list.length - 1;
+            index >= resetValue.length;
+            index--
+          ) {
             removeItem(list, index);
           }
           field.restChildren!.set(list);

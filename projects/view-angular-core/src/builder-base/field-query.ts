@@ -27,7 +27,7 @@ export function fieldQuery(
     const queryField = aliasMap.get(firstPath.slice(1));
     list = [{ field: queryField!, level: 1 }];
   } else if (field.fixedChildren || field.restChildren) {
-    let children = [
+    const children = [
       ...(field.fixedChildren?.() ?? []),
       ...(field.restChildren?.() ?? []),
     ];
