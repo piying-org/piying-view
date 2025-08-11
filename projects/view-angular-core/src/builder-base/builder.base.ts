@@ -298,44 +298,43 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return resolvedConfig;
   }
 
-  #buildGroup(groupItem: BuildGroupItem<SchemaHandle>) {
-    for (let index = 0; index < groupItem.fields.length; index++) {
-      this.#buildControl(groupItem, groupItem.fields[index], index);
+  #buildGroup(buildItem: BuildGroupItem<SchemaHandle>) {
+    const { templateField, form, field, fields } = buildItem;
+
+    for (let index = 0; index < fields.length; index++) {
+      this.#buildControl(buildItem, fields[index], index);
     }
 
-    /** 虚拟group不存在hooks */
-    const field = groupItem.field as PiResolvedCommonViewFieldConfig<any, any>;
-    if (field.form.control && groupItem.templateField) {
+    if (field.form.control && templateField) {
       field.restChildren = signal([]);
-      const fieldGroup = field.form.control as FieldGroup;
       const updateItem = (key: string, initValue: boolean) => {
         const result = this.#createObjectRestItem(
-          { ...groupItem, skipAppend: true },
+          { ...buildItem, skipAppend: true },
           {
-            ...groupItem.templateField!,
+            ...templateField!,
             key,
           },
         );
         field.restChildren!.update((list) => [...list, result]);
         if (initValue) {
-          result.form.control?.updateInitValue(fieldGroup.initedValue?.[key]);
+          result.form.control?.updateInitValue(form.initedValue?.[key]);
         }
         return result;
       };
       function removeItem(key: string) {
         field.restChildren!.update((list) => {
           const index = list.findIndex(
-            (item) => item.keyPath.slice(-1)[0] === key,
+            (item) => item.keyPath!.slice(-1)[0] === key,
           );
           list = [...list];
           list.splice(index, 1);
           return list;
         });
-        fieldGroup.removeRestControl(key);
+        form.removeRestControl(key);
       }
 
-      fieldGroup.beforeUpdateList.push((restObj = {}, initUpdate) => {
-        const restControl = fieldGroup.resetControls$();
+      form.beforeUpdateList.push((restObj = {}, initUpdate) => {
+        const restControl = form.resetControls$();
         for (const key in restControl) {
           if (key in restObj) {
             continue;
@@ -380,15 +379,15 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return result;
   }
 
-  #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
-    const { templateField, form, field, fields } = arrayItem;
+  #buildArray(buildItem: BuildArrayItem<SchemaHandle>) {
+    const { templateField, form, field, fields } = buildItem;
     field.fixedChildren = signal(
       new SortedArray<_PiResolvedCommonViewFieldConfig>(
         (a, b) => a.priority - b.priority,
       ),
     );
     for (let index = 0; index < fields.length; index++) {
-      this.#buildControl(arrayItem, fields[index], index);
+      this.#buildControl(buildItem, fields[index], index);
     }
     if (templateField) {
       field.restChildren = signal([]);
@@ -397,7 +396,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         index: number,
         initValue: boolean,
       ) => {
-        const result = this.#createArrayItem(arrayItem, templateField, index);
+        const result = this.#createArrayItem(buildItem, templateField, index);
         list[index] = result;
         if (initValue) {
           result.form.control?.updateInitValue(form.initedValue?.[index]);
