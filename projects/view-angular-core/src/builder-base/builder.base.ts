@@ -262,11 +262,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     }
     // 递归进行解析
     if (isGroup(field) || field.isLogicAnd || field.isLogicOr) {
-      resolvedConfig.fixedChildren = signal(
-        new SortedArray<_PiResolvedCommonViewFieldConfig>(
-          (a, b) => a.priority - b.priority,
-        ),
-      );
       this.#buildField({
         type: 'group' as const,
         templateField: field.arrayChild,
@@ -300,12 +295,16 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
 
   #buildGroup(buildItem: BuildGroupItem<SchemaHandle>) {
     const { templateField, form, field, fields } = buildItem;
-
+    field.fixedChildren = signal(
+      new SortedArray<_PiResolvedCommonViewFieldConfig>(
+        (a, b) => a.priority - b.priority,
+      ),
+    );
     for (let index = 0; index < fields.length; index++) {
       this.#buildControl(buildItem, fields[index], index);
     }
 
-    if (field.form.control && templateField) {
+    if (templateField && field.form.control) {
       field.restChildren = signal([]);
       const updateItem = (key: string, initValue: boolean) => {
         const result = this.#createObjectRestItem(
@@ -332,17 +331,16 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         });
         form.removeRestControl(key);
       }
-
-      form.beforeUpdateList.push((restObj = {}, initUpdate) => {
+      form.beforeUpdateList.push((restValue = {}, initUpdate) => {
         const restControl = form.resetControls$();
         for (const key in restControl) {
-          if (key in restObj) {
+          if (key in restValue) {
             continue;
           }
           removeItem(key);
         }
         let isUpdateItem = false;
-        for (const key in restObj) {
+        for (const key in restValue) {
           if (key in restControl) {
             continue;
           }
@@ -389,7 +387,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     for (let index = 0; index < fields.length; index++) {
       this.#buildControl(buildItem, fields[index], index);
     }
-    if (templateField) {
+    if (templateField && field.form.control) {
       field.restChildren = signal([]);
       const updateItem = (
         list: _PiResolvedCommonViewFieldConfig[],
