@@ -25,21 +25,18 @@ export class FieldGroup<
       this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
     );
   });
-  override children$$ = computed(() => [
-    ...Object.values(this.fixedControls$()),
-    ...Object.values(this.resetControls$()),
-  ]);
-
-  fixedControls$ = signal<Record<string, AbstractControl>>({});
-  resetControls$ = signal<Record<string, AbstractControl>>({});
-
   #controls$$ = computed(() => ({
     ...this.fixedControls$(),
     ...this.resetControls$(),
   }));
+
+  fixedControls$ = signal<Record<string, AbstractControl>>({});
+  resetControls$ = signal<Record<string, AbstractControl>>({});
+
   get controls() {
     return this.#controls$$();
   }
+  override children$$ = computed(() => Object.values(this.#controls$$()));
 
   removeRestControl(key: string): void {
     if (!this.resetControls$()[key]) {
@@ -64,8 +61,8 @@ export class FieldGroup<
   }
 
   override getRawValue() {
-    return this._reduceChildren({}, (acc, control, name) => {
-      acc[name] = control.getRawValue();
+    return this._reduceChildren({}, (acc, control, key) => {
+      acc[key] = control.getRawValue();
       return acc;
     });
   }
@@ -75,7 +72,7 @@ export class FieldGroup<
   }
 
   /** @internal */
-  override _forEachChild(cb: (v: any, k: any) => void): void {
+  override _forEachChild(cb: (c: AbstractControl, key: any) => void): void {
     const controls = this.#controls$$();
     Object.keys(controls).forEach((key) => {
       cb(controls[key], key);
@@ -129,13 +126,13 @@ export class FieldGroup<
       this.initedValue = viewValue;
     }
     if (this.config$().groupMode === 'reset') {
-      const resetObj = this.#getResetValue(viewValue);
+      const restValue = this.#getResetValue(viewValue);
       this.beforeUpdateList.forEach((fn) =>
-        fn(resetObj, type !== UpdateType.init),
+        fn(restValue, type !== UpdateType.init),
       );
     } else if (this.config$().groupMode === 'loose') {
-      const resetObj = this.#getResetValue(viewValue);
-      this.resetValue$.set(resetObj);
+      const resetValue = this.#getResetValue(viewValue);
+      this.resetValue$.set(resetValue);
     }
     this._forEachChild((control, key) => {
       if (type === UpdateType.init) {

@@ -76,22 +76,20 @@ export class FieldArray<
       return acc;
     });
   }
-
   clear(): void {
     if (this.resetControls$().length < 1) return;
     this.beforeUpdateList.forEach((fn) => fn([], false));
   }
 
   /** @internal */
-  override _forEachChild(
-    cb: (c: AbstractControl, index: number) => void,
-  ): void {
+  override _forEachChild(cb: (c: AbstractControl, key: number) => void): void {
     this.children$$().forEach((control: AbstractControl, index: number) => {
       if (control) {
         cb(control, index);
       }
     });
   }
+
   /** @internal */
   _reduceChildren(
     initValue: any,
@@ -112,7 +110,6 @@ export class FieldArray<
     return value.slice(this.fixedControls$().length);
   }
   resetValue$ = signal<any>(undefined);
-
   #updateValue(value: any, type: UpdateType) {
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
     if (type === UpdateType.init) {
@@ -137,12 +134,13 @@ export class FieldArray<
       }
     });
   }
-  override updateValue(value: any[] = []): void {
+  override updateValue(value: any): void {
     if (deepEqual(value, this.value$$())) {
       return;
     }
     this.#updateValue(value, UpdateType.update);
   }
+
   #inited = false;
   initedValue: any;
   override updateInitValue(value: any): void {
