@@ -26,15 +26,12 @@ export function fieldQuery(
   } else if (typeof firstPath === 'string' && firstPath.startsWith('@')) {
     const queryField = aliasMap.get(firstPath.slice(1));
     list = [{ field: queryField!, level: 1 }];
-  } else if (field.fieldGroup) {
-    list = groupGenerator(field.fieldGroup())
-      .filter(
-        (field) => field.keyPath && arrayStartsWith(keyPath, field.keyPath),
-      )
-      .map((field) => ({ field: field, level: field.keyPath?.length! }));
-  } else if (field.fieldArray) {
-    list = field
-      .fieldArray()
+  } else if (field.fixedChildren || field.restChildren) {
+    const children = [
+      ...(field.fixedChildren?.() ?? []),
+      ...(field.restChildren?.() ?? []),
+    ];
+    list = groupGenerator(children)
       .filter(
         (field) => field.keyPath && arrayStartsWith(keyPath, field.keyPath),
       )

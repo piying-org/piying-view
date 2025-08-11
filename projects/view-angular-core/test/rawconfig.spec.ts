@@ -17,7 +17,7 @@ describe('rawConfig', () => {
         }),
       ),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(1);
     keyEqual(result[0].keyPath, 'key1');
     expect(result[0].props()['props1']).toBe(1);

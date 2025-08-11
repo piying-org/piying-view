@@ -88,6 +88,7 @@ export class CoreSchemaHandle<
       sh.parent = this;
       this.arrayChild = sh;
       convertSchema(schema.item as SchemaOrPipe, sh);
+      this.formConfig.groupMode = 'reset';
     }
   }
 
@@ -97,6 +98,13 @@ export class CoreSchemaHandle<
   override tupleDefault(schema: TupleSchema): void {
     super.tupleDefault(schema);
     this.isTuple = true;
+    if (schema.type === 'tuple') {
+      this.formConfig.groupMode = 'default';
+    } else if (schema.type === 'loose_tuple') {
+      this.formConfig.groupMode = 'loose';
+    } else if (schema.type === 'strict_tuple') {
+      this.formConfig.groupMode = 'strict';
+    }
   }
   override objectDefault(schema: ObjectSchema): void {
     super.objectDefault(schema);

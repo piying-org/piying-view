@@ -1,15 +1,19 @@
-import type { PiResolvedViewFieldConfig } from '@piying/view-react';
-import { PiyingFieldTemplate } from '@piying/view-react';
+import {
+  PI_VIEW_FIELD_TOKEN,
+  PiyingFieldTemplate,
+  useSignalToRef,
+} from '@piying/view-react';
+import { useContext } from 'react';
 
-export interface PiyingGroupProps {
-  fields: PiResolvedViewFieldConfig[];
-  restFields: PiResolvedViewFieldConfig[];
-}
-export function RestGroup(props: PiyingGroupProps) {
+export interface PiyingGroupProps {}
+export function RestGroup(_: PiyingGroupProps) {
+  const field = useContext(PI_VIEW_FIELD_TOKEN);
+  const fixedChildren = useSignalToRef(field, (field) => field?.fixedChildren!())!;
+  const restChildren = useSignalToRef(field, (field) => field?.restChildren!())!;
   return (
     <>
       <div className="fields">
-        {props.fields.map((field, index) => {
+        {fixedChildren.map((field, index) => {
           return (
             <PiyingFieldTemplate
               field={field}
@@ -19,7 +23,7 @@ export function RestGroup(props: PiyingGroupProps) {
         })}
       </div>
       <div className="rest-fields">
-        {props.restFields.map((field, index) => {
+        {restChildren.map((field, index) => {
           return (
             <PiyingFieldTemplate
               field={field}

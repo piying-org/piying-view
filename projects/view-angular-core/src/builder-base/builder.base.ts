@@ -4,6 +4,7 @@ import {
   PI_VIEW_CONFIG_TOKEN,
 } from './type/token';
 import {
+  computed,
   DestroyRef,
   EnvironmentInjector,
   inject,
@@ -82,11 +83,23 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #buildField(
     item: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
   ) {
+    item.field.fixedChildren = signal(
+      new SortedArray<_PiResolvedCommonViewFieldConfig>(
+        (a, b) => a.priority - b.priority,
+      ),
+    );
+    for (let index = 0; index < item.fields.length; index++) {
+      this.#buildControl(item, item.fields[index], index);
+    }
     if (item.type === 'group') {
       this.#buildGroup(item);
     } else {
       this.#buildArray(item);
     }
+    item.field.children = computed(() => [
+      ...item.field.fixedChildren!(),
+      ...(item.field.restChildren?.() ?? []),
+    ]);
   }
   afterResolveConfig(
     rawConfig: SchemaHandle,
@@ -184,7 +197,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     let keyPath: RawKeyPath | undefined = field.key;
 
     if (isFieldLogicGroup(parent.form)) {
-      keyPath ??= parent.form.controls$().length;
+      keyPath ??= parent.form.fixedControls$().length;
     } else if (isFieldArray(parent.form)) {
       keyPath ??= index;
     }
@@ -246,7 +259,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     if (field.movePath) {
       this.#moveViewField(field.movePath, resolvedConfig);
     } else {
-      if (parent.type === 'group' && !parent.skipAppend) {
+      if (
+        (parent.type === 'group' || parent.type === 'array') &&
+        !parent.skipAppend
+      ) {
         parent.append(resolvedConfig);
       }
     }
@@ -258,17 +274,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       parent.resolvedField$.set(resolvedConfig);
     }
     // 递归进行解析
-    if (
-      isGroup(field) ||
-      field.isLogicAnd ||
-      field.isLogicOr ||
-      field.isTuple
-    ) {
-      resolvedConfig.fieldGroup = signal(
-        new SortedArray<_PiResolvedCommonViewFieldConfig>(
-          (a, b) => a.priority - b.priority,
-        ),
-      );
+    if (isGroup(field) || field.isLogicAnd || field.isLogicOr) {
       this.#buildField({
         type: 'group' as const,
         templateField: field.arrayChild,
@@ -276,16 +282,19 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         field: resolvedConfig,
         form: (control || parent.form) as FieldGroup,
         append: (field) => {
-          resolvedConfig.fieldGroup!().push(field);
+          resolvedConfig.fixedChildren!().push(field);
         },
       });
-    } else if (isArray(field)) {
+    } else if (isArray(field) || field.isTuple) {
       this.#buildField({
         type: 'array' as const,
         templateField: field.arrayChild,
+        fields: field.children,
         field: resolvedConfig,
         form: control as FieldArray,
-        append: (field) => {},
+        append: (field) => {
+          resolvedConfig.fixedChildren!().push(field);
+        },
       });
     }
     if (resolvedConfig.hooks?.allFieldsResolved) {
@@ -297,52 +306,46 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return resolvedConfig;
   }
 
-  #buildGroup(groupItem: BuildGroupItem<SchemaHandle>) {
-    for (let index = 0; index < groupItem.fields.length; index++) {
-      this.#buildControl(groupItem, groupItem.fields[index], index);
-    }
+  #buildGroup(buildItem: BuildGroupItem<SchemaHandle>) {
+    const { templateField, form, field } = buildItem;
 
-    /** 虚拟group不存在hooks */
-    const field = groupItem.field as PiResolvedCommonViewFieldConfig<any, any>;
-    if (field.form.control && groupItem.templateField) {
-      field.fieldRestGroup = signal([]);
-      const fieldGroup = field.form.control as FieldGroup;
+    if (templateField && field.form.control) {
+      field.restChildren = signal([]);
       const updateItem = (key: string, initValue: boolean) => {
         const result = this.#createObjectRestItem(
-          { ...groupItem, skipAppend: true },
+          { ...buildItem, skipAppend: true },
           {
-            ...groupItem.templateField!,
+            ...templateField!,
             key,
           },
         );
-        field.fieldRestGroup!.update((list) => [...list, result]);
+        field.restChildren!.update((list) => [...list, result]);
         if (initValue) {
-          result.form.control?.updateInitValue(fieldGroup.initedValue?.[key]);
+          result.form.control?.updateInitValue(form.initedValue?.[key]);
         }
         return result;
       };
       function removeItem(key: string) {
-        field.fieldRestGroup!.update((list) => {
+        field.restChildren!.update((list) => {
           const index = list.findIndex(
-            (item) => item.keyPath.slice(-1)[0] === key,
+            (item) => item.keyPath!.slice(-1)[0] === key,
           );
           list = [...list];
           list.splice(index, 1);
           return list;
         });
-        fieldGroup.removeRestControl(key);
+        form.removeRestControl(key);
       }
-
-      fieldGroup.beforeUpdateList.push((restObj = {}, initUpdate) => {
-        const restControl = fieldGroup.resetControls$();
+      form.beforeUpdateList.push((restValue = {}, initUpdate) => {
+        const restControl = form.resetControls$();
         for (const key in restControl) {
-          if (key in restObj) {
+          if (key in restValue) {
             continue;
           }
           removeItem(key);
         }
         let isUpdateItem = false;
-        for (const key in restObj) {
+        for (const key in restValue) {
           if (key in restControl) {
             continue;
           }
@@ -369,7 +372,98 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       };
     }
   }
-  createArrayItem(
+  #createObjectRestItem(
+    parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
+    // 单独一项
+    field: AnyCoreSchemaHandle,
+  ) {
+    const result = this.#buildControl(parent, field as any, 0);
+    this.#allFieldInitHookList.push(() => this.allFieldInitHookCall());
+    return result;
+  }
+
+  #buildArray(buildItem: BuildArrayItem<SchemaHandle>) {
+    const { templateField, form, field } = buildItem;
+
+    if (templateField && field.form.control) {
+      const fixedLength = field.fixedChildren?.().length ?? 0;
+      field.restChildren = signal([]);
+      const updateItem = (
+        list: _PiResolvedCommonViewFieldConfig[],
+        index: number,
+        initValue: boolean,
+      ) => {
+        const result = this.#createArrayItem(
+          buildItem,
+          templateField,
+          fixedLength + index,
+        );
+        list[index] = result;
+        if (initValue) {
+          result.form.control?.updateInitValue(
+            form.initedValue?.[fixedLength + index],
+          );
+        }
+        return result;
+      };
+      function removeItem(
+        list: _PiResolvedCommonViewFieldConfig[],
+        index: number,
+      ) {
+        const [deletedItem] = list!.splice(index, 1);
+        form.removeRestControl(index);
+        if (deletedItem) {
+          deletedItem.injector!.destroy();
+          deletedItem.injector = undefined;
+        }
+      }
+      form.beforeUpdateList.push((resetValue = [], initUpdate) => {
+        const controlLength = form.resetControls$().length;
+        if (resetValue.length < controlLength) {
+          const list = [...field.restChildren!()];
+          for (
+            let index = list.length - 1;
+            index >= resetValue.length;
+            index--
+          ) {
+            removeItem(list, index);
+          }
+          field.restChildren!.set(list);
+        } else if (controlLength < resetValue.length) {
+          const list = [...field.restChildren!()];
+          for (let index = controlLength; index < resetValue.length; index++) {
+            updateItem(list, index, initUpdate);
+          }
+          field.restChildren!.set(list);
+          this.allFieldInitHookCall();
+        }
+      });
+      field.action = {
+        set: (value, index: number) => {
+          untracked(() => {
+            index = (
+              typeof index === 'number'
+                ? index
+                : (field.restChildren?.().length ?? 0)
+            )!;
+            const list = [...field.restChildren!()];
+            const result = updateItem(list, index, true);
+            field.restChildren!.set(list);
+            this.allFieldInitHookCall();
+            result.form.control!.updateValue(value);
+          });
+        },
+        remove: (index: number) => {
+          untracked(() => {
+            const list = [...field.restChildren!()];
+            removeItem(list, index);
+            field.restChildren!.set(list);
+          });
+        },
+      };
+    }
+  }
+  #createArrayItem(
     parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
     // 单独一项
     field: AnyCoreSchemaHandle,
@@ -394,89 +488,15 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       result.injector?.destroy();
     });
     const instance = injector.get(Builder);
-    const result = instance.#buildControl(parent, field, index);
+    const result = instance.#buildControl(
+      { ...parent, skipAppend: true },
+      field,
+      index,
+    );
     this.#allFieldInitHookList.push(() => instance.allFieldInitHookCall());
     result.injector = injector.get(EnvironmentInjector);
     return result;
   }
-  #createObjectRestItem(
-    parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
-    // 单独一项
-    field: AnyCoreSchemaHandle,
-  ) {
-    const result = this.#buildControl(parent, field as any, 0);
-    this.#allFieldInitHookList.push(() => this.allFieldInitHookCall());
-    return result;
-  }
-  #buildArray(arrayItem: BuildArrayItem<SchemaHandle>) {
-    const { templateField, form, field } = arrayItem;
-    field.fieldArray = signal([]);
-
-    const updateItem = (
-      list: _PiResolvedCommonViewFieldConfig[],
-      index: number,
-      initValue: boolean,
-    ) => {
-      const result = this.createArrayItem(arrayItem, templateField, index);
-      list[index] = result;
-      if (initValue) {
-        result.form.control?.updateInitValue(form.initedValue?.[index]);
-      }
-      return result;
-    };
-    function removeItem(
-      list: _PiResolvedCommonViewFieldConfig[],
-      index: number,
-    ) {
-      const [deletedItem] = list!.splice(index, 1);
-      form.removeAt(index);
-      if (deletedItem) {
-        deletedItem.injector!.destroy();
-        deletedItem.injector = undefined;
-      }
-    }
-    form.beforeUpdateList.push((input = [], initUpdate) => {
-      const controlLength = form.controls$().length;
-      if (controlLength < input.length) {
-        const list = [...arrayItem.field.fieldArray!()];
-        for (let index = controlLength; index < input.length; index++) {
-          updateItem(list, index, initUpdate);
-        }
-        arrayItem.field.fieldArray!.set(list);
-        this.allFieldInitHookCall();
-      } else if (input.length < controlLength) {
-        const list = [...arrayItem.field.fieldArray!()];
-        for (let index = list.length - 1; index >= input.length; index--) {
-          removeItem(list, index);
-        }
-        arrayItem.field.fieldArray!.set(list);
-      }
-    });
-    field.action = {
-      set: (value, index: number) => {
-        untracked(() => {
-          index = (
-            typeof index === 'number'
-              ? index
-              : (arrayItem.field.fieldArray?.().length ?? 0)
-          )!;
-          const list = [...arrayItem.field.fieldArray!()];
-          const result = updateItem(list, index, true);
-          arrayItem.field.fieldArray!.set(list);
-          this.allFieldInitHookCall();
-          result.form.control!.updateValue(value);
-        });
-      },
-      remove: (index: number) => {
-        untracked(() => {
-          const list = [...arrayItem.field.fieldArray!()];
-          removeItem(list, index);
-          arrayItem.field.fieldArray!.set(list);
-        });
-      },
-    };
-  }
-
   #resolveComponent(type: string | any) {
     let define;
     let defaultConfig;
@@ -565,7 +585,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const newKeyPath = inputField.fullPath.slice(parent.fullPath.length);
     (inputField as any).keyPath = newKeyPath;
     inputField.parent = parent as any;
-    parent.fieldGroup!().push(inputField);
+    parent.fixedChildren!().push(inputField);
   }
   #resolveWrappers(
     wrappers?: CoreRawWrapperConfig[],

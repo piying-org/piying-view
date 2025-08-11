@@ -1,9 +1,9 @@
-import { Directive, input, TemplateRef } from '@angular/core';
-import { PiResolvedViewFieldConfig } from '../type/group';
+import { Directive, inject, input, TemplateRef } from '@angular/core';
+import { PI_VIEW_FIELD_TOKEN } from '../type';
 
 @Directive()
 export class PiyingViewGroupBase {
-  fields = input.required<PiResolvedViewFieldConfig[]>();
-  restFields = input<PiResolvedViewFieldConfig[]>();
+  field$$ = inject(PI_VIEW_FIELD_TOKEN);
+
   fieldTemplateRef = input.required<TemplateRef<any>>();
 }

@@ -17,12 +17,12 @@ describe('对象相交', () => {
         v.object({ bar: v.number() }),
       ]),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(1);
     // expect(result[0].type).toBe('intersect');
-    expect(result[0].fieldGroup!().length).toBe(2);
-    expect(result[0].fieldGroup!()[0].fieldGroup?.().length ?? 0).toBe(1);
-    expect(result[0].fieldGroup!()[1].fieldGroup?.().length ?? 0).toBe(1);
+    expect(result[0].fixedChildren!().length).toBe(2);
+    expect(result[0].fixedChildren!()[0].fixedChildren?.().length ?? 0).toBe(1);
+    expect(result[0].fixedChildren!()[1].fixedChildren?.().length ?? 0).toBe(1);
     assertFieldLogicGroup(result[0].form.control);
   });
   it('intersect转移位置', () => {
@@ -46,17 +46,18 @@ describe('对象相交', () => {
         ]),
       }),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(2);
     keyEqual(
-      result[0].fieldGroup!()[0].fieldGroup!()[0].fieldGroup!()[0].keyPath,
+      result[0].fixedChildren!()[0].fixedChildren!()[0].fixedChildren!()[0]
+        .keyPath,
       'bar',
     );
     keyEqual(result[1].keyPath, ['l1', 'l2', 0]);
     // expect(result[1].type).toBe('object');
     assertFieldGroup(result[1].form.control);
-    expect(result[1].fieldGroup?.().length).toBe(1);
-    keyEqual(result[1].fieldGroup!()[0].keyPath, 'foo');
+    expect(result[1].fixedChildren?.().length).toBe(1);
+    keyEqual(result[1].fixedChildren!()[0].keyPath, 'foo');
   });
   it('intersect内部转移位置', () => {
     const obj = v.object({
@@ -81,16 +82,17 @@ describe('对象相交', () => {
         ]),
       }),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toBe(2);
     keyEqual(
-      result[0].fieldGroup!()[0].fieldGroup!()[1].fieldGroup!()[0].keyPath,
+      result[0].fixedChildren!()[0].fixedChildren!()[1].fixedChildren!()[0]
+        .keyPath,
       'bar',
     );
     keyEqual(result[1].keyPath, ['l1', 'l2', 0, 'foo']);
     // expect(result[1].type).toBe('number');
     assertFieldControl(result[1].form.control);
-    expect(result[1].fieldGroup?.().length ?? 0).toBe(0);
+    expect(result[1].fixedChildren?.().length ?? 0).toBe(0);
   });
   it('子级使用vGroup', async () => {
     const obj = v.object({
@@ -108,14 +110,14 @@ describe('对象相交', () => {
         asVirtualGroup(),
       ),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
 
     expect(result.length).toBe(1);
     assertFieldGroup(result[0].form.control);
 
-    expect(result[0].fieldGroup?.().length).toBe(2);
-    assertFieldGroup(result[0].fieldGroup!()[0].form.control);
-    assertFieldGroup(result[0].fieldGroup!()[1].form.control);
+    expect(result[0].fixedChildren?.().length).toBe(2);
+    assertFieldGroup(result[0].fixedChildren!()[0].form.control);
+    assertFieldGroup(result[0].fixedChildren!()[1].form.control);
   });
   it('交叉时同对象下不同key', () => {
     const obj = v.intersect([
@@ -125,16 +127,18 @@ describe('对象相交', () => {
     const result = createBuilder(obj);
 
     assertFieldLogicGroup(result.form.control);
-    assertFieldGroup(result.fieldGroup!()[0].form.control);
-    assertFieldGroup(result.fieldGroup!()[1].form.control);
-    keyEqual(result.fieldGroup!()[0].fieldGroup!()[0].keyPath, 'k1');
+    assertFieldGroup(result.fixedChildren!()[0].form.control);
+    assertFieldGroup(result.fixedChildren!()[1].form.control);
+    keyEqual(result.fixedChildren!()[0].fixedChildren!()[0].keyPath, 'k1');
     keyEqual(
-      result.fieldGroup!()[0].fieldGroup!()[0].fieldGroup!()[0].keyPath,
+      result.fixedChildren!()[0].fixedChildren!()[0].fixedChildren!()[0]
+        .keyPath,
       'k2',
     );
-    keyEqual(result.fieldGroup!()[1].fieldGroup!()[0].keyPath, 'k1');
+    keyEqual(result.fixedChildren!()[1].fixedChildren!()[0].keyPath, 'k1');
     keyEqual(
-      result.fieldGroup!()[1].fieldGroup!()[0].fieldGroup!()[0].keyPath,
+      result.fixedChildren!()[1].fixedChildren!()[0].fixedChildren!()[0]
+        .keyPath,
       'k3',
     );
   });
@@ -160,12 +164,12 @@ describe('对象相交', () => {
         ),
       }),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toEqual(3);
     keyEqual(result[1].keyPath, ['l1', 'l2']);
     keyEqual(result[2].keyPath, ['l1', 'l2', 0]);
-    expect(result[1].fieldGroup?.().length).toEqual(1);
-    keyEqual(result[1].fieldGroup!()[0].keyPath, 1);
+    expect(result[1].fixedChildren?.().length).toEqual(1);
+    keyEqual(result[1].fixedChildren!()[0].keyPath, 1);
   });
   it('or转移位置', () => {
     const obj = v.object({
@@ -188,13 +192,13 @@ describe('对象相交', () => {
         ),
       }),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toEqual(3);
 
     keyEqual(result[1].keyPath, ['l1', 'l2']);
     keyEqual(result[2].keyPath, ['l1', 'l2', 0]);
-    expect(result[1].fieldGroup?.().length).toEqual(1);
-    keyEqual(result[1].fieldGroup!()[0].keyPath, 1);
+    expect(result[1].fixedChildren?.().length).toEqual(1);
+    keyEqual(result[1].fixedChildren!()[0].keyPath, 1);
   });
 
   it('intersect转移位置2层', () => {
@@ -217,12 +221,12 @@ describe('对象相交', () => {
         ),
       }),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toEqual(3);
     keyEqual(result[1].keyPath, ['l1', 'l2']);
     keyEqual(result[2].keyPath, ['l1', 'l2', 0]);
-    expect(result[1].fieldGroup?.().length ?? 0).toEqual(0);
-    expect(result[2].fieldGroup?.().length ?? 0).toEqual(1);
+    expect(result[1].fixedChildren?.().length ?? 0).toEqual(0);
+    expect(result[2].fixedChildren?.().length ?? 0).toEqual(1);
   });
   it('intersect转移位置2层混合', () => {
     const obj = v.object({
@@ -244,12 +248,12 @@ describe('对象相交', () => {
         ),
       }),
     });
-    const result = createBuilder(obj).fieldGroup!();
+    const result = createBuilder(obj).fixedChildren!();
     expect(result.length).toEqual(3);
     keyEqual(result[1].keyPath, ['l1', 'l2']);
     keyEqual(result[2].keyPath, ['l1', 'l2', 0]);
-    expect(result[1].fieldGroup?.().length ?? 0).toEqual(0);
-    expect(result[2].fieldGroup?.().length ?? 0).toEqual(1);
+    expect(result[1].fixedChildren?.().length ?? 0).toEqual(0);
+    expect(result[2].fixedChildren?.().length ?? 0).toEqual(1);
   });
   it('对象合并', () => {
     const obj = v.pipe(
@@ -317,7 +321,7 @@ describe('对象相交', () => {
   it('root union', () => {
     const obj = v.union([v.string(), v.number()]);
     const result = createBuilder(obj);
-    expect(result.fieldGroup!().length).toBe(2);
+    expect(result.fixedChildren!().length).toBe(2);
     assertFieldLogicGroup(result.form.control);
     expect(result.form.control.type()).toBe('or');
   });

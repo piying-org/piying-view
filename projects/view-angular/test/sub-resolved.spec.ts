@@ -80,14 +80,14 @@ describe('子级解析', () => {
     expect(field2.form.control?.value).toBe(undefined);
     const field = await fields$.promise;
     const control = field.form.control as FieldLogicGroup;
-    control.activateControl$.set([field.fieldGroup!()[0].form.control!]);
+    control.activateControl$.set([field.fixedChildren!()[0].form.control!]);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(instance.model$()['v1']['k1']).toEqual('v12');
     // todo get也应该改
     // const queryResult1 = field.get([0, 'k1']);
     // expect(queryResult1).toBeTruthy();
-    control.activateControl$.set([field.fieldGroup!()[1].form.control!]);
+    control.activateControl$.set([field.fixedChildren!()[1].form.control!]);
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -313,7 +313,7 @@ describe('子级解析', () => {
 
     const field = await fields$.promise;
     const control = field.form.control as FieldLogicGroup;
-    control.activateControl$.set([field.fieldGroup!()[1].form.control!]);
+    control.activateControl$.set([field.fixedChildren!()[1].form.control!]);
 
     const field2 = await fields2$.promise;
     field2.form.control?.updateValue('v2');
@@ -434,7 +434,6 @@ describe('子级解析', () => {
   it('or-禁用测试', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const fields1$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const fields2$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({
       v1: v.pipe(
         v.union([
@@ -443,7 +442,6 @@ describe('子级解析', () => {
               v.pipe(
                 v.optional(v.string(), 'k1-value'),
                 getField(fields1$),
-
                 setComponent('test4'),
               ),
             ]),
@@ -469,7 +467,6 @@ describe('子级解析', () => {
     const field1 = await fields1$.promise;
 
     expect(field1.form.control!.value).toEqual('k1-value');
-
     expect(instance.model$()).toEqual({
       v1: { k1: ['k1-value'] },
     });

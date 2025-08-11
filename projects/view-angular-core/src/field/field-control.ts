@@ -17,7 +17,7 @@ const InitPendingValue = {
 export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   pendingStatus = signal(InitPendingValue);
 
-  override children$$: undefined;
+  declare children$$: undefined;
   #viewIndex = 0;
   /** 视图变化时model值不变也要更新view */
   private viewIndex$ = signal(0);
@@ -48,9 +48,6 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     this.markAsPristine();
     this.markAsUntouched();
   }
-
-  /** @internal */
-  override _forEachChild(cb: (c: AbstractControl) => void): void {}
 
   #initInput = true;
 

@@ -43,9 +43,9 @@ export type PiResolvedCommonViewFieldConfig<
   readonly keyPath?: KeyPath | undefined;
   readonly fullPath: KeyPath;
   readonly props: WritableSignal<Record<string, any>>;
-  fieldGroup?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
-  fieldArray?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
-  fieldRestGroup?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
+  children?: Signal<ReturnType<SelfResolvedFn>[]>;
+  fixedChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
+  restChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   parent: ReturnType<SelfResolvedFn>;
   readonly form: {
     readonly control?: FieldGroup | FieldArray | FieldControl | FieldLogicGroup;
