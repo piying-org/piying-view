@@ -24,6 +24,7 @@ jobs:
       - run: npx playwright install
       - run: npm run build
       - run: npm run test:ci
+      - run: npm run build
       - name: Setup npmrc
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
