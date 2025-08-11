@@ -39,20 +39,23 @@ export class FieldArray<
     return this.children$$();
   }
 
-  removeRestControl(index: number): void {
-    this.resetControls$.update((list) => {
-      list = list.slice() as any;
-      list.splice(index, 1);
-      return list;
+  removeRestControl(key: number): void {
+    if (!this.resetControls$()[key]) {
+      return;
+    }
+    this.resetControls$.update((controls) => {
+      controls = controls.slice() as any;
+      controls.splice(key, 1);
+      return controls;
     });
   }
 
-  override setControl(index: number, control: TControl): void {
+  override setControl(key: number, control: TControl): void {
     const controls$ = this.#inited ? this.resetControls$ : this.fixedControls$;
-    index = this.#inited ? index - this.fixedControls$().length : index;
+    key = this.#inited ? key - this.fixedControls$().length : key;
     controls$.update((list) => {
       list = list.slice() as any;
-      list[index] = control;
+      list[key] = control;
       return list;
     });
     control.setParent(this);
@@ -68,14 +71,14 @@ export class FieldArray<
   }
 
   override getRawValue() {
-    return this.children$$().map((control: AbstractControl) =>
-      control.getRawValue(),
-    );
+    return this._reduceChildren([], (acc, control, key) => {
+      acc[key] = control.getRawValue();
+      return acc;
+    });
   }
 
   clear(): void {
     if (this.resetControls$().length < 1) return;
-
     this.beforeUpdateList.forEach((fn) => fn([], false));
   }
 
@@ -90,10 +93,10 @@ export class FieldArray<
     });
   }
   /** @internal */
-  _reduceChildren<T>(
-    initValue: T,
-    fn: (acc: T, control: AbstractControl, name: any) => T,
-  ): T {
+  _reduceChildren(
+    initValue: any,
+    fn: (acc: any, control: AbstractControl, name: any) => any,
+  ): any {
     let res = initValue;
     this._forEachChild((control: AbstractControl, name: any) => {
       res = fn(res, control, name);
@@ -101,8 +104,8 @@ export class FieldArray<
     return res;
   }
 
-  override find(name: number): AbstractControl {
-    return this.children$$()[name];
+  override find(key: number): AbstractControl {
+    return this.children$$()[key];
   }
   beforeUpdateList: ((value: any[], initValue: boolean) => void)[] = [];
   #getResetValue(value: any[] = []) {
