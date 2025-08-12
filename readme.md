@@ -7,7 +7,7 @@
 ## start
 
 - npm i
-- npm run create-view-core
+- npm run build:core
 
 ## test
 
