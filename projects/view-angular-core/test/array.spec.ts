@@ -209,4 +209,15 @@ describe('array', () => {
     expect(result.form.control.resetControls$().length).toEqual(0);
     expect(result.form.control!.value).toEqual(['v1', 0, 1]);
   });
+  it('array default update', async () => {
+    const obj = v.pipe(v.optional(v.array(v.number()), [1, 2, 3]));
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    expect(result.form.control.value).toEqual([1, 2, 3]);
+    result.form.control.updateValue(undefined);
+    expect(result.form.control.value).toEqual([1, 2, 3]);
+    result.form.control.markAllAsDirty();
+    result.form.control.updateValue(undefined);
+    expect(result.form.control.value).toEqual(undefined);
+  });
 });

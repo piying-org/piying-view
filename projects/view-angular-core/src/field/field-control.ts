@@ -17,7 +17,6 @@ const InitPendingValue = {
 export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   pendingStatus = signal(InitPendingValue);
 
-  declare children$$: undefined;
   #viewIndex = 0;
   /** 视图变化时model值不变也要更新view */
   private viewIndex$ = signal(0);
@@ -44,12 +43,10 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   override value$$ = signal<any>(undefined);
 
   override reset(formState: TValue = this.config$().defaultValue): void {
-    this.updateValue(formState, true);
     this.markAsPristine();
     this.markAsUntouched();
+    this.updateValue(formState);
   }
-
-  #initInput = true;
 
   #viewSubject$$ = computed(() => {
     const subject = new Subject<any>();
@@ -95,26 +92,21 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     }
   }
   override updateValue(value: any, force?: boolean): void {
-    if (force) {
+    if (this.isUnChanged() || force) {
+      value ??= this.getInitValue(value);
+      this.modelValue$.set(value);
+      this.value$$.set(value);
       this.#viewIndex++;
       this.viewIndex$.set(this.#viewIndex);
       this.resetIndex$.update((a) => a + 1);
-      this.#initInput = true;
-    }
-    if (this.#initInput) {
-      this.#initInput = false;
-      if ((value !== undefined && !deepEqual(value, this.value$$())) || force) {
-        this.modelValue$.set(value);
-        this.value$$.set(value);
-      }
       return;
     }
     if (deepEqual(value, this.value$$())) {
       return;
     }
-    this.viewIndex$.set(this.#viewIndex);
     this.modelValue$.set(value);
     this.value$$.set(value);
+    this.viewIndex$.set(this.#viewIndex);
   }
 
   override emitSubmit(): void {

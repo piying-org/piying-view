@@ -63,6 +63,9 @@ export class FieldLogicGroup extends FieldArray {
     if (deepEqual(value, this.value$$())) {
       return;
     }
+    if (this.isUnChanged()) {
+      value ??= this.getInitValue(value);
+    }
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
     this.fixedControls$().forEach((control, i) => {
       control.updateValue(viewValue);

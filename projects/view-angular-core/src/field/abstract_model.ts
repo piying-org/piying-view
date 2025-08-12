@@ -348,6 +348,9 @@ export abstract class AbstractControl<TValue = any> {
     }
     let value = initialValue;
     for (const child of childrenMap) {
+      if (!child) {
+        continue;
+      }
       if (shortCircuit?.(value)) {
         break;
       }
@@ -412,8 +415,14 @@ export abstract class AbstractControl<TValue = any> {
   emitSubmit() {
     if (this.children$$) {
       this.children$$().forEach((child) => {
+        if (!child) {
+          return;
+        }
         child.emitSubmit();
       });
     }
+  }
+  protected isUnChanged() {
+    return this.pristine && this.untouched;
   }
 }

@@ -39,6 +39,9 @@ export class FieldGroupbase extends AbstractControl {
     if (deepEqual(value, this.value$$())) {
       return;
     }
+    if (this.isUnChanged()) {
+      value ??= this.getInitValue(value);
+    }
     this._updateValue(value, UpdateType.update);
   }
 
