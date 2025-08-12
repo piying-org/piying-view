@@ -14,11 +14,11 @@ jobs:
           node-version: 22.x
       - run: npm ci
       - run: npx playwright install
-      - name: build
-        run: npm run build
+      - run: npm run build:core
       - name: test
         run: npm run test:ci
       - name: coverage
         run: npm run coverage
+      - run: npm run build
       - name: Coveralls
         uses: coverallsapp/github-action@v2

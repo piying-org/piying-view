@@ -13,6 +13,7 @@
   "scripts": {
     "ng": "ng",
     "create-view-core": "rimraf projects/view-core && cpx \"projects/view-angular-core/**/*\" projects/view-core && tsx ./script/replace-pkg.ts",
+    "build:core": "rimraf ./dist && npm run create-view-core && ng build view-core",
     "build": "rimraf ./dist && npm run create-view-core && ng build view-angular && ng build view-angular-core && ng build view-core && npm run build -ws --if-present",
     "test": "ng test test-view-angular",
     "test:vue": "npm run test -w packages/vue",
