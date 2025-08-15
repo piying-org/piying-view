@@ -36,6 +36,7 @@ export function createBuilder(
     environments: options?.environments,
     fieldGlobalConfig: {
       types: {
+        'mock-input': { type: Symbol() } as any,
         object: {} as any,
         array: {} as any,
         string: {} as any,

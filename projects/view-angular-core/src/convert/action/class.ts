@@ -2,6 +2,10 @@ import clsx from 'clsx';
 import { ClassValue } from 'clsx';
 import { rawConfig } from './raw-config';
 import { mergeHooksFn } from './hook';
+import { patchAsyncAttributes } from './attribute';
+import { _PiResolvedCommonViewFieldConfig } from '../../builder-base/type/common-field-config';
+import { Observable } from 'rxjs';
+import { Signal } from '@angular/core';
 /** 必须防止到所有wrappers操作后面,防止设置错误
  * 设置到顶层,可能是wrapper,也可能是component
  *
@@ -44,4 +48,11 @@ export function componentClass<T>(className: ClassValue, merge?: boolean) {
         : clsx(className),
     };
   });
+}
+export function patchAsyncClass<T>(
+  fn: (
+    field: _PiResolvedCommonViewFieldConfig,
+  ) => Promise<any> | Observable<any> | Signal<any> | (any & {}),
+) {
+  return patchAsyncAttributes<T>({ class: fn });
 }

@@ -7,6 +7,7 @@ import {
   removeProps,
   setProps,
 } from '../src/convert/action/prop';
+import { setComponent } from '../src/convert';
 
 // 用于测试fields和model变动时,数值是否正确
 describe('prop', () => {
@@ -43,6 +44,7 @@ describe('prop', () => {
           return 1;
         },
       }),
+      setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     let inputs = resolved.props();

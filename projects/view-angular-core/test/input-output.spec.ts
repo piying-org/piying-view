@@ -5,6 +5,7 @@ import {
   patchInputs,
   removeInputs,
   removeOutputs,
+  setComponent,
 } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { BehaviorSubject } from 'rxjs';
@@ -21,6 +22,7 @@ describe('input/output action', () => {
           return 1;
         },
       }),
+      setComponent('mock-input')
     );
     const resolved = createBuilder(obj);
     let inputs = resolved.inputs();
@@ -41,6 +43,7 @@ describe('input/output action', () => {
           return 1;
         },
       }),
+      setComponent('mock-input')
     );
     const resolved = createBuilder(obj);
     let inputs = resolved.inputs();
@@ -58,6 +61,7 @@ describe('input/output action', () => {
           return subject;
         },
       }),
+      setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     let inputs = resolved.inputs();
@@ -71,6 +75,7 @@ describe('input/output action', () => {
       patchAsyncInputs({
         value1: () => 1,
       }),
+      setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     let inputs = resolved.inputs();

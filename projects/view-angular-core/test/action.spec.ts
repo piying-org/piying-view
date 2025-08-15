@@ -6,6 +6,7 @@ import {
   mergeHooks,
   patchHooks,
   removeHooks,
+  setComponent,
 } from '../index';
 import { rawConfig } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
@@ -273,6 +274,7 @@ describe('action', () => {
     const obj = v.pipe(
       v.string(),
       patchAsyncAttributes({ v: () => 1, v2: () => signal(2) }),
+      setComponent('mock-input'),
     );
     const resolved = createBuilder(obj, config);
     expect(resolved.attributes()).toEqual({ v: 1, v2: 2 });

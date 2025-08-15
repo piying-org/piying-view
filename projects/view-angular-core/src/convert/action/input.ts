@@ -121,17 +121,19 @@ export function patchAsyncFn(patchKey: 'props' | 'inputs' | 'attributes') {
       return mergeHooksFn(
         {
           [hookName]: (field: _PiResolvedCommonViewFieldConfig) => {
+            const result = asyncInputMerge(
+              Object.entries(dataObj).reduce(
+                (obj, [key, value]) => {
+                  obj[key] = value(field);
+                  return obj;
+                },
+                {} as Record<string, any>,
+              ),
+              field[patchKey],
+            );
+            field.define!.attributes = result;
             (field as Writeable<_PiResolvedCommonViewFieldConfig>)[patchKey] =
-              asyncInputMerge(
-                Object.entries(dataObj).reduce(
-                  (obj, [key, value]) => {
-                    obj[key] = value(field);
-                    return obj;
-                  },
-                  {} as Record<string, any>,
-                ),
-                field[patchKey],
-              );
+              result;
           },
         },
         { position: options?.addPosition ?? 'bottom' },

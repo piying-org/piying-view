@@ -21,6 +21,8 @@ import {
   ɵɵprojection,
   ɵɵtext,
   ɵɵtextInterpolate,
+  computed,
+  ɵɵclassMap,
 } from '@angular/core';
 import { ComponentContent } from '../type/component';
 import { parseSelectorToR3Selector } from '../hook/selector';
@@ -50,6 +52,7 @@ function parseDirectives(
   const propertyList: { signal: Signal<any>; keyList: string[] }[] = [];
   const listenerList = [];
   const modelList = [];
+  let classData: Signal<any> | undefined;
   let elementTag: string;
   if (typeof component.type === 'string') {
     elementTag = component.type;
@@ -61,10 +64,14 @@ function parseDirectives(
   if (!elementTag) {
     throw new Error('未找到元素对应的选择器');
   }
-  // todo 静态attr应该改为动态的
   const attributes = component.attributes?.();
   if (attributes) {
     for (const key in attributes) {
+      if (key === 'class') {
+        classData = computed(() => component.attributes!()![key]);
+        vars += 2;
+        continue;
+      }
       consts.push(key, attributes[key]);
     }
   }
@@ -134,6 +141,7 @@ function parseDirectives(
     listenerList: listenerList,
     modelList,
     elementTag,
+    classData,
   };
 }
 /** 常量不变 */
@@ -197,6 +205,9 @@ export function createDynamicComponentDefine<T extends DirectiveConfig>(
       ɵɵelementEnd();
     }
     if (rf & 2) {
+      if (result.classData) {
+        ɵɵclassMap(result.classData());
+      }
       result.propertyList.reduce((fn, { signal, keyList }) => {
         const value = signal();
         return keyList.reduce((fn, key) => fn(key, value[key]), fn);

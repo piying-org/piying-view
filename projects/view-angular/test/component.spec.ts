@@ -4,7 +4,7 @@ import { Test2Module } from './module1/module1.module';
 import { Test2Component } from './module1/test2.component';
 import { TestAttrComponent } from './test-attr/component';
 import * as v from 'valibot';
-import { setOutputs } from '@piying/view-angular-core';
+import { patchAsyncClass, setOutputs } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
 import { NgControl } from '@angular/forms';
@@ -106,5 +106,33 @@ describe('组件', () => {
     fixture.detectChanges();
     const ngControl = await inited.promise;
     expect(ngControl instanceof NgControl).toBeTrue();
+  });
+  it('class变更', async () => {
+    let testClass$ = signal('test-class1');
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      patchAsyncClass((field) => testClass$),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+      {
+        types: {
+          test1: {
+            type: Test1Component,
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    let el = element.querySelector('.test-class1');
+    expect(el).toBeTruthy();
+    testClass$.set('test-class2');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    element.querySelector('.test-class2');
+    expect(el).toBeTruthy();
   });
 });
