@@ -22,7 +22,7 @@ describe('input/output action', () => {
           return 1;
         },
       }),
-      setComponent('mock-input')
+      setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     let inputs = resolved.inputs();
@@ -43,7 +43,7 @@ describe('input/output action', () => {
           return 1;
         },
       }),
-      setComponent('mock-input')
+      setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     let inputs = resolved.inputs();

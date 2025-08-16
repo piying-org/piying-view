@@ -1,10 +1,9 @@
 import { signal } from '@angular/core';
 import { Test1Component } from './test1/test1.component';
-import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import * as v from 'valibot';
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, setInputs, setOutputs } from '@piying/view-angular-core';
+import { setComponent, setInputs } from '@piying/view-angular-core';
 
 describe('默认数组-数量变更', () => {
   it('存在', async () => {

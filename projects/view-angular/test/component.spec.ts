@@ -108,7 +108,7 @@ describe('组件', () => {
     expect(ngControl instanceof NgControl).toBeTrue();
   });
   it('class变更', async () => {
-    let testClass$ = signal('test-class1');
+    const testClass$ = signal('test-class1');
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
@@ -127,7 +127,7 @@ describe('组件', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let el = element.querySelector('.test-class1');
+    const el = element.querySelector('.test-class1');
     expect(el).toBeTruthy();
     testClass$.set('test-class2');
     await fixture.whenStable();
