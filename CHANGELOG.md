@@ -1,3 +1,13 @@
+## [1.3.3](https://github.com/piying-org/piying-view/compare/1.3.2...1.3.3) (2025-08-16)
+
+
+### Features
+
+* angular dynamic class ([d92cb52](https://github.com/piying-org/piying-view/commit/d92cb52f45bead8bfd517c8e15bd94fe7c720011))
+* record key check ([d7dd560](https://github.com/piying-org/piying-view/commit/d7dd5601540793360d37fb65a1d02c7f2f445347))
+
+
+
 ## [1.3.2](https://github.com/piying-org/piying-view/compare/1.3.1...1.3.2) (2025-08-12)
 
 
