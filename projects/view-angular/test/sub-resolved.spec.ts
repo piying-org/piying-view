@@ -34,7 +34,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {
           k1: '1',
         },
@@ -130,7 +130,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {
           k1: '1',
         },
@@ -221,7 +221,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {
           s1: 'v1',
           s2: 'v2',
@@ -287,7 +287,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {
           k1: '1',
         },
@@ -351,7 +351,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: '111',
       }),
 
@@ -398,7 +398,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {},
       }),
 
@@ -452,7 +452,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {},
       }),
 
@@ -494,7 +494,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
 
       {
         types: {
@@ -542,7 +542,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {
           k1: '1',
         },
@@ -588,7 +588,7 @@ describe('子级解析', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: {
           k1: '1',
         },

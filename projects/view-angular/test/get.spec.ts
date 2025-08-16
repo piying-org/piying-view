@@ -19,7 +19,7 @@ describe('get查询', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: ['d1'] }),
+      signal({ v1: ['d1'] }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -40,7 +40,7 @@ describe('get查询', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: ['d1'] }),
+      signal({ v1: ['d1'] }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -80,7 +80,7 @@ describe('get查询', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({
+      signal({
         v1: { v2: { array1: [{ item1: 'value1' }] } },
       }),
     );
@@ -118,7 +118,7 @@ describe('get查询', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -145,7 +145,7 @@ describe('get查询', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: ['d1'] }),
+      signal({ v1: ['d1'] }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -162,7 +162,7 @@ describe('get查询', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();

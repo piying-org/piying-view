@@ -22,7 +22,7 @@ describe('wrapper测试', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ a1: ['v1'] }),
+      signal({ a1: ['v1'] }),
 
       {
         wrappers: {
@@ -51,7 +51,7 @@ describe('wrapper测试', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: '' }),
+      signal({ key1: '' }),
 
       {
         wrappers: {
@@ -91,7 +91,7 @@ describe('wrapper测试', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: '' }),
+      signal({ key1: '' }),
 
       {
         wrappers: {
@@ -124,7 +124,7 @@ describe('wrapper测试', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: '' }),
+      signal({ key1: '' }),
 
       {
         wrappers: {

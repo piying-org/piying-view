@@ -27,7 +27,7 @@ describe('自定义group', () => {
 
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -54,7 +54,7 @@ describe('自定义group', () => {
 
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -90,7 +90,7 @@ describe('自定义group', () => {
 
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -125,7 +125,7 @@ describe('自定义group', () => {
 
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();

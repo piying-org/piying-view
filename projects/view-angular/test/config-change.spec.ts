@@ -28,7 +28,7 @@ describe('配置切换时', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -68,7 +68,7 @@ describe('配置切换时', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -108,7 +108,7 @@ describe('配置切换时', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       {
         types: {
@@ -141,7 +141,7 @@ describe('配置切换时', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       {
         types: {
@@ -172,7 +172,7 @@ describe('配置切换时', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       {
         types: {
@@ -211,7 +211,7 @@ describe('配置切换时', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       {
         types: {

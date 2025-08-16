@@ -22,7 +22,7 @@ describe('带异步wrappers', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -71,7 +71,7 @@ describe('带异步wrappers', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -123,7 +123,7 @@ describe('带异步wrappers', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -173,7 +173,7 @@ describe('带异步wrappers', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -228,7 +228,7 @@ describe('带异步wrappers', () => {
 
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {

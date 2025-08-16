@@ -20,7 +20,7 @@ describe('转换', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define2),
-      signal<Record<string, any>>({ key2: 1 }),
+      signal({ key2: 1 }),
     );
     instance.fields$.set(define2);
     await fixture.whenStable();
@@ -46,7 +46,7 @@ describe('转换', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define2),
-      signal<Record<string, any>>({ key2: '1' }),
+      signal({ key2: '1' }),
     );
     instance.fields$.set(define2);
     await fixture.whenStable();

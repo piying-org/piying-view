@@ -9,7 +9,7 @@ describe('上下文', () => {
     const define = v.object({ v1: v.pipe(v.string(), getField(field$)) });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       undefined,
       { value: 1 },

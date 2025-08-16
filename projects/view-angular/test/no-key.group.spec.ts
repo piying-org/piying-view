@@ -26,7 +26,7 @@ describe('无key-group初始化', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -52,7 +52,7 @@ describe('无key-group初始化', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -87,7 +87,7 @@ describe('无key-group初始化', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -120,7 +120,7 @@ describe('无key-group初始化', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();

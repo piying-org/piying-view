@@ -11,7 +11,7 @@ describe('默认值', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -25,7 +25,7 @@ describe('默认值', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -39,7 +39,7 @@ describe('默认值', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: null }),
+      signal({ v1: null }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -54,7 +54,7 @@ describe('默认值', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 1 }),
+      signal({ v1: 1 }),
     );
     await fixture.whenStable();
     fixture.detectChanges();

@@ -16,7 +16,7 @@ describe('通用化表单类型', () => {
     const define = v.array(v.pipe(v.string(), setComponent('test1')));
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>(['v1']),
+      signal(['v1']),
     );
     await fixture.whenStable();
     fixture.detectChanges();

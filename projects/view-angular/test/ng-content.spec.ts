@@ -19,7 +19,7 @@ describe('内容投影', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
 
       {
         types: {
@@ -48,7 +48,7 @@ describe('内容投影', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
 
       {
         types: {
@@ -71,7 +71,7 @@ describe('内容投影', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
 
       {
         types: {
@@ -102,7 +102,7 @@ describe('内容投影', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
 
       {
         types: {

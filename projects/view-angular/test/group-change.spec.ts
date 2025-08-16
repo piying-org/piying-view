@@ -29,7 +29,7 @@ describe('group相关', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ p1: { p2: { p3: { v1: '1' } } } }),
+      signal({ p1: { p2: { p3: { v1: '1' } } } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -61,7 +61,7 @@ describe('group相关', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ p1: {} }),
+      signal({ p1: {} }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -84,7 +84,7 @@ describe('group相关', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ p1: {} }),
+      signal({ p1: {} }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -115,7 +115,7 @@ describe('group相关', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ p1: {} }),
+      signal({ p1: {} }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -140,7 +140,7 @@ describe('group相关', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ p1: {} }),
+      signal({ p1: {} }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -159,7 +159,7 @@ describe('group相关', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ p1: {} }),
+      signal({ p1: {} }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -189,7 +189,7 @@ describe('group相关', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -209,7 +209,7 @@ describe('group相关', () => {
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ k1: 'v1', k2: 'v2' }),
+      signal({ k1: 'v1', k2: 'v2' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();

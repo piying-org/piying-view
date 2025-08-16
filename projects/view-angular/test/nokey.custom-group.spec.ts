@@ -20,7 +20,7 @@ describe('nokey-custom自定义group', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -41,7 +41,7 @@ describe('nokey-custom自定义group', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -71,7 +71,7 @@ describe('nokey-custom自定义group', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -99,7 +99,7 @@ describe('nokey-custom自定义group', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();

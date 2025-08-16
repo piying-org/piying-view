@@ -30,7 +30,7 @@ describe('验证', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 0 }),
+      signal({ v1: 0 }),
 
       {
         types: {
@@ -85,7 +85,7 @@ describe('验证', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 0 }),
+      signal({ v1: 0 }),
 
       {
         types: {
@@ -158,7 +158,7 @@ describe('验证', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 0 }),
+      signal({ v1: 0 }),
 
       {
         types: {

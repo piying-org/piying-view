@@ -25,7 +25,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -50,7 +50,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -84,7 +84,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -121,7 +121,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -151,7 +151,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -181,7 +181,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -218,7 +218,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       {
         defaultConfig: {
@@ -256,7 +256,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ a: { b: '1', c: '1' } }),
+      signal({ a: { b: '1', c: '1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -280,7 +280,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ a: { b: '1', c: '1' } }),
+      signal({ a: { b: '1', c: '1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -306,7 +306,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -335,7 +335,7 @@ describe('表单控件配置', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 2 }),
+      signal({ v1: 2 }),
     );
     await fixture.whenStable();
     fixture.detectChanges();

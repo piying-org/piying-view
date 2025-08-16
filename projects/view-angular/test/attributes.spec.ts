@@ -13,7 +13,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -36,7 +36,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -64,7 +64,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -93,7 +93,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -123,7 +123,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -162,7 +162,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -203,7 +203,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -239,7 +239,7 @@ describe('attributes', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {

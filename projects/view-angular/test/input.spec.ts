@@ -23,7 +23,7 @@ describe('input', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
 
       {
         types: {
@@ -55,7 +55,7 @@ describe('input', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
       {
         types: {
           test1: {

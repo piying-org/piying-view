@@ -26,7 +26,7 @@ describe('group初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -49,7 +49,7 @@ describe('group初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -81,7 +81,7 @@ describe('group初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -111,7 +111,7 @@ describe('group初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -137,7 +137,7 @@ describe('group初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -169,7 +169,7 @@ describe('group初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: { key1: 'value1' } }),
+      signal({ v1: { key1: 'value1' } }),
     );
     await fixture.whenStable();
     fixture.detectChanges();

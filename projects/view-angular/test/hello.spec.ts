@@ -33,7 +33,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     expect(true).toBe(true);
     expect(element).toBeTruthy();
@@ -54,7 +54,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     fixture.detectChanges();
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;
@@ -83,7 +83,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     fixture.detectChanges();
     const inputEl = element.querySelector('input')!;
@@ -110,7 +110,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -137,7 +137,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -157,7 +157,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -188,7 +188,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -219,7 +219,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -251,7 +251,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -289,7 +289,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -354,7 +354,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ key1: 'value1' }),
+      signal({ key1: 'value1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -391,7 +391,7 @@ describe('初始化', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define2),
-      signal<Record<string, any>>({ key2: 1 }),
+      signal({ key2: 1 }),
     );
     instance.fields$.set(define2);
     await fixture.whenStable();

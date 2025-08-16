@@ -28,7 +28,7 @@ describe('组件默认配置', () => {
     //       }),
     //     },
     //   ]),
-    //   signal<Record<string, any>>({ v1: 'd1' }),
+    //   signal({ v1: 'd1' }),
     //   {
     //     defaultConfig: {
     //       inputs: {
@@ -62,7 +62,7 @@ describe('组件默认配置', () => {
 
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       {
         types: {
@@ -93,7 +93,7 @@ describe('组件默认配置', () => {
 
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
 
       {
         types: {

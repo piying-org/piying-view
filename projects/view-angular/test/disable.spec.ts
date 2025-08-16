@@ -21,7 +21,7 @@ describe('禁用操作', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -45,7 +45,7 @@ describe('禁用操作', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({ v1: 'd1' }),
+      signal({ v1: 'd1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -75,7 +75,7 @@ describe('禁用操作', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();
@@ -96,7 +96,7 @@ describe('禁用操作', () => {
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal<Record<string, any>>({}),
+      signal({}),
     );
     await fixture.whenStable();
     fixture.detectChanges();
