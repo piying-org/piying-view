@@ -56,9 +56,7 @@ describe('nokey-custom自定义group', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
+
         setOutputs({
           output1: (value) => {
             subject1.next(value);
@@ -89,13 +87,7 @@ describe('nokey-custom自定义group', () => {
   });
   it('初始化后model变更', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

@@ -108,9 +108,7 @@ describe('带异步wrappers', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1', 'wrapper2']),
-        setInputs({
-          input1: 'div-display',
-        }),
+
         setOutputs({
           output1: (value) => {
             subject1.next(value);
@@ -166,9 +164,6 @@ describe('带异步wrappers', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1', 'wrapper2']),
-        setInputs({
-          input1: 'div-display',
-        }),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -220,9 +215,6 @@ describe('带异步wrappers', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1', 'wrapper2']),
-        setInputs({
-          input1: 'div-display',
-        }),
       ),
     });
 

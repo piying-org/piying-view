@@ -3,20 +3,14 @@ import { Test1Component } from './test1/test1.component';
 import { htmlInput } from './util/input';
 import * as v from 'valibot';
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, setInputs } from '@piying/view-angular-core';
+import { setComponent } from '@piying/view-angular-core';
 
 describe('默认数组-数量变更', () => {
   it('存在', async () => {
     const define = v.object({
       v1: v.array(
         v.object({
-          key1: v.pipe(
-            v.string(),
-            setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
-          ),
+          key1: v.pipe(v.string(), setComponent(Test1Component)),
         }),
       ),
     });

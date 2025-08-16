@@ -71,9 +71,7 @@ describe('自定义group', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
+
             setOutputs({
               output1: (value) => {
                 subject1.next(value);
@@ -111,13 +109,7 @@ describe('自定义group', () => {
     const define = v.object({
       v1: v.pipe(
         v.object({
-          key1: v.pipe(
-            v.string(),
-            setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
-          ),
+          key1: v.pipe(v.string(), setComponent(Test1Component)),
         }),
         setComponent(Group1Component),
       ),

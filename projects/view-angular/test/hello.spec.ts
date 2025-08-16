@@ -68,9 +68,7 @@ describe('初始化', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
+
         setOutputs({
           output1: (value) => {
             subject1.next(value);
@@ -100,13 +98,7 @@ describe('初始化', () => {
   });
   it('初始化后model变更', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -127,13 +119,7 @@ describe('初始化', () => {
   // 用例覆盖
   it('置空', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -147,13 +133,7 @@ describe('初始化', () => {
   });
   it('数组key', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -178,13 +158,7 @@ describe('初始化', () => {
   });
   it('多级路径(字符串)', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -209,13 +183,7 @@ describe('初始化', () => {
   });
   it('多级路径(数字)', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -241,13 +209,7 @@ describe('初始化', () => {
 
   it('禁用', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -279,13 +241,7 @@ describe('初始化', () => {
   });
   it('自定义类', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -344,13 +300,7 @@ describe('初始化', () => {
   });
   it('hidden', async () => {
     const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        setInputs({
-          input1: 'div-display',
-        }),
-      ),
+      key1: v.pipe(v.string(), setComponent(Test1Component)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

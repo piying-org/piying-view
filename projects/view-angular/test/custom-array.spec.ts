@@ -78,9 +78,7 @@ describe('自定义数组', () => {
             key1: v.pipe(
               v.string(),
               setComponent(Test1Component),
-              setInputs({
-                input1: 'div-display',
-              }),
+
               setOutputs({
                 output1: (value) => {
                   subject1.next(value);
@@ -120,13 +118,7 @@ describe('自定义数组', () => {
       v1: v.pipe(
         v.array(
           v.object({
-            key1: v.pipe(
-              v.string(),
-              setComponent(Test1Component),
-              setInputs({
-                input1: 'div-display',
-              }),
-            ),
+            key1: v.pipe(v.string(), setComponent(Test1Component)),
           }),
         ),
         setComponent(Array1Component),

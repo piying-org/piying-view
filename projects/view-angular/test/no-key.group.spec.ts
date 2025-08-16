@@ -69,9 +69,7 @@ describe('无key-group初始化', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
+
             setOutputs({
               output1: (value) => {
                 subject1.next(value);
@@ -107,13 +105,7 @@ describe('无key-group初始化', () => {
     const define = v.pipe(
       v.intersect([
         v.object({
-          key1: v.pipe(
-            v.string(),
-            setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
-          ),
+          key1: v.pipe(v.string(), setComponent(Test1Component)),
         }),
       ]),
       asVirtualGroup(),

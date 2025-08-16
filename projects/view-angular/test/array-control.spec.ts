@@ -61,9 +61,6 @@ describe('仅控件数组', () => {
         v.pipe(
           v.string(),
           setComponent(Test1Component),
-          setInputs({
-            input1: 'div-display',
-          }),
           setOutputs({
             output1: (value) => {
               subject1.next(value);
@@ -95,15 +92,7 @@ describe('仅控件数组', () => {
   });
   it('初始化后model变更', async () => {
     const define = v.object({
-      v1: v.array(
-        v.pipe(
-          v.string(),
-          setComponent(Test1Component),
-          setInputs({
-            input1: 'div-display',
-          }),
-        ),
-      ),
+      v1: v.array(v.pipe(v.string(), setComponent(Test1Component))),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

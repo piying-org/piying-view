@@ -73,9 +73,6 @@ describe('默认数组', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
             setOutputs({
               output1: (value) => {
                 subject1.next(value);
@@ -110,13 +107,7 @@ describe('默认数组', () => {
     const define = v.object({
       v1: v.array(
         v.object({
-          key1: v.pipe(
-            v.string(),
-            setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
-          ),
+          key1: v.pipe(v.string(), setComponent(Test1Component)),
         }),
       ),
     });
@@ -138,13 +129,7 @@ describe('默认数组', () => {
     const define = v.object({
       v1: v.array(
         v.object({
-          key1: v.pipe(
-            v.string(),
-            setComponent(Test1Component),
-            setInputs({
-              input1: 'div-display',
-            }),
-          ),
+          key1: v.pipe(v.string(), setComponent(Test1Component)),
         }),
       ),
     });

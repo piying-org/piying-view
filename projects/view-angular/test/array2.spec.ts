@@ -75,9 +75,7 @@ describe('默认数组-二维', () => {
             key1: v.pipe(
               v.string(),
               setComponent(Test1Component),
-              setInputs({
-                input1: 'div-display',
-              }),
+
               setOutputs({
                 output1: (value) => {
                   subject1.next(value);
@@ -114,13 +112,7 @@ describe('默认数组-二维', () => {
       v1: v.array(
         v.array(
           v.object({
-            key1: v.pipe(
-              v.string(),
-              setComponent(Test1Component),
-              setInputs({
-                input1: 'div-display',
-              }),
-            ),
+            key1: v.pipe(v.string(), setComponent(Test1Component)),
           }),
         ),
       ),

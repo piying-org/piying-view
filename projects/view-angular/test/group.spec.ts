@@ -65,9 +65,7 @@ describe('group初始化', () => {
         key1: v.pipe(
           v.string(),
           setComponent(Test1Component),
-          setInputs({
-            input1: 'div-display',
-          }),
+
           setOutputs({
             output1: (value) => {
               subject1.next(value);
@@ -100,13 +98,7 @@ describe('group初始化', () => {
   it('初始化后model变更', async () => {
     const define = v.object({
       v1: v.object({
-        key1: v.pipe(
-          v.string(),
-          setComponent(Test1Component),
-          setInputs({
-            input1: 'div-display',
-          }),
-        ),
+        key1: v.pipe(v.string(), setComponent(Test1Component)),
       }),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -126,13 +118,7 @@ describe('group初始化', () => {
   it('多级路径删除', async () => {
     const define = v.object({
       v1: v.object({
-        key1: v.pipe(
-          v.string(),
-          setComponent(Test1Component),
-          setInputs({
-            input1: 'div-display',
-          }),
-        ),
+        key1: v.pipe(v.string(), setComponent(Test1Component)),
       }),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -158,13 +144,7 @@ describe('group初始化', () => {
   it('formgroup使用setvalue重置子级', async () => {
     const define = v.object({
       v1: v.object({
-        key1: v.pipe(
-          v.string(),
-          setComponent(Test1Component),
-          setInputs({
-            input1: 'div-display',
-          }),
-        ),
+        key1: v.pipe(v.string(), setComponent(Test1Component)),
       }),
     });
     const { fixture, instance, element } = await createSchemaComponent(
