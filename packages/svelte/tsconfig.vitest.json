@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "src/__tests__/*.spec.ts",
+    "env.d.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
+    "lib": [
+      "ES2024.Promise",
+      "es2015"
+    ],
+    "types": [
+      "node",
+    ],
+    "paths": {
+      "@piying/view-core": [
+        "../../dist/view-core"
+      ],
+      "@piying/view-core/test": [
+        "../../dist/view-core/test"
+      ],
+    }
+  }
+}
