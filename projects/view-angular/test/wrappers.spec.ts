@@ -10,8 +10,6 @@ import { setComponent, setWrappers } from '@piying/view-angular-core';
 
 describe('带异步wrappers', () => {
   it('存在', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
@@ -19,14 +17,6 @@ describe('带异步wrappers', () => {
         setWrappers(['wrapper1', 'wrapper2']),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -69,8 +59,6 @@ describe('带异步wrappers', () => {
     expect(element.querySelector('.wrapper2-div-label')).toBeTruthy();
   });
   it('输入', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
@@ -78,14 +66,6 @@ describe('带异步wrappers', () => {
         setWrappers(['wrapper1', 'wrapper2']),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -181,8 +161,6 @@ describe('带异步wrappers', () => {
     expect(instance.model$()).toEqual({ key1: 'value2' });
   });
   it('取消wrapper', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
@@ -190,14 +168,6 @@ describe('带异步wrappers', () => {
         setWrappers(['wrapper1', 'wrapper2']),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -245,8 +215,6 @@ describe('带异步wrappers', () => {
     expect(element.querySelector('.wrapper1-div-label')?.innerHTML).toBeFalsy();
   });
   it('修改wrapper', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
@@ -254,14 +222,6 @@ describe('带异步wrappers', () => {
         setWrappers(['wrapper1', 'wrapper2']),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });

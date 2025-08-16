@@ -9,22 +9,12 @@ import { setComponent } from '@piying/view-angular-core';
 
 describe('nokey-custom自定义group', () => {
   it('存在', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -40,22 +30,12 @@ describe('nokey-custom自定义group', () => {
     expect(input1Div.innerHTML).toEqual('div-display');
   });
   it('输入', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -108,22 +88,12 @@ describe('nokey-custom自定义group', () => {
     expect(instance.model$()).toEqual({ key1: 'value2' });
   });
   it('初始化后model变更', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });

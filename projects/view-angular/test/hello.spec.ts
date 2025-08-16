@@ -22,22 +22,12 @@ import { htmlBlur } from './util/touch';
 
 describe('初始化', () => {
   it('存在', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -53,22 +43,12 @@ describe('初始化', () => {
     expect(input1Div.innerHTML).toEqual('div-display');
   });
   it('输入', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -119,22 +99,12 @@ describe('初始化', () => {
     expect(instance.model$()).toEqual({ key1: 'value2' });
   });
   it('初始化后model变更', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -156,22 +126,12 @@ describe('初始化', () => {
   });
   // 用例覆盖
   it('置空', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -186,22 +146,12 @@ describe('初始化', () => {
     expect(element.querySelector('input')).toBeFalsy();
   });
   it('数组key', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -227,22 +177,12 @@ describe('初始化', () => {
     expect((instance.model$() as any)['key2']).toBe('value2');
   });
   it('多级路径(字符串)', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -268,22 +208,12 @@ describe('初始化', () => {
     expect((instance.model$() as any)['p1']).toEqual({ p2: 'value2' });
   });
   it('多级路径(数字)', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -310,22 +240,12 @@ describe('初始化', () => {
   });
 
   it('禁用', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });
@@ -423,22 +343,12 @@ describe('初始化', () => {
     expect(element.querySelector('.test3')).toBeTruthy();
   });
   it('hidden', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
         setInputs({
           input1: 'div-display',
-        }),
-        setOutputs({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
         }),
       ),
     });

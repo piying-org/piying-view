@@ -9,8 +9,6 @@ import { setComponent } from '@piying/view-angular-core';
 
 describe('默认数组-二维', () => {
   it('存在', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       v1: v.array(
         v.array(
@@ -20,14 +18,6 @@ describe('默认数组-二维', () => {
               setComponent(Test1Component),
               setInputs({
                 input1: 'div-display',
-              }),
-              setOutputs({
-                output1: (value) => {
-                  subject1.next(value);
-                },
-                output2: (value) => {
-                  subject2.next(value);
-                },
               }),
             ),
           }),
@@ -120,8 +110,6 @@ describe('默认数组-二维', () => {
     expect(instance.model$()).toEqual({ v1: [[{ key1: 'value2' }]] });
   });
   it('初始化后model变更', async () => {
-    const subject1 = new BehaviorSubject<string>('');
-    const subject2 = new BehaviorSubject<string>('');
     const define = v.object({
       v1: v.array(
         v.array(
@@ -131,14 +119,6 @@ describe('默认数组-二维', () => {
               setComponent(Test1Component),
               setInputs({
                 input1: 'div-display',
-              }),
-              setOutputs({
-                output1: (value) => {
-                  subject1.next(value);
-                },
-                output2: (value) => {
-                  subject2.next(value);
-                },
               }),
             ),
           }),
