@@ -1,5 +1,6 @@
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
+import path from 'path';
 
 export default defineConfig({
 	plugins: [svelte()],
@@ -21,6 +22,11 @@ export default defineConfig({
 					setupFiles: ['./vitest-setup-client.ts']
 				}
 			}
-		]
+		],
+		alias: {
+			'@piying/view-svelte': path.join(process.cwd(), './src/lib/index.ts'),
+			'@piying/view-core/test': path.join(process.cwd(), '../../projects/view-core/test/index.ts'),
+			'@piying/view-core': path.join(process.cwd(), '../../projects/view-core/index.ts')
+		}
 	}
 });
