@@ -3,8 +3,7 @@ import { PiyingFieldTemplate } from './field-template';
 import { PI_VIEW_FIELD_TOKEN } from '../token';
 import { useSignalToRef } from '../util';
 
-export interface PiyingGroupProps {}
-export function PiyingGroup(_: PiyingGroupProps) {
+export function PiyingGroup() {
   const field = useContext(PI_VIEW_FIELD_TOKEN);
   const children = useSignalToRef(field, (field) => field?.children!())!;
   return (

@@ -5,11 +5,14 @@ import {
 } from '@piying/view-react';
 import { useContext } from 'react';
 
-export interface PiyingGroupProps {}
-export function RestGroup(_: PiyingGroupProps) {
+export function RestGroup() {
   const field = useContext(PI_VIEW_FIELD_TOKEN);
-  const fixedChildren = useSignalToRef(field, (field) => field?.fixedChildren!())!;
-  const restChildren = useSignalToRef(field, (field) => field?.restChildren!())!;
+  const fixedChildren = useSignalToRef(field, (field) =>
+    field?.fixedChildren!(),
+  )!;
+  const restChildren = useSignalToRef(field, (field) =>
+    field?.restChildren!(),
+  )!;
   return (
     <>
       <div className="fields">
