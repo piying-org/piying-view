@@ -411,7 +411,7 @@ describe('对象', () => {
     expect(Object.keys(resolved.form.control.resetControls$()).length).toEqual(
       1,
     );
-    resolved.action.set('v2', 2);
+    resolved.action.set('v2', '2');
     expect(Object.keys(resolved.form.control.fixedControls$()).length).toEqual(
       0,
     );
@@ -442,5 +442,28 @@ describe('对象', () => {
     expect(result.restChildren!().length).toEqual(0);
     expect(Object.keys(result.form.control.fixedControls$()).length).toEqual(0);
     expect(Object.keys(result.form.control.resetControls$()).length).toEqual(0);
+  });
+
+  it('record key check', () => {
+    const obj = v.record(v.literal('key1'), v.string());
+    const result = createBuilder(obj);
+    assertFieldGroup(result.form.control);
+    let setResult = result.action.set('value', 'key2');
+    expect(setResult).toEqual(false);
+    expect(result.form.root.value ?? {}).toEqual({});
+    setResult = result.action.set('value', 'key1');
+    expect(setResult).toEqual(true);
+    expect(result.form.root.value).toEqual({ key1: 'value' });
+  });
+  it('record key check update', () => {
+    const obj = v.record(v.literal('key1'), v.string());
+    const result = createBuilder(obj);
+    assertFieldGroup(result.form.control);
+    result.form.root.updateValue({});
+    expect(result.form.root.value ?? {}).toEqual({});
+    result.form.root.updateValue({ key2: 'value' });
+    expect(result.form.root.value ?? {}).toEqual({});
+    result.form.root.updateValue({ key1: 'value' });
+    expect(result.form.root.value ?? {}).toEqual({ key1: 'value' });
   });
 });

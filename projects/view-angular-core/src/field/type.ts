@@ -6,6 +6,7 @@ import {
   ValidatorFn,
 } from './abstract_model';
 import type { Observable, UnaryFunction } from 'rxjs';
+import { BaseSchema } from 'valibot';
 
 export type DisabledValueStrategy = 'reserve' | 'delete';
 export interface FieldTransformerConfig {
@@ -34,6 +35,7 @@ export interface FieldFormConfig<T = any> {
   deletionMode?: ArrayDeletionMode;
   /** group/array */
   groupMode?: 'loose' | 'default' | 'strict' | 'reset';
+  groupKeySchema?:BaseSchema<any,any,any>
 }
 
 export type FieldFormConfig$ = WritableSignal<FieldFormConfig>;

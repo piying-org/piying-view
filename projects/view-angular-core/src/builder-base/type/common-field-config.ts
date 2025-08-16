@@ -70,7 +70,7 @@ export type PiResolvedCommonViewFieldConfig<
     ) => PiResolvedCommonViewFieldConfig<any, any>,
   ) => ReturnType<SelfResolvedFn> | undefined;
   action: {
-    set: (value: any, index?: any) => void;
+    set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
   };
   readonly define?: Define;

@@ -49,7 +49,7 @@ import {
   toArray,
   KeyPath,
 } from '../util';
-
+import * as v from 'valibot';
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
     inject(PI_FORM_BUILDER_ALIAS_MAP, { optional: true }) ??
@@ -311,6 +311,14 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
 
     if (templateField && field.form.control) {
       field.restChildren = signal([]);
+      const isCheckedKey = (key: any) => {
+        if (form.config$().groupKeySchema) {
+          if (!v.safeParse(form.config$().groupKeySchema!, key).success) {
+            return false;
+          }
+        }
+        return true;
+      };
       const updateItem = (key: string, initValue: boolean) => {
         const result = this.#createObjectRestItem(
           { ...buildItem, skipAppend: true },
@@ -349,6 +357,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           if (key in restControl) {
             continue;
           }
+          if (!isCheckedKey(key)) {
+            continue;
+          }
           isUpdateItem = true;
           updateItem(key, initUpdate);
         }
@@ -358,10 +369,15 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       });
       field.action = {
         set: (value, key: string) => {
-          untracked(() => {
+          return untracked(() => {
+            if (!isCheckedKey(key)) {
+              return false;
+            }
+
             const result = updateItem(key, true);
             this.allFieldInitHookCall();
             result.form.control!.updateValue(value);
+            return true;
           });
         },
         remove: (key: string) => {
@@ -440,7 +456,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       });
       field.action = {
         set: (value, index: number) => {
-          untracked(() => {
+          return untracked(() => {
             index = (
               typeof index === 'number'
                 ? index
@@ -451,6 +467,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             field.restChildren!.set(list);
             this.allFieldInitHookCall();
             result.form.control!.updateValue(value);
+            return true;
           });
         },
         remove: (index: number) => {
