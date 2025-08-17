@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as v from 'valibot';
 
 import { delay } from './util/delay';
-import { markAsLazy, setComponent } from '@piying/view-core';
+import { lazyMark, setComponent } from '@piying/view-core';
 import { setInputValue } from './util/event';
 import { createComponent } from './util/create-component.svelte';
 
@@ -15,7 +15,7 @@ describe('lazy-import', () => {
 			defaultConfig: {
 				types: {
 					'lazy-string': {
-						type: markAsLazy(() => import('./component/input.svelte').then((a) => a.default))
+						type: lazyMark(() => import('./component/input.svelte').then((a) => a.default))
 					}
 				}
 			}

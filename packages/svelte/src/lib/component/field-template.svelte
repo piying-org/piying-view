@@ -2,7 +2,7 @@
 	import type { PiResolvedViewFieldConfig } from '../type/group';
 	import { signalToRef } from '../util/signal-convert.svelte';
 	import { PI_VIEW_FIELD_TOKEN, InjectorToken } from '../token';
-	import { createViewControlLink, getLazyType, isLazyType } from '@piying/view-core';
+	import { createViewControlLink, getLazyImport, isLazyMark } from '@piying/view-core';
 	import { getContext, setContext } from 'svelte';
 	import type { Injector } from 'static-injector';
 	import PiWrapper from './wrapper.svelte';
@@ -38,10 +38,10 @@
 		return props.field.define?.type;
 	});
 	const isLazy = $derived.by(() => {
-		return isLazyType(props.field.define?.type);
+		return isLazyMark(props.field.define?.type);
 	});
 	const loading = $derived.by(() => {
-		return getLazyType<() => Promise<any>>(props.field.define?.type)();
+		return getLazyImport<() => Promise<any>>(props.field.define?.type)!();
 	});
 	const field = $derived(props.field);
 	setContext(PI_VIEW_FIELD_TOKEN, () => field);
