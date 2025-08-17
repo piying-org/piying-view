@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { NgResolvedComponentDefine2 } from '../type/component';
 import { NgResolvedComponentDefine1 } from '../type';
-import { getLazyType, isLazyType } from '@piying/view-angular-core';
+import { getLazyImport, isLazyMark } from '@piying/view-angular-core';
 function isComponentType(input: any): input is Type<any> {
   return !!reflectComponentType(input as any);
 }
@@ -45,9 +45,9 @@ export function createAsyncCache<One extends boolean, Result>(
           const result = { ...resolved, type: { component: type } };
           cached.set(item, result as any);
           return result;
-        } else if (typeof type === 'function' || isLazyType(type)) {
+        } else if (typeof type === 'function' || isLazyMark(type)) {
           hasPromise = true;
-          const result$$ = getLazyType<() => Promise<any>>(type)!().then(
+          const result$$ = getLazyImport<() => Promise<any>>(type)!().then(
             (value) => {
               const result = {
                 ...resolved,

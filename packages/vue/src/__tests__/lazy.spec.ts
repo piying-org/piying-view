@@ -6,7 +6,7 @@ import { shallowRef } from 'vue';
 import { nextTick } from 'vue';
 import { modelValueEqual } from './util/model-value-equal';
 import { delay } from './util/delay';
-import { markAsLazy, setComponent } from '@piying/view-core';
+import { lazyMark, setComponent } from '@piying/view-core';
 
 describe('lazy-import', () => {
   it('string', async () => {
@@ -31,7 +31,7 @@ describe('lazy-import', () => {
     const value = shallowRef('init');
     const { instance } = await createComponent(schema, value, {
       defaultConfig: {
-        types: { 'lazy-string': { type: markAsLazy(() => import('./component/input.vue')) } },
+        types: { 'lazy-string': { type: lazyMark(() => import('./component/input.vue')) } },
       },
     });
     await nextTick();

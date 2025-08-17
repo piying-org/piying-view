@@ -1,13 +1,13 @@
 export type LazyImport<T> = () => Promise<T>;
 const markSymbol = Symbol();
-export function markAsLazy<T>(fn: () => Promise<T>) {
+export function lazyMark<T>(fn: LazyImport<T>) {
   return { [markSymbol]: fn };
 }
-export type LazyImportType<T> = ReturnType<typeof markAsLazy<T>>;
-export function isLazyType(input: any): boolean {
+export type LazyMarkType<T> = ReturnType<typeof lazyMark<T>>;
+export function isLazyMark(input: any): boolean {
   return markSymbol in input;
 }
-export function getLazyType<T>(input: any) {
+export function getLazyImport<T>(input: any) {
   return (input[markSymbol] ??
     (typeof input === 'function' ? input : undefined)) as T | undefined;
 }

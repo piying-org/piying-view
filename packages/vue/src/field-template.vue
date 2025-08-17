@@ -12,7 +12,12 @@ import type { PiResolvedViewFieldConfig } from './type/group';
 import { signalToRef } from './util/signal-convert';
 import { PI_VIEW_FIELD_TOKEN, InjectorToken } from './token';
 import PiWrapper from './wrapper.vue';
-import { createViewControlLink, getLazyType, isFieldControl, isLazyType } from '@piying/view-core';
+import {
+  createViewControlLink,
+  getLazyImport,
+  isFieldControl,
+  isLazyMark,
+} from '@piying/view-core';
 const props = defineProps<{
   field: PiResolvedViewFieldConfig;
 }>();
@@ -29,8 +34,8 @@ const fieldChildren = signalToRef(() => props.field.children?.());
 const wrappers = signalToRef(() => props.field.wrappers());
 
 const componentType = computed(() =>
-  typeof props.field.define?.type === 'function' || isLazyType(props.field.define?.type)
-    ? defineAsyncComponent(getLazyType<any>(props.field.define?.type))
+  typeof props.field.define?.type === 'function' || isLazyMark(props.field.define?.type)
+    ? defineAsyncComponent(getLazyImport<any>(props.field.define?.type))
     : props.field.define?.type,
 );
 const field = computed(() => props.field);
