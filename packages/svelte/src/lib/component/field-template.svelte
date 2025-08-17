@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PiResolvedViewFieldConfig } from '../type/group';
-	import { signalToRef } from '../util/signal-convert.svelte';
+	import { signalToState } from '../util/signal-convert.svelte';
 	import { PI_VIEW_FIELD_TOKEN, InjectorToken } from '../token';
 	import { createViewControlLink, getLazyImport, isLazyMark } from '@piying/view-core';
 	import { getContext, setContext } from 'svelte';
@@ -10,7 +10,7 @@
 		field: PiResolvedViewFieldConfig;
 	} = $props();
 	const injector = getContext<Injector>(InjectorToken)!;
-	const fieldInputs = signalToRef(() => {
+	const fieldInputs = signalToState(() => {
 		return {
 			...props.field.attributes(),
 			...props.field.inputs(),
@@ -19,7 +19,7 @@
 		};
 	});
 	let controlRef = $state<any>();
-	const renderConfig = signalToRef(() => props.field.renderConfig());
+	const renderConfig = signalToState(() => props.field.renderConfig());
 	const control = $derived.by(() => props.field.form.control);
 	$effect.pre(() => {
 		let dispose: (() => any) | undefined;
@@ -31,9 +31,9 @@
 			dispose = undefined;
 		};
 	});
-	const fieldChildren = signalToRef(() => props.field.children?.());
+	const fieldChildren = signalToState(() => props.field.children?.());
 
-	const wrappers = signalToRef(() => props.field.wrappers());
+	const wrappers = signalToState(() => props.field.wrappers());
 	const ComponentType = $derived.by(() => {
 		return props.field.define?.type;
 	});

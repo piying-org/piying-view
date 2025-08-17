@@ -2,10 +2,10 @@
 	import FieldTemplate from './field-template.svelte';
 	import { getContext } from 'svelte';
 	import { PI_VIEW_FIELD_TOKEN } from '../token';
-	import { signalToRef } from '../util/signal-convert.svelte';
+	import { signalToState } from '../util/signal-convert.svelte';
 
 	const field = getContext<PI_VIEW_FIELD_TOKEN>(PI_VIEW_FIELD_TOKEN);
-	const children = signalToRef(() => field().children!())!;
+	const children = signalToState(() => field().children!())!;
 </script>
 
 {#each children()! as field, i (i)}

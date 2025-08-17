@@ -3,13 +3,13 @@
 		type PiResolvedViewFieldConfig,
 		PI_VIEW_FIELD_TOKEN,
 		PiyingFieldTemplate,
-		signalToRef
+		signalToState
 	} from '@piying/view-svelte';
 	import { getContext } from 'svelte';
 
 	const field = getContext<() => PiResolvedViewFieldConfig>(PI_VIEW_FIELD_TOKEN);
-	const fixedChildren = signalToRef(() => field()?.fixedChildren!());
-	const restChildren = signalToRef(() => field()?.restChildren!());
+	const fixedChildren = signalToState(() => field()?.fixedChildren!());
+	const restChildren = signalToState(() => field()?.restChildren!());
 </script>
 
 <div class="fields">

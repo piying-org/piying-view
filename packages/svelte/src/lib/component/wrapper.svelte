@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { CoreResolvedWrapperConfig } from '@piying/view-core';
-	import { signalToRef } from '../util/signal-convert.svelte';
+	import { signalToState } from '../util/signal-convert.svelte';
 	import PiWrapper from './wrapper.svelte';
 	const dProps: {
 		wrappers: CoreResolvedWrapperConfig[];
@@ -8,7 +8,7 @@
 	} = $props();
 	const restWrappers = $derived.by(() => dProps.wrappers!.slice(1));
 	const wrapper = $derived.by(() => dProps.wrappers?.[0]);
-	const inputs = signalToRef(() => ({
+	const inputs = signalToState(() => ({
 		...wrapper?.inputs(),
 		...wrapper?.attributes(),
 		...wrapper?.outputs

@@ -10,7 +10,7 @@ import { userEvent } from '@testing-library/user-event';
 describe('hello', () => {
 	it('string', async () => {
 		const schema = v.string();
-		const model = $state('init');
+		const model = 'init';
 
 		const { instance, modelChange$, destroy } = await createComponent(schema, model);
 		const el = instance.container.querySelector('input')!;
