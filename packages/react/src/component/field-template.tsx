@@ -12,28 +12,17 @@ export interface PiyingFieldTemplateProps {
 }
 
 export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
-  const inputs = useSignalToRef(props.field, (field) => field.inputs());
-  const outputs = useSignalToRef(props.field, (field) => field.outputs());
-  const attributes = useSignalToRef(props.field, (field) => field.attributes());
-  const fieldInputs = useMemo(
-    () => ({ ...attributes, ...inputs, ...outputs }),
-    [attributes, inputs, outputs],
-  );
-
+  const fieldInputs = useSignalToRef(props.field, (field) => ({
+    ...field.attributes(),
+    ...field.inputs(),
+    ...field.outputs(),
+  }));
   const renderConfig = useSignalToRef(props.field, (field) =>
     field.renderConfig(),
   );
-
-  const fieldChildren = useSignalToRef(props.field, (field) =>
-    field.children?.(),
-  );
-
   const wrappers = useSignalToRef(props.field, (field) => field.wrappers());
-
   const control = props.field.form.control;
-
   const ComponentType = props.field.define?.type;
-
   const isHidden = useMemo(() => {
     return !!renderConfig.hidden || !ComponentType;
   }, [renderConfig.hidden, ComponentType]);
@@ -64,9 +53,7 @@ export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
       <PI_VIEW_FIELD_TOKEN value={props.field}>
         {!isHidden ? (
           <PiyingWrapper wrappers={wrappers}>
-            {fieldChildren ? (
-              <ComponentType {...fieldInputs}></ComponentType>
-            ) : props.field.form.control ? (
+            {props.field.form.control ? (
               <ComponentType {...fieldControlInput}></ComponentType>
             ) : (
               <ComponentType {...fieldInputs}></ComponentType>
