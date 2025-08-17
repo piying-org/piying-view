@@ -2,6 +2,8 @@
 	import type { CoreResolvedWrapperConfig } from '@piying/view-core';
 	import { signalToRef } from '../util/signal-convert.svelte';
 	import PiWrapper from './wrapper.svelte';
+	import { getContext } from 'svelte';
+	import { PI_VIEW_FIELD_TOKEN } from '../token';
 	const dProps: {
 		wrappers: CoreResolvedWrapperConfig[];
 		children: any;
@@ -19,7 +21,7 @@
 	{#snippet childWrapper()}
 		<PiWrapper wrappers={restWrappers} children={dProps.children}></PiWrapper>
 	{/snippet}
-	<wrapper.type {...inputs} children={childWrapper}></wrapper.type>
+	<wrapper.type {...inputs()} children={childWrapper}></wrapper.type>
 {:else}
 	{@render dProps.children()}
 {/if}

@@ -9,3 +9,4 @@ export * from './token';
 export * from './builder';
 export * from './svelte-schema';
 export * from './util/use-control-value-accessor.svelte';
+export * from './util/signal-convert.svelte'

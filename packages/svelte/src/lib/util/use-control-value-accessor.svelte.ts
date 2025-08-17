@@ -29,7 +29,7 @@ export function useControlValueAccessor() {
 				return disabled;
 			},
 			valueChange: (input: any) => {
-				onChange(input);
+				onChange?.(input);
 				value = input;
 			},
 			touchedChange: () => {

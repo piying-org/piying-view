@@ -49,8 +49,8 @@
 		});
 		return [field, subInjector];
 	});
-
-	$effect(() => {
+ 
+	$effect.pre(() => {
 		let ref: EffectRef | undefined;
 		if (field.form.control) {
 			const model = props.model;

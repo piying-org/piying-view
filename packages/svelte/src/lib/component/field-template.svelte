@@ -10,15 +10,18 @@
 		field: PiResolvedViewFieldConfig;
 	} = $props();
 	const injector = getContext<Injector>(InjectorToken)!;
-	const attributes = signalToRef(() => props.field.attributes());
-	const inputs = signalToRef(() => props.field.inputs());
-	const outputs = signalToRef(() => props.field.outputs());
-	const fieldInputs = $derived.by(() => ({ ...attributes, ...inputs, ...outputs }));
+	const fieldInputs = signalToRef(() => {
+		return {
+			...props.field.attributes(),
+			...props.field.inputs(),
+			...props.field.outputs()
+		};
+	});
 
 	let controlRef = $state<any>();
 	const renderConfig = signalToRef(() => props.field.renderConfig());
 	const control = $derived.by(() => props.field.form.control);
-	$effect(() => {
+	$effect.pre(() => { 
 		let dispose: (() => any) | undefined;
 		if (controlRef?.cva) {
 			dispose = createViewControlLink((() => control) as any, controlRef?.cva, injector);
@@ -37,17 +40,17 @@
 	setContext(PI_VIEW_FIELD_TOKEN, () => field);
 </script>
 
-{#if !renderConfig?.hidden}
+{#if !renderConfig()?.hidden}
 	{#if field.define?.type}
 		{#snippet children()}
-			{#if fieldChildren}
-				<ComponentType {...fieldInputs}></ComponentType>
+			{#if fieldChildren()}
+				<ComponentType {...fieldInputs()}></ComponentType>
 			{:else if field.form.control}
-				<ComponentType {...fieldInputs} bind:this={controlRef}></ComponentType>
+				<ComponentType {...fieldInputs()} bind:this={controlRef}></ComponentType>
 			{:else}
-				<ComponentType {...fieldInputs}></ComponentType>
+				<ComponentType {...fieldInputs()}></ComponentType>
 			{/if}
 		{/snippet}
-		<PiWrapper wrappers={wrappers!} {children}></PiWrapper>
+		<PiWrapper wrappers={wrappers()!} children={children}></PiWrapper>
 	{/if}
 {/if}
