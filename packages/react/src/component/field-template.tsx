@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useRef } from 'react';
 import type { PiResolvedViewFieldConfig } from '../type';
-import { InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
+import { CVA, InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
 import { useSignalToRef } from '../util/signal-convert';
 import { PiyingWrapper } from './wrapper';
 import {
@@ -11,7 +11,6 @@ export interface PiyingFieldTemplateProps {
   field: PiResolvedViewFieldConfig;
 }
 
-export const CVA = Symbol.for('ControlValueAccessor');
 export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
   const inputs = useSignalToRef(props.field, (field) => field.inputs());
   const outputs = useSignalToRef(props.field, (field) => field.outputs());
