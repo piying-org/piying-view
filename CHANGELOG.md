@@ -1,3 +1,7 @@
+## [1.4.1](https://github.com/piying-org/piying-view/compare/1.4.0...1.4.1) (2025-08-17)
+
+
+
 # [1.4.0](https://github.com/piying-org/piying-view/compare/1.3.3...1.4.0) (2025-08-17)
 
 
