@@ -13,7 +13,11 @@ describe('lazy-import', () => {
 		const value = 'init';
 		const { instance, modelChange$ } = await createComponent(schema, value, {
 			defaultConfig: {
-				types: { 'lazy-string': { type: markAsLazy(() => import('./component/input.svelte').then((a ) => a.default)) } }
+				types: {
+					'lazy-string': {
+						type: markAsLazy(() => import('./component/input.svelte').then((a) => a.default))
+					}
+				}
 			}
 		});
 		// 懒加载组件需要时间

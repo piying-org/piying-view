@@ -5,9 +5,9 @@
 	export { cva };
 </script>
 
-	<input
-		type="number"
-		bind:value={() => cvaa.value, (v) => cvaa.valueChange(v)}
-		disabled={cvaa.disabled}
-		onblur={cvaa.touchedChange}
-	/>
+<input
+	type="number"
+	bind:value={() => cvaa.value, (v) => cvaa.valueChange(v)}
+	disabled={cvaa.disabled}
+	onblur={cvaa.touchedChange}
+/>

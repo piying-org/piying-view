@@ -11,4 +11,4 @@
 	const children = signalToRef(() => field().children!())!;
 </script>
 
-	<PiyingFieldTemplate field={children()![dProps.activateIndex]}></PiyingFieldTemplate>
+<PiyingFieldTemplate field={children()![dProps.activateIndex]}></PiyingFieldTemplate>
