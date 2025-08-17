@@ -31,9 +31,9 @@ import {
   FieldArray,
   FieldControl,
   FieldGroup,
+  initListen,
   isFieldArray,
 } from '@piying/view-angular-core';
-import { initListen } from './util/init-listen';
 import { AngularFormBuilder } from './builder';
 import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';

@@ -1,6 +1,7 @@
-import { effect, Injector } from '@angular/core';
-import { AbstractControl } from '@piying/view-angular-core';
+import { effect } from '@angular/core';
+import type { Injector } from '@angular/core';
 import { deepEqual } from 'fast-equals';
+import { AbstractControl } from '../field/abstract_model';
 
 export function initListen(
   input: any,

@@ -16,8 +16,8 @@ import { VueFormBuilder } from './builder';
 import { InjectorToken } from './token';
 import FieldTemplate from './field-template.vue';
 import type { PiResolvedViewFieldConfig } from './type/group';
-import { initListen } from './util/init-listen';
 import type { Injector } from 'static-injector';
+import { initListen } from '@piying/view-core';
 const inputs = defineProps<{
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
   modelValue?: any;

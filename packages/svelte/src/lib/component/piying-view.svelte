@@ -15,8 +15,8 @@
 	import { InjectorToken } from '../token';
 	import { SvelteSchemaHandle } from '../svelte-schema';
 	import { SvelteFormBuilder } from '../builder';
-	import { initListen } from '../util/init-listen';
 	import FieldTemplate from './field-template.svelte';
+	import { initListen } from '@piying/view-core';
 	let props: {
 		schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
 		model?: any;

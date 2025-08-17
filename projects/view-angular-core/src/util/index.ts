@@ -9,3 +9,4 @@ export * from './sorted-array';
 export * from './lazy-import';
 export * from './create-view-control-link';
 export * from './control-status-to-class';
+export * from './init-listen';

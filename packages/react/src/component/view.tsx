@@ -12,10 +12,9 @@ import {
 import * as v from 'valibot';
 import { InjectorToken } from '../token';
 import { PiyingFieldTemplate } from './field-template';
-import { convert } from '@piying/view-core';
+import { convert, initListen } from '@piying/view-core';
 import { ReactSchemaHandle } from '../schema-handle';
 import { ReactFormBuilder } from '../builder';
-import { initListen } from '../util/init-listen';
 import { useEffectSync } from '../util/use-effect-sync';
 export interface PiyingViewProps {
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
