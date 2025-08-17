@@ -7,5 +7,4 @@ export class SvelteSchemaHandle extends CoreSchemaHandle<
 > {
 	declare type?: any;
 
-	contents?: any[];
 }

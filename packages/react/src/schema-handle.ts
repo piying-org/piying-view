@@ -7,5 +7,4 @@ export class ReactSchemaHandle extends CoreSchemaHandle<
 > {
   declare type?: any;
 
-  // contents?: any[];
 }

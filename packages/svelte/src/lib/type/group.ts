@@ -23,7 +23,6 @@ export interface RawComponentDefine {
 
 export interface ComponentFieldConfig {
 	type?: string;
-	contents?: any[];
 }
 
 export type ResolvedComponentFieldConfig = Omit<

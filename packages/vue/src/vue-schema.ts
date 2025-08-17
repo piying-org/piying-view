@@ -7,5 +7,4 @@ export class VueSchemaHandle extends CoreSchemaHandle<
 > {
   declare type?: any;
 
-  contents?: any[];
 }
