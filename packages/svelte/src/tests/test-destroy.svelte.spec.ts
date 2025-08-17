@@ -10,7 +10,7 @@ describe('销毁测试', () => {
 
     const schema = v.pipe(v.string(), getField(field$));
     const model = 'init';
-    const { instance, modelChange$ } = await createComponent(schema, model);
+    const { instance } = await createComponent(schema, model);
     const el = instance.container.querySelector('input')!;
     expect(el.value).eq('init');
     const field = await field$.promise;

@@ -194,7 +194,7 @@ describe('wrapper', () => {
 				{
 					type: 'wrapper-field',
 					outputs: {
-						emitField: (value: any) => {             
+						emitField: (value: any) => {
 							expect(value).ok;
 							expect(value.form.control?.value).eq('1234');
 							isEmit = true;
@@ -204,7 +204,7 @@ describe('wrapper', () => {
 			])
 		);
 		const value = '1234';
-		const { instance } = await createComponent(schema, value, {
+		await createComponent(schema, value, {
 			defaultConfig: {
 				wrappers: WrapperObj
 			}

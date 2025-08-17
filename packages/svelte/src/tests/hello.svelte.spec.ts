@@ -12,7 +12,7 @@ describe('hello', () => {
 		const schema = v.string();
 		const model = $state('init');
 
-		let { instance, modelChange$, destroy } = await createComponent(schema, model);
+		const { instance, modelChange$, destroy } = await createComponent(schema, model);
 		const el = instance.container.querySelector('input')!;
 		expect(el.value).eq('init');
 		setInputValue(el, '123');

@@ -1,5 +1,5 @@
 import { render } from '@testing-library/svelte';
-import { PiyingView, PiyingViewGroup, type PiViewConfig } from '@piying/view-svelte';
+import { PiyingViewGroup, type PiViewConfig } from '@piying/view-svelte';
 import type { BaseSchema, SchemaWithPipe } from 'valibot';
 import { delay } from './delay';
 import PiInput from '../component/input.svelte';
@@ -55,7 +55,7 @@ export async function createComponent(
 	let modelValue = $state(model);
 	let registerModelFn;
 	let registerSchemaFn;
-	let instance = render(TestComp, {
+	const instance = render(TestComp, {
 		inputs: {
 			schema,
 			model: modelValue,
