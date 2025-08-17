@@ -10,6 +10,7 @@ import {
   CoreRawComponentDefine,
   CoreResolvedComponentDefine,
   CoreResolvedWrapperConfig,
+  LazyImportType,
   PiResolvedCommonViewFieldConfig,
 } from '@piying/view-angular-core';
 import { NgSchemaHandle } from '../schema/ng-schema';
@@ -38,7 +39,9 @@ export type NgRawComponentDefine = Omit<CoreRawComponentDefine, 'type'> & {
     | Type<any>
     | LazyImport<Type<any>>
     | NgComponentDefine
-    | LazyImport<NgComponentDefine>;
+    | LazyImport<NgComponentDefine>
+    | LazyImportType<Type<any>>
+    | LazyImportType<NgComponentDefine>;
   selector?: string;
 };
 /** 解析后但是未加载 */
@@ -51,7 +54,9 @@ export type NgResolvedComponentDefine1 = Omit<
     | Type<any>
     | LazyImport<Type<any>>
     | NgComponentDefine
-    | LazyImport<NgComponentDefine>;
+    | LazyImport<NgComponentDefine>
+    | LazyImportType<Type<any>>
+    | LazyImportType<NgComponentDefine>;
   selector?: string;
 };
 
