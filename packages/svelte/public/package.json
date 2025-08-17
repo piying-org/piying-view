@@ -1,12 +1,12 @@
 {
-  "name": "@piying/view-react",
+  "name": "@piying/view-svelte",
   "version": "0.0.0-PLACEHOLDER",
-  "description": "Piying view For React;Valibot to Component",
+  "description": "Piying view For Svelte;Valibot to Component",
   "type": "module",
   "homepage": "https://piying-org.github.io/website/docs/client/intro",
   "repository": {
     "url": "git+https://github.com/piying-org/piying-view.git",
-    "directory": "packages/vue",
+    "directory": "packages/svelte",
     "type": "git"
   },
   "bugs": {
@@ -18,7 +18,7 @@
     "email": "wszgrcy@gmail.com"
   },
   "keywords": [
-    "React",
+    "Svelte",
     "form",
     "valibot",
     "validation",
@@ -41,8 +41,7 @@
   },
   "sideEffects": false,
   "peerDependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "svelte": "^5.0.0"
   },
   "module": "index.js",
   "typings": "index.d.ts",
@@ -52,9 +51,8 @@
     },
     ".": {
       "types": "./index.d.ts",
-      "default": "./index.js",
-      "import": "./index.js",
-      "require": "./index.cjs"
+      "svelte": "./index.js",
+      "default": "./index.js"
     }
   }
 }

@@ -35,7 +35,7 @@ export interface FieldFormConfig<T = any> {
   deletionMode?: ArrayDeletionMode;
   /** group/array */
   groupMode?: 'loose' | 'default' | 'strict' | 'reset';
-  groupKeySchema?:BaseSchema<any,any,any>
+  groupKeySchema?: BaseSchema<any, any, any>;
 }
 
 export type FieldFormConfig$ = WritableSignal<FieldFormConfig>;

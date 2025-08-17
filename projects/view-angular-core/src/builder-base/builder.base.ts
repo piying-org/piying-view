@@ -368,8 +368,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         }
       });
       field.action = {
-        set: (value, key: string) => {
-          return untracked(() => {
+        set: (value, key: string) =>
+          untracked(() => {
             if (!isCheckedKey(key)) {
               return false;
             }
@@ -378,8 +378,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             this.allFieldInitHookCall();
             result.form.control!.updateValue(value);
             return true;
-          });
-        },
+          }),
         remove: (key: string) => {
           untracked(() => {
             removeItem(key);
@@ -455,8 +454,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         }
       });
       field.action = {
-        set: (value, index: number) => {
-          return untracked(() => {
+        set: (value, index: number) =>
+          untracked(() => {
             index = (
               typeof index === 'number'
                 ? index
@@ -468,8 +467,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             this.allFieldInitHookCall();
             result.form.control!.updateValue(value);
             return true;
-          });
-        },
+          }),
         remove: (index: number) => {
           untracked(() => {
             const list = [...field.restChildren!()];
