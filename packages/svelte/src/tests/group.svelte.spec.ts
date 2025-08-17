@@ -8,7 +8,7 @@ import GroupAttr from './component/group-attributes.svelte';
 import RestGroup from './component/group/rest-group.svelte';
 import { delay } from './util/delay';
 import { createComponent } from './util/create-component.svelte';
-describe.only('group', () => {
+describe('group', () => {
 	it('attributes', async () => {
 		const schema = v.pipe(
 			v.object({
