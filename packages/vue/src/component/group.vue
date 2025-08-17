@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FieldTemplate from '../field-template.vue';
+import FieldTemplate from './field-template.vue';
 import { inject } from 'vue';
 import { PI_VIEW_FIELD_TOKEN } from '../token';
 import { signalToRef } from '../util';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue';
-import { PI_VIEW_FIELD_TOKEN, signalToRef } from '../../../index';
-import { PiyingFieldTemplate } from '../../../index';
+import { PI_VIEW_FIELD_TOKEN, signalToRef } from '@piying/view-vue';
+import { PiyingFieldTemplate } from '@piying/view-vue';
 
 const field = inject(PI_VIEW_FIELD_TOKEN);
 const fixedChildren = signalToRef(() => field?.value.fixedChildren!());

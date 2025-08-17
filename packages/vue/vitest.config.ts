@@ -15,6 +15,7 @@ export default mergeConfig(
         ui: true,
       },
       alias: {
+        '@piying/view-vue': path.join(process.cwd(), './src/index.ts'),
         '@piying/view-core/test': path.join(
           process.cwd(),
           '../../projects/view-core/test/index.ts',

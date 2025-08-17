@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useControlValueAccessor } from '../../index';
+import { useControlValueAccessor } from '@piying/view-vue';
 const {
   cva,
   cvaa: { value, valueChange, disabled, touchedChange },

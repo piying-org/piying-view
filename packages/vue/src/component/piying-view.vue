@@ -11,11 +11,11 @@ import {
   untracked,
   type EffectRef,
 } from 'static-injector';
-import { VueSchemaHandle } from './vue-schema';
-import { VueFormBuilder } from './builder';
-import { InjectorToken } from './token';
+import { VueSchemaHandle } from '../vue-schema';
+import { VueFormBuilder } from '../builder';
+import { InjectorToken } from '../token';
 import FieldTemplate from './field-template.vue';
-import type { PiResolvedViewFieldConfig } from './type/group';
+import type { PiResolvedViewFieldConfig } from '../type/group';
 import type { Injector } from 'static-injector';
 import { initListen } from '@piying/view-core';
 const inputs = defineProps<{

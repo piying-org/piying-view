@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.app.json",
   "include": [
-    "src/__tests__/*.spec.ts",
+    "src/__tests__/**/*",
     "env.d.ts"
   ],
   "exclude": [],
@@ -20,6 +20,9 @@
       "@piying/view-core/test": [
         "../../dist/view-core/test"
       ],
+      "@piying/view-vue": [
+        "./src/index.ts"
+      ]
     }
   }
 }

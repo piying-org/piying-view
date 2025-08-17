@@ -8,9 +8,9 @@ import {
   inject as vInject,
   watch,
 } from 'vue';
-import type { PiResolvedViewFieldConfig } from './type/group';
-import { signalToRef } from './util/signal-convert';
-import { PI_VIEW_FIELD_TOKEN, InjectorToken } from './token';
+import type { PiResolvedViewFieldConfig } from '../type/group';
+import { signalToRef } from '../util/signal-convert';
+import { PI_VIEW_FIELD_TOKEN, InjectorToken } from '../token';
 import PiWrapper from './wrapper.vue';
 import {
   createViewControlLink,

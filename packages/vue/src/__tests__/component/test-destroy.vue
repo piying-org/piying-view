@@ -2,9 +2,9 @@
 import { markRaw, watchEffect } from 'vue';
 import * as v from 'valibot';
 import CInput from './input.vue';
-import { PiyingView } from '../../index';
+import { PiyingView } from '@piying/view-vue';
 import { getField } from '../util/actions';
-import type { PiResolvedViewFieldConfig } from '../../type/group';
+import type { PiResolvedViewFieldConfig } from '@piying/view-vue';
 const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
 
 const props = defineProps<{

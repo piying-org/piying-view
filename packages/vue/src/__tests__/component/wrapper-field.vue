@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue';
-import { PI_VIEW_FIELD_TOKEN } from '../../token';
+import { PI_VIEW_FIELD_TOKEN } from '@piying/view-vue';
 const field = inject(PI_VIEW_FIELD_TOKEN);
 const emit = defineEmits(['emitField']);
 emit('emitField', field);

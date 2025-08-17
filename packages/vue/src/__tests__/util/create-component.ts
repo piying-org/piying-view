@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import PiView from '../../piying-view.vue';
+import {PiyingView} from '@piying/view-vue';
 import type { BaseSchema, SchemaWithPipe } from 'valibot';
 import type { PiViewConfig } from '../../type/group';
 import { computed, markRaw, nextTick, type ShallowRef } from 'vue';
@@ -67,7 +67,7 @@ export async function createComponent(
   //   },
   // });
 
-  const instance = mount(PiView, {
+  const instance = mount(PiyingView, {
     props: {
       schema: markRaw(schema),
       options: markRaw(options.value),

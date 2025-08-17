@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import SelfComponent from './wrapper.vue';
 import type { CoreResolvedWrapperConfig } from '@piying/view-core';
-import { signalToRef } from './util/signal-convert';
+import { signalToRef } from '../util/signal-convert';
 
 const dInputs = defineProps<{
   wrappers: CoreResolvedWrapperConfig[];
