@@ -5,11 +5,9 @@
 	let dProps: { children: any; emitField: (input: any) => void } = $props();
 
 	const field = getContext<PI_VIEW_FIELD_TOKEN>(PI_VIEW_FIELD_TOKEN);
-
-	dProps.emitField(field);
+	dProps.emitField(field());
 </script>
 
-	<div class="wrapper-field">
-		{@render dProps.children()}
-	</div>
-
+<div class="wrapper-field">
+	{@render dProps.children()}
+</div>

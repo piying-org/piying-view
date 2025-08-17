@@ -7,7 +7,7 @@ import PiInputNumber from '../component/input-number.svelte';
 import PiInputCheckbox from '../component/input-checkbox.svelte';
 import PiSelect from '../component/input-select.svelte';
 import PiInputRadio from '../component/input-radio.svelte';
-
+import TestComp from './test-comp.svelte';
 export async function createComponent(
 	schema: BaseSchema<any, any, any> | SchemaWithPipe<any>,
 	model: any,
@@ -53,12 +53,22 @@ export async function createComponent(
 		}
 	};
 	let modelValue = $state(model);
-	let instance = render(PiyingView, {
-		schema,
-		model,
-		options,
-		modelChange: (value) => {
-			modelValue = value;
+	let registerModelFn;
+	let registerSchemaFn;
+	let instance = render(TestComp, {
+		inputs: {
+			schema,
+			model: modelValue,
+			options,
+			modelChange: (value: any) => {
+				modelValue = value;
+			}
+		},
+		registerModel: (fn: any) => {
+			registerModelFn = fn;
+		},
+		registerSchema: (fn: any) => {
+			registerSchemaFn = fn;
 		}
 	});
 	await delay();
@@ -68,8 +78,14 @@ export async function createComponent(
 		modelChange$: () => {
 			return modelValue;
 		},
+		setModel: (value: any) => {
+			registerModelFn!(value);
+		},
 		destroy: () => {
 			instance.unmount();
+		},
+		setSchema: (value: any) => {
+			registerSchemaFn!(value);
 		}
 	};
 }

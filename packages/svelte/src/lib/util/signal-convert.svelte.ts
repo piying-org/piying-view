@@ -5,7 +5,7 @@ import { getContext } from 'svelte';
 export function signalToRef<T>(value: () => T | undefined) {
 	const injector = getContext<Injector>(InjectorToken)!;
 	let dataRef = $state.raw<T | undefined>(undefined as any);
-	$effect(() => {
+	$effect.pre(() => {
 		dataRef = value();
 		const ref = effect(
 			() => {

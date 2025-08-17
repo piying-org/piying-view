@@ -14,14 +14,14 @@
 		return {
 			...props.field.attributes(),
 			...props.field.inputs(),
+			// todo outputs不应该加signal,因为没必要动态更新?
 			...props.field.outputs()
 		};
 	});
-
 	let controlRef = $state<any>();
 	const renderConfig = signalToRef(() => props.field.renderConfig());
 	const control = $derived.by(() => props.field.form.control);
-	$effect.pre(() => { 
+	$effect.pre(() => {
 		let dispose: (() => any) | undefined;
 		if (controlRef?.cva) {
 			dispose = createViewControlLink((() => control) as any, controlRef?.cva, injector);
@@ -51,6 +51,6 @@
 				<ComponentType {...fieldInputs()}></ComponentType>
 			{/if}
 		{/snippet}
-		<PiWrapper wrappers={wrappers()!} children={children}></PiWrapper>
+		<PiWrapper wrappers={wrappers()!} {children}></PiWrapper>
 	{/if}
 {/if}

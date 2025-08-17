@@ -1,5 +1,5 @@
 <script lang="ts">
-	const props: { input1?: string } = $props();
+	const props: { input1?: string; class?: any } = $props();
 </script>
 
-<div class="empty-cmp">{props.input1 ?? ''}</div>
+<div class={'empty-cmp ' + props.class}>{props.input1 ?? ''}</div>
