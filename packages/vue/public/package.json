@@ -5,7 +5,7 @@
   "type": "module",
   "homepage": "https://piying-org.github.io/website/docs/client/intro",
   "repository": {
-    "url": "https://github.com/piying-org/piying-view",
+    "url": "git+https://github.com/piying-org/piying-view.git",
     "directory": "packages/vue",
     "type": "git"
   },

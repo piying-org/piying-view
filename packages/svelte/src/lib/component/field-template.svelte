@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PiResolvedViewFieldConfig } from '../type/group';
 	import { signalToRef } from '../util/signal-convert.svelte';
-	import { PI_VIEW_FIELD_TOKEN, InjectorToken, CVA } from '../token';
+	import { PI_VIEW_FIELD_TOKEN, InjectorToken } from '../token';
 	import { createViewControlLink, getLazyType, isLazyType } from '@piying/view-core';
 	import { getContext, setContext } from 'svelte';
 	import type { Injector } from 'static-injector';
