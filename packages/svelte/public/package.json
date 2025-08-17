@@ -35,13 +35,12 @@
   "license": "MIT",
   "dependencies": {
     "@piying/view-core": "0.0.0-PLACEHOLDER",
-    "fast-equals": "^5.2.2",
-    "static-injector": "^6.1.2",
-    "valibot": "^1.1.0"
+    "static-injector": "^6.1.2"
   },
   "sideEffects": false,
   "peerDependencies": {
-    "svelte": "^5.0.0"
+    "svelte": "^5.0.0",
+    "valibot": "^1.1.0"
   },
   "module": "index.js",
   "typings": "index.d.ts",

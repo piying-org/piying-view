@@ -2,7 +2,7 @@
 	"name": "svelte-test",
 	"version": "0.0.1",
 	"scripts": {
-		"build": "svelte-package --output ../../dist/view-svelte && cpx \"./public/package.json\" ../../dist/view-svelte",
+		"build": "svelte-package --output ../../dist/view-svelte --tsconfig ./tsconfig.app.json && cpx \"./public/package.json\" ../../dist/view-svelte",
 		"format": "prettier --write .",
 		"lint": "eslint ./src --fix && prettier ./src --write",
 		"test:unit": "vitest",
