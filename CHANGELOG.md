@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/piying-org/piying-view/compare/1.3.3...1.4.0) (2025-08-17)
+
+
+### Features
+
+* **svelte:** build svelte ([d81d97a](https://github.com/piying-org/piying-view/commit/d81d97a543d71b139c3e1d162a7835f7d0067a7d))
+* **svelte:** init ([e5392a9](https://github.com/piying-org/piying-view/commit/e5392a94de95662a5a1f51a32707125b2f543b6c))
+* **svelte:** init ([628172c](https://github.com/piying-org/piying-view/commit/628172cc51308f791be98bec2a63f86c469ddb62))
+* **vue:** mark as lazy ([34e5672](https://github.com/piying-org/piying-view/commit/34e5672476569312cbbad5122c35f68c4a1826b8))
+
+
+
 ## [1.3.3](https://github.com/piying-org/piying-view/compare/1.3.2...1.3.3) (2025-08-16)
 
 
