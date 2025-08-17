@@ -2,7 +2,7 @@
 	import type { PiResolvedViewFieldConfig } from '../type/group';
 	import { signalToRef } from '../util/signal-convert.svelte';
 	import { PI_VIEW_FIELD_TOKEN, InjectorToken, CVA } from '../token';
-	import { createViewControlLink, isFieldControl } from '@piying/view-core';
+	import { createViewControlLink, getLazyType, isLazyType } from '@piying/view-core';
 	import { getContext, setContext } from 'svelte';
 	import type { Injector } from 'static-injector';
 	import PiWrapper from './wrapper.svelte';
@@ -34,8 +34,15 @@
 	const fieldChildren = signalToRef(() => props.field.children?.());
 
 	const wrappers = signalToRef(() => props.field.wrappers());
-	// todo lazy检查
-	const ComponentType = $derived.by(() => props.field.define?.type);
+	const ComponentType = $derived.by(() => {
+		return props.field.define?.type;
+	});
+	const isLazy = $derived.by(() => {
+		return isLazyType(props.field.define?.type);
+	});
+	const loading = $derived.by(() => {
+		return getLazyType<() => Promise<any>>(props.field.define?.type)();
+	});
 	const field = $derived(props.field);
 	setContext(PI_VIEW_FIELD_TOKEN, () => field);
 </script>
@@ -43,7 +50,17 @@
 {#if !renderConfig()?.hidden}
 	{#if field.define?.type}
 		{#snippet children()}
-			{#if fieldChildren()}
+			{#if isLazy}
+				{#await loading then LazyComponent}
+					{#if fieldChildren()}
+						<LazyComponent {...fieldInputs()}></LazyComponent>
+					{:else if field.form.control}
+						<LazyComponent {...fieldInputs()} bind:this={controlRef}></LazyComponent>
+					{:else}
+						<LazyComponent {...fieldInputs()}></LazyComponent>
+					{/if}
+				{/await}
+			{:else if fieldChildren()}
 				<ComponentType {...fieldInputs()}></ComponentType>
 			{:else if field.form.control}
 				<ComponentType {...fieldInputs()} bind:this={controlRef}></ComponentType>
