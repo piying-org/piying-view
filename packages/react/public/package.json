@@ -6,7 +6,7 @@
   "homepage": "https://piying-org.github.io/website/docs/client/intro",
   "repository": {
     "url": "git+https://github.com/piying-org/piying-view.git",
-    "directory": "packages/vue",
+    "directory": "packages/react",
     "type": "git"
   },
   "bugs": {

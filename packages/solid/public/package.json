@@ -1,12 +1,12 @@
 {
-  "name": "@piying/view-solit",
+  "name": "@piying/view-solid",
   "version": "0.0.0-PLACEHOLDER",
   "description": "Piying view For Solid;Valibot to Component",
   "type": "module",
   "homepage": "https://piying-org.github.io/website/docs/client/intro",
   "repository": {
     "url": "git+https://github.com/piying-org/piying-view.git",
-    "directory": "packages/vue",
+    "directory": "packages/react",
     "type": "git"
   },
   "bugs": {
@@ -39,7 +39,8 @@
   },
   "sideEffects": false,
   "peerDependencies": {
-    "solid-js": "^1.9.9"
+    "solid-js": "^1.9.9",
+    "valibot": "^1.1.0"
   },
   "module": "index.js",
   "typings": "index.d.ts",
