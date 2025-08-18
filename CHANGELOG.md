@@ -1,3 +1,17 @@
+# [1.5.0](https://github.com/piying-org/piying-view/compare/1.4.1...1.5.0) (2025-08-18)
+
+
+### Bug Fixes
+
+* composing ([69b6a48](https://github.com/piying-org/piying-view/commit/69b6a48ad57598b1a6920dcada915f890dd0190c))
+
+
+### Features
+
+* **solid:** support ([d182b31](https://github.com/piying-org/piying-view/commit/d182b3156d025589e9baf5ce0dbf96df1b1028ef))
+
+
+
 ## [1.4.1](https://github.com/piying-org/piying-view/compare/1.4.0...1.4.1) (2025-08-17)
 
 
