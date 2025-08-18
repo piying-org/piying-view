@@ -18,7 +18,9 @@
       "@piying/view-core": [
         "../../dist/view-core"
       ],
-    }
+    },
+    "sourceMap": true,
+    "inlineSourceMap": true
   },
   "include": [
     "src/**/*.ts",

@@ -19,6 +19,7 @@
     "test:vue": "npm run test -w packages/vue",
     "test:react": "npm run test -w packages/react",
     "test:svelte": "npm run test -w packages/svelte",
+    "test:solid": "npm run test -w packages/solid",
     "test:all": "ng test view-angular --no-watch&& ng test view-angular-core --no-watch&& ng test view-core --no-watch && npm run test -ws --if-present -- --watch=false",
     "test:ci": "ng test view-angular --no-watch --no-progress --browsers=ChromeHeadless && ng test view-angular-core --no-watch --no-progress --browsers=ChromeHeadless && ng test view-core --no-watch --no-progress --browsers=ChromeHeadless  && npm run test -ws --if-present -- --watch=false",
     "coverage": "ng test test-view-angular --code-coverage --no-watch --no-progress --browsers=ChromeHeadless",

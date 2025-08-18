@@ -11,6 +11,11 @@ export function useInputTextModel(
       value: cvaa.value == null ? '' : cvaa.value,
       disabled: cvaa.disabled,
       onBlur: cvaa.touchedChange,
+      onInput: (event: any) => {
+        if (!compositionMode || (compositionMode && !composing.current)) {
+          cvaa.valueChange((event.target as any).value);
+        }
+      },
     };
     if (compositionMode) {
       return {
@@ -24,9 +29,6 @@ export function useInputTextModel(
         },
       };
     }
-    return {
-      ...obj,
-      onInput: (event: any) => cvaa.valueChange((event.target as any).value),
-    };
-  }, [cvaa, compositionMode]);
+    return obj;
+  }, [cvaa, compositionMode, composing]);
 }

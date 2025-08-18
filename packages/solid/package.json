@@ -1,0 +1,24 @@
+{
+  "name": "@piying/view-solid",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.app.json && vite build && tsc -p tsconfig.type.json",
+    "lint": "eslint . --fix && prettier ./src --write",
+    "preview": "vite preview",
+    "test": "vitest",
+    "remote-publish": "npm run build && npm publish --access=public --registry=https://registry.npmjs.org ./dist"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.9"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/user-event": "^14.6.1",
+    "globals": "^16.3.0",
+    "vite-plugin-solid": "^2.11.8",
+    "@solidjs/testing-library": "^0.8.10"
+  }
+}

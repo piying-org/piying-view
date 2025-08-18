@@ -6,5 +6,4 @@ export class SvelteSchemaHandle extends CoreSchemaHandle<
 	() => PiResolvedViewFieldConfig
 > {
 	declare type?: any;
-
 }

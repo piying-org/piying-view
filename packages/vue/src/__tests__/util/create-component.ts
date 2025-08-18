@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import {PiyingView} from '@piying/view-vue';
+import { PiyingView } from '@piying/view-vue';
 import type { BaseSchema, SchemaWithPipe } from 'valibot';
 import type { PiViewConfig } from '../../type/group';
 import { computed, markRaw, nextTick, type ShallowRef } from 'vue';

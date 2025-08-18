@@ -6,5 +6,4 @@ export class ReactSchemaHandle extends CoreSchemaHandle<
   () => PiResolvedViewFieldConfig
 > {
   declare type?: any;
-
 }
