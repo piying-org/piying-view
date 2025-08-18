@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "declarationDir": "../../dist/view-solid",
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+  },
+  "files": [
+    "./src/index.ts"
+  ]
+}

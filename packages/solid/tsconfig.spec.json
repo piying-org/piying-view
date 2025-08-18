@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "./test/**/*.ts",
+    "./test/**/*.tsx",
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@piying/view-solid": [
+        "./src/index.ts"
+      ],
+      "@piying/view-core": [
+        "../../dist/view-core"
+      ],
+      "@piying/view-core/test": [
+        "../../dist/view-core/test"
+      ],
+    }
+  }
+}

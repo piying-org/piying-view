@@ -1,0 +1,30 @@
+import { getField } from '@piying/view-core/test';
+import type { PiResolvedViewFieldConfig } from '@piying/view-solid';
+import { createComponent } from './util/create-component';
+import { delay } from './util/delay';
+import { describe, expect, it } from 'vitest';
+import * as v from 'valibot';
+import { setInputValue } from './util/event';
+describe('输入参数变化', () => {
+  it('string变number', async () => {
+    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const value = 'init';
+    const { instance, setSchema, setModel } = await createComponent(v.string(), value);
+    const el = instance.container;
+    const inputEl = el.querySelector('input')!;
+    expect(inputEl.value).eq('init');
+    setInputValue(inputEl, '123');
+    expect(inputEl.value).eq('123');
+    await delay();
+    setSchema(v.pipe(v.number(), getField(field$)));
+    setModel('1234');
+    await delay(10);
+    const inputEl2 = el.querySelector('input')!;    
+    expect(inputEl2.value).eq('1234');
+    setInputValue(inputEl2, '456');
+    expect(inputEl2.value).eq('456');
+    await delay();
+    const field = await field$.promise;
+    expect(field.form.control!.value$$()).eq(456);
+  });
+});
