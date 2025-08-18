@@ -4,8 +4,7 @@ import { InjectorToken } from '../token';
 import { useContext, createEffect, createSignal, onCleanup } from 'solid-js';
 
 // signal=>ref
-// todo 重命名
-export function useSignalToRef<T>(value: () => T) {
+export function createSignalConvert<T>(value: () => T) {
   const injector = useContext(InjectorToken)!;
   const [result, setResult] = createSignal(value());
   createEffect(() => {

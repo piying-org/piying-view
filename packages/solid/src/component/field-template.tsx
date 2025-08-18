@@ -7,7 +7,7 @@ import {
 } from 'solid-js';
 import type { PiResolvedViewFieldConfig } from '../type';
 import { CVA, InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
-import { useSignalToRef } from '../util/signal-convert';
+import { createSignalConvert } from '../util/signal-convert';
 import { PiyingWrapper } from './wrapper';
 import {
   createViewControlLink,
@@ -18,13 +18,13 @@ export interface PiyingFieldTemplateProps {
 }
 
 export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
-  const fieldInputs = useSignalToRef(() => ({
+  const fieldInputs = createSignalConvert(() => ({
     ...props.field.attributes(),
     ...props.field.inputs(),
     ...props.field.outputs(),
   }));
-  const renderConfig = useSignalToRef(() => props.field.renderConfig());
-  const wrappers = useSignalToRef(() => props.field.wrappers());
+  const renderConfig = createSignalConvert(() => props.field.renderConfig());
+  const wrappers = createSignalConvert(() => props.field.wrappers());
   const control = createMemo(() => props.field.form.control);
   const ComponentType$$ = createMemo(() => props.field.define?.type);
   const isHidden = createMemo(() => {

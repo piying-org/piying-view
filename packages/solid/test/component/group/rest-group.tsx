@@ -1,14 +1,14 @@
 import {
   PI_VIEW_FIELD_TOKEN,
   PiyingFieldTemplate,
-  useSignalToRef,
+  createSignalConvert,
 } from '@piying/view-solid';
 import { For, useContext } from 'solid-js';
 
 export function RestGroup() {
   const field = useContext(PI_VIEW_FIELD_TOKEN);
-  const fixedChildren = useSignalToRef(() => field?.fixedChildren!())!;
-  const restChildren = useSignalToRef(() => field?.restChildren!())!;
+  const fixedChildren = createSignalConvert(() => field?.fixedChildren!())!;
+  const restChildren = createSignalConvert(() => field?.restChildren!())!;
   return (
     <>
       <div class="fields">

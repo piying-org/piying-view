@@ -1,5 +1,5 @@
 import type { CoreResolvedWrapperConfig } from '@piying/view-core';
-import { useSignalToRef } from '../util/signal-convert';
+import { createSignalConvert } from '../util/signal-convert';
 import { createMemo, Show } from 'solid-js';
 
 export interface PiyingWrapperProps {
@@ -10,7 +10,7 @@ export interface PiyingWrapperProps {
 export function PiyingWrapper(props: PiyingWrapperProps) {
   const wrapper = createMemo(() => props.wrappers[0]);
   const restWrappers = createMemo(() => props.wrappers?.slice(1));
-  const inputs = useSignalToRef(() => ({
+  const inputs = createSignalConvert(() => ({
     ...wrapper()?.inputs(),
     ...wrapper()?.attributes(),
     ...wrapper()?.outputs,
