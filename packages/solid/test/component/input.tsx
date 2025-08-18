@@ -14,7 +14,7 @@ export function PiInput(props: PiInputOptions) {
   createMemo(() => {
     props[CVA](result.cva);
   });
-  const textModel = useInputTextModel(result.cvaa, false);
+  const textModel = useInputTextModel(result.cvaa, () => false);
 
   return (
     <>

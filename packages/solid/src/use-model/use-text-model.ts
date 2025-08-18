@@ -3,7 +3,7 @@ import type { ControlValueAccessorAdapter } from '../util/use-control-value-acce
 
 export function useInputTextModel(
   cvaa: ControlValueAccessorAdapter,
-  compositionMode: boolean,
+  compositionMode: () => boolean,
 ) {
   const [composing, setComposing] = createSignal(false);
   return createMemo(() => {
@@ -11,20 +11,24 @@ export function useInputTextModel(
       value: cvaa.value() == null ? '' : cvaa.value(),
       disabled: cvaa.disabled(),
       onBlur: cvaa.touchedChange,
+      onInput: (event: any) => {
+        if (!compositionMode() || (compositionMode() && !composing())) {
+          cvaa.valueChange((event.target as any).value);
+        }
+      },
     };
-    if (compositionMode) {
+    if (compositionMode()) {
       return {
         ...obj,
-        onCompositionStart: () => {},
+        onCompositionStart: () => {
+          setComposing(true);
+        },
         onCompositionEnd: (event: any) => {
           setComposing(false);
           cvaa.valueChange((event.target as any).value);
         },
       };
     }
-    return {
-      ...obj,
-      onInput: (event: any) => cvaa.valueChange((event.target as any).value),
-    };
-  }, [cvaa, compositionMode]);
+    return obj;
+  });
 }
