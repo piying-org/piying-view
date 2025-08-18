@@ -49,7 +49,7 @@ export function PiyingView(props: PiyingViewProps) {
   });
   useEffectSync(() => {
     let ref: EffectRef | undefined;
-    let [field, subInjector] = initResult();
+    const [field, subInjector] = initResult();
     if (field.form.control) {
       const model = untrack(() => props.model);
       ref = initListen(

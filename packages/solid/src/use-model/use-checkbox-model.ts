@@ -1,4 +1,4 @@
-import { createMemo, type Accessor } from 'solid-js';
+import { createMemo } from 'solid-js';
 import type { ControlValueAccessorAdapter } from '../util/use-control-value-accessor';
 
 export function useInputCheckboxModel(cvaa: ControlValueAccessorAdapter) {

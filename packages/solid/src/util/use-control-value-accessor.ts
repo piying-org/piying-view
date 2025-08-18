@@ -1,5 +1,5 @@
 import type { ControlValueAccessor } from '@piying/view-core';
-import { createSignal, createMemo, type Accessor } from 'solid-js';
+import { createSignal, type Accessor } from 'solid-js';
 
 export function useControlValueAccessor() {
   const [value, setValue] = createSignal<any>(undefined);

@@ -6,5 +6,4 @@ export class SolidSchemaHandle extends CoreSchemaHandle<
   () => PiResolvedViewFieldConfig
 > {
   declare type?: any;
-
 }
