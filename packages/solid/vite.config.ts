@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import solid from 'vite-plugin-solid'
+import solid from 'vite-plugin-solid';
 import { resolve } from 'path';
 const outDir = '../../dist/view-solid';
 
@@ -25,5 +25,7 @@ export default defineConfig({
       output: { dir: outDir },
     },
     emptyOutDir: false,
+    minify: false,
+    sourcemap: true,
   },
 });

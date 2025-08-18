@@ -12,7 +12,8 @@
       "@piying/view-core": [
         "../../dist/view-core"
       ],
-    }
+    },
+    "sourceMap": true
   },
   "files": [
     "./src/index.ts"
