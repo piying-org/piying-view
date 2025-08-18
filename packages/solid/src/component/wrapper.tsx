@@ -9,10 +9,7 @@ export interface PiyingWrapperProps {
 
 export function PiyingWrapper(props: PiyingWrapperProps) {
   const wrapper = createMemo(() => props.wrappers[0]);
-  const restWrappers = createMemo(
-    () => props.wrappers?.slice(1),
-    [props.wrappers],
-  );
+  const restWrappers = createMemo(() => props.wrappers?.slice(1));
   const inputs = useSignalToRef(() => ({
     ...wrapper()?.inputs(),
     ...wrapper()?.attributes(),
