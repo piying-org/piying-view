@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PiWrapperBaseComponent } from '@piying/view-angular';
+import { PiyingViewWrapperBase } from '@piying/view-angular';
 
 @Component({
   selector: 'app-wrapper2',
@@ -9,4 +9,4 @@ import { PiWrapperBaseComponent } from '@piying/view-angular';
   providers: [],
   imports: [FormsModule],
 })
-export class Wrapper2Component extends PiWrapperBaseComponent {}
+export class Wrapper2Component extends PiyingViewWrapperBase {}

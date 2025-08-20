@@ -14,7 +14,7 @@ import {
 } from '../type/view-token';
 
 @Directive()
-export class PiWrapperBaseComponent extends BaseComponent {
+export class PiyingViewWrapperBase extends BaseComponent {
   fieldComponentAnchor = viewChild('fieldComponent', {
     read: ViewContainerRef,
   });

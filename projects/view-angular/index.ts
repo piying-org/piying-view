@@ -1,5 +1,5 @@
-export * from './lib/group/component';
-export * from './lib/group/component.base';
+export * from './lib/component/group/component';
+export * from './lib/component/group/component.base';
 
 export * from './lib/type';
 export * from './lib/view.component';

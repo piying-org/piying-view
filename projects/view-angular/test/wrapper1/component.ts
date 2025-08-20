@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PiWrapperBaseComponent } from '@piying/view-angular';
+import { PiyingViewWrapperBase } from '@piying/view-angular';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
 
 @Component({
@@ -10,7 +10,7 @@ import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
   providers: [],
   imports: [FormsModule],
 })
-export class Wrapper1Component extends PiWrapperBaseComponent {
+export class Wrapper1Component extends PiyingViewWrapperBase {
   field = inject(PI_VIEW_FIELD_TOKEN);
 
   wInput1 = input('1');
