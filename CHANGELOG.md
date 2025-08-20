@@ -1,4 +1,13 @@
-## [1.5.1](https://github.com/piying-org/piying-view/compare/1.5.0...1.5.1) (2025-08-18)
+## [1.5.2](https://github.com/piying-org/piying-view/compare/1.5.1...1.5.2) (2025-08-20)
+
+
+### Features
+
+* **angular:** wrapper base class ([46df777](https://github.com/piying-org/piying-view/commit/46df777444811fecdf3b056a04fab9e1e7c7cd6d))
+
+
+
+# [1.5.0](https://github.com/piying-org/piying-view/compare/1.4.1...1.5.0) (2025-08-18)
 
 
 ### Bug Fixes
