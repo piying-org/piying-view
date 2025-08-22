@@ -3,10 +3,15 @@ import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
-import { setInputs, setOutputs } from '@piying/view-angular-core';
+import {
+  patchAsyncWrapper,
+  setInputs,
+  setOutputs,
+} from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, setWrappers } from '@piying/view-angular-core';
+import { Test1Component } from './test1/test1.component';
 
 describe('带异步wrappers', () => {
   it('存在', async () => {
@@ -266,5 +271,104 @@ describe('带异步wrappers', () => {
     expect(
       element.querySelector('.wrapper1-div-label')?.innerHTML,
     ).toBeTruthy();
+  });
+  it('patchAsyncWrapper', async () => {
+    let outputed = false;
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      patchAsyncWrapper({
+        type: 'wrapper1',
+        attributes: {
+          class: () => {
+            return 'test1';
+          },
+        },
+        inputs: {
+          wInput1: (filed) => {
+            return 'div-display';
+          },
+        },
+        outputs: {
+          output1: (event, field) => {
+            outputed = true;
+            expect(event).toBeTruthy();
+            expect(field).toBeTruthy();
+          },
+        },
+      }),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+      {
+        types: {
+          test1: {
+            type: Test1Component,
+          },
+        },
+        wrappers: {
+          wrapper1: {
+            type: Wrapper1Component,
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    expect(element.querySelector('.test1')).toBeTruthy();
+    const input1Div = element.querySelector(
+      '.wrapper1-div-label',
+    ) as HTMLElement;
+    expect(input1Div).toBeTruthy();
+    expect(input1Div.innerHTML).toEqual('div-display');
+    input1Div.click();
+    expect(outputed).toEqual(true);
+  });
+  it('patchAsyncWrapper dynamic change input', async () => {
+    let data$ = signal('div-display1');
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      patchAsyncWrapper({
+        type: 'wrapper1',
+        inputs: {
+          wInput1: (filed) => {
+            return data$;
+          },
+        },
+      }),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+      {
+        types: {
+          test1: {
+            type: Test1Component,
+          },
+        },
+        wrappers: {
+          wrapper1: {
+            type: Wrapper1Component,
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    const input1Div = element.querySelector(
+      '.wrapper1-div-label',
+    ) as HTMLElement;
+    expect(input1Div).toBeTruthy();
+    expect(input1Div.innerHTML).toEqual('div-display1');
+    data$.set('div-display2');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(input1Div.innerHTML).toEqual('div-display2');
   });
 });

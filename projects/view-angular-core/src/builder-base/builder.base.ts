@@ -50,6 +50,7 @@ import {
   KeyPath,
 } from '../util';
 import * as v from 'valibot';
+import { FindConfigToken } from './find-config';
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
     inject(PI_FORM_BUILDER_ALIAS_MAP, { optional: true }) ??
@@ -253,6 +254,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       attributes,
       define: define ? { ...define, inputs, outputs, attributes } : undefined,
       wrappers,
+      injector: this.#envInjector,
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
       this.afterResolveConfig(field, resolvedConfig) ?? resolvedConfig;
@@ -429,7 +431,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         form.removeRestControl(index);
         if (deletedItem) {
           deletedItem.injector!.destroy();
-          deletedItem.injector = undefined;
+          (deletedItem.injector as any) = undefined;
         }
       }
       form.beforeUpdateList.push((resetValue = [], initUpdate) => {
@@ -602,16 +604,14 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     inputField.parent = parent as any;
     parent.fixedChildren!().push(inputField);
   }
+  #findConfig = inject(FindConfigToken);
   #resolveWrappers(
     wrappers?: CoreRawWrapperConfig[],
   ): WritableSignal<CoreResolvedWrapperConfig[]> {
     const result = (wrappers ?? []).map((wrapper) => {
       // 查引用1
+      const config = this.#findConfig.findWrapper(wrapper);
       if (typeof wrapper === 'string') {
-        const config = this.#globalConfig?.wrappers?.[wrapper];
-        if (!config) {
-          throw new Error(`🈳wrapper:[${wrapper}]❗`);
-        }
         return {
           ...config,
           inputs: signal(config.inputs),
@@ -619,10 +619,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         };
       } else if (typeof wrapper.type === 'string') {
         // 查引用2
-        const config = this.#globalConfig?.wrappers?.[wrapper.type];
-        if (!config) {
-          throw new Error(`🈳wrapper:[${wrapper.type}]❗`);
-        }
         return {
           inputs: signal({ ...config.inputs, ...wrapper.inputs }),
           outputs: { ...config.outputs, ...wrapper.outputs },

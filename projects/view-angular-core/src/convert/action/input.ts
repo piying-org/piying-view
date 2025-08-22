@@ -94,14 +94,13 @@ export function asyncInputMerge(
   }
   return data$;
 }
+export type AsyncProperty = (
+  field: _PiResolvedCommonViewFieldConfig,
+) => Promise<any> | Observable<any> | Signal<any> | (any & {});
+
 export function patchAsyncFn(patchKey: 'props' | 'inputs' | 'attributes') {
   return <T>(
-    dataObj: Record<
-      string,
-      (
-        field: _PiResolvedCommonViewFieldConfig,
-      ) => Promise<any> | Observable<any> | Signal<any> | (any & {})
-    >,
+    dataObj: Record<string, AsyncProperty>,
     options?: {
       addPosition: 'top' | 'bottom';
       hookName: 'fieldResolved' | 'allFieldsResolved';

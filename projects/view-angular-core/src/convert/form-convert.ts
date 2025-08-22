@@ -20,6 +20,10 @@ import {
 } from '../builder-base';
 import { FieldGroup } from '../field/field-group';
 import { SetOptional } from '../util';
+import {
+  FindConfigFactory,
+  FindConfigToken,
+} from '../builder-base/find-config';
 export function convert<
   RESULT extends Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>,
 >(
@@ -52,6 +56,7 @@ export function convert<
         provide: PI_CONTEXT_TOKEN,
         useValue: options.context,
       },
+      { provide: FindConfigToken, useFactory: FindConfigFactory },
       options.builder,
       { provide: EnvironmentInjector, useFactory: () => injector },
     ],
