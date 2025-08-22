@@ -58,7 +58,7 @@ export function removeOutputs<T>(list: string[]) {
               if (key in originOutputs) {
                 delete originOutputs[key];
               }
-            });            
+            });
             return originOutputs;
           });
         },
@@ -72,20 +72,14 @@ export function removeOutputs<T>(list: string[]) {
 export function mergeOutputFn(
   field: _PiResolvedCommonViewFieldConfig,
   outputs: CoreRawViewOutputs,
-  options: { position: 'top' | 'bottom' },
 ) {
   field.outputs.update((originOutputs) => {
     originOutputs = { ...originOutputs };
     for (const key in outputs) {
       const oldFn = (originOutputs as any)[key];
       (originOutputs as any)[key] = (...args: any[]) => {
-        if (options.position === 'top') {
-          (outputs as any)[key](...args, field);
-        }
         oldFn?.(...args, field);
-        if (options.position === 'bottom') {
-          (outputs as any)[key](...args, field);
-        }
+        (outputs as any)[key](...args, field);
       };
     }
     return originOutputs;
@@ -94,12 +88,11 @@ export function mergeOutputFn(
 
 export const mergeOutputs = <T>(
   outputs: Record<string, (...args: any[]) => void>,
-) => {
-  return createOutputListener<T>(outputs, {
+) =>
+  createOutputListener<T>(outputs, {
     setOutputs: false,
     mergeOutput: true,
   });
-};
 
 export type EventChangeFn = (
   fn: (
@@ -129,15 +122,11 @@ export function outputChangeFn(
           for (const item of list) {
             const emitField = !item.list ? field : field.get(item.list)!;
             const subject = new Subject();
-            mergeOutputFn(
-              field,
-              {
-                [item.output]: (...args: any[]) => {
-                  subject.next(args);
-                },
+            mergeOutputFn(field, {
+              [item.output]: (...args: any[]) => {
+                subject.next(args);
               },
-              { position: 'bottom' },
-            );
+            });
             resultList.push({
               subject,
               field: emitField,
