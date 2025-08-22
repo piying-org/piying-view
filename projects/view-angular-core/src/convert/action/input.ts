@@ -94,9 +94,14 @@ export function asyncInputMerge(
   }
   return data$;
 }
+export type AsyncResult =
+  | Promise<any>
+  | Observable<any>
+  | Signal<any>
+  | (any & {});
 export type AsyncProperty = (
   field: _PiResolvedCommonViewFieldConfig,
-) => Promise<any> | Observable<any> | Signal<any> | (any & {});
+) => AsyncResult;
 
 export function patchAsyncFn(patchKey: 'props' | 'inputs' | 'attributes') {
   return <T>(
