@@ -252,6 +252,11 @@ describe('change', () => {
             valueChangeIndex++;
           },
         }),
+        mergeOutputs({
+          output1: (input, field) => {
+            valueChangeIndex++;
+          },
+        }),
       ),
     });
 
@@ -269,7 +274,7 @@ describe('change', () => {
     fixture.detectChanges();
     const input1btn = element.querySelector('.emit1-output1') as HTMLElement;
     input1btn.click();
-    expect(valueChangeIndex).toBe(1);
+    expect(valueChangeIndex).toBe(2);
   });
   it('多output', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

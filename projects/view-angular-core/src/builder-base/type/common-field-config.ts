@@ -116,7 +116,7 @@ export type CoreRawViewInputs = Record<string, any>;
 export type CoreRawViewAttributes = Record<string, any>;
 export type CoreRawProps = Record<string, any>;
 export interface CoreRawViewOutputs {
-  [name: string]: (event: any) => void;
+  [name: string]: (...args:any[]) => void;
 }
 
 export type CoreWrapperConfig1 = {

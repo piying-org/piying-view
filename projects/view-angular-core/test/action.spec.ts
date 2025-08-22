@@ -280,17 +280,33 @@ describe('action', () => {
     expect(resolved.attributes()).toEqual({ v: 1, v2: 2 });
   });
   it('setOutputs', () => {
-    const fn = () => {};
+    let fn1CallCount = 0;
+    let fn2CallCount = 0;
+    const fn = (value: any, field: any) => {
+      expect(typeof value).toEqual('number');
+      expect(field).toBeTruthy();
+      fn1CallCount++;
+    };
+    const fn2 = (value: any, field: any) => {
+      expect(typeof value).toEqual('number');
+      expect(field).toBeTruthy();
+      fn2CallCount++;
+    };
     const obj = v.pipe(v.string(), setOutputs({ v: fn }));
     const resolved = createBuilder(obj);
-    expect(resolved.outputs()).toEqual({ v: fn });
+    resolved.outputs()['v'](1);
+    expect(fn1CallCount).toEqual(1);
     const obj2 = v.pipe(
       v.string(),
       setOutputs({ v: fn }),
-      patchOutputs({ k: fn }),
+      patchOutputs({ k: fn2 }),
     );
     const resolved2 = createBuilder(obj2);
-    expect(resolved2.outputs()).toEqual({ v: fn, k: fn });
+    resolved2.outputs()['v'](2);
+    resolved2.outputs()['k'](2);
+    expect(fn1CallCount).toEqual(2);
+    expect(fn2CallCount).toEqual(1);
+
     const obj3 = v.pipe(
       v.string(),
       setOutputs({ v: fn }),
@@ -298,7 +314,7 @@ describe('action', () => {
       removeOutputs(['v']),
     );
     const resolved3 = createBuilder(obj3);
-    expect(resolved3.outputs()).toEqual({ k: fn });
+    expect(Object.keys(resolved3.outputs())).toEqual(['k']);
   });
   it('wrappers', () => {
     const options = { wrappers: ['w1', 'w2', 'w3'] };

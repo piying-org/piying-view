@@ -33,13 +33,10 @@ export function patchWrappers<T>(
 }
 export type AsyncCoreRawWrapperConfig = Omit<
   Exclude<CoreRawWrapperConfig, string>,
-  'inputs' | 'attributes' | 'outputs'
+  'inputs' | 'attributes'
 > & {
   inputs?: Record<string, AsyncProperty>;
   attributes?: Record<string, AsyncProperty>;
-  outputs?: {
-    [name: string]: (...args: any[]) => void;
-  };
 };
 export function patchAsyncWrapper<T>(
   inputWrapper: AsyncCoreRawWrapperConfig,

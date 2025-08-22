@@ -7,30 +7,65 @@ import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
-export function setOutputs<T>(outputs: CoreRawViewOutputs) {
+function createOutputListener<T>(
+  outputs: CoreRawViewOutputs,
+  options: { setOutputs: boolean; mergeOutput: boolean },
+) {
   return rawConfig<T>((field) => {
-    field.outputs = outputs;
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          field.outputs.update((originOutputs) => {
+            originOutputs = options.setOutputs ? {} : { ...originOutputs };
+            for (const key in outputs) {
+              const oldFn = (originOutputs as any)[key];
+              (originOutputs as any)[key] = (...args: any[]) => {
+                if (options.mergeOutput && oldFn) {
+                  oldFn(...args, field);
+                }
+                return (outputs as any)[key](...args, field);
+              };
+            }
+            return originOutputs;
+          });
+        },
+      },
+      { position: 'bottom' },
+      field,
+    );
+  });
+}
+export function setOutputs<T>(outputs: CoreRawViewOutputs) {
+  return createOutputListener<T>(outputs, {
+    setOutputs: true,
+    mergeOutput: false,
   });
 }
 export function patchOutputs<T>(outputs: CoreRawViewOutputs) {
-  return rawConfig<T>((field) => {
-    const oldValue = field.outputs;
-    field.outputs = {
-      ...oldValue,
-      ...outputs,
-    };
+  return createOutputListener<T>(outputs, {
+    setOutputs: false,
+    mergeOutput: false,
   });
 }
 export function removeOutputs<T>(list: string[]) {
   return rawConfig<T>((field) => {
-    const oldValue = field.outputs;
-    if (!oldValue) {
-      return;
-    }
-    list.forEach((item) => {
-      delete oldValue[item];
-    });
-    field.outputs = oldValue;
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          field.outputs.update((originOutputs) => {
+            originOutputs = { ...originOutputs };
+            list.forEach((key) => {
+              if (key in originOutputs) {
+                delete originOutputs[key];
+              }
+            });            
+            return originOutputs;
+          });
+        },
+      },
+      { position: 'bottom' },
+      field,
+    );
   });
 }
 
@@ -56,23 +91,15 @@ export function mergeOutputFn(
     return originOutputs;
   });
 }
-const DefaultOptions = { position: 'bottom' as const };
 
 export const mergeOutputs = <T>(
   outputs: Record<string, (...args: any[]) => void>,
-  options: { position: 'top' | 'bottom' } = DefaultOptions,
-) =>
-  rawConfig<T>((field) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          mergeOutputFn(field, outputs, options);
-        },
-      },
-      { position: 'bottom' },
-      field,
-    );
+) => {
+  return createOutputListener<T>(outputs, {
+    setOutputs: false,
+    mergeOutput: true,
   });
+};
 
 export type EventChangeFn = (
   fn: (
