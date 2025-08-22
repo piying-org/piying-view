@@ -16,7 +16,7 @@ describe('hook', () => {
         formConfig({
           disabled: true,
         }),
-        getField(fields$, 'fieldInit'),
+        getField(fields$, 'fieldResolved'),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -48,7 +48,7 @@ describe('hook', () => {
         formConfig({
           disabled: true,
         }),
-        getField(fields$, 'beforeComponent'),
+        getField(fields$, 'beforeCreateComponent'),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -80,7 +80,7 @@ describe('hook', () => {
         formConfig({
           disabled: true,
         }),
-        getField(fields$, 'afterComponent'),
+        getField(fields$, 'afterCreateComponent'),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(

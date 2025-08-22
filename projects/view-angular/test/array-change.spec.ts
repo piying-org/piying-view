@@ -278,7 +278,6 @@ describe('数组配置切换', () => {
     expect(field.form.control).toBeTruthy();
   });
   it('检查参数污染', async () => {
-    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const childList: PiResolvedViewFieldConfig[] = [];
     const define = v.object({
       a1: v.pipe(
@@ -296,7 +295,6 @@ describe('数组配置切换', () => {
             formConfig({ disabled: true }),
           ),
         ),
-        getField(field$, 'chilrenInit'),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -316,7 +314,6 @@ describe('数组配置切换', () => {
     keyEqual(childList[1].keyPath, [1]);
   });
   it('检查参数污染-replace合并策略', async () => {
-    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const childList: PiResolvedViewFieldConfig[] = [];
 
     const define = v.object({
@@ -335,7 +332,6 @@ describe('数组配置切换', () => {
             formConfig({ disabled: true }),
           ),
         ),
-        getField(field$, 'chilrenInit'),
       ),
     });
 
