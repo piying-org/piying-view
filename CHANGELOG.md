@@ -1,9 +1,18 @@
-## [1.5.3](https://github.com/piying-org/piying-view/compare/1.5.2...1.5.3) (2025-08-22)
+## [1.5.4](https://github.com/piying-org/piying-view/compare/1.5.2...1.5.4) (2025-08-22)
 
 
 ### Bug Fixes
 
 * async input ([e28b9ac](https://github.com/piying-org/piying-view/commit/e28b9ac709b7b69fdd08bd41d94fd5cb40589f4d))
+
+
+### Features
+
+* patchAsyncWrapper ([0bcd86f](https://github.com/piying-org/piying-view/commit/0bcd86f92d1b8c32c73504de46a9232958774aa6))
+
+
+
+## [1.5.2](https://github.com/piying-org/piying-view/compare/1.5.1...1.5.2) (2025-08-20)
 
 
 ### Features
