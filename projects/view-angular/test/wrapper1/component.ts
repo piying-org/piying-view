@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PiyingViewWrapperBase } from '@piying/view-angular';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';

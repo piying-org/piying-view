@@ -49,8 +49,8 @@ export function patchAsyncWrapper<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          let findConfig = field.injector.get(FindConfigToken);
-          let inputs$ = signal({});          
+          const findConfig = field.injector.get(FindConfigToken);
+          let inputs$ = signal({});
           if (inputWrapper.inputs && Object.keys(inputWrapper.inputs).length) {
             inputs$ = asyncInputMerge(
               Object.entries(inputWrapper.inputs).reduce(
@@ -79,28 +79,26 @@ export function patchAsyncWrapper<T>(
               attributes$,
             );
           }
-          let oldOutputs = inputWrapper.outputs;
-          let outputs: Record<string, (...args: any) => any> = {};
+          const oldOutputs = inputWrapper.outputs;
+          const outputs: Record<string, (...args: any) => any> = {};
           if (oldOutputs && Object.keys(oldOutputs).length) {
             for (const key in oldOutputs) {
               const oldFn = oldOutputs[key];
-              outputs[key] = (...args: any[]) => {
-                return (oldFn as any)(...args, field);
-              };
+              outputs[key] = (...args: any[]) => (oldFn as any)(...args, field);
             }
           }
-          let defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
+          const defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
           const newWrapper = {
             ...defaultWrapperConfig,
             inputs: inputs$,
             outputs,
             attributes: attributes$,
           };
-          field.wrappers.update((wrappers) => {
-            return options.position === 'tail'
+          field.wrappers.update((wrappers) =>
+            options.position === 'tail'
               ? [...wrappers, newWrapper]
-              : [newWrapper, ...wrappers];
-          });
+              : [newWrapper, ...wrappers],
+          );
         },
       },
       { position: 'bottom' },

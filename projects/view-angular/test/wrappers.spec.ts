@@ -280,14 +280,10 @@ describe('带异步wrappers', () => {
       patchAsyncWrapper({
         type: 'wrapper1',
         attributes: {
-          class: () => {
-            return 'test1';
-          },
+          class: () => 'test1',
         },
         inputs: {
-          wInput1: (filed) => {
-            return 'div-display';
-          },
+          wInput1: (filed) => 'div-display',
         },
         outputs: {
           output1: (event, field) => {
@@ -327,16 +323,14 @@ describe('带异步wrappers', () => {
     expect(outputed).toEqual(true);
   });
   it('patchAsyncWrapper dynamic change input', async () => {
-    let data$ = signal('div-display1');
+    const data$ = signal('div-display1');
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper({
         type: 'wrapper1',
         inputs: {
-          wInput1: (filed) => {
-            return data$;
-          },
+          wInput1: (filed) => data$,
         },
       }),
     );

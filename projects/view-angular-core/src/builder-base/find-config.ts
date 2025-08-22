@@ -4,7 +4,7 @@ export const FindConfigToken = new InjectionToken<
   ReturnType<typeof FindConfigFactory>
 >('FindConfig');
 export function FindConfigFactory() {
-  let globalConfig = inject(PI_VIEW_CONFIG_TOKEN);
+  const globalConfig = inject(PI_VIEW_CONFIG_TOKEN);
   return {
     findWrapper: (wrapper: CoreRawWrapperConfig) => {
       let config;
