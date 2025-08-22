@@ -131,7 +131,9 @@ export function patchAsyncFn(patchKey: 'props' | 'inputs' | 'attributes') {
               ),
               field[patchKey],
             );
-            field.define!.attributes = result;
+            if (patchKey !== 'props') {
+              field.define![patchKey] = result;
+            }
             (field as Writeable<_PiResolvedCommonViewFieldConfig>)[patchKey] =
               result;
           },
