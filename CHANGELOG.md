@@ -1,4 +1,17 @@
+## [1.5.6](https://github.com/piying-org/piying-view/compare/1.5.5...1.5.6) (2025-08-25)
+
+
+### Bug Fixes
+
+* valuechange type ([2340474](https://github.com/piying-org/piying-view/commit/2340474fef589f0983b1b26fb3c83f1abab7b629))
+
+
+
 ## [1.5.5](https://github.com/piying-org/piying-view/compare/1.5.4...1.5.5) (2025-08-25)
+
+
+
+## [1.5.4](https://github.com/piying-org/piying-view/compare/1.5.2...1.5.4) (2025-08-22)
 
 
 ### Bug Fixes
