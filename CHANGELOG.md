@@ -1,4 +1,4 @@
-## [1.5.4](https://github.com/piying-org/piying-view/compare/1.5.2...1.5.4) (2025-08-22)
+## [1.5.5](https://github.com/piying-org/piying-view/compare/1.5.4...1.5.5) (2025-08-25)
 
 
 ### Bug Fixes
