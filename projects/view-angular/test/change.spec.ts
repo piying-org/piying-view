@@ -165,6 +165,7 @@ describe('change', () => {
             expect(Array.isArray(value.list)).toBeTruthy();
             expect(value.field).toBeTruthy();
             expect(value.listenFields).toBeTruthy();
+            expect(value.listenFields[0].form).toBeTruthy();
             valueChangeIndex++;
           });
         }),

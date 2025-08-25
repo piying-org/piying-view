@@ -21,17 +21,17 @@ export function valueChangeFn(
   field: _PiResolvedCommonViewFieldConfig,
   input: ValueChangFnOptions = {},
 ) {
-  const list = (input.list ?? DefaultSelfList).map((keyPath) =>
-    !keyPath ? field.form.control! : field.get(keyPath)!.form.control!,
+  const listenFields = (input.list ?? DefaultSelfList).map((keyPath) =>
+    !keyPath ? field! : field.get(keyPath)!,
   );
 
   return combineLatest(
-    list.map((control) =>
+    listenFields.map((control) =>
       input.skipInitValue
-        ? control.valueChanges.pipe(skip(1))
-        : control.valueChanges,
+        ? control.form.control!.valueChanges.pipe(skip(1))
+        : control.form.control!.valueChanges,
     ),
-  ).pipe(map((list) => ({ list, field, listenFields: list })));
+  ).pipe(map((list) => ({ list, field, listenFields })));
 }
 
 export function valueChange<TInput>(listenFn: ValueChangeFn) {
