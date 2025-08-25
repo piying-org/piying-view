@@ -7,20 +7,12 @@ export interface ValueChangFnOptions {
   list?: (KeyPath | undefined)[];
   skipInitValue?: boolean;
 }
-export interface ChangeWhenOption<
-  T extends _PiResolvedCommonViewFieldConfig = _PiResolvedCommonViewFieldConfig,
-> {
-  fn: (
-    fn: (input: ValueChangFnOptions) => Observable<{
-      field: _PiResolvedCommonViewFieldConfig;
-      input: ValueChangFnOptions;
-    }>,
-  ) => void;
-}
+
 export type ValueChangeFn = (
   fn: (input?: ValueChangFnOptions) => Observable<{
     field: _PiResolvedCommonViewFieldConfig;
     list: any[];
+    listenFields: _PiResolvedCommonViewFieldConfig[];
   }>,
   field: _PiResolvedCommonViewFieldConfig,
 ) => void;

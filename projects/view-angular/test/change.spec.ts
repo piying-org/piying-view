@@ -164,6 +164,7 @@ describe('change', () => {
           listen({ list: [['..', 'enable']] }).subscribe((value) => {
             expect(Array.isArray(value.list)).toBeTruthy();
             expect(value.field).toBeTruthy();
+            expect(value.listenFields).toBeTruthy();
             valueChangeIndex++;
           });
         }),
