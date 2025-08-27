@@ -14,7 +14,7 @@ import { PiyingFieldTemplate } from './field-template';
 import { convert, initListen } from '@piying/view-core';
 import { SolidSchemaHandle } from '../schema-handle';
 import { SolidFormBuilder } from '../builder';
-import { createMemo, untrack } from 'solid-js';
+import { createEffect, createMemo, onCleanup, onMount } from 'solid-js';
 import { useEffectSync } from '../util';
 export interface PiyingViewProps {
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
@@ -31,8 +31,14 @@ export function PiyingView(props: PiyingViewProps) {
       },
     ],
   });
+  let injectorDispose: (() => any) | undefined;
+
   const initResult = createMemo(() => {
     const subInjector = createInjector({ providers: [], parent: rootInjector });
+    injectorDispose = () => {
+      subInjector.destroy();
+      injectorDispose = undefined;
+    };
     const field = convert(props.schema as any, {
       handle: SolidSchemaHandle as any,
       builder: SolidFormBuilder,
@@ -44,6 +50,11 @@ export function PiyingView(props: PiyingViewProps) {
     });
     return [field, subInjector] as const;
   });
+
+  onCleanup(() => {
+    injectorDispose?.();
+  });
+
   const field = createMemo(() => {
     return initResult()[0];
   });
@@ -51,9 +62,8 @@ export function PiyingView(props: PiyingViewProps) {
     let ref: EffectRef | undefined;
     const [field, subInjector] = initResult();
     if (field.form.control) {
-      const model = untrack(() => props.model);
       ref = initListen(
-        typeof model !== 'undefined' ? model : undefined,
+        props.model,
         field!.form.control!,
         subInjector as Injector,
         (value) => {
@@ -64,15 +74,13 @@ export function PiyingView(props: PiyingViewProps) {
           });
         },
       );
+      field.form.control.updateValue(props.model);
     }
     return () => {
-      subInjector.destroy();
       ref?.destroy();
     };
   });
-  createMemo(() => {
-    field()!.form.control?.updateValue(props.model);
-  });
+
   return (
     <>
       <InjectorToken.Provider value={rootInjector}>

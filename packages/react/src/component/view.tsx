@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
@@ -33,8 +33,15 @@ export function PiyingView(props: PiyingViewProps) {
       ],
     });
   }, []);
+  let injectorDispose = useRef<(() => void) | undefined>(undefined);
+
   const [field, subInjector] = useMemo(() => {
+    injectorDispose.current?.();
     const subInjector = createInjector({ providers: [], parent: rootInjector });
+    injectorDispose.current = () => {
+      subInjector.destroy();
+      injectorDispose.current = undefined;
+    };
     const field = convert(props.schema as any, {
       handle: ReactSchemaHandle as any,
       builder: ReactFormBuilder,
@@ -46,12 +53,16 @@ export function PiyingView(props: PiyingViewProps) {
     });
     return [field, subInjector];
   }, [props.schema, props.options]);
+  useEffect(() => {
+    return () => {
+      injectorDispose.current?.();
+    };
+  }, []);
   useEffectSync(() => {
     let ref: EffectRef | undefined;
     if (field.form.control) {
-      const model = props.model;
       ref = initListen(
-        typeof model !== 'undefined' ? model : undefined,
+        props.model,
         field!.form.control!,
         subInjector as Injector,
         (value) => {
@@ -62,15 +73,13 @@ export function PiyingView(props: PiyingViewProps) {
           });
         },
       );
+      field!.form.control.updateValue(props.model);
     }
     return () => {
-      subInjector.destroy();
       ref?.destroy();
     };
-  }, [field]);
-  useEffectSync(() => {
-    field!.form.control?.updateValue(props.model);
   }, [field, props.model]);
+
   return (
     <>
       <InjectorToken value={rootInjector}>

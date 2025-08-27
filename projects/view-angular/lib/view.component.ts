@@ -116,9 +116,8 @@ export class PiyingView implements OnChanges {
   }
 
   #updateValue(model: Record<string, any> | undefined) {
-    let result = this.resolvedField$()!;
     this.#listenDispose?.();
-    this.#listenDispose = undefined;
+    const result = this.resolvedField$()!;
     if (result.form.control) {
       // 监听初始化,每次field变更会初始化
       const ref = initListen(
@@ -134,7 +133,10 @@ export class PiyingView implements OnChanges {
           });
         },
       );
-      this.#listenDispose = () => ref.destroy();
+      this.#listenDispose = () => {
+        ref.destroy();
+        this.#listenDispose = undefined;
+      };
       result.form.control.updateValue(model);
     }
   }

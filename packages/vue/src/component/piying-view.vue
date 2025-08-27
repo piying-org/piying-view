@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as v from 'valibot';
 import { convert } from '@piying/view-core';
-import { provide, shallowRef, watch, watchEffect } from 'vue';
+import { computed, onUnmounted, provide, watch } from 'vue';
 import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
@@ -15,7 +15,6 @@ import { VueSchemaHandle } from '../vue-schema';
 import { VueFormBuilder } from '../builder';
 import { InjectorToken } from '../token';
 import FieldTemplate from './field-template.vue';
-import type { PiResolvedViewFieldConfig } from '../type/group';
 import type { Injector } from 'static-injector';
 import { initListen } from '@piying/view-core';
 const inputs = defineProps<{
@@ -35,51 +34,57 @@ const rootInjector = createRootInjector({
 });
 provide(InjectorToken, rootInjector);
 
-const field = shallowRef<PiResolvedViewFieldConfig | undefined>(undefined);
+let injectorDispose: (() => any) | undefined;
+const initResult = computed(() => {
+  injectorDispose?.();
+  const subInjector = createInjector({ providers: [], parent: rootInjector });
+  injectorDispose = () => {
+    subInjector.destroy();
+    injectorDispose = undefined;
+  };
+  const field = convert(inputs.schema as any, {
+    handle: VueSchemaHandle as any,
+    builder: VueFormBuilder,
+    injector: subInjector,
+    registerOnDestroy: (fn) => {
+      subInjector!.get(DestroyRef).onDestroy(() => {
+        fn();
+      });
+    },
+    ...inputs.options,
+  });
+  return [field, subInjector] as const;
+});
+onUnmounted(() => {
+  injectorDispose?.();
+});
+const field = computed(() => initResult.value[0]);
 
 watch(
-  () => [inputs.schema, inputs.options],
-  ([schema, options], _1, onWatcherCleanup) => {
-    const subInjector = createInjector({ providers: [], parent: rootInjector });
-
-    const result = convert(schema as any, {
-      handle: VueSchemaHandle as any,
-      builder: VueFormBuilder,
-      injector: subInjector,
-      registerOnDestroy: (fn) => {
-        subInjector!.get(DestroyRef).onDestroy(() => {
-          fn();
-        });
-      },
-      ...options,
-    });
-    field.value = result;
+  () => [initResult.value],
+  ([[field, subInjector]], _1, onWatcherCleanup) => {
     let ref: EffectRef | undefined;
-    if (result.form.control) {
-      const value = inputs.modelValue;
+    if (field.form.control) {
       ref = initListen(
-        typeof value !== 'undefined' ? value : undefined,
-        result!.form.control!,
+        inputs.modelValue,
+        field!.form.control!,
         subInjector as Injector,
         (value) => {
           untracked(() => {
-            if (result!.form.control?.valueNoError$$()) {
+            if (field!.form.control?.valueNoError$$()) {
               emit('update:modelValue', value);
             }
           });
         },
       );
+      field!.form.control!.updateValue(inputs.modelValue);
     }
     onWatcherCleanup(() => {
-      subInjector.destroy();
       ref?.destroy();
     });
   },
   { immediate: true },
 );
-watchEffect(() => {
-  field.value!.form.control?.updateValue(inputs.modelValue);
-});
 </script>
 
 <template>
