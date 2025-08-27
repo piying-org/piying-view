@@ -403,4 +403,35 @@ describe('change', () => {
     fixture.detectChanges();
     expect(valueChangeIndex).toBe(0);
   });
+  it('valueChange-nochange', async () => {
+    const define = v.optional(v.string());
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(instance.changeIndex$()).toEqual(0);
+    instance.model$.set('1');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(instance.changeIndex$()).toEqual(0);
+  });
+  it('valueChange-defaultChange', async () => {
+    const define = v.object({
+      k1: v.optional(v.string()),
+      k2: v.optional(v.string('1')),
+    });
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal({ k2: '1', k1: undefined }),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(instance.changeIndex$()).toEqual(0);
+    instance.model$.set({ k1: '1' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(instance.changeIndex$()).toEqual(1);
+  });
 });

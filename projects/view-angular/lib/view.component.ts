@@ -74,25 +74,23 @@ export class PiyingView implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const rFields = this.#resolvedFields$$();
     if (this.#lastRF !== rFields || 'model' in changes) {
-      this.#modelChange$$();
+      this.#updateValue(this.model());
     }
     this.#lastRF = rFields;
   }
-  #modelChange$$ = computed(() => {
-    const model = this.model();
-    untracked(() => this.#updateField(model));
-  });
+
   #resolvedFields$$ = computed(() => {
     this.schema();
-    return untracked(() => this.#updateForm());
+    return untracked(() => this.#updateField());
   });
 
   #injector = inject(Injector);
   #envInjector = inject(EnvironmentInjector);
   #builderEnvInjector?: EnvironmentInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
-  #disposeList: (() => void)[] = [];
-  #updateForm() {
+  #listenDispose?: () => void;
+
+  #updateField() {
     this.#clean();
     // 临时销毁
     const envInjector = createEnvironmentInjector([], this.#envInjector);
@@ -108,6 +106,19 @@ export class PiyingView implements OnChanges {
       },
     });
     this.resolvedField$.set(result);
+    return result;
+  }
+  #clean() {
+    if (this.#builderEnvInjector) {
+      this.#builderEnvInjector.destroy();
+      this.#builderEnvInjector = undefined;
+    }
+  }
+
+  #updateValue(model: Record<string, any> | undefined) {
+    let result = this.resolvedField$()!;
+    this.#listenDispose?.();
+    this.#listenDispose = undefined;
     if (result.form.control) {
       // 监听初始化,每次field变更会初始化
       const ref = initListen(
@@ -123,25 +134,9 @@ export class PiyingView implements OnChanges {
           });
         },
       );
-      this.#disposeList.push(() => ref.destroy());
+      this.#listenDispose = () => ref.destroy();
+      result.form.control.updateValue(model);
     }
-    return result;
-  }
-  #clean(isDestoryed = false) {
-    this.#disposeList.forEach((item) => item());
-    this.#disposeList = [];
-    if (!isDestoryed && this.#builderEnvInjector) {
-      this.#builderEnvInjector.destroy();
-      this.#builderEnvInjector = undefined;
-    }
-  }
-
-  #updateField(model: Record<string, any> | undefined) {
-    if (!this.resolvedField$()) {
-      return;
-    }
-    const field = this.resolvedField$()!;
-    field.form.control?.updateValue(model);
   }
 
   groupInputsValue = (
@@ -181,6 +176,6 @@ export class PiyingView implements OnChanges {
     }
   }
   ngOnDestroy(): void {
-    this.#clean(true);
+    this.#listenDispose?.();
   }
 }
