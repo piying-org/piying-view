@@ -17,7 +17,7 @@ import { InjectorToken } from '../token';
 import FieldTemplate from './field-template.vue';
 import type { Injector } from 'static-injector';
 import { initListen } from '@piying/view-core';
-const inputs = defineProps<{
+const dProps = defineProps<{
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
   modelValue?: any;
   options: any;
@@ -42,7 +42,7 @@ const initResult = computed(() => {
     subInjector.destroy();
     injectorDispose = undefined;
   };
-  const field = convert(inputs.schema as any, {
+  const field = convert(dProps.schema as any, {
     handle: VueSchemaHandle as any,
     builder: VueFormBuilder,
     injector: subInjector,
@@ -51,7 +51,7 @@ const initResult = computed(() => {
         fn();
       });
     },
-    ...inputs.options,
+    ...dProps.options,
   });
   return [field, subInjector] as const;
 });
@@ -61,23 +61,18 @@ onUnmounted(() => {
 const field = computed(() => initResult.value[0]);
 
 watch(
-  () => [initResult.value],
-  ([[field, subInjector]], _1, onWatcherCleanup) => {
+  () => [initResult.value, dProps.modelValue],
+  ([[field, subInjector], modelValue], _1, onWatcherCleanup) => {
     let ref: EffectRef | undefined;
     if (field.form.control) {
-      ref = initListen(
-        inputs.modelValue,
-        field!.form.control!,
-        subInjector as Injector,
-        (value) => {
-          untracked(() => {
-            if (field!.form.control?.valueNoError$$()) {
-              emit('update:modelValue', value);
-            }
-          });
-        },
-      );
-      field!.form.control!.updateValue(inputs.modelValue);
+      ref = initListen(modelValue, field!.form.control!, subInjector as Injector, (value) => {
+        untracked(() => {
+          if (field!.form.control?.valueNoError$$()) {
+            emit('update:modelValue', value);
+          }
+        });
+      });
+      field!.form.control!.updateValue(dProps.modelValue);
     }
     onWatcherCleanup(() => {
       ref?.destroy();

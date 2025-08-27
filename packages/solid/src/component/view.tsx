@@ -14,7 +14,7 @@ import { PiyingFieldTemplate } from './field-template';
 import { convert, initListen } from '@piying/view-core';
 import { SolidSchemaHandle } from '../schema-handle';
 import { SolidFormBuilder } from '../builder';
-import { createEffect, createMemo, onCleanup, onMount } from 'solid-js';
+import { createMemo, onCleanup } from 'solid-js';
 import { useEffectSync } from '../util';
 export interface PiyingViewProps {
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
