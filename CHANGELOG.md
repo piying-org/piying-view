@@ -1,3 +1,14 @@
+## [1.5.7](https://github.com/piying-org/piying-view/compare/1.5.6...1.5.7) (2025-08-27)
+
+
+### Bug Fixes
+
+* **angular:** valuechange ([a8b50a7](https://github.com/piying-org/piying-view/commit/a8b50a775678e59dc1807177399820dcf41dbc46))
+* valuechange ([f14f726](https://github.com/piying-org/piying-view/commit/f14f726d141d940c49768ea3a66fcd8a17c0bb74))
+* valuechange ([72c4ff8](https://github.com/piying-org/piying-view/commit/72c4ff80c406af61bb031f13d8e352b52e7ac79a))
+
+
+
 ## [1.5.6](https://github.com/piying-org/piying-view/compare/1.5.5...1.5.6) (2025-08-25)
 
 
