@@ -466,4 +466,16 @@ describe('对象', () => {
     result.form.root.updateValue({ key1: 'value' });
     expect(result.form.root.value ?? {}).toEqual({ key1: 'value' });
   });
+  it('record add/remote', () => {
+    const obj = v.pipe(
+      v.record(v.string(), v.number()),
+      setComponent('object'),
+    );
+    const resolved = createBuilder(obj);
+    assertFieldGroup(resolved.form.control);
+    resolved.action.set(1, 'k1');
+    expect(resolved.form.control.resetControls$()['k1']).toBeTruthy();
+    resolved.action.remove('k1');
+    expect(resolved.form.control.resetControls$()['k1']).toBeFalsy();
+  });
 });
