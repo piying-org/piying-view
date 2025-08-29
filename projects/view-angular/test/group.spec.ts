@@ -212,7 +212,7 @@ describe('group初始化', () => {
     expect(element.querySelector('.rest-fields input')).toBeFalsy();
   });
   it('group-switch', async () => {
-    let activate$ = signal(0);
+    const activate$ = signal(0);
     const define = v.pipe(
       v.object({
         o1: v.object({

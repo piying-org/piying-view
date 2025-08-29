@@ -1,8 +1,9 @@
-## [1.5.7](https://github.com/piying-org/piying-view/compare/1.5.6...1.5.7) (2025-08-27)
+## [1.5.8](https://github.com/piying-org/piying-view/compare/1.5.7...1.5.8) (2025-08-29)
 
 
 ### Bug Fixes
 
+* **angular:** group switch ([3a3c8f7](https://github.com/piying-org/piying-view/commit/3a3c8f7cd6d41e565640ef844f940822632e92c8))
 * **angular:** valuechange ([a8b50a7](https://github.com/piying-org/piying-view/commit/a8b50a775678e59dc1807177399820dcf41dbc46))
 * valuechange ([f14f726](https://github.com/piying-org/piying-view/commit/f14f726d141d940c49768ea3a66fcd8a17c0bb74))
 * valuechange ([72c4ff8](https://github.com/piying-org/piying-view/commit/72c4ff80c406af61bb031f13d8e352b52e7ac79a))

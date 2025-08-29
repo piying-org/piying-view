@@ -33,7 +33,7 @@ export function PiyingView(props: PiyingViewProps) {
       ],
     });
   }, []);
-  let injectorDispose = useRef<(() => void) | undefined>(undefined);
+  const injectorDispose = useRef<(() => void) | undefined>(undefined);
 
   const [field, subInjector] = useMemo(() => {
     injectorDispose.current?.();
