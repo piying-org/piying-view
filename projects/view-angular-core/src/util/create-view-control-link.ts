@@ -174,10 +174,12 @@ export function createViewControlLink(
     cva.setDisabledState!(fieldControl().disabled$$());
     disposeList.push(() => disabledRef.destroy());
   }
-  return () => {
+  return (destroy?: boolean) => {
     disposeList.forEach((fn) => fn());
-    untracked(() => {
-      fieldControl().updateValue(fieldControl().value$$(), true);
-    });
+    if (!destroy) {
+      untracked(() => {
+        fieldControl().updateValue(fieldControl().value$$(), true);
+      });
+    }
   };
 }

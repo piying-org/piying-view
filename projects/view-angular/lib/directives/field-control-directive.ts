@@ -41,20 +41,18 @@ export class FieldControlDirective implements OnDestroy {
     )) as unknown as NgControl;
   }
 
-  ngOnInit(): void {
-    this.disposeList.push(
-      createViewControlLink(this.fieldControl, this.cva, this.injector),
+  #disposeFn?: (destroyed?: boolean) => void;
+  ngOnChanges(): void {
+    this.#disposeFn?.();
+    this.#disposeFn = createViewControlLink(
+      this.fieldControl,
+      this.cva,
+      this.injector,
     );
   }
 
-  disposeList: (() => any)[] = [];
-
-  clear() {
-    this.disposeList.forEach((fn) => fn());
-    this.disposeList = [];
-  }
   /** @docs-private */
   ngOnDestroy() {
-    this.clear();
+    this.#disposeFn?.(true);
   }
 }

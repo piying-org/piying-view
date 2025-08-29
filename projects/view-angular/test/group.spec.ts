@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { Test1Component } from './test1/test1.component';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
-import { FieldGroup } from '@piying/view-angular-core';
+import { FieldGroup, patchAsyncInputs } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { hooksConfig } from './util/action';
 import { createSchemaComponent } from './util/create-component';
@@ -10,6 +10,7 @@ import { UFCC } from './util/schema';
 import { setComponent } from '@piying/view-angular-core';
 import { setInputs, setOutputs } from '@piying/view-angular-core';
 import { RestGroupComponent } from './rest-group/component';
+import { SwitchGroupComponent } from './switch-group/component';
 
 describe('group初始化', () => {
   it('存在', async () => {
@@ -209,5 +210,51 @@ describe('group初始化', () => {
     fixture.detectChanges();
     expect(fieldsEl.querySelector('input')).toBeTruthy();
     expect(element.querySelector('.rest-fields input')).toBeFalsy();
+  });
+  it('group-switch', async () => {
+    let activate$ = signal(0);
+    const define = v.pipe(
+      v.object({
+        o1: v.object({
+          k1: v.pipe(v.optional(v.string()), setComponent('test1')),
+        }),
+        o2: v.object({
+          k1: v.pipe(v.optional(v.string()), setComponent('test1')),
+        }),
+      }),
+      setComponent('switch-group'),
+      patchAsyncInputs({
+        activate: () => activate$,
+      }),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal({ o1: { k1: '111' }, o2: { k1: '222' } }),
+      {
+        types: {
+          'switch-group': { type: SwitchGroupComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    let inputEl = element.querySelector('input')!;
+    expect(inputEl.value).toEqual('111');
+    htmlInput(inputEl, 'xxx');
+    activate$.set(1);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    inputEl = element.querySelector('input')!;
+    console.log('sdf', inputEl?.value);
+    expect(inputEl?.value).toEqual('222');
+    activate$.set(0);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    inputEl = element.querySelector('input')!;
+    expect(inputEl?.value).toEqual('xxx');
   });
 });
