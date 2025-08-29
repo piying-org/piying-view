@@ -43,7 +43,7 @@ provide(PI_VIEW_FIELD_TOKEN, field);
 // 使用cva
 const childRef = ref<any>(null);
 const isControl = isFieldControl(field.value.form.control);
-let dispose: (() => void) | undefined;
+let dispose: ((destroy?: boolean) => void) | undefined;
 
 watch(
   [childRef, field],
@@ -56,7 +56,7 @@ watch(
   { immediate: true },
 );
 onUnmounted(() => {
-  dispose?.();
+  dispose?.(true);
   dispose = undefined;
 });
 </script>
