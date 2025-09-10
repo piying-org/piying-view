@@ -5,7 +5,6 @@ import { LogicType } from './type';
 import { deepEqual } from 'fast-equals';
 // 切换索引后,理论上应该触发下值变更,否则不知道值是什么
 export class FieldLogicGroup extends FieldArray {
-  /** 待定参数 */
   activateIndex$ = signal(0);
   type = signal<LogicType>('and');
   activateControl$ = signal<AbstractControl[] | undefined>(undefined);
