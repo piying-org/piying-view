@@ -17,6 +17,18 @@ describe('field-logic-group', () => {
     result.form.control.updateValue({ k1: 0 });
     expect(result.form.control.activateIndex$()).toEqual(0);
   });
+  it('union-index', () => {
+    const obj = v.union([
+      v.strictObject({ k1: v.number() }),
+      v.strictObject({ k1: v.number(), k2: v.string() }),
+    ]);
+    const result = createBuilder(obj);
+    assertFieldLogicGroup(result.form.control);
+    result.form.control.updateValue({ k1: 1, k2: '1' });
+    expect(result.form.control.activateIndex$()).toEqual(1);
+    result.form.control.updateValue({ k1: 0 });
+    expect(result.form.control.activateIndex$()).toEqual(0);
+  });
   it('union-index-disable', () => {
     const obj = v.pipe(
       v.union([v.object({ k1: v.number() }), v.object({ k2: v.string() })]),

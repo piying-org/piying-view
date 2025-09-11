@@ -9,7 +9,7 @@ export class FieldGroup<
 > extends FieldGroupbase {
   override value$$ = computed<any>(() => {
     const result = this._reduceChildren(
-      { ...this.#looseValue$$() },
+      { ...this.resetValue$() },
       (acc, control, name) => {
         if (control.shouldInclude$$()) {
           acc[name] = control.value;
@@ -91,11 +91,5 @@ export class FieldGroup<
         )
       : {};
   }
-  #looseValue$$ = computed(() => {
-    const resetValue = this.resetValue$();
-    if (!resetValue || isFieldLogicGroup(this.parent)) {
-      return undefined;
-    }
-    return resetValue;
-  });
+
 }
