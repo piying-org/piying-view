@@ -247,7 +247,6 @@ describe('group初始化', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     inputEl = element.querySelector('input')!;
-    console.log('sdf', inputEl?.value);
     expect(inputEl?.value).toEqual('222');
     activate$.set(0);
     await fixture.whenStable();

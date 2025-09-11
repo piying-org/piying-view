@@ -1,13 +1,13 @@
 import { AbstractControl } from './abstract_model';
 import { FieldArray } from './field-array';
 import { computed, signal } from '@angular/core';
-import { LogicType } from './type';
+import { LogicType, UpdateType } from './type';
 import { deepEqual } from 'fast-equals';
 // 切换索引后,理论上应该触发下值变更,否则不知道值是什么
 export class FieldLogicGroup extends FieldArray {
   activateIndex$ = signal(0);
   type = signal<LogicType>('and');
-  activateControl$ = signal<AbstractControl[] | undefined>(undefined);
+  activateControls$ = signal<AbstractControl[] | undefined>(undefined);
   override value$$ = computed<any>(() => {
     const returnResult = this.getValue(false);
     return (
@@ -17,8 +17,8 @@ export class FieldLogicGroup extends FieldArray {
 
   #getActivateControls() {
     let list;
-    if (this.activateControl$()) {
-      list = this.activateControl$()!;
+    if (this.activateControls$()) {
+      list = this.activateControls$()!;
     } else if (this.type() === 'and') {
       list = this.fixedControls$();
     } else if (this.type() === 'or') {
@@ -49,11 +49,7 @@ export class FieldLogicGroup extends FieldArray {
   }
   override reset(value?: any[]): void {
     const initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
-    this.fixedControls$().forEach((control, i) => {
-      control.reset(viewValue);
-    });
+    this.#updateValue(initValue, UpdateType.reset);
   }
   override getRawValue(): any {
     return this.getValue(true);
@@ -65,18 +61,33 @@ export class FieldLogicGroup extends FieldArray {
     if (this.isUnChanged()) {
       value ??= this.getInitValue(value);
     }
-    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
-    this.fixedControls$().forEach((control, i) => {
-      control.updateValue(viewValue);
-    });
+    this.#updateValue(value, UpdateType.update);
   }
   /** @internal */
   override updateInitValue(value: any): void {
     const initValue = this.getInitValue(value);
-    const viewValue =
-      this.config$().transfomer?.toView?.(initValue, this) ?? initValue;
+    this.#updateValue(initValue, UpdateType.init);
+  }
+  #updateValue(value: any, type: UpdateType) {
+    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
+    let isUpdateActivate = false;
     this.fixedControls$().forEach((control, i) => {
-      control.updateInitValue(viewValue);
+      if (type === UpdateType.init) {
+        control.updateInitValue(viewValue);
+      } else if (type === UpdateType.update) {
+        control.updateValue(viewValue);
+      } else {
+        control.reset(viewValue);
+      }
+      if (
+        !this.config$().disableOrUpdateActivate &&
+        !isUpdateActivate &&
+        control.valid &&
+        this.type() === 'or'
+      ) {
+        this.activateIndex$.set(i);
+        isUpdateActivate = true;
+      }
     });
   }
 }

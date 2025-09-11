@@ -80,14 +80,14 @@ describe('子级解析', () => {
     expect(field2.form.control?.value).toBe(undefined);
     const field = await fields$.promise;
     const control = field.form.control as FieldLogicGroup;
-    control.activateControl$.set([field.fixedChildren!()[0].form.control!]);
+    control.activateControls$.set([field.fixedChildren!()[0].form.control!]);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(instance.model$()['v1']['k1']).toEqual('v12');
     // todo get也应该改
     // const queryResult1 = field.get([0, 'k1']);
     // expect(queryResult1).toBeTruthy();
-    control.activateControl$.set([field.fixedChildren!()[1].form.control!]);
+    control.activateControls$.set([field.fixedChildren!()[1].form.control!]);
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -179,14 +179,14 @@ describe('子级解析', () => {
     const field = await fields$.promise;
     const control = field.form.control as FieldLogicGroup;
 
-    control.activateControl$.set([field.form.control!.get([0])!]);
+    control.activateControls$.set([field.form.control!.get([0])!]);
 
     await fixture.whenStable();
     fixture.detectChanges();
     expect(instance.model$()['v1']['k1']).toEqual('v12');
 
     // 使用第二个引用
-    control.activateControl$.set([(await outFields$.promise).form.control!]);
+    control.activateControls$.set([(await outFields$.promise).form.control!]);
 
     await fixture.whenStable();
     fixture.detectChanges();
@@ -313,7 +313,7 @@ describe('子级解析', () => {
 
     const field = await fields$.promise;
     const control = field.form.control as FieldLogicGroup;
-    control.activateControl$.set([field.fixedChildren!()[1].form.control!]);
+    control.activateControls$.set([field.fixedChildren!()[1].form.control!]);
 
     const field2 = await fields2$.promise;
     field2.form.control?.updateValue('v2');

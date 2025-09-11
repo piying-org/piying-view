@@ -36,6 +36,9 @@ export interface FieldFormConfig<T = any> {
   /** group/array */
   groupMode?: 'loose' | 'default' | 'strict' | 'reset';
   groupKeySchema?: BaseSchema<any, any, any>;
+  /** logic group */
+  /** or在更新值时,会自动切换到第一个匹配的 */
+  disableOrUpdateActivate?: boolean;
 }
 
 export type FieldFormConfig$ = WritableSignal<FieldFormConfig>;
