@@ -36,6 +36,7 @@
 	let injectorDispose: (() => any) | undefined;
 
 	const [field, subInjector] = $derived.by(() => {
+		injectorDispose?.();
 		const subInjector = createInjector({ providers: [], parent: rootInjector });
 		injectorDispose = () => {
 			subInjector.destroy();
@@ -56,7 +57,7 @@
 	});
 	$effect.pre(() => {
 		return () => {
-			subInjector.destroy();
+			return injectorDispose?.()
 		};
 	});
 	$effect.pre(() => {
