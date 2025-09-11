@@ -81,9 +81,9 @@ export class FieldGroup<
     const controls = this.fixedControls$();
     return inputValue
       ? Object.keys(inputValue).reduce(
-          (obj, item) => {
-            if (!(item in controls)) {
-              obj[item] = inputValue[item];
+          (obj, key) => {
+            if (!(key in controls)) {
+              obj[key] = inputValue[key];
             }
             return obj;
           },

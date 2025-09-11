@@ -21,7 +21,11 @@ export class FieldGroupbase extends AbstractControl {
       this.beforeUpdateList.forEach((fn) =>
         fn(restValue, type !== UpdateType.init),
       );
-    } else if (this.config$().groupMode === 'loose') {
+    } else if (
+      this.config$().groupMode === 'loose' ||
+      this.config$().groupMode === 'strict'
+    ) {
+      // loose下为了输出值,strict下为了验证
       const resetValue = this.getResetValue(viewValue);
       this.resetValue$.set(resetValue);
     }

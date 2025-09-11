@@ -38,6 +38,7 @@ export function createBuilder(
       types: {
         'mock-input': { type: Symbol() } as any,
         object: {} as any,
+        strict_object: {} as any,
         array: {} as any,
         string: {} as any,
         boolean: {} as any,
