@@ -28,10 +28,13 @@ export class FieldLogicGroup extends FieldArray {
     }
     return list;
   }
+  override activatedChildren$$ = computed(() => {
+    return this.#getActivateControls();
+  });
   getValue(rawData: boolean) {
     const controls = rawData
-      ? this.#getActivateControls()
-      : this.#getActivateControls().filter((control) =>
+      ? this.activatedChildren$$()
+      : this.activatedChildren$$().filter((control) =>
           control.shouldInclude$$(),
         );
     const control = controls[0];

@@ -41,4 +41,17 @@ describe('field-logic-group', () => {
     result.form.control.updateValue({ k1: 0 });
     expect(result.form.control.activateIndex$()).toEqual(0);
   });
+  it('union-sub-invalid', () => {
+    const obj = v.pipe(
+      v.union([v.object({ k1: v.number() }), v.object({ k2: v.string() })]),
+    );
+    const result = createBuilder(obj);
+    assertFieldLogicGroup(result.form.control);
+    result.form.control.updateValue({ k2: '1' });
+    expect(result.form.control.valid).toEqual(true);
+    expect(result.form.control.errors).toBeFalsy()
+    expect(result.form.control.children$$().length).toBe(2)
+    expect(result.form.control.find(0)).toBeTruthy()
+    expect(result.form.control.find(1)).toBeTruthy()
+  });
 });

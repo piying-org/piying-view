@@ -62,6 +62,9 @@ export abstract class AbstractControl<TValue = any> {
   readonly injector;
   /** model的value */
   value$$!: Signal<TValue | undefined>;
+  /** 已激活的子级,用于校验获得返回值之类 */
+  activatedChildren$$?: Signal<AbstractControl[]>;
+  /** 通用的子级,用于查询之类 */
   children$$?: Signal<AbstractControl[]>;
   /** disabled */
   readonly selfDisabled$$ = computed(() => this.config$?.().disabled ?? false);
@@ -254,9 +257,9 @@ export abstract class AbstractControl<TValue = any> {
     return this.status$$() === PENDING;
   }
 
-  selfUpdateOn$$ = computed(() => this.config$?.().updateOn);
+  #selfUpdateOn$$ = computed(() => this.config$?.().updateOn);
   updateOn$$: Signal<FormHooks> = computed(
-    () => (this.selfUpdateOn$$() || this.parent?.updateOn$$()) ?? 'change',
+    () => (this.#selfUpdateOn$$() || this.parent?.updateOn$$()) ?? 'change',
   );
 
   markAsTouched(): void {
@@ -337,12 +340,13 @@ export abstract class AbstractControl<TValue = any> {
     return null;
   }
   setControl(name: string | number, control: AbstractControl) {}
+  /** 校验和获得值用 */
   private reduceChildren<T>(
     initialValue: T,
     fn: (child: AbstractControl<any>, value: T) => T,
     shortCircuit?: (value: T) => boolean,
   ): T {
-    const childrenMap = this.children$$?.();
+    const childrenMap = (this.activatedChildren$$ ?? this.children$$)?.();
     if (!childrenMap) {
       return initialValue;
     }
