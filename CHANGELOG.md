@@ -1,3 +1,12 @@
+## [1.5.11](https://github.com/piying-org/piying-view/compare/1.5.10...1.5.11) (2025-09-12)
+
+
+### Bug Fixes
+
+* or valid status ([c6952b7](https://github.com/piying-org/piying-view/commit/c6952b70126f612162f89ec87d1f1eafd9328cb3))
+
+
+
 ## [1.5.10](https://github.com/piying-org/piying-view/compare/1.5.9...1.5.10) (2025-09-11)
 
 
@@ -5,6 +14,14 @@
 
 * rest value ([4c01859](https://github.com/piying-org/piying-view/commit/4c018599dd249ef2104a19d09dca288d7f504135))
 * strictObject valid ([40a3505](https://github.com/piying-org/piying-view/commit/40a350539f63efd31a61c44e4c7aba68e6a7cd5a))
+
+
+
+## [1.5.9](https://github.com/piying-org/piying-view/compare/1.5.8...1.5.9) (2025-09-11)
+
+
+### Bug Fixes
+
 * **svelte:** injector dispose ([72f8025](https://github.com/piying-org/piying-view/commit/72f80256d4de2750064bde48cbf09091ae7bdc6f))
 
 
