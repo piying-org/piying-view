@@ -41,7 +41,6 @@ export class NgComponentOutlet<T = any>
   ngComponentOutletFormControl = input<FieldControl>();
   /** 包裹用 */
   ngComponentOutletWrappers = input<NgResolvedWraaperConfig[]>();
-  ngComponentOutletTopDirectives = input<DirectiveConfig[]>();
   ngComponentOutletDirectives =
     input<PiResolvedViewFieldConfig['directives']>();
 
