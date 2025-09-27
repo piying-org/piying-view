@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import { PiResolvedViewFieldConfig } from '../lib/type';
-import { ContentButtonComponent } from './content-button/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
 import { formConfig, ValidationErrors } from '@piying/view-angular-core';
@@ -33,11 +32,7 @@ describe('验证', () => {
       signal({ v1: 0 }),
 
       {
-        types: {
-          content: {
-            type: ContentButtonComponent,
-          },
-        },
+        types: {},
       },
     );
     await fixture.whenStable();
@@ -88,11 +83,7 @@ describe('验证', () => {
       signal({ v1: 0 }),
 
       {
-        types: {
-          content: {
-            type: ContentButtonComponent,
-          },
-        },
+        types: {},
       },
     );
     await fixture.whenStable();
@@ -161,11 +152,7 @@ describe('验证', () => {
       signal({ v1: 0 }),
 
       {
-        types: {
-          content: {
-            type: ContentButtonComponent,
-          },
-        },
+        types: {},
       },
     );
     await fixture.whenStable();
