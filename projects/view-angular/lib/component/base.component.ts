@@ -159,7 +159,7 @@ export class BaseComponent {
       ],
       directives: [
         ...(componentConfig.directives ?? []).map((item, index) => ({
-          type: item.type as any,
+          type: item.type,
           bindings: [
             ...createInputsBind(this.#inputCache.directiveList![index]),
             ...createOutputsBind(item.outputs),
@@ -172,7 +172,7 @@ export class BaseComponent {
     this.fieldComponentInstance = componentRef.instance;
     this.fieldElementRef = componentRef.location;
     this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(
-      (item) => componentRef.injector.get(item.type as any),
+      (item) => componentRef.injector.get(item.type),
     );
     this.destroyComponentFn = () => {
       viewContainerRef.clear();

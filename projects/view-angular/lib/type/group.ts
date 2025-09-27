@@ -46,7 +46,6 @@ export type NgResolvedComponentDefine1 = Omit<
   'type'
 > & {
   type:
-    | string
     | Type<any>
     | LazyImport<Type<any>>
     | NgComponentDefine
