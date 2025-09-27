@@ -25,7 +25,6 @@ import { FieldControlDirective } from '../directives/field-control-directive';
 
 @Directive({
   selector: '[ngComponentOutlet]',
-  exportAs: 'ngComponentOutlet',
   standalone: true,
 })
 export class NgComponentOutlet<T = any>
