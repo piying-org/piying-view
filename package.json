@@ -33,10 +33,12 @@
   ],
   "dependencies": {
     "@angular/animations": "20.0.3",
+    "@angular/cdk": "^20.2.5",
     "@angular/common": "20.0.3",
     "@angular/compiler": "20.0.3",
     "@angular/core": "20.0.3",
     "@angular/forms": "20.0.3",
+    "@angular/material": "^20.2.5",
     "@angular/platform-browser": "20.0.3",
     "@angular/platform-browser-dynamic": "20.0.3",
     "@piying/valibot-visit": "^1.1.6",

@@ -1,0 +1,80 @@
+@let props = props$$();
+<mat-form-field
+  [hideRequiredMarker]="true"
+  [floatLabel]="props['floatLabel']"
+  [appearance]="props['appearance'] ?? 'outline'"
+  [subscriptSizing]="props['subscriptSizing']"
+  [color]="props['color'] ?? 'primary'"
+  #formField
+  class="w-full"
+>
+  <ng-container #fieldComponent></ng-container>
+  @if (props['title'] && props['hideLabel'] !== true) {
+    <mat-label>
+      {{ props['title'] }}
+      @if (props['required'] && props['hideRequiredMarker'] !== true) {
+        <span
+          aria-hidden="true"
+          class="mat-form-field-required-marker mat-mdc-form-field-required-marker"
+          >*</span
+        >
+      }
+    </mat-label>
+  }
+
+  @if (props['prefix']; as template) {
+    <ng-container
+      matPrefix
+      [ngTemplateOutlet]="stringOrTemplate"
+      [ngTemplateOutletContext]="{ content: template }"
+    >
+    </ng-container>
+  }
+  @if (props['suffix']; as template) {
+    <ng-container
+      matSuffix
+      [ngTemplateOutlet]="stringOrTemplate"
+      [ngTemplateOutletContext]="{ content: template }"
+    >
+    </ng-container>
+  }
+  @if (props['textPrefix']; as template) {
+    <ng-container matTextPrefix>{{ template }} </ng-container>
+  }
+  @if (props['textSuffix']; as template) {
+    <ng-container matTextSuffix>{{ template }} </ng-container>
+  }
+
+  @if (props['description'] || props['hintStart']; as hint) {
+    <mat-hint>
+      <ng-container
+        [ngTemplateOutlet]="stringOrTemplate"
+        [ngTemplateOutletContext]="{ content: hint }"
+      >
+      </ng-container>
+    </mat-hint>
+  }
+  @if (props['hintEnd']; as hintEnd) {
+    <mat-hint align="end">
+      <ng-container
+        [ngTemplateOutlet]="stringOrTemplate"
+        [ngTemplateOutletContext]="{ content: hintEnd }"
+      >
+      </ng-container>
+    </mat-hint>
+  }
+  @if (showError$$()) {
+    <mat-error> {{ errorStr$$() }} </mat-error>
+  }
+</mat-form-field>
+
+<ng-template #stringOrTemplate let-content="content">
+  @if (isString | pure: content) {
+    {{ content }}
+  } @else {
+    <ng-container
+      [ngTemplateOutlet]="content"
+      [ngTemplateOutletContext]="{ field: field$$() }"
+    ></ng-container>
+  }
+</ng-template>

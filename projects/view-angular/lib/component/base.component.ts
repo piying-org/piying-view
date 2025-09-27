@@ -168,12 +168,12 @@ export class BaseComponent {
         ...attrDirective,
       ],
     });
-    viewContainerRef.insert(componentRef.hostView);
     this.fieldComponentInstance = componentRef.instance;
     this.fieldElementRef = componentRef.location;
     this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(
       (item) => componentRef.injector.get(item.type),
     );
+    viewContainerRef.insert(componentRef.hostView);
     this.destroyComponentFn = () => {
       viewContainerRef.clear();
       componentRef.destroy();
