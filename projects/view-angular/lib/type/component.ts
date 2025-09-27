@@ -12,7 +12,7 @@ export interface RawDirectiveOutputs {
 }
 
 export interface DynamicComponentConfig {
-  type: Type<any> | string;
+  type: Type<any>;
   module?: Type<any>;
   attributes: Signal<CoreRawViewAttributes | undefined>;
   selector?: string;
@@ -20,14 +20,7 @@ export interface DynamicComponentConfig {
   directives?: DirectiveConfig[];
   outputs?: CoreRawViewOutputs;
   injector?: Injector;
-  contents?: ComponentContent;
 }
-
-export type ComponentContent = {
-  select?: string;
-  nodes?: any[];
-  text?: Signal<string>;
-}[];
 
 /** 解析后组件已经加载 ngcomponentoutlet */
 export type NgResolvedComponentDefine2 = Omit<
@@ -38,6 +31,6 @@ export type NgResolvedComponentDefine2 = Omit<
 };
 /** component,wrapper通用定义 */
 export type NgComponentDefine = {
-  component: Type<any> | string;
+  component: Type<any>;
   module?: Type<any>;
 };

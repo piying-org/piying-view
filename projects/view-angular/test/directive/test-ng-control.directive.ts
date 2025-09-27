@@ -3,6 +3,7 @@ import { FieldControlDirective } from '../../lib/directives/field-control-direct
 
 @Directive({
   selector: '[testNgControl]',
+  standalone: true,
 })
 export class TestNgControlDirective {
   control = inject(FieldControlDirective);

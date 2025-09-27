@@ -38,9 +38,6 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
     );
     return {
       ...config,
-      contents: field.contents?.sort((a, b) =>
-        a.nodes && b.nodes ? 0 : a.nodes ? -1 : 1,
-      ),
       directives: directives,
     };
   }

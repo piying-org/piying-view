@@ -13,7 +13,6 @@ import { PiResolvedViewFieldConfig, NgResolvedWraaperConfig } from '../type';
 import {
   DynamicComponentConfig,
   RawDirectiveOutputs,
-  ComponentContent,
   NgResolvedComponentDefine2,
 } from '../type/component';
 import { EMPTY_ARRAY } from '../const';
@@ -38,7 +37,6 @@ export class NgComponentOutlet<T = any>
   ngComponentOutletInputs = input<Record<string, unknown>>();
   ngComponentOutletOutputs = input<RawDirectiveOutputs>();
   ngComponentOutletInjector = input<Injector>();
-  ngComponentOutletContent = input<ComponentContent>();
   /** 控件用 */
   ngComponentOutletFormControl = input<FieldControl>();
   /** 包裹用 */
@@ -137,7 +135,6 @@ export class NgComponentOutlet<T = any>
           })
         : undefined,
       outputs: this.#onputEqual$$(),
-      contents: this.ngComponentOutletContent(),
     } as DynamicComponentConfig;
   });
   #componentList$$ = computed(() => {

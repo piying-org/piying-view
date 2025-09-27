@@ -57,7 +57,7 @@
 	});
 	$effect.pre(() => {
 		return () => {
-			return injectorDispose?.()
+			return injectorDispose?.();
 		};
 	});
 	$effect.pre(() => {

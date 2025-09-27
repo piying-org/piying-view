@@ -14,7 +14,6 @@ export function getComponentCheckConfig(a: DynamicComponentConfig) {
           inputs: `${config.inputs ? Object.keys(config.inputs()).join(',') : ''}`,
         }))
       : undefined,
-    contents: a.contents?.map((item) => ({ ...item, text: !!item.text })),
   };
 }
 

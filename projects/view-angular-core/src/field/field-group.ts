@@ -1,7 +1,6 @@
 import { computed, signal } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
-import { isFieldLogicGroup } from './is-field';
 import { FieldGroupbase } from './field-group-base';
 
 export class FieldGroup<
@@ -91,5 +90,4 @@ export class FieldGroup<
         )
       : {};
   }
-
 }

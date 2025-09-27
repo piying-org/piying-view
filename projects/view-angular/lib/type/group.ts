@@ -1,10 +1,6 @@
 import { Signal, Type, WritableSignal } from '@angular/core';
 
-import {
-  ComponentContent,
-  NgComponentDefine,
-  RawDirectiveOutputs,
-} from './component';
+import { NgComponentDefine, RawDirectiveOutputs } from './component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import {
   CoreRawComponentDefine,
@@ -64,7 +60,6 @@ export type PiResolvedViewFieldConfig = PiResolvedCommonViewFieldConfig<
   () => PiResolvedViewFieldConfig,
   NgResolvedComponentDefine1
 > & {
-  contents?: ComponentContent;
   directives?: WritableSignal<NgDirectiveConfig[]>;
 };
 
