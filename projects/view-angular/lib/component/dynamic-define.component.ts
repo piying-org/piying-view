@@ -10,6 +10,5 @@ export type DirectiveConfig<T = any> = {
   inputs?: Signal<Record<string, any>>;
   outputs?: CoreRawViewOutputs;
   model?: Record<string, WritableSignal<any>>;
-  selector?: string;
   attributes?: Signal<CoreRawViewAttributes | undefined>;
 };

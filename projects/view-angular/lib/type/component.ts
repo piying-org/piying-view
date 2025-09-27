@@ -15,7 +15,6 @@ export interface DynamicComponentConfig {
   type: Type<any>;
   module?: Type<any>;
   attributes: Signal<CoreRawViewAttributes | undefined>;
-  selector?: string;
   inputs: Signal<CoreRawViewInputs | undefined>;
   directives?: DirectiveConfig[];
   outputs?: CoreRawViewOutputs;

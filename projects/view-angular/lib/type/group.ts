@@ -51,7 +51,6 @@ export type NgResolvedComponentDefine1 = Omit<
     | LazyImport<NgComponentDefine>
     | LazyMarkType<Type<any>>
     | LazyMarkType<NgComponentDefine>;
-  selector?: string;
 };
 
 export type PiResolvedViewFieldConfig = PiResolvedCommonViewFieldConfig<
