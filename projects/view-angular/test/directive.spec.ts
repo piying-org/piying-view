@@ -195,4 +195,24 @@ describe('指令', () => {
     expect(ngControl.hasValidator(Validators.required)).toBeTrue();
     expect(ngControl.hasValidator(1)).toBeFalse();
   });
+
+  it('指令-输入变更', async () => {
+    const inputs = signal({ id: 'id1' });
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      setDirectives([{ type: D1Directive, inputs: inputs }]),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('#id1')).toBeTruthy();
+    inputs.set({ id: 'id2' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('#id2')).toBeTruthy();
+  });
 });

@@ -2,23 +2,26 @@ import {
   computed,
   createComponent,
   Directive,
+  DOCUMENT,
   ElementRef,
   EnvironmentInjector,
   EventEmitter,
   inject,
   Injector,
+  inputBinding,
+  outputBinding,
+  reflectComponentType,
   signal,
   Signal,
   untracked,
   ViewContainerRef,
 } from '@angular/core';
 import { PiResolvedViewFieldConfig } from '../type';
-import { ComponentContent, DynamicComponentConfig } from '../type/component';
+import { DynamicComponentConfig } from '../type/component';
 import {
   ComponentCheckConfig,
   getComponentCheckConfig,
 } from '../util/component-config.equal';
-import { createDynamicComponentDefine } from './dynamic-define.component';
 import { deepEqual } from 'fast-equals';
 import {
   PI_COMPONENT_INDEX,
@@ -26,6 +29,45 @@ import {
   PI_COMPONENT_LIST_LISTEN,
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
+import { createElement } from '../hook/create-element';
+import {
+  CoreRawViewAttributes,
+  CoreRawViewInputs,
+  CoreRawViewOutputs,
+} from '@piying/view-angular-core';
+import { AttributesDirective } from '../directives/attributes.directive';
+function createInputsBind(inputs?: Signal<CoreRawViewInputs | undefined>) {
+  if (!inputs || !inputs()) {
+    return [];
+  }
+  return Object.keys(inputs()!).map((key) =>
+    inputBinding(
+      key,
+      computed(() => inputs()![key]),
+    ),
+  );
+}
+function createOutputsBind(outputs?: CoreRawViewOutputs) {
+  if (!outputs) {
+    return [];
+  }
+  return Object.entries(outputs).map(([key, value]) =>
+    outputBinding(key, value),
+  );
+}
+function createAttributesDirective(
+  attributes: Signal<CoreRawViewAttributes | undefined>,
+) {
+  if (attributes()) {
+    return [
+      {
+        type: AttributesDirective,
+        bindings: [inputBinding('a', attributes)],
+      },
+    ];
+  }
+  return [];
+}
 const EmptyOBJ = {};
 @Directive()
 export class BaseComponent {
@@ -61,9 +103,8 @@ export class BaseComponent {
     attributes?: Signal<Record<string, any>>;
     directiveList?: (Signal<Record<string, any>> | undefined)[];
   };
-  #contentCache!: ComponentContent | undefined;
-
   #configUpdate$ = signal(0);
+  #document = inject(DOCUMENT);
   createComponent(
     list: DynamicComponentConfig[],
     viewContainerRef: ViewContainerRef,
@@ -94,31 +135,10 @@ export class BaseComponent {
           : undefined,
       ),
     };
-    this.#contentCache = componentConfig.contents?.map((item, index) => {
-      if (item.text) {
-        return {
-          ...item,
-          text: computed(() => {
-            this.#configUpdate$();
-            return this.#componentConfig.contents![index].text!();
-          }),
-        };
-      }
-      return item;
-    });
+    const type = reflectComponentType(componentConfig.type as any)!;
+    const el = createElement(type.selector, this.#document);
     this.#setComponentCheck(componentConfig);
-    const SidecarComponent = createDynamicComponentDefine(
-      {
-        ...componentConfig,
-        inputs: this.#inputCache.inputs,
-        attributes: this.#inputCache.attributes,
-        contents: this.#contentCache,
-      },
-      componentConfig.directives?.map((config, index) => ({
-        ...config,
-        inputs: this.#inputCache.directiveList![index],
-      })) ?? [],
-    );
+
     const componentInjector = Injector.create({
       providers: [
         { provide: PI_COMPONENT_LIST, useValue: list },
@@ -127,20 +147,32 @@ export class BaseComponent {
       ],
       parent: componentConfig.injector ?? viewContainerRef.injector,
     });
-    const componentRef = createComponent(SidecarComponent, {
+    const attrDirective = createAttributesDirective(componentConfig.attributes);
+
+    const componentRef = createComponent(componentConfig.type as any, {
       elementInjector: componentInjector,
       environmentInjector: componentInjector.get(EnvironmentInjector),
-      projectableNodes: componentConfig.contents
-        ?.map(({ nodes }) => nodes!)
-        .filter(Boolean),
+      hostElement: el,
+      bindings: [
+        ...createInputsBind(this.#inputCache.inputs),
+        ...createOutputsBind(componentConfig.outputs),
+      ],
+      directives: [
+        ...(componentConfig.directives ?? []).map((item, index) => ({
+          type: item.type,
+          bindings: [
+            ...createInputsBind(this.#inputCache.directiveList![index]),
+            ...createOutputsBind(item.outputs),
+          ],
+        })),
+        ...attrDirective,
+      ],
     });
-    // todo 这里需不需要加注入?
-    viewContainerRef.createEmbeddedView(componentRef.instance.templateRef());
-
-    this.fieldComponentInstance = componentRef.instance.componentInstance()!;
-    this.fieldElementRef = componentRef.instance.elementRef()!;
-    this.fieldDirectiveRefList = componentRef.instance.directiveRefList.map(
-      (item) => item(),
+    viewContainerRef.insert(componentRef.hostView);
+    this.fieldComponentInstance = componentRef.instance;
+    this.fieldElementRef = componentRef.location;
+    this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(
+      (item) => componentRef.injector.get(item.type),
     );
     this.destroyComponentFn = () => {
       viewContainerRef.clear();

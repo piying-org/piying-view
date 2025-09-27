@@ -23,7 +23,7 @@ const formControlBinding: Provider = {
 @Directive({
   selector: '[fieldControl]',
   providers: [formControlBinding],
-  standalone: false,
+  standalone: true,
 })
 export class FieldControlDirective implements OnDestroy {
   fieldControl = input.required<FieldControl>();

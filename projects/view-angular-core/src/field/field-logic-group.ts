@@ -28,9 +28,7 @@ export class FieldLogicGroup extends FieldArray {
     }
     return list;
   }
-  override activatedChildren$$ = computed(() => {
-    return this.#getActivateControls();
-  });
+  override activatedChildren$$ = computed(() => this.#getActivateControls());
   getValue(rawData: boolean) {
     const controls = rawData
       ? this.activatedChildren$$()

@@ -49,9 +49,9 @@ describe('field-logic-group', () => {
     assertFieldLogicGroup(result.form.control);
     result.form.control.updateValue({ k2: '1' });
     expect(result.form.control.valid).toEqual(true);
-    expect(result.form.control.errors).toBeFalsy()
-    expect(result.form.control.children$$().length).toBe(2)
-    expect(result.form.control.find(0)).toBeTruthy()
-    expect(result.form.control.find(1)).toBeTruthy()
+    expect(result.form.control.errors).toBeFalsy();
+    expect(result.form.control.children$$().length).toBe(2);
+    expect(result.form.control.find(0)).toBeTruthy();
+    expect(result.form.control.find(1)).toBeTruthy();
   });
 });

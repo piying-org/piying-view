@@ -484,7 +484,7 @@ describe('对象', () => {
     assertFieldGroup(resolved.form.control);
     resolved.form.control.updateValue({ k1: 1, k2: '2' });
     expect(resolved.form.control.valid).toEqual(false);
-    expect(resolved.form.control.errors).toBeTruthy()
+    expect(resolved.form.control.errors).toBeTruthy();
   });
   it('nest strictObject', () => {
     const obj = v.object({ o1: v.pipe(v.strictObject({ k1: v.number() })) });
@@ -492,6 +492,6 @@ describe('对象', () => {
     assertFieldGroup(resolved.form.control);
     resolved.form.control.updateValue({ o1: { k1: 1, k2: '2' } });
     expect(resolved.form.control.valid).toEqual(false);
-    expect(resolved.form.control.value).toEqual(undefined)
+    expect(resolved.form.control.value).toEqual(undefined);
   });
 });
