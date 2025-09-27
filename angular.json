@@ -38,8 +38,6 @@
               "projects/**/test/*",
               "projects/view-core/**/*",
               "projects/view-angular/test/**/*",
-              "projects/view-angular/lib/hook/directive_matching.ts",
-              "projects/view-angular/lib/hook/selector.ts",
               "projects/view-angular-core/test/**/*"
             ]
           }
