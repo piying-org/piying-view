@@ -5,6 +5,7 @@ import { useContext, createEffect, createSignal, onCleanup } from 'solid-js';
 
 // signal=>ref
 export function createSignalConvert<T>(value: () => T) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const injector = useContext(InjectorToken)!;
   const [result, setResult] = createSignal(value());
   createEffect(() => {

@@ -6,11 +6,7 @@
  * found in the LICENSE file at https://angular.dev/license
  */
 
-import {
-  Directive,
-  ElementRef,
-  Renderer2,
-} from '@angular/core';
+import { Directive, ElementRef, Renderer2 } from '@angular/core';
 
 @Directive()
 export class BaseControlValueAccessor {
@@ -53,7 +49,7 @@ export class BaseControlValueAccessor {
    * Registers a function called when the control value changes.
    * @docs-private
    */
-  registerOnChange(fn: (_: any) => {}): void {
+  registerOnChange(fn: (_: any) => any): void {
     this.onChange = fn;
   }
 

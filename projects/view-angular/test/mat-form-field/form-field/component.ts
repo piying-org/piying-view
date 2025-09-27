@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  computed,
-  ElementRef,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, ElementRef, viewChild } from '@angular/core';
 
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { PiyingViewWrapperBase } from '@piying/view-angular';
@@ -39,11 +34,12 @@ export class MatFormFieldWrapper extends PiyingViewWrapperBase {
     }
   }
 
-  showError$$ = computed(() => (
+  showError$$ = computed(
+    () =>
       this.field$$().form.control?.errors &&
       (this.field$$().form.control?.dirty ||
-        this.field$$().form.control?.touched)
-    ));
+        this.field$$().form.control?.touched),
+  );
   errorStr$$ = computed(() => {
     const field = this.field$$();
     const valibot = field.form.control!.errors!['valibot'];
