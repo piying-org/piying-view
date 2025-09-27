@@ -29,7 +29,6 @@ import {
   PI_COMPONENT_LIST_LISTEN,
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
-import { createElement } from '../hook/create-element';
 import {
   CoreRawViewAttributes,
   CoreRawViewInputs,
@@ -136,7 +135,6 @@ export class BaseComponent {
       ),
     };
     const type = reflectComponentType(componentConfig.type as any)!;
-    const el = createElement(type.selector, this.#document);
     this.#setComponentCheck(componentConfig);
 
     const componentInjector = Injector.create({
@@ -148,11 +146,9 @@ export class BaseComponent {
       parent: componentConfig.injector ?? viewContainerRef.injector,
     });
     const attrDirective = createAttributesDirective(componentConfig.attributes);
-
     const componentRef = createComponent(componentConfig.type as any, {
       elementInjector: componentInjector,
       environmentInjector: componentInjector.get(EnvironmentInjector),
-      hostElement: el,
       bindings: [
         ...createInputsBind(this.#inputCache.inputs),
         ...createOutputsBind(componentConfig.outputs),

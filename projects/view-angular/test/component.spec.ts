@@ -4,10 +4,15 @@ import { Test2Module } from './module1/module1.module';
 import { Test2Component } from './module1/test2.component';
 import { TestAttrComponent } from './test-attr/component';
 import * as v from 'valibot';
-import { patchAsyncClass, setOutputs } from '@piying/view-angular-core';
+import {
+  NFCSchema,
+  patchAsyncClass,
+  setOutputs,
+} from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
 import { NgControl } from '@angular/forms';
+import { TestAttrClassComponent } from './test-attr-class/component';
 
 describe('组件', () => {
   it('module', async () => {
@@ -66,10 +71,6 @@ describe('组件', () => {
         types: {
           test2: {
             type: TestAttrComponent,
-            selector: 'button',
-            attributes: {
-              'mat-button': '',
-            },
           },
         },
       },
@@ -77,7 +78,7 @@ describe('组件', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     await inited.promise;
-    expect(element.querySelector('button')).toBeTruthy();
+    expect(element.querySelector('button[mat-button]')).toBeTruthy();
   });
   it('ngControl读取', async () => {
     const inited = Promise.withResolvers();
@@ -129,10 +130,28 @@ describe('组件', () => {
     fixture.detectChanges();
     const el = element.querySelector('.test-class1');
     expect(el).toBeTruthy();
+    expect(element.querySelector('app-test1')).toBeTruthy();
     testClass$.set('test-class2');
     await fixture.whenStable();
     fixture.detectChanges();
     element.querySelector('.test-class2');
     expect(el).toBeTruthy();
+  });
+  it('tag+class+attr', async () => {
+    const define = v.pipe(NFCSchema, setComponent('test2'));
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+      {
+        types: {
+          test2: {
+            type: TestAttrClassComponent,
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('input.class1[type=number]')).toBeTruthy();
   });
 });

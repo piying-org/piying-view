@@ -38,7 +38,6 @@ export type NgRawComponentDefine = Omit<CoreRawComponentDefine, 'type'> & {
     | LazyImport<NgComponentDefine>
     | LazyMarkType<Type<any>>
     | LazyMarkType<NgComponentDefine>;
-  selector?: string;
 };
 /** 解析后但是未加载 */
 export type NgResolvedComponentDefine1 = Omit<
