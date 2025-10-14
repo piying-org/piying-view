@@ -1,9 +1,27 @@
+# [1.7.0](https://github.com/piying-org/piying-view/compare/1.6.2...1.7.0) (2025-10-14)
+
+
+### Features
+
+* selectorless ([bc69b9c](https://github.com/piying-org/piying-view/commit/bc69b9c2861b9dd81c3a117ca1be3f648eaba9be))
+
+
+
 ## [1.6.2](https://github.com/piying-org/piying-view/compare/1.6.1...1.6.2) (2025-09-29)
+
+
+### Bug Fixes
+
+* import ([0883891](https://github.com/piying-org/piying-view/commit/088389128937715ca8baeebd3c22a85048657f71))
 
 
 ### Features
 
 * getDeepError ([3141ce8](https://github.com/piying-org/piying-view/commit/3141ce82a2c9ec217905074917b7d0900d4bca43))
+
+
+
+## [1.6.1](https://github.com/piying-org/piying-view/compare/1.6.0...1.6.1) (2025-09-27)
 
 
 
