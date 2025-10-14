@@ -103,7 +103,6 @@ export class BaseComponent {
     directiveList?: (Signal<Record<string, any>> | undefined)[];
   };
   #configUpdate$ = signal(0);
-  #document = inject(DOCUMENT);
   createComponent(
     list: DynamicComponentConfig[],
     viewContainerRef: ViewContainerRef,
@@ -134,7 +133,6 @@ export class BaseComponent {
           : undefined,
       ),
     };
-    const type = reflectComponentType(componentConfig.type as any)!;
     this.#setComponentCheck(componentConfig);
 
     const componentInjector = Injector.create({
