@@ -1,0 +1,13 @@
+<ng-template #templateRef>
+  <div class="test1-div-input1">{{ input1() }}</div>
+  <div class="test1-div-input2">{{ input2() }}</div>
+  <div class="test1-div-modelValue">{{ value$() }}</div>
+
+  <input
+    type="text"
+    [ngModel]="value$()"
+    (ngModelChange)="valueChange2($event)"
+    [disabled]="disabled$()"
+    (blur)="touchedChange()"
+  />
+</ng-template>

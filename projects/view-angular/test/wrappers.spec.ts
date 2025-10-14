@@ -12,6 +12,8 @@ import {
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, setWrappers } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
+import { SelectorLessW } from './wrapper-unless/component';
+import { Test1SelectorComponent } from './test1-selectorless/component';
 
 describe('带异步wrappers', () => {
   it('存在', async () => {
@@ -52,7 +54,6 @@ describe('带异步wrappers', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(true).toBe(true);
     expect(element).toBeTruthy();
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;
     expect(input1Div).toBeTruthy();
@@ -364,5 +365,38 @@ describe('带异步wrappers', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(input1Div.innerHTML).toEqual('div-display2');
+  });
+
+  it('selectorless wrapper', async () => {
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      setWrappers(['selectorless-wrapper']),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+
+      {
+        types: {
+          test1: {
+            type: Test1SelectorComponent,
+          },
+        },
+        wrappers: {
+          'selectorless-wrapper': {
+            type: SelectorLessW,
+            inputs: { wInput1: 'inputClass' },
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    expect(element.querySelector('app-test1')).toBeFalsy();
+    expect(element.querySelector('selectorless-wrapper')).toBeFalsy();
+    expect(element.querySelector('.wrapper1')).toBeTruthy();
+    expect(element.querySelector('.inputClass')).toBeTruthy();
   });
 });
