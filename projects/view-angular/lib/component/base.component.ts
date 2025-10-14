@@ -1,4 +1,5 @@
 import {
+  ApplicationRef,
   computed,
   createComponent,
   Directive,
@@ -13,6 +14,7 @@ import {
   reflectComponentType,
   signal,
   Signal,
+  TemplateRef,
   untracked,
   ViewContainerRef,
 } from '@angular/core';
@@ -103,7 +105,7 @@ export class BaseComponent {
     directiveList?: (Signal<Record<string, any>> | undefined)[];
   };
   #configUpdate$ = signal(0);
-  #document = inject(DOCUMENT);
+  #app = inject(ApplicationRef);
   createComponent(
     list: DynamicComponentConfig[],
     viewContainerRef: ViewContainerRef,
@@ -134,7 +136,6 @@ export class BaseComponent {
           : undefined,
       ),
     };
-    const type = reflectComponentType(componentConfig.type as any)!;
     this.#setComponentCheck(componentConfig);
 
     const componentInjector = Injector.create({
@@ -146,6 +147,8 @@ export class BaseComponent {
       parent: componentConfig.injector ?? viewContainerRef.injector,
     });
     const attrDirective = createAttributesDirective(componentConfig.attributes);
+    const COMPONENT_VERSION: number | undefined = (componentConfig.type as any)
+      .__version;
     const componentRef = createComponent(componentConfig.type as any, {
       elementInjector: componentInjector,
       environmentInjector: componentInjector.get(EnvironmentInjector),
@@ -169,7 +172,15 @@ export class BaseComponent {
     this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(
       (item) => componentRef.injector.get(item.type),
     );
-    viewContainerRef.insert(componentRef.hostView);
+    if (COMPONENT_VERSION === 2) {
+      let templateRef = (
+        componentRef.instance as { templateRef: Signal<TemplateRef<any>> }
+      ).templateRef();
+      viewContainerRef.createEmbeddedView(templateRef);
+      this.#app.attachView(componentRef.hostView);
+    } else {
+      viewContainerRef.insert(componentRef.hostView);
+    }
     this.destroyComponentFn = () => {
       viewContainerRef.clear();
       componentRef.destroy();

@@ -35,7 +35,6 @@ describe('初始化', () => {
       signal(define),
       signal({ key1: 'value1' }),
     );
-    expect(true).toBe(true);
     expect(element).toBeTruthy();
     fixture.detectChanges();
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;
