@@ -21,7 +21,11 @@ import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
   templateUrl: './component.html',
   standalone: true,
   providers: [
-    { provide: NG_VALUE_ACCESSOR, multi: true, useExisting: Test1SelectorComponent },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: Test1SelectorComponent,
+    },
   ],
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

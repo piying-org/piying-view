@@ -3,7 +3,6 @@ import {
   computed,
   createComponent,
   Directive,
-  DOCUMENT,
   ElementRef,
   EnvironmentInjector,
   EventEmitter,
@@ -11,7 +10,6 @@ import {
   Injector,
   inputBinding,
   outputBinding,
-  reflectComponentType,
   signal,
   Signal,
   TemplateRef,
@@ -173,7 +171,7 @@ export class BaseComponent {
       (item) => componentRef.injector.get(item.type),
     );
     if (COMPONENT_VERSION === 2) {
-      let templateRef = (
+      const templateRef = (
         componentRef.instance as { templateRef: Signal<TemplateRef<any>> }
       ).templateRef();
       viewContainerRef.createEmbeddedView(templateRef);
