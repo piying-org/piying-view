@@ -35,7 +35,6 @@ export class NgComponentOutlet<T = any>
   ngComponentOutlet = input<NgResolvedComponentDefine2>();
   ngComponentOutletInputs = input<Record<string, unknown>>();
   ngComponentOutletOutputs = input<RawDirectiveOutputs>();
-  ngComponentOutletInjector = input<Injector>();
   /** 控件用 */
   ngComponentOutletFormControl = input<FieldControl>();
   /** 包裹用 */
@@ -61,12 +60,11 @@ export class NgComponentOutlet<T = any>
 
   #moduleRef$$ = computed(() => {
     this.#moduleDestroy?.();
-    const injector = this.ngComponentOutletInjector() || this.#injector;
     const module = this.ngComponentOutlet()?.type.module;
     if (!module) {
       return;
     }
-    const moduleRef = createNgModule(module, injector);
+    const moduleRef = createNgModule(module, this.#injector);
     this.#moduleDestroy = () => {
       moduleRef.destroy();
       this.#moduleDestroy = undefined;
@@ -74,9 +72,7 @@ export class NgComponentOutlet<T = any>
     return moduleRef;
   });
   #usedEnvInjector$$ = computed(() => {
-    const injector =
-      this.#moduleRef$$()?.injector ??
-      (this.ngComponentOutletInjector() || this.#injector);
+    const injector = this.#moduleRef$$()?.injector ?? this.#injector;
     return Injector.create({
       providers: [
         {
