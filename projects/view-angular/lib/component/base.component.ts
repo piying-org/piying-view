@@ -144,7 +144,6 @@ export class BaseComponent {
       ],
       parent: componentConfig.injector ?? viewContainerRef.injector,
     });
-    const attrDirective = createAttributesDirective(componentConfig.attributes);
     const COMPONENT_VERSION: number | undefined = (componentConfig.type as any)
       .__version;
     const componentRef = createComponent(componentConfig.type as any, {
@@ -162,7 +161,9 @@ export class BaseComponent {
             ...createOutputsBind(item.outputs),
           ],
         })),
-        ...attrDirective,
+        ...(COMPONENT_VERSION === 2
+          ? []
+          : createAttributesDirective(componentConfig.attributes)),
       ],
     });
     this.fieldComponentInstance = componentRef.instance;
@@ -174,7 +175,9 @@ export class BaseComponent {
       const templateRef = (
         componentRef.instance as { templateRef: Signal<TemplateRef<any>> }
       ).templateRef();
-      viewContainerRef.createEmbeddedView(templateRef);
+      viewContainerRef.createEmbeddedView(templateRef, {
+        attributes: componentConfig.attributes,
+      });
       this.#app.attachView(componentRef.hostView);
       componentRef.changeDetectorRef.detectChanges();
     } else {

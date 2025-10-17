@@ -161,22 +161,6 @@ export class PiyingView implements OnChanges {
     this.#injector,
   );
 
-  groupHidden = (field: PiResolvedViewFieldConfig) =>
-    computed(() => this.#groupHidden(field));
-  #groupHidden(field: PiResolvedViewFieldConfig): boolean {
-    if (isFieldArray(field.form.control) || field.restChildren) {
-      return false;
-    }
-    if (field.fixedChildren) {
-      if (!field.fixedChildren?.().length) {
-        return true;
-      } else {
-        return field.fixedChildren().every((field) => this.#groupHidden(field));
-      }
-    } else {
-      return !field.define || !!field.renderConfig().hidden;
-    }
-  }
   ngOnDestroy(): void {
     this.#listenDispose?.();
   }

@@ -11,6 +11,7 @@ import * as v from 'valibot';
 import { getField, hooksConfig } from './util/action';
 import { keyEqual } from '@piying/view-angular-core/test';
 import { setComponent, formConfig } from '@piying/view-angular-core';
+import { Array1Component } from './array/component';
 // 用于测试fields和model变动时,数值是否正确
 describe('数组配置切换', () => {
   it('数量相等', async () => {
@@ -189,21 +190,26 @@ describe('数组配置切换', () => {
     expect(field2.form.control!.parent).toBeTruthy();
   });
   it('array使用class', async () => {
-    const define = v.object({
-      a1: v.pipe(
-        v.array(v.pipe(v.string(), setComponent('test1'))),
-        componentClass('hello'),
-      ),
-    });
+    const define = v.pipe(
+      v.array(v.pipe(v.string(), setComponent('test1'))),
+      componentClass('hello'),
+    );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal({ a1: ['v1'] }),
+      signal(['v1']),
+      {
+        types: {
+          array: {
+            type: Array1Component,
+          },
+        },
+      },
     );
     await fixture.whenStable();
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(element.querySelector('piying-view-group.hello')).toBeTruthy();
+    expect(element.querySelector('.hello')).toBeTruthy();
   });
   it('array嵌套使用class', async () => {
     const define = v.object({

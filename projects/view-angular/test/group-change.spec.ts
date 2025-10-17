@@ -54,21 +54,7 @@ describe('group相关', () => {
     expect(field2.form.control!.parent).toBeTruthy();
   });
 
-  it('fieldGroup空移除', async () => {
-    const define = v.object({
-      '1': v.pipe(v.string(), setComponent('test1')),
-      p1: v.pipe(v.object({}), componentClass('hello')),
-    });
-    const { fixture, instance, element } = await createSchemaComponent(
-      signal(define),
-      signal({ p1: {} }),
-    );
-    await fixture.whenStable();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-    expect(element.querySelectorAll('piying-view-group').length).toBe(1);
-  });
+
   it('空group继承父级control', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.pipe(
@@ -126,45 +112,7 @@ describe('group相关', () => {
     const field2 = await field2$.promise;
     expect(field2.form.control).toBeFalsy();
   });
-  it('group子级全隐藏时隐藏group', async () => {
-    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const define = v.object({
-      l1: v.object({
-        l21: v.pipe(
-          v.string(),
-          setComponent('test1'),
-          renderConfig({ hidden: true }),
-          getField(field$),
-        ),
-      }),
-    });
-    const { fixture, instance, element } = await createSchemaComponent(
-      signal(define),
-      signal({ p1: {} }),
-    );
-    await fixture.whenStable();
-    fixture.detectChanges();
-    const field = await field$.promise;
-    expect(element.querySelector('piying-view-group')).toBeFalsy();
-    field.renderConfig.update((value) => ({ ...value, hidden: false }));
-    await fixture.whenStable();
-    fixture.detectChanges();
-    expect(element.querySelector('piying-view-group')).toBeTruthy();
-  });
-  it('group子级全隐藏时隐藏group-无define也算隐藏', async () => {
-    const define = v.object({
-      l1: v.object({
-        l21: v.pipe(v.string()),
-      }),
-    });
-    const { fixture, instance, element } = await createSchemaComponent(
-      signal(define),
-      signal({ p1: {} }),
-    );
-    await fixture.whenStable();
-    fixture.detectChanges();
-    expect(element.querySelector('piying-view-group')).toBeFalsy();
-  });
+
   // 仅用来测试索引问题,因为只报警告没异常所以没法缺点
   // 目前的
 
