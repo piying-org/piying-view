@@ -176,6 +176,7 @@ export class BaseComponent {
       ).templateRef();
       viewContainerRef.createEmbeddedView(templateRef);
       this.#app.attachView(componentRef.hostView);
+      componentRef.changeDetectorRef.detectChanges();
     } else {
       viewContainerRef.insert(componentRef.hostView);
     }

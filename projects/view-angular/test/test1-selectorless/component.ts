@@ -17,20 +17,20 @@ import { BaseControl, PiResolvedViewFieldConfig } from '@piying/view-angular';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
 
 @Component({
-  selector: 'app-test1',
+  selector: 'app-test1-selectorless',
   templateUrl: './component.html',
   standalone: true,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: Test1SelectorComponent,
+      useExisting: Test1SelectorlessComponent,
     },
   ],
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Test1SelectorComponent extends BaseControl {
+export class Test1SelectorlessComponent extends BaseControl {
   static readonly __version = 2;
   public templateRef = viewChild.required('templateRef');
   wInput1 = input();
