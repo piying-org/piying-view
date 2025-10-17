@@ -1,9 +1,22 @@
+## [1.7.2](https://github.com/piying-org/piying-view/compare/1.7.1...1.7.2) (2025-10-17)
+
+
+### Features
+
+* support selectorless attr ([089baee](https://github.com/piying-org/piying-view/commit/089baee741768dd8235f7ff91adcf1c93b9615e2))
+
+
+
 ## [1.7.1](https://github.com/piying-org/piying-view/compare/1.7.0...1.7.1) (2025-10-17)
 
 
 ### Bug Fixes
 
 * **angular:** group selectorless ([78f2d52](https://github.com/piying-org/piying-view/commit/78f2d52795550845a176a51a420bb9d5ef39cc8f))
+
+
+
+# [1.7.0](https://github.com/piying-org/piying-view/compare/1.6.2...1.7.0) (2025-10-14)
 
 
 ### Features
