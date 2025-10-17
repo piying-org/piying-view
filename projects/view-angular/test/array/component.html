@@ -1,1 +1,9 @@
-<piying-view-group [fieldTemplateRef]="fieldTemplateRef()"></piying-view-group>
+<ng-template #templateRef let-attr="attributes">
+  <div [class]="attr().class">
+    @for (field of children$$(); track field.id || $index) {
+      <ng-container
+        *ngTemplateOutlet="fieldTemplateRef(); context: { $implicit: field }"
+      ></ng-container>
+    }
+  </div>
+</ng-template>
