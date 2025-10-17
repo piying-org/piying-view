@@ -25,3 +25,11 @@
 ### test React
 
 - npm run test:react
+
+### test Solid
+
+- npm run test:solid
+
+### test Svelte
+
+- npm run test:svelte
