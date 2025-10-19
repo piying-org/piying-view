@@ -45,6 +45,7 @@
     "clsx": "^2.1.1",
     "conventional-changelog": "^7.1.1",
     "fast-equals": "^5.2.2",
+    "json-schema": "^0.4.0",
     "rfdc": "^1.4.1",
     "rxjs": "~7.8.0",
     "static-injector": "^6.1.2",
