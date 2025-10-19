@@ -44,6 +44,7 @@
     "@piying/valibot-visit": "^1.1.6",
     "clsx": "^2.1.1",
     "conventional-changelog": "^7.1.1",
+    "es-toolkit": "^1.40.0",
     "fast-equals": "^5.2.2",
     "json-schema": "^0.4.0",
     "rfdc": "^1.4.1",
