@@ -6,7 +6,7 @@ import {
   setWrappers,
 } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
-import { DCONFIG_EFAULT_MERGE_STRAGEGY } from '../src/builder-base/const';
+import { DCONFIG_EFAULT_MERGE_STRAGEGY } from '../builder-base/const';
 
 // 用于测试fields和model变动时,数值是否正确
 describe('fieldGlobalConfig', () => {

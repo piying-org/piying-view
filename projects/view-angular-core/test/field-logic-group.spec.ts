@@ -2,7 +2,7 @@ import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
 import { assertFieldLogicGroup } from './util/is-field';
-import { formConfig } from '../src/convert';
+import { formConfig } from '../convert';
 describe('field-logic-group', () => {
   it('union-index', () => {
     const obj = v.union([

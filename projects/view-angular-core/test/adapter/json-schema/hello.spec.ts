@@ -1,4 +1,4 @@
-import { jsonSchemaToValibot } from '../../../src/adapter/json-schema/formly-json-schema.service';
+import { jsonSchemaToValibot } from '@piying/view-angular-core/adapter';
 import { assertType } from './util/assert-type';
 
 describe('json-schema', () => {

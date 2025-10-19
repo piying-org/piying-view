@@ -15,7 +15,7 @@
         // "./dist/view-angular-core"
       ],
       "@piying/view-angular-core/adapter": [
-        "./projects/view-angular-core/src/adapter",
+        "./projects/view-angular-core/adapter",
       ],
       "@piying/view-angular-core/test": [
         "./projects/view-angular-core/test",
@@ -26,7 +26,7 @@
         // "./dist/view-core"
       ],
       "@piying/view-core/adapter": [
-        "./projects/view-core/src/adapter",
+        "./projects/view-core/adapter",
       ],
       "@piying/view-core/test": [
         "./projects/view-core/test",
