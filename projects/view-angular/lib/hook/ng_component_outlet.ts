@@ -18,7 +18,6 @@ import {
 import { EMPTY_ARRAY } from '../const';
 import { BaseComponent } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
-import { deepEqual } from 'fast-equals';
 import { FieldControl } from '@piying/view-angular-core';
 import { PI_COMPONENT_INDEX, PI_VIEW_FIELD_TOKEN } from '../type/view-token';
 import { FieldControlDirective } from '../directives/field-control-directive';
@@ -33,7 +32,7 @@ export class NgComponentOutlet<T = any>
 {
   /** 输入 */
   ngComponentOutlet = input<NgResolvedComponentDefine2>();
-  ngComponentOutletInputs = input<Record<string, unknown>>();
+  ngComponentOutletExtraInputs = input<Record<string, unknown>>();
   /** 控件用 */
   ngComponentOutletFormControl = input<FieldControl>();
   /** 包裹用 */
@@ -73,7 +72,12 @@ export class NgComponentOutlet<T = any>
       ? [...(directivesInputs?.() ?? []), formConfig]
       : directivesInputs?.();
   });
-
+  #componentInput$$ = computed(() => {
+    return {
+      ...this.ngComponentOutlet()?.inputs?.(),
+      ...this.ngComponentOutletExtraInputs(),
+    };
+  });
   #componentConfig$$ = computed(() => {
     const define = this.ngComponentOutlet();
     if (!define) {
@@ -82,9 +86,8 @@ export class NgComponentOutlet<T = any>
     const directives = this.#directiveConfigList$$();
     return {
       ...define!,
-      // todo 类型
-      outputs: (define.outputs as any)(),
-      inputs: this.ngComponentOutletInputs,
+      outputs: define.outputs?.(),
+      inputs: this.#componentInput$$,
       directives: directives
         ? directives.map((item) => {
             const outputs = item.outputs;

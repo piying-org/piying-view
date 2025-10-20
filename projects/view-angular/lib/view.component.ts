@@ -140,17 +140,9 @@ export class PiyingView implements OnChanges {
     }
   }
 
-  groupInputsValue = (
-    inputs: PiResolvedViewFieldConfig['inputs'],
-
-    fieldTemplateRef: TemplateRef<any>,
-  ) =>
-    computed(() => ({
-      ...inputs(),
-      fieldTemplateRef,
-    }));
-
-
+  groupInputsValue(fieldTemplateRef: TemplateRef<any>) {
+    return { fieldTemplateRef };
+  }
 
   ngOnDestroy(): void {
     this.#listenDispose?.();

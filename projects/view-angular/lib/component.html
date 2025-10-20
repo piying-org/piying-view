@@ -5,8 +5,8 @@
       <!-- 自定义group -->
       <ng-container
         [ngComponentOutlet]="field.define?.()"
-        [ngComponentOutletInputs]="
-          (groupInputsValue | pure: field.inputs : dynamicComponent)?.()
+        [ngComponentOutletExtraInputs]="
+          groupInputsValue | pure: dynamicComponent
         "
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
@@ -15,7 +15,6 @@
     } @else {
       <ng-container
         [ngComponentOutlet]="field.define?.()"
-        [ngComponentOutletInputs]="field.inputs()"
         [ngComponentOutletFormControl]="$any(field.form.control)"
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
