@@ -1,5 +1,5 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import rfdc from 'rfdc';
 import * as v from 'valibot';
 import {
@@ -14,6 +14,7 @@ import {
 } from '@piying/view-angular-core';
 import * as jsonActions from '@piying/view-angular-core';
 import { intersection, isBoolean, isNil, isUndefined, union } from 'es-toolkit';
+import { BehaviorSubject } from 'rxjs';
 // todo 先按照类型不可变设计,之后修改代码支持组件变更
 const clone = rfdc({ proto: false, circles: false });
 type ResolvedSchema =
@@ -184,9 +185,11 @@ function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
   let base = clone(schema);
   let baseActionList = getValidationAction(base);
   let childList = [];
+  let baseKeyList = Object.keys(base);
   for (const childSchema of list) {
     let list = [...baseActionList, ...getValidationAction(childSchema)];
-    for (const key in childSchema) {
+    let keyList = union(baseKeyList, Object.keys(childSchema));
+    for (const key of keyList) {
       switch (key) {
         case 'type': {
           // 类型
@@ -253,6 +256,7 @@ function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
           break;
       }
     }
+
     childList.push({ schema: childSchema, actionList: list });
   }
   return childList;
@@ -261,7 +265,9 @@ function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
 interface IOptions {
   schema: JSONSchema7Ext;
 }
-const WrapperList = ['tooltip', 'jsonschema-label', 'validator'];
+// 应该传入定制
+const WrapperList = [] as string[];
+// const WrapperList = ['tooltip', 'jsonschema-label', 'validator'];
 export function jsonSchemaToValibot(schema: JSONSchema7) {
   return new JsonSchemaToValibot(schema).convert() as ResolvedSchema;
 }
@@ -307,13 +313,118 @@ export class JsonSchemaToValibot {
       });
       return v.pipe(v.union(resultList));
     }
-    if (schema.if) {
-      let baseResult = this.jsonSchemaBase(schema);
-      // todo 需要实现一个参数动态修改
-      return baseResult;
+    if ('if' in schema) {
+      let baseActionList = getValidationAction(schema);
+      let status$ = new BehaviorSubject<boolean | undefined>(undefined);
+      let baseSchema = v.pipe(
+        this.jsonSchemaBase(schema),
+        ...baseActionList,
+        hideWhen({
+          disabled: false,
+          listen: (fn) => {
+            return fn({}).pipe(
+              map(({ list: [value], field }) => {
+                let isThen =
+                  ifVSchema.type === 'literal'
+                    ? (ifVSchema as any).literal
+                    : v.safeParse(ifVSchema, value).success;
+                (
+                  field.form.parent as jsonActions.FieldLogicGroup
+                ).activateIndex$.set(isThen ? 1 : 2);
+                status$.next(isThen);
+                return !((isThen && !thenSchema) || (!isThen && !elseSchema));
+              }),
+            );
+          },
+        }),
+      );
+      let ifVSchema: ResolvedSchema;
+      if (isBoolean(schema.if)) {
+        ifVSchema = v.literal(schema.if);
+      } else {
+        let [ifSchema] = mergeSchema(schema, [schema.if as any]);
+        ifVSchema = v.pipe(
+          this.jsonSchemaBase(ifSchema.schema)!,
+          ...ifSchema.actionList,
+        );
+      }
+      let thenSchema: ResolvedSchema | undefined;
+      if (schema.then && !isBoolean(schema.then)) {
+        let [subSchema] = mergeSchema(schema, [schema.then as any]);
+        thenSchema = v.pipe(
+          this.jsonSchemaBase(subSchema.schema),
+          ...subSchema.actionList,
+          jsonActions.renderConfig({ hidden: true }),
+          hideWhen({
+            disabled: true,
+            listen(fn, field) {
+              return fn({ list: [['..', 0]] }).pipe(
+                switchMap(({ list: [value] }) => {
+                  return status$;
+                }),
+                map((a) => (a === undefined ? true : !a)),
+              );
+            },
+          }),
+        );
+      }
+      let elseSchema: ResolvedSchema | undefined;
+
+      if (schema.else && !isBoolean(schema.else)) {
+        let [subSchema] = mergeSchema(schema, [schema.else as any]);
+        elseSchema = v.pipe(
+          this.jsonSchemaBase(subSchema.schema),
+          ...subSchema.actionList,
+          jsonActions.renderConfig({ hidden: true }),
+          hideWhen({
+            disabled: true,
+            listen(fn, field) {
+              return fn({ list: [['..', 0]] }).pipe(
+                switchMap(({ list: [value] }) => {
+                  return status$;
+                }),
+                map((a) => (a === undefined ? true : a)),
+              );
+            },
+          }),
+        );
+      }
+
+      // 这种逻辑没问题,因为jsonschema验证中,也会出现base和子级架构一起验证
+      return v.pipe(
+        v.union(
+          [
+            baseSchema,
+            thenSchema ?? baseSchema,
+            elseSchema ?? baseSchema,
+          ].filter(Boolean),
+        ),
+        formConfig({ disableOrUpdateActivate: true }),
+        v.rawCheck(({ dataset, addIssue }) => {
+          if (!dataset.typed) {
+            addIssue();
+            return;
+          }
+          let status = status$.value;
+          if (status && thenSchema) {
+            let result = v.safeParse(thenSchema, dataset.value);
+            if (!result.success) {
+              addIssue();
+              return;
+            }
+          }
+          if (!status && elseSchema) {
+            let result = v.safeParse(elseSchema, dataset.value);
+            if (!result.success) {
+              addIssue();
+              return;
+            }
+          }
+        }),
+      );
     }
 
-    return this.jsonSchemaBase(schema)
+    return this.jsonSchemaBase(schema);
   }
   itemToVSchema2(schema: JSONSchema7Definition): ResolvedSchema | undefined {
     if (isBoolean(schema)) {

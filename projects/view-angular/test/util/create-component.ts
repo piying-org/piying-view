@@ -54,11 +54,14 @@ export async function createSchemaComponent(
       [(model)]="model$"
       (modelChange)="mdChange()"
       [options]="options"
+      #view
     ></piying-view>`,
     standalone: true,
     imports: [PiyingView],
   })
   class Hello {
+    view = viewChild.required('view', { read: PiyingView });
+    field$$ = computed(() => this.view().resolvedField$());
     fieldConfig = {
       ...defaultConfig,
       types: {
@@ -118,5 +121,6 @@ export async function createSchemaComponent(
     fixture: fixture,
     instance: fixture.componentInstance,
     element: fixture.nativeElement as HTMLElement,
+    field$$: fixture.componentInstance.field$$,
   };
 }
