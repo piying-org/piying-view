@@ -252,7 +252,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       inputs: inputs,
       outputs: outputs,
       attributes,
-      define: define ? { ...define, inputs, outputs, attributes } : undefined,
+      define: define
+        ? signal({ ...define, inputs, outputs, attributes })
+        : undefined,
       wrappers,
       injector: this.#envInjector,
     } as any as _PiResolvedCommonViewFieldConfig;

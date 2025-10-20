@@ -4,6 +4,7 @@ import { lazyMark } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
+import { delay } from './util/delay';
 
 describe('lazy', () => {
   it('lazy-fn', async () => {
@@ -24,6 +25,7 @@ describe('lazy', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
+    await delay(1);
     expect(element.querySelector('app-test1')).toBeTruthy();
   });
   it('lazy-mark', async () => {
@@ -43,6 +45,7 @@ describe('lazy', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
+    await delay(1);
     expect(element.querySelector('app-test1')).toBeTruthy();
   });
 });

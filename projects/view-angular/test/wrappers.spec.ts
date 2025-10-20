@@ -12,6 +12,8 @@ import {
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, setWrappers } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
+import { delay } from './util/delay';
+import { Wrapper2Component } from './wrapper2/component';
 
 describe('带异步wrappers', () => {
   it('存在', async () => {
@@ -50,6 +52,7 @@ describe('带异步wrappers', () => {
         },
       },
     );
+    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element).toBeTruthy();
@@ -91,13 +94,11 @@ describe('带异步wrappers', () => {
             type: Wrapper1Component,
             inputs: { wInput1: 'wInput1' },
           },
-          wrapper2: {
-            type: () =>
-              import('./wrapper2/component').then((a) => a.Wrapper2Component),
-          },
+          wrapper2: { type: Wrapper2Component },
         },
       },
     );
+    await delay(1);
     await fixture.whenStable();
     fixture.detectChanges();
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;
@@ -148,8 +149,9 @@ describe('带异步wrappers', () => {
         },
       },
     );
-    await fixture.whenStable();
-    fixture.detectChanges();
+
+    await delay(10);
+
     const inputEl = element.querySelector('input')!;
     const displayValueEl = element.querySelector('.test1-div-modelValue')!;
 
@@ -204,11 +206,11 @@ describe('带异步wrappers', () => {
       key1: v.pipe(v.string(), setComponent('test1')),
     });
     instance.fields$.set(define2);
+    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-
     const inputEl = element.querySelector('input')!;
     expect(inputEl).toBeTruthy();
     expect(element.querySelector('.wrapper1-div-label')?.innerHTML).toBeFalsy();
@@ -229,10 +231,7 @@ describe('带异步wrappers', () => {
       {
         types: {
           test1: {
-            type: () =>
-              import('./test1/test1.component').then(
-                (a) => a.Test1Component,
-              ) as any,
+            type: Test1Component,
           },
         },
         wrappers: {
@@ -241,8 +240,7 @@ describe('带异步wrappers', () => {
             inputs: { wInput1: 'wInput1' },
           },
           wrapper2: {
-            type: () =>
-              import('./wrapper2/component').then((a) => a.Wrapper2Component),
+            type: Wrapper2Component,
           },
         },
       },

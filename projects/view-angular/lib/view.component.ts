@@ -25,7 +25,6 @@ import {
 
 import { NgTemplateOutlet } from '@angular/common';
 import { NgResolvedComponentDefine2 } from './type/component';
-import { createAsyncCache } from './util/async-cache';
 import {
   convert,
   FieldArray,
@@ -151,15 +150,7 @@ export class PiyingView implements OnChanges {
       fieldTemplateRef,
     }));
 
-  resolvedComponent = createAsyncCache<true, NgResolvedComponentDefine2>(
-    true,
-    this.#injector,
-  );
-  // 这里的组件还是不准确,因为type已经改了,
-  resolvedWrapper = createAsyncCache<false, NgResolvedWraaperConfig[]>(
-    false,
-    this.#injector,
-  );
+
 
   ngOnDestroy(): void {
     this.#listenDispose?.();

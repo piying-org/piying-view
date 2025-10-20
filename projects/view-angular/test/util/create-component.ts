@@ -7,15 +7,19 @@ import {
 } from '@angular/core';
 import { PiyingView } from '@piying/view-angular';
 import { PiViewConfig } from '@piying/view-angular';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { Test1Component } from '../test1/test1.component';
 import {
   FieldArray,
   FieldControl,
   FieldGroup,
+  getLazyImport,
+  isLazyMark,
+  lazyMark,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
 import { PiyingViewGroup } from '@piying/view-angular';
+import { isComponentType } from '../../lib/util/async-cache';
 
 export async function createSchemaComponent(
   field: WritableSignal<SchemaOrPipe>,
@@ -23,6 +27,27 @@ export async function createSchemaComponent(
   defaultConfig?: PiViewConfig,
   context?: any,
 ) {
+  // 预加载
+  let types = [
+    ...Object.values(defaultConfig?.types ?? {}).map((item) => {
+      return item.type;
+    }),
+    ...Object.values(defaultConfig?.wrappers ?? {}).map((item) => {
+      return item.type;
+    }),
+  ].filter((item) => {
+    return (
+      !isComponentType(item) && (typeof item === 'function' || isLazyMark(item))
+    );
+  });
+
+  if (types.length) {
+    await Promise.all(
+      types.map((item) => {
+        return getLazyImport<() => Promise<any>>(item)!();
+      }),
+    );
+  }
   @Component({
     template: `<piying-view
       [schema]="fields$()"
@@ -85,7 +110,7 @@ export async function createSchemaComponent(
   }
   await TestBed.configureTestingModule({
     imports: [Hello],
-    providers: [],
+    providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
   }).compileComponents();
   const fixture = TestBed.createComponent(Hello);
   fixture.detectChanges();
