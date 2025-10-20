@@ -123,7 +123,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const type = field.type;
     let define;
     if (type) {
-      const result = this.#resolveComponent(type);
+      const result = this.#findConfig.findComponentConfig(type);
       viewDefaultConfig = result.defaultConfig;
       define = result.define;
     }
@@ -515,33 +515,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     this.#allFieldInitHookList.push(() => instance.allFieldInitHookCall());
     result.injector = injector.get(EnvironmentInjector);
     return result;
-  }
-  #resolveComponent(type: string | any) {
-    let define;
-    let defaultConfig;
-    // 查引用
-    if (typeof type === 'string') {
-      const config = this.#globalConfig?.types?.[type];
-      if (!config) {
-        throw new Error(`🈳define:[${type}]❗`);
-      }
-      defaultConfig = config;
-      if (Object.keys(config).length) {
-        define = {
-          ...config,
-        };
-        return {
-          define: { ...config },
-          defaultConfig,
-        };
-      }
-    } else {
-      return { define: { type: type } };
-    }
-    return {
-      define,
-      defaultConfig,
-    };
   }
 
   protected configMergeRaw<T extends SignalInputValue<any>>(

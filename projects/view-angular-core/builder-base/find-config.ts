@@ -31,5 +31,31 @@ export function FindConfigFactory() {
       }
       return config;
     },
+    findComponentConfig: (type: string | any) => {
+      let define;
+      let defaultConfig;
+      if (typeof type === 'string') {
+        const config = globalConfig?.types?.[type];
+        if (!config) {
+          throw new Error(`🈳define:[${type}]❗`);
+        }
+        defaultConfig = config;
+        if (Object.keys(config).length) {
+          define = {
+            ...config,
+          };
+          return {
+            define: { ...config },
+            defaultConfig,
+          };
+        }
+      } else {
+        return { define: { type: type } };
+      }
+      return {
+        define,
+        defaultConfig,
+      };
+    },
   };
 }
