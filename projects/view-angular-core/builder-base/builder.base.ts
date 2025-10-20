@@ -611,29 +611,13 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     wrappers?: CoreRawWrapperConfig[],
   ): WritableSignal<CoreResolvedWrapperConfig[]> {
     const result = (wrappers ?? []).map((wrapper) => {
-      // 查引用1
       const config = this.#findConfig.findWrapper(wrapper);
-      if (typeof wrapper === 'string') {
-        return {
-          ...config,
-          inputs: signal(config.inputs),
-          attributes: signal(config.attributes),
-        };
-      } else if (typeof wrapper.type === 'string') {
-        // 查引用2
-        return {
-          inputs: signal({ ...config.inputs, ...wrapper.inputs }),
-          outputs: { ...config.outputs, ...wrapper.outputs },
-          attributes: signal({ ...config.attributes, ...wrapper.attributes }),
-          type: config.type,
-        };
-      } else {
-        return {
-          ...wrapper,
-          inputs: signal(wrapper.inputs),
-          attributes: signal(wrapper.attributes),
-        };
-      }
+      return {
+        inputs: signal(config.inputs),
+        outputs: config.outputs,
+        attributes: signal(config.attributes),
+        type: config.type,
+      };
     });
     return signal(result);
   }
