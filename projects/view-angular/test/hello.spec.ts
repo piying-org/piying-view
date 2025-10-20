@@ -462,4 +462,13 @@ describe('初始化', () => {
     field.form.control!.markAsTouched();
     expect(field.form.control?.touched).toEqual(true);
   });
+
+  it('empty', async () => {
+    const define = v.pipe(v.string(), setComponent(''));
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+    );
+    expect(element).toBeTruthy();
+  });
 });
