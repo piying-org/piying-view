@@ -64,6 +64,9 @@ export async function createSchemaComponent(
         object: {
           type: PiyingViewGroup,
         },
+        loose_object: {
+          type: PiyingViewGroup,
+        },
         intersect: {
           type: PiyingViewGroup,
         },

@@ -43,9 +43,9 @@ describe('lazy', () => {
         },
       },
     );
+    await delay(1);
     await fixture.whenStable();
     fixture.detectChanges();
-    await delay(1);
     expect(element.querySelector('app-test1')).toBeTruthy();
   });
 });

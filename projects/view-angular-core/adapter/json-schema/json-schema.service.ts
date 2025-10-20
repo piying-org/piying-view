@@ -175,21 +175,22 @@ function arrayIntersection(a: any, b: any) {
   }
   return { value: a ?? b };
 }
-function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
-  const base = clone(schema);
-  const baseActionList = getValidationAction(base);
-  const childList = [];
-  const baseKeyList = Object.keys(base);
-  for (const childSchema of list) {
-    const list = [...baseActionList, ...getValidationAction(childSchema)];
-    const keyList = union(baseKeyList, Object.keys(childSchema));
-    for (const key of keyList) {
+function mergeSchema(schema: JSONSchema7, ...list: JSONSchema7Definition[]) {
+  let base = clone(schema);
+  let baseKeyList = Object.keys(base);
+  const actionList = getValidationAction(base);
+  for (const childSchema of list.filter(
+    (item) => !isBoolean(item),
+  ) as any as JSONSchema7[]) {
+    actionList.push(...getValidationAction(childSchema));
+    baseKeyList = union(baseKeyList, Object.keys(childSchema));
+    for (const key of baseKeyList) {
       switch (key) {
         case 'type': {
           // 类型
-          const typeResult = arrayIntersection(schema.type, childSchema.type);
+          const typeResult = arrayIntersection(base.type, childSchema.type);
           if (typeResult.action) {
-            list.push(typeResult.action);
+            actionList.push(typeResult.action);
           }
           if (!isUndefined(typeResult.value)) {
             childSchema.type = typeResult.value;
@@ -205,7 +206,7 @@ function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
         }
         case 'contains': {
           if (childSchema[key] === false || base[key] === false) {
-            list.push(v.check(() => false));
+            actionList.push(v.check(() => false));
             break;
           } else if (childSchema[key] === true) {
             childSchema[key] = base[key];
@@ -241,9 +242,6 @@ function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
           }
           break;
         }
-        case '': {
-          break;
-        }
 
         default:
           (childSchema as any)[key] ??= (base as any)[key];
@@ -251,9 +249,9 @@ function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
       }
     }
 
-    childList.push({ schema: childSchema, actionList: list });
+    base = childSchema;
   }
-  return childList;
+  return { schema: base, actionList };
 }
 
 interface IOptions {
@@ -282,30 +280,27 @@ export class JsonSchemaToValibot {
       schema = this.resolveDefinition(schema, { schema: this.root });
     }
     if (schema.allOf) {
-      const result = mergeSchema(schema, schema.allOf as any);
-      const resultList = result.map((item) => {
-        const result = this.jsonSchemaBase(item.schema)!;
-        return v.pipe(result, ...(item.actionList as any));
-      });
+      const result = mergeSchema(schema, ...schema.allOf);
+      const resultList = this.jsonSchemaBase(result.schema);
       //todo 暂时allof不合并
 
-      return v.pipe(v.intersect(resultList), asVirtualGroup());
+      return v.pipe(resultList, ...result.actionList);
     }
     if (schema.anyOf) {
-      const result = mergeSchema(schema, schema.allOf as any);
-      const resultList = result.map((item) => {
-        const result = this.jsonSchemaBase(item.schema)!;
-        return v.pipe(result, ...(item.actionList as any));
-      });
-      return v.pipe(v.intersect(resultList));
+      // const result = mergeSchema(schema, schema.allOf as any);
+      // const resultList = result.map((item) => {
+      //   const result = this.jsonSchemaBase(item.schema)!;
+      //   return v.pipe(result, ...(item.actionList as any));
+      // });
+      // return v.pipe(v.intersect(resultList));
     }
     if (schema.oneOf) {
-      const result = mergeSchema(schema, schema.allOf as any);
-      const resultList = result.map((item) => {
-        const result = this.jsonSchemaBase(item.schema)!;
-        return v.pipe(result, ...(item.actionList as any));
-      });
-      return v.pipe(v.union(resultList));
+      // const result = mergeSchema(schema, schema.allOf as any);
+      // const resultList = result.map((item) => {
+      //   const result = this.jsonSchemaBase(item.schema)!;
+      //   return v.pipe(result, ...(item.actionList as any));
+      // });
+      // return v.pipe(v.union(resultList));
     }
     if ('if' in schema) {
       const baseActionList = getValidationAction(schema);
@@ -335,7 +330,7 @@ export class JsonSchemaToValibot {
       if (isBoolean(schema.if)) {
         ifVSchema = v.literal(schema.if);
       } else {
-        const [ifSchema] = mergeSchema(schema, [schema.if as any]);
+        const ifSchema = mergeSchema(schema, schema.if!);
         ifVSchema = v.pipe(
           this.jsonSchemaBase(ifSchema.schema)!,
           ...ifSchema.actionList,
@@ -343,7 +338,7 @@ export class JsonSchemaToValibot {
       }
       let thenSchema: ResolvedSchema | undefined;
       if (schema.then && !isBoolean(schema.then)) {
-        const [subSchema] = mergeSchema(schema, [schema.then as any]);
+        const subSchema = mergeSchema(schema, schema.then!);
         thenSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
@@ -362,7 +357,7 @@ export class JsonSchemaToValibot {
       let elseSchema: ResolvedSchema | undefined;
 
       if (schema.else && !isBoolean(schema.else)) {
-        const [subSchema] = mergeSchema(schema, [schema.else as any]);
+        const subSchema = mergeSchema(schema, schema.else);
         elseSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
