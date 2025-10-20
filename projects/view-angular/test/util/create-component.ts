@@ -15,7 +15,6 @@ import {
   FieldGroup,
   getLazyImport,
   isLazyMark,
-  lazyMark,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
 import { PiyingViewGroup } from '@piying/view-angular';
@@ -28,24 +27,18 @@ export async function createSchemaComponent(
   context?: any,
 ) {
   // 预加载
-  let types = [
-    ...Object.values(defaultConfig?.types ?? {}).map((item) => {
-      return item.type;
-    }),
-    ...Object.values(defaultConfig?.wrappers ?? {}).map((item) => {
-      return item.type;
-    }),
-  ].filter((item) => {
-    return (
-      !isComponentType(item) && (typeof item === 'function' || isLazyMark(item))
-    );
-  });
+  const types = [
+    ...Object.values(defaultConfig?.types ?? {}).map((item) => item.type),
+    ...Object.values(defaultConfig?.wrappers ?? {}).map((item) => item.type),
+  ].filter(
+    (item) =>
+      !isComponentType(item) &&
+      (typeof item === 'function' || isLazyMark(item)),
+  );
 
   if (types.length) {
     await Promise.all(
-      types.map((item) => {
-        return getLazyImport<() => Promise<any>>(item)!();
-      }),
+      types.map((item) => getLazyImport<() => Promise<any>>(item)!()),
     );
   }
   @Component({

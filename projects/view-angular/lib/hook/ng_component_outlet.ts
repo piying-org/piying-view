@@ -1,6 +1,5 @@
 import {
   computed,
-  createNgModule,
   Directive,
   inject,
   Injector,
@@ -12,14 +11,13 @@ import {
 import { PiResolvedViewFieldConfig, NgResolvedWraaperConfig } from '../type';
 import {
   DynamicComponentConfig,
-  RawDirectiveOutputs,
   NgResolvedComponentDefine2,
 } from '../type/component';
 import { EMPTY_ARRAY } from '../const';
 import { BaseComponent } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { FieldControl } from '@piying/view-angular-core';
-import { PI_COMPONENT_INDEX, PI_VIEW_FIELD_TOKEN } from '../type/view-token';
+import { PI_VIEW_FIELD_TOKEN } from '../type/view-token';
 import { FieldControlDirective } from '../directives/field-control-directive';
 
 @Directive({
@@ -44,8 +42,8 @@ export class NgComponentOutlet<T = any>
   #viewContainerRef = inject(ViewContainerRef);
   // 这里感觉会在非发射时出现多次输入?
 
-  #usedEnvInjector$$ = computed(() => {
-    return Injector.create({
+  #usedEnvInjector$$ = computed(() =>
+    Injector.create({
       providers: [
         {
           provide: PI_VIEW_FIELD_TOKEN,
@@ -53,8 +51,8 @@ export class NgComponentOutlet<T = any>
         },
       ],
       parent: this.#injector,
-    }).get(Injector);
-  });
+    }).get(Injector),
+  );
   #injector = inject(Injector);
   #formControlDirectiveConfig$$ = computed(() => {
     const fieldControl = this.ngComponentOutletFormControl();
@@ -72,12 +70,10 @@ export class NgComponentOutlet<T = any>
       ? [...(directivesInputs?.() ?? []), formConfig]
       : directivesInputs?.();
   });
-  #componentInput$$ = computed(() => {
-    return {
-      ...this.ngComponentOutlet()?.inputs?.(),
-      ...this.ngComponentOutletExtraInputs(),
-    };
-  });
+  #componentInput$$ = computed(() => ({
+    ...this.ngComponentOutlet()?.inputs?.(),
+    ...this.ngComponentOutletExtraInputs(),
+  }));
   #componentConfig$$ = computed(() => {
     const define = this.ngComponentOutlet();
     if (!define) {
@@ -107,7 +103,7 @@ export class NgComponentOutlet<T = any>
     if (!componentConfig) {
       return EMPTY_ARRAY;
     }
-    let list = [
+    const list = [
       ...(this.ngComponentOutletWrappers() ?? []),
       componentConfig,
     ] as DynamicComponentConfig[];

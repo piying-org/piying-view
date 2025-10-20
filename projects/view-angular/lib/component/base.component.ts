@@ -124,9 +124,7 @@ export class BaseComponent {
           }
           return type;
         })
-        .then((data) => {
-          return loadFn(data);
-        });
+        .then((data) => loadFn(data));
       return;
     }
     loadFn(type as any);

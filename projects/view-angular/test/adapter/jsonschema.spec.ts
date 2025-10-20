@@ -7,13 +7,10 @@ import IfElseSchema from '../fixture/jsonschema/if-else.json';
 import { createSchemaComponent } from '../util/create-component';
 import { signal } from '@angular/core';
 import { NumberComponent } from './component/number/component';
-import { getDeepError } from '@piying/view-angular-core';
-import * as v from 'valibot';
 import { assertFieldLogicGroup } from '@piying/view-angular-core/test';
-import { delay } from '../util/delay';
 describe('json-schema', () => {
   it('if', async () => {
-    let define = jsonSchemaToValibot(IfSchema as any) as any;
+    const define = jsonSchemaToValibot(IfSchema as any) as any;
     const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal(8),
@@ -21,7 +18,7 @@ describe('json-schema', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = field$$()!;
+    const field = field$$()!;
     assertFieldLogicGroup(field.form.control);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -44,7 +41,7 @@ describe('json-schema', () => {
     expect(element.querySelectorAll('app-number').length).toEqual(1);
   });
   it('if-true', async () => {
-    let define = jsonSchemaToValibot(IfTrueSchema as any) as any;
+    const define = jsonSchemaToValibot(IfTrueSchema as any) as any;
     const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal(15),
@@ -52,7 +49,7 @@ describe('json-schema', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = field$$()!;
+    const field = field$$()!;
     assertFieldLogicGroup(field.form.control);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -65,7 +62,7 @@ describe('json-schema', () => {
     expect(element.querySelectorAll('app-number').length).toEqual(1);
   });
   it('if-then', async () => {
-    let define = jsonSchemaToValibot(IfThenSchema as any) as any;
+    const define = jsonSchemaToValibot(IfThenSchema as any) as any;
     const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal(15),
@@ -73,7 +70,7 @@ describe('json-schema', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = field$$()!;
+    const field = field$$()!;
     assertFieldLogicGroup(field.form.control);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -86,7 +83,7 @@ describe('json-schema', () => {
     expect(element.querySelectorAll('app-number').length).toEqual(1);
   });
   it('if-false', async () => {
-    let define = jsonSchemaToValibot(IfFalseSchema as any) as any;
+    const define = jsonSchemaToValibot(IfFalseSchema as any) as any;
     const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal(8),
@@ -94,7 +91,7 @@ describe('json-schema', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = field$$()!;    
+    const field = field$$()!;
     assertFieldLogicGroup(field.form.control);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -107,7 +104,7 @@ describe('json-schema', () => {
     expect(element.querySelectorAll('app-number').length).toEqual(1);
   });
   it('if-else', async () => {
-    let define = jsonSchemaToValibot(IfElseSchema as any) as any;
+    const define = jsonSchemaToValibot(IfElseSchema as any) as any;
     const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal(8),
@@ -115,7 +112,7 @@ describe('json-schema', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = field$$()!;    
+    const field = field$$()!;
     assertFieldLogicGroup(field.form.control);
     await fixture.whenStable();
     fixture.detectChanges();

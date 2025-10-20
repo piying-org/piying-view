@@ -1,6 +1,5 @@
 import {
   ArraySchema,
-  assert,
   BooleanSchema,
   IntersectSchema,
   LooseObjectSchema,

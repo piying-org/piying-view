@@ -13,7 +13,7 @@ export function FindConfigFactory() {
         config = globalConfig?.wrappers?.[wrapper];
         type = wrapper;
       } else if (typeof wrapper.type === 'string') {
-        let defaultConfig = globalConfig?.wrappers?.[wrapper.type];
+        const defaultConfig = globalConfig?.wrappers?.[wrapper.type];
         if (defaultConfig) {
           config = {
             type: defaultConfig.type,

@@ -1,13 +1,13 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema#",
-    "type": "number",
-    "if": {
-        "minimum": 10
-    },
-    "then": {
-        "multipleOf": 3
-    },
-    "else": {
-        "multipleOf": 2
-    }
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "number",
+  "if": {
+    "minimum": 10
+  },
+  "then": {
+    "multipleOf": 3
+  },
+  "else": {
+    "multipleOf": 2
+  }
 }

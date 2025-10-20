@@ -166,12 +166,10 @@ describe('组件', () => {
       patchHooks({
         allFieldsResolved(field) {
           changed.subscribe(() => {
-            field.define!.update((data) => {
-              return {
-                ...data,
-                type: findComponent(field, 'test2'),
-              };
-            });
+            field.define!.update((data) => ({
+              ...data,
+              type: findComponent(field, 'test2'),
+            }));
           });
         },
       }),

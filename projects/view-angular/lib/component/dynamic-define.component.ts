@@ -8,7 +8,7 @@ export type DirectiveConfig<T = any> = {
   /** string表示是标签,type<any>是组件或者指令 */
   type: Type<T>;
   inputs?: Signal<Record<string, any>>;
-  outputs?:CoreRawViewOutputs ;
+  outputs?: CoreRawViewOutputs;
   model?: Record<string, WritableSignal<any>>;
   attributes?: Signal<CoreRawViewAttributes | undefined>;
 };

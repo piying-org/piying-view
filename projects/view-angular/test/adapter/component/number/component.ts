@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import { Component, forwardRef } from '@angular/core';
 import { BaseControl } from '../../../../lib/component/form/control.base.component';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 

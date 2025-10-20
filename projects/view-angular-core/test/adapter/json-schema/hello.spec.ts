@@ -3,7 +3,7 @@ import { assertType } from './util/assert-type';
 
 describe('json-schema', () => {
   it('hello', () => {
-    let jsonSchema = {
+    const jsonSchema = {
       type: 'object',
       properties: {
         s1: { type: 'string' },
@@ -15,8 +15,8 @@ describe('json-schema', () => {
         o1: { type: 'object' },
       },
     } as const;
-    let result = jsonSchemaToValibot(jsonSchema);
-    let instance = assertType(result, 'loose_object');
+    const result = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(result, 'loose_object');
     expect(Object.keys(instance.entries).length).toEqual(7);
     assertType(instance.entries['s1'], 'string');
     assertType(instance.entries['n1'], 'number');

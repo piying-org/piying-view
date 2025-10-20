@@ -1,6 +1,5 @@
-import { JsonPipe, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { PiyingViewGroupBase } from '@piying/view-angular';
 
 @Component({

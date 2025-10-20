@@ -222,6 +222,4 @@ describe('默认数组', () => {
     fixture.detectChanges();
     expect(isDelete).toBe(true);
   });
-
-  
 });

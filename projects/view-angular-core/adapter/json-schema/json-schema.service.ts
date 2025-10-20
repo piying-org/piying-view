@@ -3,14 +3,10 @@ import { map, switchMap } from 'rxjs/operators';
 import rfdc from 'rfdc';
 import * as v from 'valibot';
 import {
-  asControl,
   asVirtualGroup,
   formConfig,
   hideWhen,
-  patchInputs,
   patchProps,
-  setComponent,
-  VALID,
 } from '@piying/view-angular-core';
 import * as jsonActions from '@piying/view-angular-core';
 import { intersection, isBoolean, isNil, isUndefined, union } from 'es-toolkit';
@@ -168,9 +164,7 @@ function arrayIntersection(a: any, b: any) {
     if (a.length && b.length) {
       if (intersection(a, b).length === 0) {
         return {
-          action: v.check(() => {
-            return false;
-          }, 'conflict'),
+          action: v.check(() => false, 'conflict'),
           value: undefined,
         };
       }
@@ -182,18 +176,18 @@ function arrayIntersection(a: any, b: any) {
   return { value: a ?? b };
 }
 function mergeSchema(schema: JSONSchema7, list: JSONSchema7[]) {
-  let base = clone(schema);
-  let baseActionList = getValidationAction(base);
-  let childList = [];
-  let baseKeyList = Object.keys(base);
+  const base = clone(schema);
+  const baseActionList = getValidationAction(base);
+  const childList = [];
+  const baseKeyList = Object.keys(base);
   for (const childSchema of list) {
-    let list = [...baseActionList, ...getValidationAction(childSchema)];
-    let keyList = union(baseKeyList, Object.keys(childSchema));
+    const list = [...baseActionList, ...getValidationAction(childSchema)];
+    const keyList = union(baseKeyList, Object.keys(childSchema));
     for (const key of keyList) {
       switch (key) {
         case 'type': {
           // 类型
-          let typeResult = arrayIntersection(schema.type, childSchema.type);
+          const typeResult = arrayIntersection(schema.type, childSchema.type);
           if (typeResult.action) {
             list.push(typeResult.action);
           }
@@ -278,8 +272,8 @@ export class JsonSchemaToValibot {
     this.root = root;
   }
   convert() {
-    let schema = clone(this.root);
-    let result = this.itemToVSchema2(schema);
+    const schema = clone(this.root);
+    const result = this.itemToVSchema2(schema);
     return result;
   }
 
@@ -288,9 +282,9 @@ export class JsonSchemaToValibot {
       schema = this.resolveDefinition(schema, { schema: this.root });
     }
     if (schema.allOf) {
-      let result = mergeSchema(schema, schema.allOf as any);
-      let resultList = result.map((item) => {
-        let result = this.jsonSchemaBase(item.schema)!;
+      const result = mergeSchema(schema, schema.allOf as any);
+      const resultList = result.map((item) => {
+        const result = this.jsonSchemaBase(item.schema)!;
         return v.pipe(result, ...(item.actionList as any));
       });
       //todo 暂时allof不合并
@@ -298,33 +292,33 @@ export class JsonSchemaToValibot {
       return v.pipe(v.intersect(resultList), asVirtualGroup());
     }
     if (schema.anyOf) {
-      let result = mergeSchema(schema, schema.allOf as any);
-      let resultList = result.map((item) => {
-        let result = this.jsonSchemaBase(item.schema)!;
+      const result = mergeSchema(schema, schema.allOf as any);
+      const resultList = result.map((item) => {
+        const result = this.jsonSchemaBase(item.schema)!;
         return v.pipe(result, ...(item.actionList as any));
       });
       return v.pipe(v.intersect(resultList));
     }
     if (schema.oneOf) {
-      let result = mergeSchema(schema, schema.allOf as any);
-      let resultList = result.map((item) => {
-        let result = this.jsonSchemaBase(item.schema)!;
+      const result = mergeSchema(schema, schema.allOf as any);
+      const resultList = result.map((item) => {
+        const result = this.jsonSchemaBase(item.schema)!;
         return v.pipe(result, ...(item.actionList as any));
       });
       return v.pipe(v.union(resultList));
     }
     if ('if' in schema) {
-      let baseActionList = getValidationAction(schema);
-      let status$ = new BehaviorSubject<boolean | undefined>(undefined);
-      let baseSchema = v.pipe(
+      const baseActionList = getValidationAction(schema);
+      const status$ = new BehaviorSubject<boolean | undefined>(undefined);
+      const baseSchema = v.pipe(
         this.jsonSchemaBase(schema),
         ...baseActionList,
         hideWhen({
           disabled: false,
-          listen: (fn) => {
-            return fn({}).pipe(
+          listen: (fn) =>
+            fn({}).pipe(
               map(({ list: [value], field }) => {
-                let isThen =
+                const isThen =
                   ifVSchema.type === 'literal'
                     ? (ifVSchema as any).literal
                     : v.safeParse(ifVSchema, value).success;
@@ -334,15 +328,14 @@ export class JsonSchemaToValibot {
                 status$.next(isThen);
                 return !((isThen && !thenSchema) || (!isThen && !elseSchema));
               }),
-            );
-          },
+            ),
         }),
       );
       let ifVSchema: ResolvedSchema;
       if (isBoolean(schema.if)) {
         ifVSchema = v.literal(schema.if);
       } else {
-        let [ifSchema] = mergeSchema(schema, [schema.if as any]);
+        const [ifSchema] = mergeSchema(schema, [schema.if as any]);
         ifVSchema = v.pipe(
           this.jsonSchemaBase(ifSchema.schema)!,
           ...ifSchema.actionList,
@@ -350,7 +343,7 @@ export class JsonSchemaToValibot {
       }
       let thenSchema: ResolvedSchema | undefined;
       if (schema.then && !isBoolean(schema.then)) {
-        let [subSchema] = mergeSchema(schema, [schema.then as any]);
+        const [subSchema] = mergeSchema(schema, [schema.then as any]);
         thenSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
@@ -359,9 +352,7 @@ export class JsonSchemaToValibot {
             disabled: true,
             listen(fn, field) {
               return fn({ list: [['..', 0]] }).pipe(
-                switchMap(({ list: [value] }) => {
-                  return status$;
-                }),
+                switchMap(({ list: [value] }) => status$),
                 map((a) => (a === undefined ? true : !a)),
               );
             },
@@ -371,7 +362,7 @@ export class JsonSchemaToValibot {
       let elseSchema: ResolvedSchema | undefined;
 
       if (schema.else && !isBoolean(schema.else)) {
-        let [subSchema] = mergeSchema(schema, [schema.else as any]);
+        const [subSchema] = mergeSchema(schema, [schema.else as any]);
         elseSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
@@ -380,9 +371,7 @@ export class JsonSchemaToValibot {
             disabled: true,
             listen(fn, field) {
               return fn({ list: [['..', 0]] }).pipe(
-                switchMap(({ list: [value] }) => {
-                  return status$;
-                }),
+                switchMap(({ list: [value] }) => status$),
                 map((a) => (a === undefined ? true : a)),
               );
             },
@@ -405,16 +394,16 @@ export class JsonSchemaToValibot {
             addIssue();
             return;
           }
-          let status = status$.value;
+          const status = status$.value;
           if (status && thenSchema) {
-            let result = v.safeParse(thenSchema, dataset.value);
+            const result = v.safeParse(thenSchema, dataset.value);
             if (!result.success) {
               addIssue();
               return;
             }
           }
           if (!status && elseSchema) {
-            let result = v.safeParse(elseSchema, dataset.value);
+            const result = v.safeParse(elseSchema, dataset.value);
             if (!result.success) {
               addIssue();
               return;
@@ -430,19 +419,19 @@ export class JsonSchemaToValibot {
     if (isBoolean(schema)) {
       return undefined;
     }
-    let result = this.itemToVSchema(schema);
+    const result = this.itemToVSchema(schema);
     this.cacheSchema.set(schema, result);
     return result;
   }
   allofParse(schema: JSONSchema7) {
-    let list = schema.allOf!;
-    let base = clone(schema);
-    let baseActionList = getValidationAction(base);
-    return list.map((item) => {
-      return isBoolean(item)
+    const list = schema.allOf!;
+    const base = clone(schema);
+    const baseActionList = getValidationAction(base);
+    return list.map((item) =>
+      isBoolean(item)
         ? undefined
-        : [...baseActionList, ...getValidationAction(item)];
-    });
+        : [...baseActionList, ...getValidationAction(item)],
+    );
   }
   private jsonSchemaBase(schema: JSONSchema7Ext) {
     const types = this.guessSchemaType(schema);
@@ -450,8 +439,10 @@ export class JsonSchemaToValibot {
     const type = types.types[0];
     const actionList: any[] = getMetadataAction(schema);
 
-    let createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
-      let opInput = types.optional ? v.optional(input, schema.default) : input;
+    const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
+      const opInput = types.optional
+        ? v.optional(input, schema.default)
+        : input;
       return v.pipe(opInput, ...actionList);
     };
     if (!isNil(schema.const)) {
@@ -480,7 +471,7 @@ export class JsonSchemaToValibot {
         return createTypeFn(v.optional(v.null(), null));
       }
       case 'object': {
-        let childObject: Record<string, ResolvedSchema> = {};
+        const childObject: Record<string, ResolvedSchema> = {};
         /** 附加 */
         let additionalRest;
         /** 正则附加 */
@@ -489,15 +480,15 @@ export class JsonSchemaToValibot {
         let propertyNamesRest;
         let mode = 'default';
         /** 条件显示 */
-        let conditionList = [];
+        const conditionList = [];
         // 关联
-        let { requiredRelate, schemaDeps } = this.resolveDependencies(schema);
+        const { requiredRelate, schemaDeps } = this.resolveDependencies(schema);
         // 普通属性
         if (schema.properties) {
           for (const key in schema.properties) {
-            let itemSchema = schema.properties[key];
-            let childResult = this.itemToVSchema2(itemSchema);
-            let isRequired = !!schema.required?.includes(key);
+            const itemSchema = schema.properties[key];
+            const childResult = this.itemToVSchema2(itemSchema);
+            const isRequired = !!schema.required?.includes(key);
             let item = childResult;
             if (!item) {
               throw new Error(`子级不存在`);
@@ -506,7 +497,7 @@ export class JsonSchemaToValibot {
               item = v.optional(item);
             }
             // 条件必须
-            let relateList = requiredRelate[key];
+            const relateList = requiredRelate[key];
             if (relateList) {
               item = v.pipe(
                 item,
@@ -638,7 +629,7 @@ export class JsonSchemaToValibot {
           }
           return createTypeFn(parent);
         } else if (arrayConfig.items) {
-          let itemResult = this.itemToVSchema2(schema.items as any);
+          const itemResult = this.itemToVSchema2(schema.items as any);
           parent = v.array(itemResult!);
         }
         // 校验
@@ -759,7 +750,7 @@ export class JsonSchemaToValibot {
       if (type.length === 1) {
         return { types: type, optional: false };
       }
-      let nullIndex = type.findIndex((item) => item === 'null');
+      const nullIndex = type.findIndex((item) => item === 'null');
       if (nullIndex !== -1) {
         type.splice(nullIndex, 1);
       }
