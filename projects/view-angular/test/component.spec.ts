@@ -5,6 +5,7 @@ import { Test2Component } from './module1/test2.component';
 import { TestAttrComponent } from './test-attr/component';
 import * as v from 'valibot';
 import {
+  findComponent,
   NFCSchema,
   patchAsyncClass,
   patchHooks,
@@ -161,14 +162,14 @@ describe('组件', () => {
     const changed = new Subject();
     const define = v.pipe(
       v.string(),
-      setComponent('test2'),
+      setComponent('test1'),
       patchHooks({
         allFieldsResolved(field) {
           changed.subscribe(() => {
             field.define!.update((data) => {
               return {
                 ...data,
-                type: Test2Component,
+                type: findComponent(field, 'test2'),
               };
             });
           });
@@ -181,8 +182,11 @@ describe('组件', () => {
 
       {
         types: {
-          test2: {
+          test1: {
             type: Test1Component,
+          },
+          test2: {
+            type: Test2Component,
           },
         },
       },
