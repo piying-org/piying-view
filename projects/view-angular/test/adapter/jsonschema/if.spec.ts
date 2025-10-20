@@ -1,15 +1,15 @@
 import { jsonSchemaToValibot } from '@piying/view-angular-core/adapter';
-import IfSchema from '../fixture/jsonschema/if.json';
-import IfTrueSchema from '../fixture/jsonschema/if-true.json';
-import IfThenSchema from '../fixture/jsonschema/if-then.json';
-import IfFalseSchema from '../fixture/jsonschema/if-false.json';
-import IfElseSchema from '../fixture/jsonschema/if-else.json';
-import { createSchemaComponent } from '../util/create-component';
+import IfSchema from '../../fixture/jsonschema/if.json';
+import IfTrueSchema from '../../fixture/jsonschema/if-true.json';
+import IfThenSchema from '../../fixture/jsonschema/if-then.json';
+import IfFalseSchema from '../../fixture/jsonschema/if-false.json';
+import IfElseSchema from '../../fixture/jsonschema/if-else.json';
+import { createSchemaComponent } from '../../util/create-component';
 import { signal } from '@angular/core';
-import { NumberComponent } from './component/number/component';
+import { NumberComponent } from '../component/number/component';
 import { assertFieldLogicGroup } from '@piying/view-angular-core/test';
-describe('json-schema', () => {
-  it('if', async () => {
+describe('if', () => {
+  it('default', async () => {
     const define = jsonSchemaToValibot(IfSchema as any) as any;
     const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
