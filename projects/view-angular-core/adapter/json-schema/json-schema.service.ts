@@ -419,8 +419,7 @@ export class JsonSchemaToValibot {
         ),
         formConfig({ disableOrUpdateActivate: true }),
         v.rawCheck(({ dataset, addIssue }) => {
-          if (!dataset.typed) {
-            addIssue();
+          if (dataset.issues) {
             return;
           }
           const status = status$.value;
