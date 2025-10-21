@@ -187,17 +187,23 @@ function mergeSchema(schema: JSONSchema7, ...list: JSONSchema7Definition[]) {
     baseKeyList = union(baseKeyList, Object.keys(childSchema));
     for (const key of baseKeyList) {
       switch (key) {
-        case 'type': {
+        case 'const': {
+          childSchema[key] ??= base[key];
+          break;
+        }
+        case 'type':
+        case 'enum': {
           // 类型
-          const typeResult = arrayIntersection(base.type, childSchema.type);
+          const typeResult = arrayIntersection(base[key], childSchema[key]);
           if (typeResult.action) {
             actionList.push(typeResult.action);
           }
           if (!isUndefined(typeResult.value)) {
-            childSchema.type = typeResult.value;
+            childSchema[key] = typeResult.value;
           }
           break;
         }
+
         case 'additionalProperties': {
           // 附加属性
           if (isUndefined(childSchema.additionalProperties)) {
