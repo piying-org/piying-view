@@ -113,4 +113,29 @@ describe('json-schema', () => {
     result = v.safeParse(Define, input);
     expect(result.success).toBeFalse();
   });
+  it('const', async () => {
+    const jsonSchema = {
+      const: 1,
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'literal');
+    let result = v.safeParse(Define, 1);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(1);
+    result = v.safeParse(Define, 2);
+    expect(result.success).toBeFalse();
+  });
+  it('array-enum', async () => {
+    const jsonSchema = {
+      items: { enum: [1, 2] },
+      type: ['array'],
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'array');
+    let result = v.safeParse(Define, [1, 2]);    
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual([1, 2]);
+    result = v.safeParse(Define, [3]);
+    expect(result.success).toBeFalse();
+  });
 });

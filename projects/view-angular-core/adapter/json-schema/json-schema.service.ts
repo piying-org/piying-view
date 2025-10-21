@@ -816,10 +816,7 @@ export class JsonSchemaToValibot {
 
   #getArrayConfig(schema: JSONSchema7) {
     if (this.root.$schema === Schema2012) {
-      if (
-        !isNil((schema as any).prefixItems) ||
-        !isNil(schema.items)
-      ) {
+      if (!isNil((schema as any).prefixItems) || !isNil(schema.items)) {
         return {
           prefixItems: (schema as any).prefixItems as
             | JSONSchema7Definition

@@ -2,6 +2,7 @@ import {
   ArraySchema,
   BooleanSchema,
   IntersectSchema,
+  LiteralSchema,
   LooseObjectSchema,
   LooseTupleSchema,
   NullSchema,
@@ -29,6 +30,7 @@ export type TypeMap = {
   union: UnionSchema<any, any>;
   picklist: PicklistSchema<any, any>;
   array: ArraySchema<any, any>;
+  literal: LiteralSchema<any, any>;
 };
 export function assertType<T extends keyof TypeMap>(
   input: any,
