@@ -1,4 +1,3 @@
-import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 import { map, switchMap } from 'rxjs/operators';
 import rfdc from 'rfdc';
 import * as v from 'valibot';
@@ -12,6 +11,12 @@ import * as jsonActions from '@piying/view-angular-core';
 import { intersection, isBoolean, isNil, isUndefined, union } from 'es-toolkit';
 import { BehaviorSubject } from 'rxjs';
 import { schema as cSchema } from '@piying/valibot-visit';
+import {
+  JsonSchemaDraft202012,
+  JsonSchemaDraft202012Object,
+} from '@hyperjump/json-schema/draft-2020-12';
+import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
+
 // todo 先按照类型不可变设计,之后修改代码支持组件变更
 const clone = rfdc({ proto: false, circles: false });
 type ResolvedSchema =
@@ -27,7 +32,7 @@ type ResolvedSchema =
       ]
     >;
 
-function getMetadataAction(schema: JSONSchema7Ext) {
+function getMetadataAction(schema: JSONSchemaRaw) {
   const action = [];
   if ('title' in schema) {
     action.push(v.title(schema['title']!));
@@ -37,7 +42,7 @@ function getMetadataAction(schema: JSONSchema7Ext) {
   }
   return action;
 }
-function getValidationAction(schema: JSONSchema7Ext) {
+function getValidationAction(schema: JSONSchemaRaw) {
   const action = [];
 
   // string
@@ -154,10 +159,18 @@ function getValidationAction(schema: JSONSchema7Ext) {
   return action;
 }
 
-interface JSONSchema7Ext extends JSONSchema7 {
+interface JSONSchemaRaw extends JsonSchemaDraft202012Object {
   actions?: { name: string; params: any[] }[];
 }
-
+type ResolvedJsonSchema = JSONSchemaRaw & {
+  resolved: {
+    objectDep?: ReturnType<JsonSchemaToValibot['resolveDependencies']>;
+    type: {
+      types: Extract<JsonSchemaDraft202012Object['type'], any[]>;
+      optional: boolean;
+    };
+  };
+};
 function arrayIntersection(a: any, b: any) {
   if (!isNil(a) && !isNil(b)) {
     a = Array.isArray(a) ? a : [a];
@@ -176,13 +189,19 @@ function arrayIntersection(a: any, b: any) {
   }
   return { value: a ?? b };
 }
-function mergeSchema(schema: JSONSchema7, ...list: JSONSchema7Definition[]) {
+/** 合并schema
+ * 子级需要解析
+ */
+function mergeSchema(
+  schema: ResolvedJsonSchema,
+  ...list: JsonSchemaDraft202012[]
+) {
   let base = clone(schema);
   let baseKeyList = Object.keys(base);
   const actionList = getValidationAction(base);
   for (const childSchema of list.filter(
     (item) => !isBoolean(item),
-  ) as any as JSONSchema7[]) {
+  ) as any as JsonSchemaDraft202012Object[]) {
     actionList.push(...getValidationAction(childSchema));
     baseKeyList = union(baseKeyList, Object.keys(childSchema));
     for (const key of baseKeyList) {
@@ -256,25 +275,25 @@ function mergeSchema(schema: JSONSchema7, ...list: JSONSchema7Definition[]) {
       }
     }
 
-    base = childSchema;
+    base = childSchema as any;
   }
   return { schema: base, actionList };
 }
 
 interface IOptions {
-  schema: JSONSchema7Ext;
+  schema: JSONSchemaRaw;
 }
 // 应该传入定制
 const WrapperList = [] as string[];
 // const WrapperList = ['tooltip', 'jsonschema-label', 'validator'];
-export function jsonSchemaToValibot(schema: JSONSchema7) {
+export function jsonSchemaToValibot(schema: JSONSchemaRaw) {
   return new JsonSchemaToValibot(schema).convert() as ResolvedSchema;
 }
 const Schema2012 = 'https://json-schema.org/draft/2020-12/schema';
 export class JsonSchemaToValibot {
   root;
   private cacheSchema = new WeakMap();
-  constructor(root: JSONSchema7) {
+  constructor(root: JSONSchemaRaw) {
     this.root = root;
     root.$schema ??= Schema2012;
   }
@@ -284,18 +303,16 @@ export class JsonSchemaToValibot {
     return result;
   }
 
-  itemToVSchema(schema: JSONSchema7) {
-    if (schema && schema.$ref) {
-      schema = this.resolveDefinition(schema, { schema: this.root });
-    }
-    if (schema.allOf) {
-      const result = mergeSchema(schema, ...schema.allOf);
+  itemToVSchema(schema: JsonSchemaDraft202012Object) {
+    let resolved = this.#resolveJsonSchema(schema);
+    if (resolved.allOf) {
+      const result = mergeSchema(resolved, ...resolved.allOf);
       const resultList = this.jsonSchemaBase(result.schema)!;
       return v.pipe(resultList, ...result.actionList);
     }
-    if (schema.anyOf && !isBoolean(schema.anyOf)) {
-      const resultList = schema.anyOf.map((item) => {
-        let result = mergeSchema(schema, item);
+    if (resolved.anyOf && !isBoolean(resolved.anyOf)) {
+      const resultList = resolved.anyOf.map((item) => {
+        let result = mergeSchema(resolved, item);
         const result2 = this.jsonSchemaBase(result.schema)!;
         return v.pipe(result2, ...result.actionList);
       });
@@ -336,9 +353,9 @@ export class JsonSchemaToValibot {
         }),
       );
     }
-    if (schema.oneOf && !isBoolean(schema.oneOf)) {
-      const resultList = schema.oneOf.map((item) => {
-        let result = mergeSchema(schema, item);
+    if (resolved.oneOf && !isBoolean(resolved.oneOf)) {
+      const resultList = resolved.oneOf.map((item) => {
+        let result = mergeSchema(resolved, item);
         const result2 = this.jsonSchemaBase(result.schema)!;
         return v.pipe(result2, ...result.actionList);
       });
@@ -360,11 +377,11 @@ export class JsonSchemaToValibot {
         }),
       );
     }
-    if ('if' in schema) {
-      const baseActionList = getValidationAction(schema);
+    if ('if' in resolved) {
+      const baseActionList = getValidationAction(resolved);
       const status$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
-        this.jsonSchemaBase(schema),
+        this.jsonSchemaBase(resolved),
         ...baseActionList,
         hideWhen({
           disabled: false,
@@ -385,18 +402,18 @@ export class JsonSchemaToValibot {
         }),
       );
       let ifVSchema: ResolvedSchema;
-      if (isBoolean(schema.if)) {
-        ifVSchema = v.literal(schema.if);
+      if (isBoolean(resolved.if)) {
+        ifVSchema = v.literal(resolved.if);
       } else {
-        const ifSchema = mergeSchema(schema, schema.if!);
+        const ifSchema = mergeSchema(resolved, resolved.if!);
         ifVSchema = v.pipe(
           this.jsonSchemaBase(ifSchema.schema)!,
           ...ifSchema.actionList,
         );
       }
       let thenSchema: ResolvedSchema | undefined;
-      if (schema.then && !isBoolean(schema.then)) {
-        const subSchema = mergeSchema(schema, schema.then!);
+      if (resolved.then && !isBoolean(resolved.then)) {
+        const subSchema = mergeSchema(resolved, resolved.then!);
         thenSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
@@ -414,8 +431,8 @@ export class JsonSchemaToValibot {
       }
       let elseSchema: ResolvedSchema | undefined;
 
-      if (schema.else && !isBoolean(schema.else)) {
-        const subSchema = mergeSchema(schema, schema.else);
+      if (resolved.else && !isBoolean(resolved.else)) {
+        const subSchema = mergeSchema(resolved, resolved.else);
         elseSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
@@ -465,9 +482,9 @@ export class JsonSchemaToValibot {
       );
     }
 
-    return this.jsonSchemaBase(schema);
+    return this.jsonSchemaBase(resolved);
   }
-  itemToVSchema2(schema: JSONSchema7Definition): ResolvedSchema | undefined {
+  itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema | undefined {
     if (isBoolean(schema)) {
       return undefined;
     }
@@ -475,18 +492,26 @@ export class JsonSchemaToValibot {
     this.cacheSchema.set(schema, result);
     return result;
   }
-  allofParse(schema: JSONSchema7) {
-    const list = schema.allOf!;
-    const base = clone(schema);
-    const baseActionList = getValidationAction(base);
-    return list.map((item) =>
-      isBoolean(item)
-        ? undefined
-        : [...baseActionList, ...getValidationAction(item)],
-    );
+
+  #resolveJsonSchema(schema: JsonSchemaDraft202012Object) {
+    if (schema && schema.$ref) {
+      schema = this.resolveDefinition(schema, { schema: this.root });
+    }
+    let resolved = schema as any as ResolvedJsonSchema;
+    const type = this.guessSchemaType(schema);
+    resolved.resolved = { type };
+    if (type.types.includes('object')) {
+      resolved.resolved['objectDep'] = this.resolveDependencies(schema);
+    }
+    if (type.types.includes('array')) {
+      const arrayItem = this.#getArrayConfig(schema);
+      resolved.prefixItems = arrayItem?.prefixItems;
+      resolved.items = arrayItem?.items;
+    }
+    return resolved;
   }
-  private jsonSchemaBase(schema: JSONSchema7Ext) {
-    const types = this.guessSchemaType(schema);
+  private jsonSchemaBase(schema: ResolvedJsonSchema) {
+    const types = schema.resolved.type;
     // 暂时为只支持一个
     const type = types.types[0];
     const actionList: any[] = getMetadataAction(schema);
@@ -533,7 +558,7 @@ export class JsonSchemaToValibot {
         /** 条件显示 */
         const conditionList = [];
         // 关联
-        const { requiredRelate, schemaDeps } = this.resolveDependencies(schema);
+        const { requiredRelate, schemaDeps } = schema.resolved.objectDep!;
         // 普通属性
         if (schema.properties) {
           for (const key in schema.properties) {
@@ -656,28 +681,27 @@ export class JsonSchemaToValibot {
         return createTypeFn(schemaDefine);
       }
       case 'array': {
-        const arrayConfig = this.#getArrayConfig(schema);
-        if (!arrayConfig) {
+        if (!schema.items && !schema.prefixItems) {
           return v.lazy(() => createTypeFn(v.array(v.any())));
         }
         actionList.push(jsonActions.setWrappers(WrapperList));
         let parent: v.BaseSchema<any, any, any>;
-        const fixedItems = arrayConfig.prefixItems;
+        const fixedItems = schema.prefixItems;
         if (Array.isArray(fixedItems) && fixedItems.length) {
           const fixedList = fixedItems.map(
-            (item) => this.itemToVSchema2(<JSONSchema7>item)!,
+            (item) => this.itemToVSchema2(<JsonSchemaDraft202012Object>item)!,
           );
 
-          if (arrayConfig.items) {
-            const result = this.itemToVSchema2(arrayConfig.items as any);
+          if (schema.items) {
+            const result = this.itemToVSchema2(schema.items as any);
             parent = v.tupleWithRest(fixedList, result!);
-          } else if (arrayConfig.items === false) {
+          } else if (schema.items === false) {
             parent = v.tuple(fixedList);
           } else {
             parent = v.looseTuple(fixedList);
           }
           return createTypeFn(parent);
-        } else if (arrayConfig.items) {
+        } else if (schema.items) {
           const itemResult = this.itemToVSchema2(schema.items as any);
           parent = v.array(itemResult!);
         }
@@ -713,9 +737,9 @@ export class JsonSchemaToValibot {
   }
 
   private resolveDefinition(
-    schema: JSONSchema7Ext,
+    schema: JSONSchemaRaw,
     options: IOptions,
-  ): JSONSchema7Ext {
+  ): JSONSchemaRaw {
     const [uri, pointer] = schema.$ref!.split('#/');
     if (uri) {
       throw Error(`Remote schemas for ${schema.$ref} not supported yet.`);
@@ -754,9 +778,9 @@ export class JsonSchemaToValibot {
     };
   }
 
-  private resolveDependencies(schema: JSONSchema7) {
+  private resolveDependencies(schema: JsonSchemaDraft202012Object) {
     const requiredRelate: { [id: string]: string[] } = {};
-    const schemaDeps: { [id: string]: JSONSchema7 } = {};
+    const schemaDeps: { [id: string]: JsonSchemaDraft202012Object } = {};
     const dependentRequired = (dependency: string[], prop: string) => {
       dependency.forEach((dep) => {
         requiredRelate[dep] ??= [];
@@ -764,12 +788,16 @@ export class JsonSchemaToValibot {
       });
     };
     if ('dependencies' in schema) {
-      Object.keys(schema.dependencies!).forEach((prop) => {
-        const dependency = schema.dependencies![prop];
+      let dependencies = schema.dependencies as Record<
+        string,
+        JsonSchemaDraft07 | string[]
+      >;
+      Object.keys(dependencies).forEach((prop) => {
+        const dependency = dependencies![prop];
         if (Array.isArray(dependency)) {
           dependentRequired(dependency, prop);
         } else {
-          schemaDeps[prop] = dependency as JSONSchema7;
+          schemaDeps[prop] = dependency as JsonSchemaDraft202012Object;
         }
       });
     }
@@ -782,14 +810,16 @@ export class JsonSchemaToValibot {
     if ('dependentSchemas' in schema) {
       Object.keys(schema.dependentSchemas || {}).forEach((prop) => {
         const dependency = (schema.dependentSchemas as any)![prop];
-        schemaDeps[prop] = dependency as JSONSchema7;
+        schemaDeps[prop] = dependency as JsonSchemaDraft202012Object;
       });
     }
 
     return { requiredRelate, schemaDeps };
   }
   /** todo 当前只能存在一个类型 */
-  private guessSchemaType(schema: JSONSchema7) {
+  private guessSchemaType(
+    schema: JsonSchemaDraft202012Object,
+  ): ResolvedJsonSchema['resolved']['type'] {
     const type = schema?.type;
     if (!type && schema?.properties) {
       return { types: ['object'], optional: false };
@@ -814,24 +844,22 @@ export class JsonSchemaToValibot {
       : { types: ['string'], optional: false };
   }
 
-  #getArrayConfig(schema: JSONSchema7) {
+  #getArrayConfig(schema: JsonSchemaDraft202012Object) {
     if (this.root.$schema === Schema2012) {
       if (!isNil((schema as any).prefixItems) || !isNil(schema.items)) {
         return {
           prefixItems: (schema as any).prefixItems as
-            | JSONSchema7Definition
-            | JSONSchema7Definition[],
-          items: schema.items as JSONSchema7Definition | undefined,
+            | JsonSchemaDraft202012[]
+            | undefined,
+          items: schema.items as JsonSchemaDraft202012 | undefined,
         };
       }
     } else {
       if (!isNil(schema.items) || !isNil(schema.additionalItems)) {
         // 2019-09
         return {
-          prefixItems: schema.items as
-            | JSONSchema7Definition
-            | JSONSchema7Definition[],
-          items: schema.additionalItems,
+          prefixItems: schema.items as JsonSchemaDraft202012[] | undefined,
+          items: schema.additionalItems as JsonSchemaDraft202012 | undefined,
         };
       }
     }
