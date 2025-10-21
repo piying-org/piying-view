@@ -192,93 +192,6 @@ function arrayIntersection(a: any, b: any) {
 /** 合并schema
  * 子级需要解析
  */
-function mergeSchema(
-  schema: ResolvedJsonSchema,
-  ...list: JsonSchemaDraft202012[]
-) {
-  let base = clone(schema);
-  let baseKeyList = Object.keys(base);
-  const actionList = getValidationAction(base);
-  for (const childSchema of list.filter(
-    (item) => !isBoolean(item),
-  ) as any as JsonSchemaDraft202012Object[]) {
-    actionList.push(...getValidationAction(childSchema));
-    baseKeyList = union(baseKeyList, Object.keys(childSchema));
-    for (const key of baseKeyList) {
-      switch (key) {
-        case 'const': {
-          childSchema[key] ??= base[key];
-          break;
-        }
-        case 'type':
-        case 'enum': {
-          // 类型
-          const typeResult = arrayIntersection(base[key], childSchema[key]);
-          if (typeResult.action) {
-            actionList.push(typeResult.action);
-          }
-          if (!isUndefined(typeResult.value)) {
-            childSchema[key] = typeResult.value;
-          }
-          break;
-        }
-
-        case 'additionalProperties': {
-          // 附加属性
-          if (isUndefined(childSchema.additionalProperties)) {
-            childSchema.additionalProperties = base.additionalProperties;
-          }
-          break;
-        }
-        case 'contains': {
-          if (childSchema[key] === false || base[key] === false) {
-            actionList.push(v.check(() => false));
-            break;
-          } else if (childSchema[key] === true) {
-            childSchema[key] = base[key];
-            break;
-          } else if (base[key] === true) {
-            break;
-          }
-          if (!isUndefined((childSchema as any)[key])) {
-            (childSchema as any)[key] = {
-              ...(base as any)[key],
-              ...(childSchema as any)[key],
-            };
-          } else {
-            (childSchema as any)[key] = (base as any)[key];
-          }
-          break;
-        }
-        case 'if':
-        case 'then':
-        case 'else':
-        case 'patternProperties':
-        case 'dependentSchemas':
-        case 'propertyNames':
-        case 'properties': {
-          // 属性赋值
-          if (!isUndefined((childSchema as any)[key])) {
-            (childSchema as any)[key] = {
-              ...(base as any)[key],
-              ...(childSchema as any)[key],
-            };
-          } else {
-            (childSchema as any)[key] = (base as any)[key];
-          }
-          break;
-        }
-
-        default:
-          (childSchema as any)[key] ??= (base as any)[key];
-          break;
-      }
-    }
-
-    base = childSchema as any;
-  }
-  return { schema: base, actionList };
-}
 
 interface IOptions {
   schema: JSONSchemaRaw;
@@ -304,15 +217,17 @@ export class JsonSchemaToValibot {
   }
 
   itemToVSchema(schema: JsonSchemaDraft202012Object) {
-    let resolved = this.#resolveJsonSchema(schema);
-    if (resolved.allOf) {
-      const result = mergeSchema(resolved, ...resolved.allOf);
+    if (schema && schema.$ref) {
+      schema = this.resolveDefinition(schema, { schema: this.root });
+    }
+    if (schema.allOf) {
+      const result = this.#mergeSchema(schema, ...schema.allOf);
       const resultList = this.jsonSchemaBase(result.schema)!;
       return v.pipe(resultList, ...result.actionList);
     }
-    if (resolved.anyOf && !isBoolean(resolved.anyOf)) {
-      const resultList = resolved.anyOf.map((item) => {
-        let result = mergeSchema(resolved, item);
+    if (schema.anyOf && !isBoolean(schema.anyOf)) {
+      const resultList = schema.anyOf.map((item) => {
+        let result = this.#mergeSchema(schema, item);
         const result2 = this.jsonSchemaBase(result.schema)!;
         return v.pipe(result2, ...result.actionList);
       });
@@ -353,9 +268,9 @@ export class JsonSchemaToValibot {
         }),
       );
     }
-    if (resolved.oneOf && !isBoolean(resolved.oneOf)) {
-      const resultList = resolved.oneOf.map((item) => {
-        let result = mergeSchema(resolved, item);
+    if (schema.oneOf && !isBoolean(schema.oneOf)) {
+      const resultList = schema.oneOf.map((item) => {
+        let result = this.#mergeSchema(schema, item);
         const result2 = this.jsonSchemaBase(result.schema)!;
         return v.pipe(result2, ...result.actionList);
       });
@@ -377,11 +292,11 @@ export class JsonSchemaToValibot {
         }),
       );
     }
-    if ('if' in resolved) {
-      const baseActionList = getValidationAction(resolved);
+    if ('if' in schema) {
+      const baseActionList = getValidationAction(schema);
       const status$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
-        this.jsonSchemaBase(resolved),
+        this.jsonSchemaBase(this.#resolveJsonSchema(schema)),
         ...baseActionList,
         hideWhen({
           disabled: false,
@@ -402,18 +317,18 @@ export class JsonSchemaToValibot {
         }),
       );
       let ifVSchema: ResolvedSchema;
-      if (isBoolean(resolved.if)) {
-        ifVSchema = v.literal(resolved.if);
+      if (isBoolean(schema.if)) {
+        ifVSchema = v.literal(schema.if);
       } else {
-        const ifSchema = mergeSchema(resolved, resolved.if!);
+        const ifSchema = this.#mergeSchema(schema, schema.if!);
         ifVSchema = v.pipe(
           this.jsonSchemaBase(ifSchema.schema)!,
           ...ifSchema.actionList,
         );
       }
       let thenSchema: ResolvedSchema | undefined;
-      if (resolved.then && !isBoolean(resolved.then)) {
-        const subSchema = mergeSchema(resolved, resolved.then!);
+      if (schema.then && !isBoolean(schema.then)) {
+        const subSchema = this.#mergeSchema(schema, schema.then!);
         thenSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
@@ -431,8 +346,8 @@ export class JsonSchemaToValibot {
       }
       let elseSchema: ResolvedSchema | undefined;
 
-      if (resolved.else && !isBoolean(resolved.else)) {
-        const subSchema = mergeSchema(resolved, resolved.else);
+      if (schema.else && !isBoolean(schema.else)) {
+        const subSchema = this.#mergeSchema(schema, schema.else);
         elseSchema = v.pipe(
           this.jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
@@ -482,7 +397,7 @@ export class JsonSchemaToValibot {
       );
     }
 
-    return this.jsonSchemaBase(resolved);
+    return this.jsonSchemaBase(this.#resolveJsonSchema(schema));
   }
   itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema | undefined {
     if (isBoolean(schema)) {
@@ -494,9 +409,6 @@ export class JsonSchemaToValibot {
   }
 
   #resolveJsonSchema(schema: JsonSchemaDraft202012Object) {
-    if (schema && schema.$ref) {
-      schema = this.resolveDefinition(schema, { schema: this.root });
-    }
     let resolved = schema as any as ResolvedJsonSchema;
     const type = this.guessSchemaType(schema);
     resolved.resolved = { type };
@@ -864,5 +776,98 @@ export class JsonSchemaToValibot {
       }
     }
     return;
+  }
+
+  #mergeSchema(
+    schema: JsonSchemaDraft202012Object,
+    ...list: JsonSchemaDraft202012[]
+  ) {
+    let base = clone(schema);
+    let baseKeyList = Object.keys(base);
+    const actionList = getValidationAction(base);
+    for (let childSchema of list.filter(
+      (item) => !isBoolean(item),
+    ) as any as JsonSchemaDraft202012Object[]) {
+      if (childSchema && childSchema.$ref) {
+        childSchema = this.resolveDefinition(childSchema, {
+          schema: this.root,
+        });
+      }
+      actionList.push(...getValidationAction(childSchema));
+      baseKeyList = union(baseKeyList, Object.keys(childSchema));
+      for (const key of baseKeyList) {
+        switch (key) {
+          case 'const': {
+            childSchema[key] ??= base[key];
+            break;
+          }
+          case 'type':
+          case 'enum': {
+            // 类型
+            const typeResult = arrayIntersection(base[key], childSchema[key]);
+            if (typeResult.action) {
+              actionList.push(typeResult.action);
+            }
+            if (!isUndefined(typeResult.value)) {
+              childSchema[key] = typeResult.value;
+            }
+            break;
+          }
+
+          case 'additionalProperties': {
+            // 附加属性
+            if (isUndefined(childSchema.additionalProperties)) {
+              childSchema.additionalProperties = base.additionalProperties;
+            }
+            break;
+          }
+          case 'contains': {
+            if (childSchema[key] === false || base[key] === false) {
+              actionList.push(v.check(() => false));
+              break;
+            } else if (childSchema[key] === true) {
+              childSchema[key] = base[key];
+              break;
+            } else if (base[key] === true) {
+              break;
+            }
+            if (!isUndefined((childSchema as any)[key])) {
+              (childSchema as any)[key] = {
+                ...(base as any)[key],
+                ...(childSchema as any)[key],
+              };
+            } else {
+              (childSchema as any)[key] = (base as any)[key];
+            }
+            break;
+          }
+          case 'if':
+          case 'then':
+          case 'else':
+          case 'patternProperties':
+          case 'dependentSchemas':
+          case 'propertyNames':
+          case 'properties': {
+            // 属性赋值
+            if (!isUndefined((childSchema as any)[key])) {
+              (childSchema as any)[key] = {
+                ...(base as any)[key],
+                ...(childSchema as any)[key],
+              };
+            } else {
+              (childSchema as any)[key] = (base as any)[key];
+            }
+            break;
+          }
+
+          default:
+            (childSchema as any)[key] ??= (base as any)[key];
+            break;
+        }
+      }
+
+      base = childSchema as any;
+    }
+    return { schema: this.#resolveJsonSchema(base), actionList };
   }
 }
