@@ -22,7 +22,7 @@ describe('oneof', () => {
     // expect(element.querySelectorAll('app-number').length).toEqual(1);
     field?.form.control?.updateValue(21);
     await fixture.whenStable();
-    fixture.detectChanges();    
+    fixture.detectChanges();
     expect(field?.form.control?.valid).toBeFalse();
   });
 });

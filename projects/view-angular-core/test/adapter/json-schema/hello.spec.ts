@@ -34,10 +34,10 @@ describe('json-schema', () => {
       prefixItems: [{ type: 'number' }, { type: 'string' }],
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
-    let input = [1, '1', 1];
+    const input = [1, '1', 1];
     const instance = assertType(Define, 'loose_tuple');
 
-    let result = v.safeParse(Define, input);
+    const result = v.safeParse(Define, input);
     expect(result.success).toBeTrue();
     expect(result.output).toEqual(input);
   });
@@ -132,7 +132,7 @@ describe('json-schema', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'array');
-    let result = v.safeParse(Define, [1, 2]);    
+    let result = v.safeParse(Define, [1, 2]);
     expect(result.success).toBeTrue();
     expect(result.output).toEqual([1, 2]);
     result = v.safeParse(Define, [3]);

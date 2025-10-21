@@ -8,7 +8,6 @@ import { NumberComponent } from '../component/number/component';
 import {
   assertFieldControl,
   assertFieldGroup,
-  assertFieldLogicGroup,
 } from '@piying/view-angular-core/test';
 describe('allof', () => {
   it('default', async () => {
