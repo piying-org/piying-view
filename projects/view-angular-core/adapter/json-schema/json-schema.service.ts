@@ -8,7 +8,14 @@ import {
   patchProps,
 } from '@piying/view-angular-core';
 import * as jsonActions from '@piying/view-angular-core';
-import { intersection, isBoolean, isNil, isUndefined, union } from 'es-toolkit';
+import {
+  intersection,
+  isBoolean,
+  isNil,
+  isUndefined,
+  union,
+  uniq,
+} from 'es-toolkit';
 import { BehaviorSubject } from 'rxjs';
 import { schema as cSchema } from '@piying/valibot-visit';
 import {
@@ -16,7 +23,23 @@ import {
   JsonSchemaDraft202012Object,
 } from '@hyperjump/json-schema/draft-2020-12';
 import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
-
+import { deepEqual } from 'fast-equals';
+const anyType = [
+  'object',
+  'array',
+  'string',
+  'number',
+  'boolean',
+  'null',
+  'integer',
+] as Extract<JsonSchemaDraft202012Object['type'], any[]>;
+function isConst(schema: JsonSchemaDraft202012Object) {
+  return (
+    typeof schema === 'object' &&
+    (schema.hasOwnProperty('const') ||
+      (schema.enum && schema.enum.length === 1))
+  );
+}
 // todo 先按照类型不可变设计,之后修改代码支持组件变更
 const clone = rfdc({ proto: false, circles: false });
 type ResolvedSchema =
@@ -226,47 +249,8 @@ export class JsonSchemaToValibot {
       return v.pipe(resultList, ...result.actionList);
     }
     if (schema.anyOf && !isBoolean(schema.anyOf)) {
-      const resultList = schema.anyOf.map((item) => {
-        let result = this.#mergeSchema(schema, item);
-        const result2 = this.jsonSchemaBase(result.schema)!;
-        return v.pipe(result2, ...result.actionList);
-      });
-
-      return v.pipe(
-        cSchema.intersect(
-          resultList.map((item) => {
-            return v.optional(item);
-          }),
-        ),
-        // 保证验证至少一个
-        jsonActions.valueChange((fn) => {
-          fn({
-            list: resultList.map((_, i) => {
-              return [i];
-            }),
-          }).subscribe(({ field }) => {
-            let control = field.form.control! as jsonActions.FieldLogicGroup;
-            let list = control.children$$().filter((item) => {
-              return item.valid;
-            });
-            list = list.length === 0 ? control.children$$().slice(0, 1) : list;
-            control.activateControls$.set(list);
-          });
-        }),
-        v.rawCheck(({ dataset, addIssue }) => {
-          if (dataset.issues) {
-            return;
-          }
-          // 验证项全为可选,所以需要这里再次验证
-          let hasSuccess = resultList.some((item) => {
-            let result = v.safeParse(item, dataset.value);
-            return result.success;
-          });
-          if (!hasSuccess) {
-            addIssue();
-          }
-        }),
-      );
+      let resolved = this.#resolveJsonSchema(schema);
+      return this.anyOfCreate(resolved);
     }
     if (schema.oneOf && !isBoolean(schema.oneOf)) {
       const resultList = schema.oneOf.map((item) => {
@@ -409,6 +393,9 @@ export class JsonSchemaToValibot {
   }
 
   #resolveJsonSchema(schema: JsonSchemaDraft202012Object) {
+    if ('resolved' in schema) {
+      return schema as any as ResolvedJsonSchema;
+    }
     let resolved = schema as any as ResolvedJsonSchema;
     const type = this.guessSchemaType(schema);
     resolved.resolved = { type };
@@ -422,6 +409,7 @@ export class JsonSchemaToValibot {
     }
     return resolved;
   }
+
   private jsonSchemaBase(schema: ResolvedJsonSchema) {
     const types = schema.resolved.type;
     // 暂时为只支持一个
@@ -652,6 +640,9 @@ export class JsonSchemaToValibot {
     schema: JSONSchemaRaw,
     options: IOptions,
   ): JSONSchemaRaw {
+    if (!schema.$ref) {
+      return schema;
+    }
     const [uri, pointer] = schema.$ref!.split('#/');
     if (uri) {
       throw Error(`Remote schemas for ${schema.$ref} not supported yet.`);
@@ -687,6 +678,7 @@ export class JsonSchemaToValibot {
         },
         {} as any,
       ),
+      $ref: undefined,
     };
   }
 
@@ -753,7 +745,7 @@ export class JsonSchemaToValibot {
 
     return type
       ? { types: [type], optional: false }
-      : { types: ['string'], optional: false };
+      : { types: anyType, optional: false };
   }
 
   #getArrayConfig(schema: JsonSchemaDraft202012Object) {
@@ -869,5 +861,324 @@ export class JsonSchemaToValibot {
       base = childSchema as any;
     }
     return { schema: this.#resolveJsonSchema(base), actionList };
+  }
+  resolveSchema2(schema: JsonSchemaDraft202012Object) {
+    let result = this.resolveDefinition(schema, { schema: this.root });
+    return this.#resolveJsonSchema(result);
+  }
+  arrayInclude(a: any[], b: any[]) {
+    return b.filter((item) => {
+      return a.some((item2) => deepEqual(item, item2));
+    });
+  }
+  #parseEnum(schema: JsonSchemaDraft202012Object):
+    | {
+        type: string;
+        data: JsonSchemaDraft202012Object;
+      }
+    | undefined {
+    // 普通枚举
+    if (schema.enum) {
+      return {
+        type: 'enum',
+        data: {
+          enum: schema.enum,
+        },
+      };
+    } else if (schema.const) {
+      return { type: 'const', data: { const: schema.const } };
+    } else if (schema.uniqueItems && schema.items && !isBoolean(schema.items)) {
+      let result = this.#parseEnum(schema.items);
+      if (result?.data) {
+        return {
+          type: 'multiselect',
+          data: {
+            items: result.data,
+          },
+        };
+      }
+      return undefined;
+    }
+    return undefined;
+  }
+  intersectSchemaType(
+    a: JsonSchemaDraft202012Object | undefined,
+    b: JsonSchemaDraft202012Object,
+  ) {
+    let parent = a ? this.resolveSchema2(a) : undefined;
+    let child = this.resolveSchema2(b);
+    let parentEnum = parent ? this.#parseEnum(parent) : undefined;
+    let childEnum = this.#parseEnum(child);
+    if (parentEnum?.data.items && childEnum?.data.items) {
+      let result = this.arrayInclude(
+        (parentEnum.data.items! as JsonSchemaDraft202012Object).enum!,
+        (childEnum.data.items! as JsonSchemaDraft202012Object).enum!,
+      );
+      if (result.length) {
+        return {
+          type: 'multiselect',
+          data: {
+            items: {
+              enum: result,
+            },
+          } as JsonSchemaDraft202012Object,
+        };
+      }
+    } else if (childEnum?.type === 'multiselect') {
+      return childEnum;
+    }
+
+    // 枚举
+    if (parentEnum?.data.enum && childEnum?.data.enum) {
+      let result = this.arrayInclude(parentEnum.data.enum, childEnum.data.enum);
+      if (result.length) {
+        return {
+          type: 'enum',
+          data: { enum: result } as JsonSchemaDraft202012Object,
+        };
+      }
+    } else if (childEnum?.data.enum) {
+      return childEnum;
+    }
+    // 常量
+    if (isNil(parentEnum?.data.const) && !isNil(childEnum?.data.const)) {
+      return childEnum;
+    }
+    // 类型
+    let typeResult = parent?.resolved.type.types
+      ? intersection(parent.resolved.type.types, child.resolved.type.types)
+      : child.resolved.type.types;
+    if (typeResult.length) {
+      return {
+        type: typeResult[0],
+        data: undefined,
+      };
+    }
+    return;
+  }
+  schemaExtract(
+    schema: ResolvedJsonSchema,
+    ...childList: ResolvedJsonSchema[]
+  ) {
+    /** 所有子属性key */
+    let childKeyList = uniq(
+      childList.flatMap((item) => {
+        return Object.keys(item.properties ?? {});
+      }),
+    );
+    if (!childKeyList.length) {
+      // 无效返回
+      return;
+    }
+
+    let conditionJSchema = { properties: {} } as JsonSchemaDraft202012Object;
+    let childConditionJSchemaList = childList.map(() => {
+      return { properties: {} } as JsonSchemaDraft202012Object;
+    });
+    let conditionKeyList = [];
+    for (const key of childKeyList) {
+      let parentItem = schema.properties?.[key] as any;
+      //如果父级不存在这个属性,并且禁止添加,跳过
+      // todo 还应该增加额外的匹配
+      if (!parentItem && schema.additionalProperties === false) {
+        continue;
+      }
+      // 所有子级都存在某个Key
+      let keyExist = childList.every((item) => {
+        let propItem = item.properties?.[key];
+        // todo 对象应该先解析
+        return propItem && !isBoolean(propItem) && propItem.type !== 'object';
+      });
+      if (!keyExist) {
+        continue;
+      }
+
+      let currentType = undefined;
+      let childPropList: JsonSchemaDraft202012Object[] = [];
+      for (const sub of childList) {
+        let result = this.intersectSchemaType(
+          schema?.properties?.[key] as any,
+          sub.properties![key] as any,
+        );
+        if (!result) {
+          currentType = undefined;
+          break;
+        } else if (
+          currentType === undefined ||
+          deepEqual(currentType, result.type)
+        ) {
+          currentType = result.type;
+          // 枚举
+          if (
+            result.data!.enum ||
+            'const' in result.data! ||
+            result.type === 'multiselect'
+          ) {
+            childPropList.push(result.data!);
+          } else {
+            childPropList.push(sub.properties![key] as any);
+          }
+        } else {
+          break;
+        }
+      }
+
+      if (currentType) {
+        conditionKeyList.push(key);
+        for (let index = 0; index < childConditionJSchemaList.length; index++) {
+          const schema = childConditionJSchemaList[index];
+          schema.properties![key] = childPropList[index];
+        }
+        if (currentType === 'enum') {
+          conditionJSchema.properties![key] = {
+            enum: childPropList.flatMap((item) => item.enum!),
+          };
+        } else if (currentType === 'const') {
+          conditionJSchema.properties![key] = {
+            enum: childPropList.flatMap((item) => item.const!),
+          };
+        } else if (currentType === 'multiselect') {
+          conditionJSchema.properties![key] = {
+            type: 'array',
+            items: {
+              enum: childPropList.flatMap((item) => item.enum!),
+            },
+            uniqueItems: true,
+          };
+        } else {
+          conditionJSchema.properties![key] = {
+            type: currentType as any,
+          };
+        }
+      }
+    }
+
+    return { conditionJSchema, childConditionJSchemaList, conditionKeyList };
+  }
+
+  anyOfCreate(schema: ResolvedJsonSchema) {
+    let resolvedChildList = schema.anyOf!.map((item) => {
+      return this.#mergeSchema(schema, item);
+    });
+    const resolvedChildJSchemaList = resolvedChildList.map((item) => {
+      return item.schema;
+    });
+    let isObject = [schema, ...resolvedChildJSchemaList].every((item) =>
+      item.resolved.type.types.includes('object'),
+    );
+    // 仅处理object,实现条件显示
+    if (isObject) {
+      let conditionResult = this.schemaExtract(
+        schema,
+        ...resolvedChildJSchemaList,
+      );
+
+      if (conditionResult) {
+        let childConditionVSchemaList =
+          conditionResult.childConditionJSchemaList.map((schema) => {
+            return this.jsonSchemaBase(this.#resolveJsonSchema(schema));
+          });
+
+        let conditionVSchema = v.pipe(
+          this.jsonSchemaBase(
+            this.#resolveJsonSchema(conditionResult.conditionJSchema),
+          ),
+          jsonActions.valueChange((fn) => {
+            fn().subscribe(({ list: [value], field }) => {
+              for (
+                let index = 0;
+                index < childConditionVSchemaList.length;
+                index++
+              ) {
+                const schema = childConditionVSchemaList[index];
+                let result = v.safeParse(schema, value);
+                field.get(['..', index + 2])?.renderConfig.update((data) => {
+                  return {
+                    ...data,
+                    hidden: !result.success,
+                  };
+                });
+              }
+            });
+          }),
+        );
+        conditionResult.conditionKeyList.forEach((key) => {
+          resolvedChildJSchemaList.forEach((item) => {
+            delete item.properties![key];
+          });
+          delete schema.properties?.[key];
+        });
+        let baseActionList = getValidationAction(schema);
+        let baseSchema = v.pipe(this.jsonSchemaBase(schema), ...baseActionList);
+        let childSchemaList = resolvedChildJSchemaList.map((item) => {
+          let result = this.jsonSchemaBase(item);
+          return v.pipe(result);
+        });
+        return v.pipe(
+          cSchema.intersect([
+            conditionVSchema,
+            baseSchema,
+            ...childSchemaList.map((item) => {
+              return v.pipe(
+                v.optional(item),
+                jsonActions.renderConfig({ hidden: true }),
+              );
+            }),
+          ]),
+          jsonActions.setComponent('anyOf-condition'),
+          //
+          jsonActions.valueChange((fn) => {
+            fn({
+              list: childSchemaList.map((_, i) => {
+                return [i];
+              }),
+            }).subscribe(({ field }) => {
+              let control = field.form.control! as jsonActions.FieldLogicGroup;
+              let list = control.children$$().filter((item) => {
+                return item.valid;
+              });
+              list =
+                list.length === 0 ? control.children$$().slice(0, 1) : list;
+              control.activateControls$.set(list);
+            });
+          }),
+          v.rawCheck(({ dataset, addIssue }) => {
+            if (dataset.issues) {
+              return;
+            }
+            // 验证项全为可选,所以需要这里再次验证
+            let hasSuccess = childSchemaList.some((item) => {
+              let result = v.safeParse(item, dataset.value);
+              return result.success;
+            });
+            if (!hasSuccess) {
+              addIssue();
+            }
+          }),
+        );
+      }
+    }
+    let baseActionList = getValidationAction(schema);
+    let baseSchema = v.pipe(this.jsonSchemaBase(schema), ...baseActionList);
+    let childSchemaList = resolvedChildList.map((item) => {
+      let result = this.jsonSchemaBase(item.schema);
+      return v.pipe(result, ...item.actionList);
+    });
+    return v.pipe(
+      baseSchema,
+      v.rawCheck(({ dataset, addIssue }) => {
+        if (dataset.issues) {
+          return;
+        }
+        // 验证项全为可选,所以需要这里再次验证
+        let hasSuccess = childSchemaList.some((item) => {
+          let result = v.safeParse(item, dataset.value);
+          return result.success;
+        });
+        if (!hasSuccess) {
+          addIssue();
+        }
+      }),
+    );
   }
 }

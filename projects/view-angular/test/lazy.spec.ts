@@ -23,9 +23,9 @@ describe('lazy', () => {
         },
       },
     );
+    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
-    await delay(1);
     expect(element.querySelector('app-test1')).toBeTruthy();
   });
   it('lazy-mark', async () => {
@@ -43,7 +43,7 @@ describe('lazy', () => {
         },
       },
     );
-    await delay(1);
+    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('app-test1')).toBeTruthy();
