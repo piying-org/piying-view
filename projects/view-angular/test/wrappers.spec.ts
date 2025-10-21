@@ -98,7 +98,7 @@ describe('带异步wrappers', () => {
         },
       },
     );
-    await delay(1);
+    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;

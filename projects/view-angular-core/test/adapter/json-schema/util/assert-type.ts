@@ -10,6 +10,7 @@ import {
   ObjectWithRestSchema,
   PicklistSchema,
   StringSchema,
+  TupleSchema,
   TupleWithRestSchema,
   UnionSchema,
 } from 'valibot';
@@ -17,6 +18,7 @@ export type TypeMap = {
   object: ObjectSchema<any, any>;
   loose_object: LooseObjectSchema<any, any>;
   object_with_rest: ObjectWithRestSchema<any, any, any>;
+  tuple: TupleSchema<any, any>;
   loose_tuple: LooseTupleSchema<any, any>;
   tuple_with_rest: TupleWithRestSchema<any, any, any>;
   string: StringSchema<any>;

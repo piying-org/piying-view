@@ -6,7 +6,7 @@ import { signal } from '@angular/core';
 import { NumberComponent } from '../component/number/component';
 import { assertFieldLogicGroup } from '@piying/view-angular-core/test';
 describe('oneof', () => {
-  fit('default', async () => {
+  it('default', async () => {
     const define = jsonSchemaToValibot(oneofSchema as any) as any;
     const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),

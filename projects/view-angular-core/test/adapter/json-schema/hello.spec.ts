@@ -1,6 +1,7 @@
 import { jsonSchemaToValibot } from '@piying/view-angular-core/adapter';
 import { assertType } from './util/assert-type';
-
+import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
+import * as v from 'valibot';
 describe('json-schema', () => {
   it('hello', () => {
     const jsonSchema = {
@@ -25,5 +26,91 @@ describe('json-schema', () => {
     assertType(instance.entries['a1'], 'array');
     assertType(instance.entries['nu1'], 'null');
     assertType(instance.entries['o1'], 'loose_object');
+  });
+
+  it('array-prefix', async () => {
+    const jsonSchema = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }, { type: 'string' }],
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    let input = [1, '1', 1];
+    const instance = assertType(Define, 'loose_tuple');
+
+    let result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(input);
+  });
+  it('array-fix', async () => {
+    const jsonSchema = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }, { type: 'string' }],
+      items: false,
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    let input = [1, '1', 1];
+    const instance = assertType(Define, 'tuple');
+    let result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual([1, '1']);
+    input = [1, '1'];
+    result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(input);
+  });
+  it('tuple-loose', async () => {
+    const jsonSchema = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }, { type: 'string' }],
+      items: { type: 'string' },
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    let input = [1, '1', '1'];
+    const instance = assertType(Define, 'tuple_with_rest');
+    let result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(input);
+    input = [1, '1'];
+    result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(input);
+  });
+  it('array', async () => {
+    const jsonSchema = {
+      type: 'array',
+      items: { type: 'string' },
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    let input = ['1', '2', '3'] as any;
+    const instance = assertType(Define, 'array');
+    let result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(input);
+    input = [1, '1'];
+    result = v.safeParse(Define, input);
+    expect(result.success).toBeFalse();
+  });
+  it('array-contain', async () => {
+    const jsonSchema = {
+      type: 'array',
+      items: { type: 'string' },
+      contains: { const: '1' },
+      maxContains: 2,
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    let input = ['1', '2', '3'] as any;
+    const instance = assertType(Define, 'array');
+    let result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(input);
+    input = ['2', '3'];
+    result = v.safeParse(Define, input);
+    expect(result.success).toBeFalse();
+    input = ['1', '1', '2', '3'];
+    result = v.safeParse(Define, input);
+    expect(result.success).toBeTrue();
+    input = ['1', '1', '1', '2', '3'];
+    result = v.safeParse(Define, input);
+    expect(result.success).toBeFalse();
   });
 });

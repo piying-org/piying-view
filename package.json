@@ -41,6 +41,7 @@
     "@angular/material": "^20.2.5",
     "@angular/platform-browser": "20.0.3",
     "@angular/platform-browser-dynamic": "20.0.3",
+    "@hyperjump/json-schema": "^1.16.4",
     "@piying/valibot-visit": "^1.2.5",
     "clsx": "^2.1.1",
     "conventional-changelog": "^7.1.1",

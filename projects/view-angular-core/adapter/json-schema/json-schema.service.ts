@@ -270,11 +270,13 @@ const WrapperList = [] as string[];
 export function jsonSchemaToValibot(schema: JSONSchema7) {
   return new JsonSchemaToValibot(schema).convert() as ResolvedSchema;
 }
+const Schema2012 = 'https://json-schema.org/draft/2020-12/schema';
 export class JsonSchemaToValibot {
   root;
   private cacheSchema = new WeakMap();
   constructor(root: JSONSchema7) {
     this.root = root;
+    root.$schema ??= Schema2012;
   }
   convert() {
     const schema = clone(this.root);
@@ -659,12 +661,8 @@ export class JsonSchemaToValibot {
           return v.lazy(() => createTypeFn(v.array(v.any())));
         }
         actionList.push(jsonActions.setWrappers(WrapperList));
-        let parent:
-          | v.ArraySchema<ResolvedSchema, undefined>
-          | v.TupleWithRestSchema<ResolvedSchema[], ResolvedSchema, undefined>
-          | v.LooseTupleSchema<ResolvedSchema[], undefined>;
+        let parent: v.BaseSchema<any, any, any>;
         const fixedItems = arrayConfig.prefixItems;
-        // tuple
         if (Array.isArray(fixedItems) && fixedItems.length) {
           const fixedList = fixedItems.map(
             (item) => this.itemToVSchema2(<JSONSchema7>item)!,
@@ -673,6 +671,8 @@ export class JsonSchemaToValibot {
           if (arrayConfig.items) {
             const result = this.itemToVSchema2(arrayConfig.items as any);
             parent = v.tupleWithRest(fixedList, result!);
+          } else if (arrayConfig.items === false) {
+            parent = v.tuple(fixedList);
           } else {
             parent = v.looseTuple(fixedList);
           }
@@ -683,7 +683,7 @@ export class JsonSchemaToValibot {
         }
         // 校验
         if ('contains' in schema) {
-          const containsSchema = this.itemToVSchema2(arrayConfig.items as any)!;
+          const containsSchema = this.itemToVSchema2(schema.contains as any)!;
           const minContains = (schema as any).minContains ?? 1;
           actionList.push(
             v.check((list) => {
@@ -696,7 +696,7 @@ export class JsonSchemaToValibot {
                 }
 
                 if (typeof (schema as any).maxContains === 'number') {
-                  return result.length < (schema as any).maxContains;
+                  return result.length <= (schema as any).maxContains;
                 }
 
                 return true;
@@ -815,23 +815,29 @@ export class JsonSchemaToValibot {
   }
 
   #getArrayConfig(schema: JSONSchema7) {
-    if ('prefixItems' in schema) {
-      // 2020-12
-      return {
-        prefixItems: schema.prefixItems as
-          | JSONSchema7Definition
-          | JSONSchema7Definition[],
-        items: schema.items as JSONSchema7Definition | undefined,
-      };
-    } else if ('items' in schema) {
-      // 2019-09
-      return {
-        prefixItems: schema.items as
-          | JSONSchema7Definition
-          | JSONSchema7Definition[],
-        items: schema.additionalItems,
-      };
+    if (this.root.$schema === Schema2012) {
+      if (
+        !isNil((schema as any).prefixItems) ||
+        !isNil(schema.items)
+      ) {
+        return {
+          prefixItems: (schema as any).prefixItems as
+            | JSONSchema7Definition
+            | JSONSchema7Definition[],
+          items: schema.items as JSONSchema7Definition | undefined,
+        };
+      }
+    } else {
+      if (!isNil(schema.items) || !isNil(schema.additionalItems)) {
+        // 2019-09
+        return {
+          prefixItems: schema.items as
+            | JSONSchema7Definition
+            | JSONSchema7Definition[],
+          items: schema.additionalItems,
+        };
+      }
     }
-    return undefined;
+    return;
   }
 }
