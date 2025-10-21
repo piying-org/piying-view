@@ -328,13 +328,29 @@ export class JsonSchemaToValibot {
         }),
       );
     }
-    if (schema.oneOf) {
-      // const result = mergeSchema(schema, schema.allOf as any);
-      // const resultList = result.map((item) => {
-      //   const result = this.jsonSchemaBase(item.schema)!;
-      //   return v.pipe(result, ...(item.actionList as any));
-      // });
-      // return v.pipe(v.union(resultList));
+    if (schema.oneOf && !isBoolean(schema.oneOf)) {
+      const resultList = schema.oneOf.map((item) => {
+        let result = mergeSchema(schema, item);
+        const result2 = this.jsonSchemaBase(result.schema)!;
+        return v.pipe(result2, ...result.actionList);
+      });
+
+      return v.pipe(
+        v.union(resultList),
+        v.rawCheck(({ dataset, addIssue }) => {
+          if (dataset.issues) {
+            return;
+          }
+          // 验证项全为可选,所以需要这里再次验证
+          let hasSuccess = resultList.filter((item) => {
+            let result = v.safeParse(item, dataset.value);
+            return result.success;
+          });
+          if (hasSuccess.length !== 1) {
+            addIssue();
+          }
+        }),
+      );
     }
     if ('if' in schema) {
       const baseActionList = getValidationAction(schema);
