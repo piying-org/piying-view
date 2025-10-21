@@ -11,6 +11,7 @@ import {
 import * as jsonActions from '@piying/view-angular-core';
 import { intersection, isBoolean, isNil, isUndefined, union } from 'es-toolkit';
 import { BehaviorSubject } from 'rxjs';
+import { schema as cSchema } from '@piying/valibot-visit';
 // todo 先按照类型不可变设计,之后修改代码支持组件变更
 const clone = rfdc({ proto: false, circles: false });
 type ResolvedSchema =
@@ -281,18 +282,51 @@ export class JsonSchemaToValibot {
     }
     if (schema.allOf) {
       const result = mergeSchema(schema, ...schema.allOf);
-      const resultList = this.jsonSchemaBase(result.schema);
-      //todo 暂时allof不合并
-
+      const resultList = this.jsonSchemaBase(result.schema)!;
       return v.pipe(resultList, ...result.actionList);
     }
-    if (schema.anyOf) {
-      // const result = mergeSchema(schema, schema.allOf as any);
-      // const resultList = result.map((item) => {
-      //   const result = this.jsonSchemaBase(item.schema)!;
-      //   return v.pipe(result, ...(item.actionList as any));
-      // });
-      // return v.pipe(v.intersect(resultList));
+    if (schema.anyOf && !isBoolean(schema.anyOf)) {
+      const resultList = schema.anyOf.map((item) => {
+        let result = mergeSchema(schema, item);
+        const result2 = this.jsonSchemaBase(result.schema)!;
+        return v.pipe(result2, ...result.actionList);
+      });
+
+      return v.pipe(
+        cSchema.intersect(
+          resultList.map((item) => {
+            return v.optional(item);
+          }),
+        ),
+        // 保证验证至少一个
+        jsonActions.valueChange((fn) => {
+          fn({
+            list: resultList.map((_, i) => {
+              return [i];
+            }),
+          }).subscribe(({ field }) => {
+            let control = field.form.control! as jsonActions.FieldLogicGroup;
+            let list = control.children$$().filter((item) => {
+              return item.valid;
+            });
+            list = list.length === 0 ? control.children$$().slice(0, 1) : list;
+            control.activateControls$.set(list);
+          });
+        }),
+        v.rawCheck(({ dataset, addIssue }) => {
+          if (dataset.issues) {
+            return;
+          }
+          // 验证项全为可选,所以需要这里再次验证
+          let hasSuccess = resultList.some((item) => {
+            let result = v.safeParse(item, dataset.value);
+            return result.success;
+          });
+          if (!hasSuccess) {
+            addIssue();
+          }
+        }),
+      );
     }
     if (schema.oneOf) {
       // const result = mergeSchema(schema, schema.allOf as any);

@@ -41,7 +41,7 @@
     "@angular/material": "^20.2.5",
     "@angular/platform-browser": "20.0.3",
     "@angular/platform-browser-dynamic": "20.0.3",
-    "@piying/valibot-visit": "^1.1.6",
+    "@piying/valibot-visit": "^1.2.5",
     "clsx": "^2.1.1",
     "conventional-changelog": "^7.1.1",
     "es-toolkit": "^1.40.0",
