@@ -502,15 +502,14 @@ export class JsonSchemaToValibot {
       return createTypeFn(v.picklist(schema.enum as any));
     }
     switch (type) {
-      case 'number':
+      case 'number': {
+        return createTypeFn(v.number());
+      }
       case 'integer': {
+        actionList.push(v.integer());
         return createTypeFn(v.number());
       }
       case 'boolean': {
-        actionList.push(
-          jsonActions.setWrappers(WrapperList),
-          patchProps({ titlePosition: 'right' }),
-        );
         return createTypeFn(v.boolean());
       }
       case 'string': {
