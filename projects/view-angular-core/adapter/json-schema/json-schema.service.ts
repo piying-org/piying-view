@@ -376,7 +376,10 @@ export class JsonSchemaToValibot {
       );
     }
 
-    return this.jsonSchemaBase(this.#resolveJsonSchema(schema));
+    return v.pipe(
+      this.jsonSchemaBase(this.#resolveJsonSchema(schema)),
+      ...getValidationAction(schema),
+    );
   }
   itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema | undefined {
     if (isBoolean(schema)) {
@@ -899,6 +902,7 @@ export class JsonSchemaToValibot {
     b: JsonSchemaDraft202012Object,
   ) {
     const parent = a ? this.resolveSchema2(a) : undefined;
+    b = parent ? this.#mergeSchema(parent, b).schema : b;
     const child = this.resolveSchema2(b);
     const parentEnum = parent ? this.#parseEnum(parent) : undefined;
     const childEnum = this.#parseEnum(child);
@@ -945,9 +949,14 @@ export class JsonSchemaToValibot {
       ? intersection(parent.resolved.type.types, child.resolved.type.types)
       : child.resolved.type.types;
     if (typeResult.length) {
+      delete (child as any)['resolved'];
+      const result = this.#resolveJsonSchema({
+        ...child,
+        type: typeResult[0],
+      });
       return {
         type: typeResult[0],
-        data: undefined,
+        data: result,
       };
     }
     return;
@@ -1010,7 +1019,7 @@ export class JsonSchemaToValibot {
           ) {
             childPropList.push(result.data!);
           } else {
-            childPropList.push(sub.properties![key] as any);
+            childPropList.push(result.data as any);
           }
         } else {
           break;
@@ -1046,7 +1055,6 @@ export class JsonSchemaToValibot {
         }
       }
     }
-
     return { conditionJSchema, childConditionJSchemaList, conditionKeyList };
   }
 
@@ -1069,16 +1077,25 @@ export class JsonSchemaToValibot {
 
       if (conditionResult) {
         const childConditionVSchemaList =
-          conditionResult.childConditionJSchemaList.map((schema) =>
-            this.jsonSchemaBase(this.#resolveJsonSchema(schema)),
-          );
-
+          conditionResult.childConditionJSchemaList.map((schema) => {
+            const rSchema = this.#resolveJsonSchema(schema);
+            return v.pipe(
+              this.jsonSchemaBase(rSchema),
+              ...getValidationAction(rSchema),
+            );
+          });
+        let activateList: boolean[] = [];
         const conditionVSchema = v.pipe(
           this.jsonSchemaBase(
             this.#resolveJsonSchema(conditionResult.conditionJSchema),
           ),
           jsonActions.valueChange((fn) => {
             fn().subscribe(({ list: [value], field }) => {
+              activateList = [];
+              const parent = field.get(['..'])!.form
+                .control as any as jsonActions.FieldLogicGroup;
+              const parentAList = parent!.children$$().slice(0, 2);
+
               for (
                 let index = 0;
                 index < childConditionVSchemaList.length;
@@ -1086,11 +1103,17 @@ export class JsonSchemaToValibot {
               ) {
                 const schema = childConditionVSchemaList[index];
                 const result = v.safeParse(schema, value);
-                field.get(['..', index + 2])?.renderConfig.update((data) => ({
+                const childIndex = index + 2;
+                activateList.push(result.success);
+                field.get(['..', childIndex])?.renderConfig.update((data) => ({
                   ...data,
                   hidden: !result.success,
                 }));
+                if (result.success) {
+                  parentAList.push(parent!.children$$!()[childIndex]);
+                }
               }
+              parent.activateControls$.set(parentAList);
             });
           }),
         );
@@ -1121,25 +1144,16 @@ export class JsonSchemaToValibot {
             ),
           ]),
           jsonActions.setComponent('anyOf-condition'),
-          //
-          jsonActions.valueChange((fn) => {
-            fn({
-              list: childSchemaList.map((_, i) => [i]),
-            }).subscribe(({ field }) => {
-              const control = field.form
-                .control! as jsonActions.FieldLogicGroup;
-              let list = control.children$$().filter((item) => item.valid);
-              list =
-                list.length === 0 ? control.children$$().slice(0, 1) : list;
-              control.activateControls$.set(list);
-            });
-          }),
           v.rawCheck(({ dataset, addIssue }) => {
             if (dataset.issues) {
               return;
             }
             // 验证项全为可选,所以需要这里再次验证
-            const hasSuccess = childSchemaList.some((item) => {
+            const hasSuccess = childSchemaList.some((item, index) => {
+              const isActive = activateList[index];
+              if (!isActive) {
+                return false;
+              }
               const result = v.safeParse(item, dataset.value);
               return result.success;
             });
