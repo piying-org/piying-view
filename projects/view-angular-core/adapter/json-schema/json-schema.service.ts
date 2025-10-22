@@ -231,9 +231,7 @@ export class JsonSchemaToValibot {
     root.$schema ??= Schema2012;
   }
   convert() {
-    const schema = clone(this.root);
-    const result = this.#itemToVSchema2(schema);
-    return result;
+    return this.#itemToVSchema2(clone(this.root));
   }
 
   #itemToVSchema(schema: JsonSchemaDraft202012Object) {
@@ -242,12 +240,10 @@ export class JsonSchemaToValibot {
     }
     if (schema.allOf) {
       const result = this.#mergeSchema(schema, ...schema.allOf);
-      const resultList = this.#jsonSchemaBase(result.schema)!;
-      return v.pipe(resultList, ...result.actionList);
+      return v.pipe(this.#jsonSchemaBase(result.schema)!, ...result.actionList);
     }
-    if (schema.anyOf && !isBoolean(schema.anyOf)) {
-      const resolved = this.#resolveJsonSchema(schema);
-      return this.#conditionCreate(resolved, {
+    if (schema.anyOf) {
+      return this.#conditionCreate(this.#resolveJsonSchema(schema), {
         useOr: false,
         getChildren: () => schema.anyOf!,
         conditionCheckActionFn(childOriginSchemaList, getActivateList) {
@@ -288,7 +284,7 @@ export class JsonSchemaToValibot {
         },
       });
     }
-    if (schema.oneOf && !isBoolean(schema.oneOf)) {
+    if (schema.oneOf) {
       const resolved = this.#resolveJsonSchema(schema);
       return this.#conditionCreate(resolved, {
         useOr: true,
@@ -331,24 +327,22 @@ export class JsonSchemaToValibot {
       });
     }
     if ('if' in schema) {
-      const baseActionList = getValidationAction(schema);
-      const status$ = new BehaviorSubject<boolean | undefined>(undefined);
+      const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
         this.#jsonSchemaBase(this.#resolveJsonSchema(schema)),
-        ...baseActionList,
+        ...getValidationAction(schema),
         hideWhen({
           disabled: false,
           listen: (fn) =>
             fn({}).pipe(
               map(({ list: [value], field }) => {
-                const isThen =
-                  ifVSchema.type === 'literal'
-                    ? (ifVSchema as any).literal
-                    : v.safeParse(ifVSchema, value).success;
+                const isThen = isBoolean(schema.if)
+                  ? schema.if
+                  : v.safeParse(ifVSchema, value).success;
                 (
                   field.form.parent as jsonActions.FieldLogicGroup
                 ).activateIndex$.set(isThen ? 1 : 2);
-                status$.next(isThen);
+                useThen$.next(isThen);
                 return !((isThen && !thenSchema) || (!isThen && !elseSchema));
               }),
             ),
@@ -364,41 +358,37 @@ export class JsonSchemaToValibot {
           ...ifSchema.actionList,
         );
       }
+      function hideAction(isThen: boolean) {
+        return [
+          jsonActions.renderConfig({ hidden: true }),
+          hideWhen({
+            disabled: true,
+            listen(fn) {
+              return fn({ list: [['..', 0]] }).pipe(
+                switchMap(({ list: [] }) => useThen$),
+                map((a) => (a === undefined ? true : isThen ? !a : a)),
+              );
+            },
+          }),
+        ];
+      }
       let thenSchema: ResolvedSchema | undefined;
       if (schema.then && !isBoolean(schema.then)) {
         const subSchema = this.#mergeSchema(schema, schema.then!);
         thenSchema = v.pipe(
           this.#jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
-          jsonActions.renderConfig({ hidden: true }),
-          hideWhen({
-            disabled: true,
-            listen(fn, field) {
-              return fn({ list: [['..', 0]] }).pipe(
-                switchMap(({ list: [value] }) => status$),
-                map((a) => (a === undefined ? true : !a)),
-              );
-            },
-          }),
+          ...hideAction(true),
         );
       }
-      let elseSchema: ResolvedSchema | undefined;
 
+      let elseSchema: ResolvedSchema | undefined;
       if (schema.else && !isBoolean(schema.else)) {
         const subSchema = this.#mergeSchema(schema, schema.else);
         elseSchema = v.pipe(
           this.#jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
-          jsonActions.renderConfig({ hidden: true }),
-          hideWhen({
-            disabled: true,
-            listen(fn, field) {
-              return fn({ list: [['..', 0]] }).pipe(
-                switchMap(({ list: [value] }) => status$),
-                map((a) => (a === undefined ? true : a)),
-              );
-            },
-          }),
+          ...hideAction(false),
         );
       }
 
@@ -416,7 +406,7 @@ export class JsonSchemaToValibot {
           if (dataset.issues) {
             return;
           }
-          const status = status$.value;
+          const status = useThen$.value;
           if (status && thenSchema) {
             const result = v.safeParse(thenSchema, dataset.value);
             if (!result.success) {
@@ -442,7 +432,17 @@ export class JsonSchemaToValibot {
   }
   #itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema | undefined {
     if (isBoolean(schema)) {
-      return undefined;
+      return schema
+        ? v.pipe(v.any(), jsonActions.setComponent('always-true'))
+        : v.pipe(
+            v.any(),
+            v.check((value) => {
+              return isUndefined(value);
+            }),
+          );
+    }
+    if (this.cacheSchema.has(schema)) {
+      return this.cacheSchema.get(schema);
     }
     const result = this.#itemToVSchema(schema);
     this.cacheSchema.set(schema, result);
@@ -474,10 +474,10 @@ export class JsonSchemaToValibot {
     const actionList: any[] = getMetadataAction(schema);
 
     const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
-      const opInput = types.optional
-        ? v.optional(input, schema.default)
-        : input;
-      return v.pipe(opInput, ...actionList);
+      return v.pipe(
+        types.optional ? v.optional(input, schema.default) : input,
+        ...actionList,
+      );
     };
     if (!isNil(schema.const)) {
       return createTypeFn(v.literal(schema.const! as any));
@@ -497,7 +497,6 @@ export class JsonSchemaToValibot {
         return createTypeFn(v.boolean());
       }
       case 'string': {
-        actionList.push(jsonActions.setWrappers(WrapperList));
         return createTypeFn(v.string());
       }
       case 'null': {
@@ -524,7 +523,7 @@ export class JsonSchemaToValibot {
             const isRequired = !!schema.required?.includes(key);
             let item = childResult;
             if (!item) {
-              throw new Error(`子级不存在`);
+              continue;
             }
             if (!isRequired && item.type !== 'optional') {
               item = v.optional(item);
@@ -806,11 +805,12 @@ export class JsonSchemaToValibot {
       schema.items ||
       schema.prefixItems ||
       isNumber(schema.minContains) ||
-      isNumber(schema.maxContains)
+      isNumber(schema.maxContains) ||
+      !isNil(schema.contains) ||
+      isBoolean(schema.uniqueItems)
     ) {
       type = 'array';
-    }
-    if (
+    } else if (
       isNumber(schema.minimum) ||
       isNumber(schema.maximum) ||
       isNumber(schema.exclusiveMaximum) ||
@@ -818,8 +818,7 @@ export class JsonSchemaToValibot {
       isNumber(schema.multipleOf)
     ) {
       type = 'number';
-    }
-    if (
+    } else if (
       isNumber(schema.minLength) ||
       isNumber(schema.maxLength) ||
       isString(schema.pattern)

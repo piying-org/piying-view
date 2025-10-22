@@ -138,4 +138,40 @@ describe('json-schema', () => {
     result = v.safeParse(Define, [3]);
     expect(result.success).toBeFalse();
   });
+  it('object-true', async () => {
+    const jsonSchema = {
+      properties: {
+        k1: { type: 'number' },
+        k2: true,
+      },
+      additionalProperties: false,
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'object');
+    let result = v.safeParse(Define, { k1: 1, k2: '' });
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual({ k1: 1, k2: '' });
+    result = v.safeParse(Define, { k1: 1, k2: false });
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual({ k1: 1, k2: false });
+  });
+  it('object-false', async () => {
+    const jsonSchema = {
+      properties: {
+        k1: { type: 'number' },
+        k2: false,
+      },
+      additionalProperties: false,
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'object');
+    let result = v.safeParse(Define, { k1: 1, k2: '' });
+    expect(result.success).toBeFalse();
+    result = v.safeParse(Define, { k1: 1 });
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual({ k1: 1 });
+    result = v.safeParse(Define, { k1: 1, k2: undefined });
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual({ k1: 1, k2: undefined });
+  });
 });
