@@ -583,7 +583,7 @@ export class JsonSchemaToValibot {
           return v.lazy(() => createTypeFn(v.array(v.any())));
         }
         actionList.push(jsonActions.setWrappers(WrapperList));
-        let parent: v.BaseSchema<any, any, any>;
+        let parent: v.BaseSchema<any, any, any> | undefined;
         const fixedItems = schema.prefixItems;
         if (Array.isArray(fixedItems) && fixedItems.length) {
           const fixedList = fixedItems.map(
@@ -627,7 +627,7 @@ export class JsonSchemaToValibot {
             }),
           );
         }
-        return v.lazy(() => createTypeFn(parent));
+        return v.lazy(() => createTypeFn(parent!));
       }
       default:
         throw new Error(`未知类型:${type}`);
@@ -722,7 +722,7 @@ export class JsonSchemaToValibot {
   private guessSchemaType(
     schema: JsonSchemaDraft202012Object,
   ): ResolvedJsonSchema['resolved']['type'] {
-    const type = schema?.type;
+    let type = schema?.type;
     if (!type && schema?.properties) {
       return { types: ['object'], optional: false };
     }
@@ -739,6 +739,9 @@ export class JsonSchemaToValibot {
         types: type,
         optional: nullIndex !== -1,
       };
+    }
+    if (schema.items || schema.prefixItems) {
+      type = 'array';
     }
 
     return type
@@ -883,7 +886,7 @@ export class JsonSchemaToValibot {
       };
     } else if (schema.const) {
       return { type: 'const', data: { const: schema.const } };
-    } else if (schema.uniqueItems && schema.items && !isBoolean(schema.items)) {
+    } else if (schema.items && !isBoolean(schema.items)) {
       const result = this.#parseEnum(schema.items);
       if (result?.data) {
         return {
@@ -974,7 +977,10 @@ export class JsonSchemaToValibot {
       return;
     }
 
-    const conditionJSchema = { properties: {} } as JsonSchemaDraft202012Object;
+    const conditionJSchema = {
+      properties: {},
+      additionalProperties: false,
+    } as JsonSchemaDraft202012Object;
     const childConditionJSchemaList = childList.map(
       () => ({ properties: {} }) as JsonSchemaDraft202012Object,
     );
@@ -1044,7 +1050,9 @@ export class JsonSchemaToValibot {
           conditionJSchema.properties![key] = {
             type: 'array',
             items: {
-              enum: childPropList.flatMap((item) => item.enum!),
+              enum: childPropList.flatMap(
+                (item) => (item.items as JsonSchemaDraft202012Object)!.enum!,
+              ),
             },
             uniqueItems: true,
           };

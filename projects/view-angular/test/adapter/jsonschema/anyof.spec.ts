@@ -4,6 +4,7 @@ import anyOf2 from '../../fixture/jsonschema/anyof2.json';
 import anyOfCondition1 from '../../fixture/jsonschema/anyof-condition1.json';
 import anyOfConditionEnum from '../../fixture/jsonschema/anyof-condition-enum.json';
 import anyOfConditionStr from '../../fixture/jsonschema/anyof-condition-string.json';
+import anyOfConditionMulti from '../../fixture/jsonschema/anyof-condition-multiselect.json';
 
 import { createSchemaComponent } from '../../util/create-component';
 import { signal } from '@angular/core';
@@ -15,6 +16,7 @@ import {
 import { PiyingViewGroup } from '@piying/view-angular';
 import { SelectComponent } from '../component/select/component';
 import { isUndefined, omitBy } from 'es-toolkit';
+import { getDeepError } from '@piying/view-angular-core';
 describe('anyof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(anyOf as any) as any;
@@ -165,6 +167,54 @@ describe('anyof', () => {
     expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({
       cond1: 10,
       value2: 10,
+    });
+  });
+  fit('condition-multi', async () => {
+    const define = jsonSchemaToValibot(anyOfConditionMulti as any) as any;
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal({ cond1: [1], value1: 10 }),
+      {
+        types: {
+          number: { type: NumberComponent },
+          'anyOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+          multiselect: { type: SelectComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldLogicGroup(field.form.control);
+    expect(field?.form.control?.valid).toBeTrue();
+    expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({
+      cond1: [1],
+      value1: 10,
+    });
+    expect(element.querySelectorAll('app-select').length).toEqual(1);
+
+    field?.form.control?.updateValue({ cond1: [3], value1: 10 });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field?.form.control?.valid).toBeFalse();
+
+    field?.form.control?.updateValue({ cond1: [3], value2: 10 });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field?.form.control?.valid).toBeTrue();
+    expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({
+      cond1: [3],
+      value2: 10,
+    });
+    field?.form.control?.updateValue({ cond1: [2, 3], value2: 10, value1: 10 });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field?.form.control?.valid).toBeTrue();
+    expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({
+      cond1: [2, 3],
+      value2: 10,
+      value1: 10,
     });
   });
 });
