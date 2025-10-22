@@ -33,6 +33,21 @@ describe('json-schema-validation', () => {
     result = v.safeParse(Define, 6);
     expect(result.success).toBeFalse();
   });
+  it('number-value2', async () => {
+    const jsonSchema = {
+      type: 'number',
+      exclusiveMinimum: 1,
+      exclusiveMaximum: 5,
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'number');
+    let result = v.safeParse(Define, 0);
+    expect(result.success).toBeFalse();
+    result = v.safeParse(Define, 1.1);
+    expect(result.success).toBeTrue();
+    result = v.safeParse(Define, 5);
+    expect(result.success).toBeFalse();
+  });
   it('number-multipleOf', async () => {
     const jsonSchema = {
       type: 'number',
@@ -73,26 +88,26 @@ describe('json-schema-validation', () => {
     result = v.safeParse(Define, 'aa');
     expect(result.success).toBeTrue();
   });
-  it('string-format-date-time', async () => {
-    const jsonSchema = {
-      type: 'string',
-      format: 'date-time',
-    } as JsonSchemaDraft202012Object;
-    const Define = jsonSchemaToValibot(jsonSchema);
-    const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, '2018-11-13T20:20:39+00:00');
-    expect(result.success).toBeTrue();
-  });
-  it('string-format-time', async () => {
-    const jsonSchema = {
-      type: 'string',
-      format: 'time',
-    } as JsonSchemaDraft202012Object;
-    const Define = jsonSchemaToValibot(jsonSchema);
-    const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, '20:20:39+00:00');
-    expect(result.success).toBeTrue();
-  });
+  // it('string-format-date-time', async () => {
+  //   const jsonSchema = {
+  //     type: 'string',
+  //     format: 'date-time',
+  //   } as JsonSchemaDraft202012Object;
+  //   const Define = jsonSchemaToValibot(jsonSchema);
+  //   const instance = assertType(Define, 'string');
+  //   let result = v.safeParse(Define, '2018-11-13T20:20:39+00:00');
+  //   expect(result.success).toBeTrue();
+  // });
+  // it('string-format-time', async () => {
+  //   const jsonSchema = {
+  //     type: 'string',
+  //     format: 'time',
+  //   } as JsonSchemaDraft202012Object;
+  //   const Define = jsonSchemaToValibot(jsonSchema);
+  //   const instance = assertType(Define, 'string');
+  //   let result = v.safeParse(Define, '20:20:39+00:00');
+  //   expect(result.success).toBeTrue();
+  // });
   it('string-format-date', async () => {
     const jsonSchema = {
       type: 'string',

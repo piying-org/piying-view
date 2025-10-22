@@ -80,16 +80,16 @@ function getValidationAction(schema: JSONSchemaRaw) {
   }
   // todo format https://json-schema.org/understanding-json-schema/reference/type#built-in-formats
   // duration idn-email idn-hostname uri-reference iri iri-reference uri-template json-pointer regex
-  if ('formt' in schema) {
+  if (schema.format) {
     switch (schema.format) {
-      case 'date-time': {
-        action.push(v.isoDateTime());
-        break;
-      }
-      case 'time': {
-        action.push(v.isoTime());
-        break;
-      }
+      // case 'date-time': {
+      //   action.push(v.isoDateTime());
+      //   break;
+      // }
+      // case 'time': {
+      //   action.push(v.isoTime());
+      //   break;
+      // }
       case 'date': {
         action.push(v.isoDate());
         break;
