@@ -232,22 +232,22 @@ export class JsonSchemaToValibot {
   }
   convert() {
     const schema = clone(this.root);
-    const result = this.itemToVSchema2(schema);
+    const result = this.#itemToVSchema2(schema);
     return result;
   }
 
-  itemToVSchema(schema: JsonSchemaDraft202012Object) {
+  #itemToVSchema(schema: JsonSchemaDraft202012Object) {
     if (schema && schema.$ref) {
       schema = this.resolveDefinition(schema, { schema: this.root });
     }
     if (schema.allOf) {
       const result = this.#mergeSchema(schema, ...schema.allOf);
-      const resultList = this.jsonSchemaBase(result.schema)!;
+      const resultList = this.#jsonSchemaBase(result.schema)!;
       return v.pipe(resultList, ...result.actionList);
     }
     if (schema.anyOf && !isBoolean(schema.anyOf)) {
       const resolved = this.#resolveJsonSchema(schema);
-      return this.conditionCreate(resolved, {
+      return this.#conditionCreate(resolved, {
         useOr: false,
         getChildren: () => schema.anyOf!,
         conditionCheckActionFn(childOriginSchemaList, getActivateList) {
@@ -290,7 +290,7 @@ export class JsonSchemaToValibot {
     }
     if (schema.oneOf && !isBoolean(schema.oneOf)) {
       const resolved = this.#resolveJsonSchema(schema);
-      return this.conditionCreate(resolved, {
+      return this.#conditionCreate(resolved, {
         useOr: true,
         getChildren() {
           return schema.oneOf!;
@@ -334,7 +334,7 @@ export class JsonSchemaToValibot {
       const baseActionList = getValidationAction(schema);
       const status$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
-        this.jsonSchemaBase(this.#resolveJsonSchema(schema)),
+        this.#jsonSchemaBase(this.#resolveJsonSchema(schema)),
         ...baseActionList,
         hideWhen({
           disabled: false,
@@ -360,7 +360,7 @@ export class JsonSchemaToValibot {
       } else {
         const ifSchema = this.#mergeSchema(schema, schema.if!);
         ifVSchema = v.pipe(
-          this.jsonSchemaBase(ifSchema.schema)!,
+          this.#jsonSchemaBase(ifSchema.schema)!,
           ...ifSchema.actionList,
         );
       }
@@ -368,7 +368,7 @@ export class JsonSchemaToValibot {
       if (schema.then && !isBoolean(schema.then)) {
         const subSchema = this.#mergeSchema(schema, schema.then!);
         thenSchema = v.pipe(
-          this.jsonSchemaBase(subSchema.schema),
+          this.#jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
           jsonActions.renderConfig({ hidden: true }),
           hideWhen({
@@ -387,7 +387,7 @@ export class JsonSchemaToValibot {
       if (schema.else && !isBoolean(schema.else)) {
         const subSchema = this.#mergeSchema(schema, schema.else);
         elseSchema = v.pipe(
-          this.jsonSchemaBase(subSchema.schema),
+          this.#jsonSchemaBase(subSchema.schema),
           ...subSchema.actionList,
           jsonActions.renderConfig({ hidden: true }),
           hideWhen({
@@ -436,15 +436,15 @@ export class JsonSchemaToValibot {
     }
 
     return v.pipe(
-      this.jsonSchemaBase(this.#resolveJsonSchema(schema)),
+      this.#jsonSchemaBase(this.#resolveJsonSchema(schema)),
       ...getValidationAction(schema),
     );
   }
-  itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema | undefined {
+  #itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema | undefined {
     if (isBoolean(schema)) {
       return undefined;
     }
-    const result = this.itemToVSchema(schema);
+    const result = this.#itemToVSchema(schema);
     this.cacheSchema.set(schema, result);
     return result;
   }
@@ -454,7 +454,7 @@ export class JsonSchemaToValibot {
       return schema as any as ResolvedJsonSchema;
     }
     const resolved = schema as any as ResolvedJsonSchema;
-    const type = this.guessSchemaType(schema);
+    const type = this.#guessSchemaType(schema);
     resolved.resolved = { type };
     if (type.types.includes('object')) {
       resolved.resolved['objectDep'] = this.resolveDependencies(schema);
@@ -467,7 +467,7 @@ export class JsonSchemaToValibot {
     return resolved;
   }
 
-  private jsonSchemaBase(schema: ResolvedJsonSchema) {
+  #jsonSchemaBase(schema: ResolvedJsonSchema) {
     const types = schema.resolved.type;
     // 暂时为只支持一个
     const type = types.types[0];
@@ -520,7 +520,7 @@ export class JsonSchemaToValibot {
         if (schema.properties) {
           for (const key in schema.properties) {
             const itemSchema = schema.properties[key];
-            const childResult = this.itemToVSchema2(itemSchema);
+            const childResult = this.#itemToVSchema2(itemSchema);
             const isRequired = !!schema.required?.includes(key);
             let item = childResult;
             if (!item) {
@@ -557,12 +557,12 @@ export class JsonSchemaToValibot {
         } else if (schema.additionalProperties) {
           mode = 'rest';
           // rest要符合的规则
-          additionalRest = this.itemToVSchema2(schema.additionalProperties!);
+          additionalRest = this.#itemToVSchema2(schema.additionalProperties!);
         }
         if (schema.patternProperties) {
           patternMapRest = {};
           for (const key in schema.patternProperties) {
-            const item = this.itemToVSchema2(schema.patternProperties[key]);
+            const item = this.#itemToVSchema2(schema.patternProperties[key]);
             if (!item) {
               throw new Error(`patternProperties->${key}: 定义未找到`);
             }
@@ -571,7 +571,7 @@ export class JsonSchemaToValibot {
         }
         for (const key in schemaDeps) {
           const element = schemaDeps[key];
-          let result = this.itemToVSchema2(element);
+          let result = this.#itemToVSchema2(element);
           if (!result) {
             throw new Error(`依赖->${key}: 定义未找到`);
           }
@@ -591,7 +591,7 @@ export class JsonSchemaToValibot {
         }
 
         if (schema.propertyNames) {
-          propertyNamesRest = this.itemToVSchema2(schema.propertyNames);
+          propertyNamesRest = this.#itemToVSchema2(schema.propertyNames);
         }
         let schemaDefine;
         if (!Object.keys(childObject).length) {
@@ -649,11 +649,11 @@ export class JsonSchemaToValibot {
         const fixedItems = schema.prefixItems;
         if (Array.isArray(fixedItems) && fixedItems.length) {
           const fixedList = fixedItems.map(
-            (item) => this.itemToVSchema2(<JsonSchemaDraft202012Object>item)!,
+            (item) => this.#itemToVSchema2(<JsonSchemaDraft202012Object>item)!,
           );
 
           if (schema.items) {
-            const result = this.itemToVSchema2(schema.items as any);
+            const result = this.#itemToVSchema2(schema.items as any);
             parent = v.tupleWithRest(fixedList, result!);
           } else if (schema.items === false) {
             parent = v.tuple(fixedList);
@@ -662,12 +662,12 @@ export class JsonSchemaToValibot {
           }
           return createTypeFn(parent);
         } else if (schema.items) {
-          const itemResult = this.itemToVSchema2(schema.items as any);
+          const itemResult = this.#itemToVSchema2(schema.items as any);
           parent = v.array(itemResult!);
         }
         // 校验
         if ('contains' in schema) {
-          const containsSchema = this.itemToVSchema2(schema.contains as any)!;
+          const containsSchema = this.#itemToVSchema2(schema.contains as any)!;
           const minContains = (schema as any).minContains ?? 1;
           actionList.push(
             v.check((list) => {
@@ -781,7 +781,7 @@ export class JsonSchemaToValibot {
     return { requiredRelate, schemaDeps };
   }
   /** todo 当前只能存在一个类型 */
-  private guessSchemaType(
+  #guessSchemaType(
     schema: JsonSchemaDraft202012Object,
   ): ResolvedJsonSchema['resolved']['type'] {
     let type = schema?.type;
@@ -946,11 +946,11 @@ export class JsonSchemaToValibot {
     }
     return { schema: this.#resolveJsonSchema(base), actionList };
   }
-  resolveSchema2(schema: JsonSchemaDraft202012Object) {
+  #resolveSchema2(schema: JsonSchemaDraft202012Object) {
     const result = this.resolveDefinition(schema, { schema: this.root });
     return this.#resolveJsonSchema(result);
   }
-  arrayInclude(a: any[], b: any[]) {
+  #arrayInclude(a: any[], b: any[]) {
     return b.filter((item) => a.some((item2) => deepEqual(item, item2)));
   }
   #parseEnum(schema: JsonSchemaDraft202012Object):
@@ -983,17 +983,17 @@ export class JsonSchemaToValibot {
     }
     return undefined;
   }
-  intersectSchemaType(
+  #intersectSchemaType(
     a: JsonSchemaDraft202012Object | undefined,
     b: JsonSchemaDraft202012Object,
   ) {
-    const parent = a ? this.resolveSchema2(a) : undefined;
+    const parent = a ? this.#resolveSchema2(a) : undefined;
     b = parent ? this.#mergeSchema(parent, b).schema : b;
-    const child = this.resolveSchema2(b);
+    const child = this.#resolveSchema2(b);
     const parentEnum = parent ? this.#parseEnum(parent) : undefined;
     const childEnum = this.#parseEnum(child);
     if (parentEnum?.data.items && childEnum?.data.items) {
-      const result = this.arrayInclude(
+      const result = this.#arrayInclude(
         (parentEnum.data.items! as JsonSchemaDraft202012Object).enum!,
         (childEnum.data.items! as JsonSchemaDraft202012Object).enum!,
       );
@@ -1013,7 +1013,7 @@ export class JsonSchemaToValibot {
 
     // 枚举
     if (parentEnum?.data.enum && childEnum?.data.enum) {
-      const result = this.arrayInclude(
+      const result = this.#arrayInclude(
         parentEnum.data.enum,
         childEnum.data.enum,
       );
@@ -1047,7 +1047,7 @@ export class JsonSchemaToValibot {
     }
     return;
   }
-  schemaExtract(
+  #schemaExtract(
     schema: ResolvedJsonSchema,
     ...childList: ResolvedJsonSchema[]
   ) {
@@ -1087,7 +1087,7 @@ export class JsonSchemaToValibot {
       let currentType = undefined;
       const childPropList: JsonSchemaDraft202012Object[] = [];
       for (const sub of childList) {
-        const result = this.intersectSchemaType(
+        const result = this.#intersectSchemaType(
           schema?.properties?.[key] as any,
           sub.properties![key] as any,
         );
@@ -1148,7 +1148,7 @@ export class JsonSchemaToValibot {
     return { conditionJSchema, childConditionJSchemaList, conditionKeyList };
   }
 
-  conditionCreate(
+  #conditionCreate(
     schema: ResolvedJsonSchema,
     options: {
       getChildren: () => JsonSchemaDraft202012[];
@@ -1174,7 +1174,7 @@ export class JsonSchemaToValibot {
       item.resolved.type.types.includes('object'),
     );
     const childOriginSchemaList = resolvedChildList.map((item) => {
-      const result = this.jsonSchemaBase(item.schema);
+      const result = this.#jsonSchemaBase(item.schema);
       return v.pipe(result, ...item.actionList);
     });
     let activateList: boolean[] = [];
@@ -1185,7 +1185,7 @@ export class JsonSchemaToValibot {
     );
     // 仅处理object,实现条件显示
     if (isObject) {
-      const conditionResult = this.schemaExtract(
+      const conditionResult = this.#schemaExtract(
         schema,
         ...resolvedChildJSchemaList,
       );
@@ -1195,13 +1195,13 @@ export class JsonSchemaToValibot {
           conditionResult.childConditionJSchemaList.map((schema) => {
             const rSchema = this.#resolveJsonSchema(schema);
             return v.pipe(
-              this.jsonSchemaBase(rSchema),
+              this.#jsonSchemaBase(rSchema),
               ...getValidationAction(rSchema),
             );
           });
 
         const conditionVSchema = v.pipe(
-          this.jsonSchemaBase(
+          this.#jsonSchemaBase(
             this.#resolveJsonSchema(conditionResult.conditionJSchema),
           ),
           jsonActions.valueChange((fn) => {
@@ -1242,11 +1242,11 @@ export class JsonSchemaToValibot {
         });
         const baseActionList = getValidationAction(schema);
         const baseSchema = v.pipe(
-          this.jsonSchemaBase(schema),
+          this.#jsonSchemaBase(schema),
           ...baseActionList,
         );
         const childSchemaList = resolvedChildJSchemaList.map((item) => {
-          const result = this.jsonSchemaBase(item);
+          const result = this.#jsonSchemaBase(item);
           return v.pipe(result);
         });
         return v.pipe(
@@ -1260,7 +1260,7 @@ export class JsonSchemaToValibot {
       }
     }
     const baseActionList = getValidationAction(schema);
-    const baseSchema = v.pipe(this.jsonSchemaBase(schema), ...baseActionList);
+    const baseSchema = v.pipe(this.#jsonSchemaBase(schema), ...baseActionList);
     activateList = childOriginSchemaList.map((_, i) => true);
     return v.pipe(baseSchema, conditionCheckAction);
   }
