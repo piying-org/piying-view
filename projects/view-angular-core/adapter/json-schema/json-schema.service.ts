@@ -447,6 +447,14 @@ export class JsonSchemaToValibot {
       resolved.prefixItems = arrayItem?.prefixItems;
       resolved.items = arrayItem?.items;
     }
+    if ((schema.exclusiveMaximum as any) === true) {
+      schema.exclusiveMaximum = schema.maximum;
+      delete schema.maximum;
+    }
+    if ((schema.exclusiveMinimum as any) === true) {
+      schema.exclusiveMinimum = schema.minimum;
+      delete schema.minimum;
+    }
     return resolved;
   }
 
