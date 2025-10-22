@@ -535,6 +535,9 @@ export class JsonSchemaToValibot {
           propertyNamesRest = this.itemToVSchema2(schema.propertyNames);
         }
         let schemaDefine;
+        if (!Object.keys(childObject).length) {
+          types.optional = true;
+        }
         if (mode === 'default') {
           if (conditionList.length) {
             schemaDefine = v.pipe(
@@ -976,7 +979,6 @@ export class JsonSchemaToValibot {
       // 无效返回
       return;
     }
-
     const conditionJSchema = {
       properties: {},
       additionalProperties: false,

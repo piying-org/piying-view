@@ -87,6 +87,11 @@ describe('anyof', () => {
       cond1: 2,
       value2: 10,
     });
+    field?.form.control?.updateValue({});
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field?.form.control?.valid).toBeTrue();
+    expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({});
   });
   it('condition-enum', async () => {
     const define = jsonSchemaToValibot(anyOfConditionEnum as any) as any;
