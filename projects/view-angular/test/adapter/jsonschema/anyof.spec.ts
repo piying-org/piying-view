@@ -6,6 +6,7 @@ import anyOfConditionEnum from '../../fixture/jsonschema/anyof-condition-enum.js
 import anyOfConditionStr from '../../fixture/jsonschema/anyof-condition-string.json';
 import anyOfConditionMulti from '../../fixture/jsonschema/anyof-condition-multiselect.json';
 import anyOfConditionMultiKey from '../../fixture/jsonschema/anyof-condition-multi-key.json';
+import anyOfConditionBase from '../../fixture/jsonschema/anyof-condition-base.json';
 
 import { createSchemaComponent } from '../../util/create-component';
 import { signal } from '@angular/core';
@@ -258,6 +259,44 @@ describe('anyof', () => {
       cond1: 3,
       cond2: 4,
       value2: 10,
+    });
+  });
+  it('condition-base', async () => {
+    const define = jsonSchemaToValibot(anyOfConditionBase as any) as any;
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal({ cond1: 1, cond2: 2, value1: 10 }),
+      {
+        types: {
+          number: { type: NumberComponent },
+          'anyOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldLogicGroup(field.form.control);
+    expect(field?.form.control?.valid).toBeTrue();
+    expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({
+      cond1: 1,
+      cond2: 2,
+      value1: 10,
+    });
+    field?.form.control?.updateValue({
+      cond1: 3,
+      cond2: 2,
+      value1: 10,
+      common1: 11,
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({
+      cond1: 3,
+      cond2: 2,
+      value1: 10,
+      common1: 11,
     });
   });
 });
