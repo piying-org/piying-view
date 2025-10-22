@@ -518,21 +518,20 @@ export class JsonSchemaToValibot {
         // 普通属性
         if (schema.properties) {
           for (const key in schema.properties) {
-            const itemSchema = schema.properties[key];
-            const childResult = this.#itemToVSchema2(itemSchema);
+            const propJSchema = schema.properties[key];
+            let propVSchema = this.#itemToVSchema2(propJSchema);
             const isRequired = !!schema.required?.includes(key);
-            let item = childResult;
-            if (!item) {
+            if (!propVSchema) {
               continue;
             }
-            if (!isRequired && item.type !== 'optional') {
-              item = v.optional(item);
+            if (!isRequired && propVSchema.type !== 'optional') {
+              propVSchema = v.optional(propVSchema);
             }
             // 条件必须
             const relateList = requiredRelate[key];
             if (relateList) {
-              item = v.pipe(
-                item,
+              propVSchema = v.pipe(
+                propVSchema,
                 formConfig({
                   validators: [
                     (control) => {
@@ -547,7 +546,7 @@ export class JsonSchemaToValibot {
                 }),
               );
             }
-            childObject[key] = item;
+            childObject[key] = propVSchema;
           }
         }
         // 附加属性规则
@@ -640,19 +639,17 @@ export class JsonSchemaToValibot {
         return createTypeFn(schemaDefine);
       }
       case 'array': {
-        if (!schema.items && !schema.prefixItems) {
+        if (isUndefined(schema.items) && isUndefined(schema.prefixItems)) {
           return v.lazy(() => createTypeFn(v.array(v.any())));
         }
-        actionList.push(jsonActions.setWrappers(WrapperList));
         let parent: v.BaseSchema<any, any, any> | undefined;
         const fixedItems = schema.prefixItems;
-        if (Array.isArray(fixedItems) && fixedItems.length) {
+        if (fixedItems && fixedItems.length) {
           const fixedList = fixedItems.map(
             (item) => this.#itemToVSchema2(<JsonSchemaDraft202012Object>item)!,
           );
-
           if (schema.items) {
-            const result = this.#itemToVSchema2(schema.items as any);
+            const result = this.#itemToVSchema2(schema.items);
             parent = v.tupleWithRest(fixedList, result!);
           } else if (schema.items === false) {
             parent = v.tuple(fixedList);
@@ -660,6 +657,8 @@ export class JsonSchemaToValibot {
             parent = v.looseTuple(fixedList);
           }
           return createTypeFn(parent);
+        } else if (isBoolean(schema.items)) {
+          parent = schema.items ? v.array(v.any()) : v.tuple([]);
         } else if (schema.items) {
           const itemResult = this.#itemToVSchema2(schema.items as any);
           parent = v.array(itemResult!);
