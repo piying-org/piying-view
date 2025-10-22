@@ -65,17 +65,18 @@ function getMetadataAction(schema: JSONSchemaRaw) {
 function getValidationAction(schema: JSONSchemaRaw) {
   const action = [];
 
-  // string
-  if ('minLength' in schema) {
-    action.push(v.minLength(schema['minLength']!));
+  // string/array
+  if (isNumber(schema.minLength) || isNumber(schema.minItems)) {
+    action.push(v.minLength(schema.minLength ?? schema.minItems!));
   }
-  // string
-  if ('maxLength' in schema) {
-    action.push(v.maxLength(schema['maxLength']!));
+  // string/array
+  if (isNumber(schema.maxLength) || isNumber(schema.maxItems)) {
+    action.push(v.maxLength(schema.maxLength ?? schema.maxItems!));
   }
+
   // string
-  if ('pattern' in schema) {
-    action.push(v.regex(new RegExp(schema['pattern']!)));
+  if (isString(schema.pattern)) {
+    action.push(v.regex(new RegExp(schema.pattern)));
   }
   // todo format https://json-schema.org/understanding-json-schema/reference/type#built-in-formats
   // duration idn-email idn-hostname uri-reference iri iri-reference uri-template json-pointer regex
@@ -118,57 +119,39 @@ function getValidationAction(schema: JSONSchemaRaw) {
         break;
     }
   }
+
   // number
-  if (
-    'minimum' in schema &&
-    'exclusiveMinimum' in schema &&
-    (schema as any).exclusiveMinimum === true
-  ) {
-    action.push(v.gtValue(schema.minimum!));
-  } else if ('exclusiveMinimum' in schema) {
+  if (isNumber(schema.exclusiveMinimum)) {
     action.push(v.gtValue(schema.exclusiveMinimum!));
-  } else if ('minimum' in schema) {
-    action.push(v.minValue(schema.minimum!));
   }
+  if (isNumber(schema.exclusiveMaximum)) {
+    action.push(v.ltValue(schema.exclusiveMaximum));
+  }
+  if (isNumber(schema.minimum)) {
+    action.push(v.minValue(schema.minimum));
+  }
+  if (isNumber(schema.maximum)) {
+    action.push(v.maxValue(schema.maximum));
+  }
+
   // number
-  if (
-    'maximum' in schema &&
-    'exclusiveMaximum' in schema &&
-    (schema as any).exclusiveMaximum === true
-  ) {
-    action.push(v.ltValue(schema.maximum!));
-  } else if ('exclusiveMaximum' in schema) {
-    action.push(v.ltValue(schema.exclusiveMaximum!));
-  } else if ('maximum' in schema) {
-    action.push(v.maxValue(schema.maximum!));
+  if (isNumber(schema.multipleOf)) {
+    action.push(v.multipleOf(schema.multipleOf));
   }
-  // number
-  if ('multipleOf' in schema) {
-    action.push(v.multipleOf(schema.multipleOf!));
-  }
+
   // array
-  if ('minItems' in schema) {
-    action.push(v.minLength(schema.minItems!));
-  }
-  // array
-  if ('maxItems' in schema) {
-    action.push(v.maxLength(schema.maxItems!));
-  }
-  // array
-  if ('uniqueItems' in schema) {
-    action.push(
-      v.check((input: any[]) => new Set(input).size === input.length),
-    );
+  if (schema.uniqueItems) {
+    action.push(v.check((input: any[]) => uniq(input).length === input.length));
   }
   // object
-  if ('maxProperties' in schema) {
-    action.push(v.maxEntries(schema.maxProperties!));
+  if (isNumber(schema.maxProperties)) {
+    action.push(v.maxEntries(schema.maxProperties));
   }
   // object
-  if ('minProperties' in schema) {
-    action.push(v.minEntries(schema.minProperties!));
+  if (isNumber(schema.minProperties)) {
+    action.push(v.minEntries(schema.minProperties));
   }
-  if ('actions' in schema) {
+  if (schema.actions) {
     for (const rawAction of schema.actions!) {
       action.push(
         (jsonActions as any)[rawAction.name].apply(undefined, rawAction.params),
@@ -783,10 +766,10 @@ export class JsonSchemaToValibot {
     schema: JsonSchemaDraft202012Object,
   ): ResolvedJsonSchema['resolved']['type'] {
     let type = schema?.type;
-    if (!type && schema?.properties) {
-      return { types: ['object'], optional: false };
-    }
 
+    if (isString(type)) {
+      return { types: [type], optional: false };
+    }
     if (Array.isArray(type)) {
       if (type.length === 1) {
         return { types: type, optional: false };
