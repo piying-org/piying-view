@@ -195,4 +195,17 @@ describe('json-schema-validation', () => {
     result = v.safeParse(Define, { a: 1, b: 1, c: 2 });
     expect(result.success).toBeFalse();
   });
+  it('metadata', async () => {
+    const jsonSchema = {
+      type: 'string',
+      title: 'title1',
+      description: 'description1',
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'string');
+    let result = v.safeParse(Define, '1');
+    expect(result.success).toBeTrue();
+    expect(v.getTitle(Define)).toEqual('title1');
+    expect(v.getDescription(Define)).toEqual('description1');
+  });
 });
