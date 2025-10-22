@@ -506,6 +506,28 @@ export class JsonSchemaToValibot {
         const conditionList = [];
         // 关联
         const { requiredRelate, schemaDeps } = schema.resolved.objectDep!;
+        if (schema.dependentRequired) {
+          actionList.push(
+            v.rawCheck(({ dataset, addIssue }) => {
+              if (dataset.issues) {
+                return;
+              }
+              Object.keys(schema.dependentRequired!).forEach((key) => {
+                if ((dataset.value as any)?.[key] !== undefined) {
+                  for (const reqKey of schema.dependentRequired![key]) {
+                    if ((dataset.value as any)[reqKey] === undefined) {
+                      addIssue({
+                        label: `dependentRequired:${key}=>${reqKey}`,
+                        expected: '[required]',
+                        received: 'undefined',
+                      });
+                    }
+                  }
+                }
+              });
+            }),
+          );
+        }
         // 普通属性
         if (schema.properties) {
           for (const key in schema.properties) {
@@ -558,27 +580,47 @@ export class JsonSchemaToValibot {
             patternMapRest[key] = item;
           }
         }
-        for (const key in schemaDeps) {
-          const element = schemaDeps[key];
-          let result = this.#itemToVSchema2(element);
-          if (!result) {
-            throw new Error(`依赖->${key}: 定义未找到`);
+
+        if (schema.dependentSchemas) {
+          let depSchemaMap = {} as Record<string, ResolvedSchema>;
+          for (const key in schema.dependentSchemas) {
+            const jSchema = schema.dependentSchemas[key];
+            let vSchema = this.#itemToVSchema2(jSchema);
+            if (!vSchema) {
+              throw new Error(`依赖->${key}: 定义未找到`);
+            }
+            depSchemaMap[key] = vSchema;
+
+            vSchema = v.pipe(
+              vSchema,
+              hideWhen({
+                disabled: true,
+                listen: (fn, field) =>
+                  field
+                    .get(['..', '..', 0, key])!
+                    .form.control!.statusChanges.pipe(
+                      map((item) => item === 'VALID'),
+                    ),
+              }),
+            );
+            conditionList.push(vSchema);
           }
-          result = v.pipe(
-            result,
-            hideWhen({
-              disabled: true,
-              listen: (fn, field) =>
-                field
-                  .get(['..', '..', 0, key])!
-                  .form.control!.statusChanges.pipe(
-                    map((item) => item === 'VALID'),
-                  ),
+          actionList.push(
+            v.rawCheck(({ dataset, addIssue }) => {
+              if (dataset.issues) {
+                return;
+              }
+              Object.keys(schema.dependentSchemas!).forEach((key) => {
+                if ((dataset.value as any)?.[key] !== undefined) {
+                  let result = v.safeParse(depSchemaMap[key], dataset.value);
+                  if (!result.success) {
+                    addIssue();
+                  }
+                }
+              });
             }),
           );
-          conditionList.push(result);
         }
-
         if (schema.propertyNames) {
           propertyNamesRest = this.#itemToVSchema2(schema.propertyNames);
         }
@@ -589,7 +631,10 @@ export class JsonSchemaToValibot {
         if (mode === 'default') {
           if (conditionList.length) {
             schemaDefine = v.pipe(
-              v.intersect([v.looseObject(childObject), ...conditionList]),
+              cSchema.intersect([
+                v.looseObject(childObject),
+                v.optional(v.intersect(conditionList)),
+              ]),
             );
           } else {
             schemaDefine = v.pipe(v.looseObject(childObject));
@@ -597,7 +642,10 @@ export class JsonSchemaToValibot {
         } else if (mode === 'strict') {
           if (conditionList.length) {
             schemaDefine = v.pipe(
-              v.intersect([v.object(childObject), ...conditionList]),
+              cSchema.intersect([
+                v.object(childObject),
+                v.optional(v.intersect(conditionList)),
+              ]),
             );
           } else {
             schemaDefine = v.pipe(v.object(childObject));
@@ -733,41 +781,38 @@ export class JsonSchemaToValibot {
 
   private resolveDependencies(schema: JsonSchemaDraft202012Object) {
     const requiredRelate: { [id: string]: string[] } = {};
-    const schemaDeps: { [id: string]: JsonSchemaDraft202012Object } = {};
     const dependentRequired = (dependency: string[], prop: string) => {
       dependency.forEach((dep) => {
         requiredRelate[dep] ??= [];
         requiredRelate[dep].push(prop);
       });
     };
-    if ('dependencies' in schema) {
+    if ('dependencies' in schema && schema.dependencies) {
       const dependencies = schema.dependencies as Record<
         string,
-        JsonSchemaDraft07 | string[]
+        JsonSchemaDraft07
       >;
+      let dependentRequiredData = {} as Record<string, string[]>;
+      let dependentSchemasData = {} as Record<string, JsonSchemaDraft202012>;
       Object.keys(dependencies).forEach((prop) => {
         const dependency = dependencies![prop];
         if (Array.isArray(dependency)) {
-          dependentRequired(dependency, prop);
+          dependentRequiredData[prop] = dependency;
         } else {
-          schemaDeps[prop] = dependency as JsonSchemaDraft202012Object;
+          dependentSchemasData[prop] = dependency as any;
         }
       });
+      schema.dependentRequired = dependentRequiredData;
+      schema.dependentSchemas = dependentSchemasData;
     }
-    if ('dependentRequired' in schema) {
-      Object.keys(schema.dependentRequired || {}).forEach((prop) => {
+    if (schema.dependentRequired) {
+      Object.keys(schema.dependentRequired ?? {}).forEach((prop) => {
         const dependency = (schema.dependentRequired as any)![prop];
         dependentRequired(dependency, prop);
       });
     }
-    if ('dependentSchemas' in schema) {
-      Object.keys(schema.dependentSchemas || {}).forEach((prop) => {
-        const dependency = (schema.dependentSchemas as any)![prop];
-        schemaDeps[prop] = dependency as JsonSchemaDraft202012Object;
-      });
-    }
 
-    return { requiredRelate, schemaDeps };
+    return { requiredRelate, schemaDeps: schema.dependentSchemas };
   }
   /** todo 当前只能存在一个类型 */
   #guessSchemaType(
