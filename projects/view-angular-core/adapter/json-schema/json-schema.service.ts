@@ -247,31 +247,90 @@ export class JsonSchemaToValibot {
     }
     if (schema.anyOf && !isBoolean(schema.anyOf)) {
       const resolved = this.#resolveJsonSchema(schema);
-      return this.anyOfCreate(resolved);
+      return this.conditionCreate(resolved, {
+        useOr: false,
+        getChildren: () => {
+          return schema.anyOf!;
+        },
+        conditionCheckActionFn(childOriginSchemaList, getActivateList) {
+          return v.rawCheck(({ dataset, addIssue }) => {
+            if (dataset.issues) {
+              return;
+            }
+            // 验证项全为可选,所以需要这里再次验证
+            const hasSuccess = childOriginSchemaList.some((item, index) => {
+              const isActive = getActivateList()[index];
+              if (!isActive) {
+                return false;
+              }
+              const result = v.safeParse(item, dataset.value);
+              return result.success;
+            });
+            if (!hasSuccess) {
+              addIssue();
+            }
+          });
+        },
+        conditionSchemaFn(baseSchema, conditionVSchema, childSchemaList) {
+          return v.pipe(
+            v.intersect([
+              conditionVSchema,
+              baseSchema,
+              cSchema.intersect(
+                childSchemaList.map((item) =>
+                  v.pipe(
+                    v.optional(item),
+                    jsonActions.renderConfig({ hidden: true }),
+                  ),
+                ),
+              ),
+            ]),
+            jsonActions.setComponent('anyOf-condition'),
+          );
+        },
+      });
     }
     if (schema.oneOf && !isBoolean(schema.oneOf)) {
-      const resultList = schema.oneOf.map((item) => {
-        const result = this.#mergeSchema(schema, item);
-        const result2 = this.jsonSchemaBase(result.schema)!;
-        return v.pipe(result2, ...result.actionList);
-      });
-
-      return v.pipe(
-        v.union(resultList),
-        v.rawCheck(({ dataset, addIssue }) => {
-          if (dataset.issues) {
-            return;
-          }
-          // 验证项全为可选,所以需要这里再次验证
-          const hasSuccess = resultList.filter((item) => {
-            const result = v.safeParse(item, dataset.value);
-            return result.success;
+      const resolved = this.#resolveJsonSchema(schema);
+      return this.conditionCreate(resolved, {
+        useOr: true,
+        getChildren() {
+          return schema.oneOf!;
+        },
+        conditionCheckActionFn(childOriginSchemaList, getActivateList) {
+          return v.rawCheck(({ dataset, addIssue }) => {
+            if (dataset.issues) {
+              return;
+            }
+            // 验证项全为可选,所以需要这里再次验证
+            const hasSuccess = childOriginSchemaList.filter((item, index) => {
+              const isActive = getActivateList()[index];
+              if (!isActive) {
+                return false;
+              }
+              const result = v.safeParse(item, dataset.value);
+              return result.success;
+            });
+            if (hasSuccess.length !== 1) {
+              addIssue();
+            }
           });
-          if (hasSuccess.length !== 1) {
-            addIssue();
-          }
-        }),
-      );
+        },
+        conditionSchemaFn(baseSchema, conditionVSchema, childSchemaList) {
+          return v.pipe(
+            cSchema.intersect([
+              conditionVSchema,
+              baseSchema,
+              v.union(
+                childSchemaList.map((item) =>
+                  v.pipe(item, jsonActions.renderConfig({ hidden: true })),
+                ),
+              ),
+            ]),
+            jsonActions.setComponent('oneOf-condition'),
+          );
+        },
+      });
     }
     if ('if' in schema) {
       const baseActionList = getValidationAction(schema);
@@ -1091,10 +1150,25 @@ export class JsonSchemaToValibot {
     return { conditionJSchema, childConditionJSchemaList, conditionKeyList };
   }
 
-  anyOfCreate(schema: ResolvedJsonSchema) {
-    const resolvedChildList = schema.anyOf!.map((item) =>
-      this.#mergeSchema(schema, item),
-    );
+  conditionCreate(
+    schema: ResolvedJsonSchema,
+    options: {
+      getChildren: () => JsonSchemaDraft202012[];
+      conditionSchemaFn: (
+        baseSchema: ResolvedSchema,
+        conditionVSchema: ResolvedSchema,
+        childSchemaList: ResolvedSchema[],
+      ) => ResolvedSchema;
+      conditionCheckActionFn: (
+        childOriginSchemaList: ResolvedSchema[],
+        getActivateList: () => boolean[],
+      ) => v.BaseValidation<any, any, any>;
+      useOr: boolean;
+    },
+  ) {
+    const resolvedChildList = options
+      .getChildren()!
+      .map((item) => this.#mergeSchema(schema, item));
     const resolvedChildJSchemaList = resolvedChildList.map(
       (item) => item.schema,
     );
@@ -1106,23 +1180,11 @@ export class JsonSchemaToValibot {
       return v.pipe(result, ...item.actionList);
     });
     let activateList: boolean[] = [];
-    const conditionCheckAction = v.rawCheck(({ dataset, addIssue }) => {
-      if (dataset.issues) {
-        return;
-      }
-      // 验证项全为可选,所以需要这里再次验证
-      const hasSuccess = childOriginSchemaList.some((item, index) => {
-        const isActive = activateList[index];
-        if (!isActive) {
-          return false;
-        }
-        const result = v.safeParse(item, dataset.value);
-        return result.success;
-      });
-      if (!hasSuccess) {
-        addIssue();
-      }
-    });
+
+    const conditionCheckAction = options.conditionCheckActionFn(
+      childOriginSchemaList,
+      () => activateList,
+    );
     // 仅处理object,实现条件显示
     if (isObject) {
       const conditionResult = this.schemaExtract(
@@ -1146,10 +1208,10 @@ export class JsonSchemaToValibot {
           ),
           jsonActions.valueChange((fn) => {
             fn().subscribe(({ list: [value], field }) => {
-              activateList = [];
-              const parent = field.get(['..'])!.form
+              activateList.length = 0;
+              let conditionParent = field.get(['..', 2])!.form
                 .control as any as jsonActions.FieldLogicGroup;
-              const parentAList = parent!.children$$().slice(0, 2);
+              const parentAList = [];
 
               for (
                 let index = 0;
@@ -1158,17 +1220,19 @@ export class JsonSchemaToValibot {
               ) {
                 const schema = childConditionVSchemaList[index];
                 const result = v.safeParse(schema, value);
-                const childIndex = index + 2;
                 activateList.push(result.success);
-                field.get(['..', childIndex])?.renderConfig.update((data) => ({
+
+                field.get(['..', 2, index])?.renderConfig.update((data) => ({
                   ...data,
                   hidden: !result.success,
                 }));
                 if (result.success) {
-                  parentAList.push(parent!.children$$!()[childIndex]);
+                  parentAList.push(conditionParent!.children$$!()[index]);
                 }
               }
-              parent.activateControls$.set(parentAList);
+              if (!options.useOr) {
+                conditionParent.activateControls$.set(parentAList);
+              }
             });
           }),
         );
@@ -1188,17 +1252,11 @@ export class JsonSchemaToValibot {
           return v.pipe(result);
         });
         return v.pipe(
-          cSchema.intersect([
-            conditionVSchema,
+          options.conditionSchemaFn(
             baseSchema,
-            ...childSchemaList.map((item) =>
-              v.pipe(
-                v.optional(item),
-                jsonActions.renderConfig({ hidden: true }),
-              ),
-            ),
-          ]),
-          jsonActions.setComponent('anyOf-condition'),
+            conditionVSchema,
+            childSchemaList,
+          ),
           conditionCheckAction,
         );
       }
