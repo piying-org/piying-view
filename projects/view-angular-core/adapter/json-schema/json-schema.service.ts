@@ -7,10 +7,12 @@ import {
   intersection,
   isBoolean,
   isNil,
+  isString,
   isUndefined,
   union,
   uniq,
 } from 'es-toolkit';
+import { isNumber } from 'es-toolkit/compat';
 import { BehaviorSubject } from 'rxjs';
 import { schema as cSchema } from '@piying/valibot-visit';
 import {
@@ -743,8 +745,29 @@ export class JsonSchemaToValibot {
         optional: nullIndex !== -1,
       };
     }
-    if (schema.items || schema.prefixItems) {
+    if (
+      schema.items ||
+      schema.prefixItems ||
+      isNumber(schema.minContains) ||
+      isNumber(schema.maxContains)
+    ) {
       type = 'array';
+    }
+    if (
+      isNumber(schema.minimum) ||
+      isNumber(schema.maximum) ||
+      isNumber(schema.exclusiveMaximum) ||
+      isNumber(schema.exclusiveMinimum) ||
+      isNumber(schema.multipleOf)
+    ) {
+      type = 'number';
+    }
+    if (
+      isNumber(schema.minLength) ||
+      isNumber(schema.maxLength) ||
+      isString(schema.pattern)
+    ) {
+      type = 'string';
     }
 
     return type
@@ -1078,6 +1101,28 @@ export class JsonSchemaToValibot {
     const isObject = [schema, ...resolvedChildJSchemaList].every((item) =>
       item.resolved.type.types.includes('object'),
     );
+    const childOriginSchemaList = resolvedChildList.map((item) => {
+      const result = this.jsonSchemaBase(item.schema);
+      return v.pipe(result, ...item.actionList);
+    });
+    let activateList: boolean[] = [];
+    const conditionCheckAction = v.rawCheck(({ dataset, addIssue }) => {
+      if (dataset.issues) {
+        return;
+      }
+      // 验证项全为可选,所以需要这里再次验证
+      const hasSuccess = childOriginSchemaList.some((item, index) => {
+        const isActive = activateList[index];
+        if (!isActive) {
+          return false;
+        }
+        const result = v.safeParse(item, dataset.value);
+        return result.success;
+      });
+      if (!hasSuccess) {
+        addIssue();
+      }
+    });
     // 仅处理object,实现条件显示
     if (isObject) {
       const conditionResult = this.schemaExtract(
@@ -1094,7 +1139,7 @@ export class JsonSchemaToValibot {
               ...getValidationAction(rSchema),
             );
           });
-        let activateList: boolean[] = [];
+
         const conditionVSchema = v.pipe(
           this.jsonSchemaBase(
             this.#resolveJsonSchema(conditionResult.conditionJSchema),
@@ -1154,47 +1199,13 @@ export class JsonSchemaToValibot {
             ),
           ]),
           jsonActions.setComponent('anyOf-condition'),
-          v.rawCheck(({ dataset, addIssue }) => {
-            if (dataset.issues) {
-              return;
-            }
-            // 验证项全为可选,所以需要这里再次验证
-            const hasSuccess = childSchemaList.some((item, index) => {
-              const isActive = activateList[index];
-              if (!isActive) {
-                return false;
-              }
-              const result = v.safeParse(item, dataset.value);
-              return result.success;
-            });
-            if (!hasSuccess) {
-              addIssue();
-            }
-          }),
+          conditionCheckAction,
         );
       }
     }
     const baseActionList = getValidationAction(schema);
     const baseSchema = v.pipe(this.jsonSchemaBase(schema), ...baseActionList);
-    const childSchemaList = resolvedChildList.map((item) => {
-      const result = this.jsonSchemaBase(item.schema);
-      return v.pipe(result, ...item.actionList);
-    });
-    return v.pipe(
-      baseSchema,
-      v.rawCheck(({ dataset, addIssue }) => {
-        if (dataset.issues) {
-          return;
-        }
-        // 验证项全为可选,所以需要这里再次验证
-        const hasSuccess = childSchemaList.some((item) => {
-          const result = v.safeParse(item, dataset.value);
-          return result.success;
-        });
-        if (!hasSuccess) {
-          addIssue();
-        }
-      }),
-    );
+    activateList = childOriginSchemaList.map((_, i) => true);
+    return v.pipe(baseSchema, conditionCheckAction);
   }
 }
