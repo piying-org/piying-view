@@ -18,7 +18,6 @@ import {
 import { PiyingViewGroup } from '@piying/view-angular';
 import { SelectComponent } from '../component/select/component';
 import { isUndefined, omitBy } from 'es-toolkit';
-import { getDeepError } from '@piying/view-angular-core';
 describe('anyof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(anyOf as any) as any;

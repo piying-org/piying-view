@@ -11,7 +11,6 @@ import {
 } from '@piying/view-angular-core/test';
 import { PiyingViewGroup } from '../../../lib/component/group/component';
 import { SelectComponent } from '../component/select/component';
-import { getDeepError } from '@piying/view-angular-core';
 describe('oneof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(oneofSchema as any) as any;
@@ -80,7 +79,7 @@ describe('oneof', () => {
     expect(field?.form.control?.valid).toBeFalse();
     field?.form.control?.updateValue({ cond1: [2], value2: 3 });
     await fixture.whenStable();
-    fixture.detectChanges();    
+    fixture.detectChanges();
     expect(field?.form.control?.valid).toBeTrue();
   });
 });

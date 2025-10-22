@@ -249,9 +249,7 @@ export class JsonSchemaToValibot {
       const resolved = this.#resolveJsonSchema(schema);
       return this.conditionCreate(resolved, {
         useOr: false,
-        getChildren: () => {
-          return schema.anyOf!;
-        },
+        getChildren: () => schema.anyOf!,
         conditionCheckActionFn(childOriginSchemaList, getActivateList) {
           return v.rawCheck(({ dataset, addIssue }) => {
             if (dataset.issues) {
@@ -1209,7 +1207,7 @@ export class JsonSchemaToValibot {
           jsonActions.valueChange((fn) => {
             fn().subscribe(({ list: [value], field }) => {
               activateList.length = 0;
-              let conditionParent = field.get(['..', 2])!.form
+              const conditionParent = field.get(['..', 2])!.form
                 .control as any as jsonActions.FieldLogicGroup;
               const parentAList = [];
 
