@@ -434,7 +434,7 @@ export class JsonSchemaToValibot {
     const type = this.#guessSchemaType(schema);
     resolved.resolved = { type };
     if (type.types.includes('object')) {
-     this.resolveDependencies(schema);
+      this.resolveDependencies(schema);
     }
     if (type.types.includes('array')) {
       const arrayItem = this.#getArrayConfig(schema);
@@ -1011,9 +1011,7 @@ export class JsonSchemaToValibot {
     const result = this.resolveDefinition(schema, { schema: this.root });
     return this.#resolveJsonSchema(result);
   }
-  #arrayInclude(a: any[], b: any[]) {
-    return b.filter((item) => a.some((item2) => deepEqual(item, item2)));
-  }
+
   #parseEnum(schema: JsonSchemaDraft202012Object):
     | {
         type: string;
@@ -1054,7 +1052,7 @@ export class JsonSchemaToValibot {
     const parentEnum = parent ? this.#parseEnum(parent) : undefined;
     const childEnum = this.#parseEnum(child);
     if (parentEnum?.data.items && childEnum?.data.items) {
-      const result = this.#arrayInclude(
+      const result = intersection(
         (parentEnum.data.items! as JsonSchemaDraft202012Object).enum!,
         (childEnum.data.items! as JsonSchemaDraft202012Object).enum!,
       );
@@ -1074,10 +1072,7 @@ export class JsonSchemaToValibot {
 
     // 枚举
     if (parentEnum?.data.enum && childEnum?.data.enum) {
-      const result = this.#arrayInclude(
-        parentEnum.data.enum,
-        childEnum.data.enum,
-      );
+      const result = intersection(parentEnum.data.enum, childEnum.data.enum);
       if (result.length) {
         return {
           type: 'enum',
