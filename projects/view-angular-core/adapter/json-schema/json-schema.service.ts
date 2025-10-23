@@ -494,13 +494,10 @@ export class JsonSchemaToValibot {
         let additionalRest;
         /** 正则附加 */
         let patternMapRest: Record<string, ResolvedSchema> | undefined;
-        /** 属性名检查 */
-        let propertyNamesRest;
+
         let mode = 'default';
         /** 条件显示 */
         const conditionList = [];
-        // 关联
-        const { requiredRelate, schemaDeps } = schema.resolved.objectDep!;
         if (schema.dependentRequired) {
           actionList.push(
             v.rawCheck(({ dataset, addIssue }) => {
@@ -602,8 +599,33 @@ export class JsonSchemaToValibot {
             }),
           );
         }
-        if (schema.propertyNames) {
-          propertyNamesRest = this.#itemToVSchema2(schema.propertyNames);
+        if (isBoolean(schema.propertyNames) && !schema.propertyNames) {
+          actionList.push(
+            v.check(() => {
+              return false;
+            }),
+          );
+        } else if (schema.propertyNames) {
+          let propNameSchema = this.#itemToVSchema2(schema.propertyNames)!;
+          actionList.push(
+            v.rawCheck(({ dataset, addIssue }) => {
+              if (dataset.issues) {
+                return;
+              }
+              if (dataset.value && typeof dataset.value === 'object') {
+                for (const key of Object.keys(dataset.value)) {
+                  let result = v.safeParse(propNameSchema, key);
+                  if (!result.success) {
+                    addIssue({
+                      label: `propertyNames:${key}`,
+                      expected: `[match]`,
+                      received: key,
+                    });
+                  }
+                }
+              }
+            }),
+          );
         }
         let schemaDefine;
         if (!Object.keys(childObject).length) {
@@ -639,9 +661,6 @@ export class JsonSchemaToValibot {
             restDefine = additionalRest;
           }
           if (patternMapRest) {
-            // todo valibot目前不支持rest key
-          }
-          if (propertyNamesRest) {
             // todo valibot目前不支持rest key
           }
 

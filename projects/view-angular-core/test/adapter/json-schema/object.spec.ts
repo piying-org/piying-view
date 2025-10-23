@@ -39,6 +39,7 @@ describe('json-schema-object', () => {
     result = v.safeParse(Define, { foo: '', baz: '', bar: '' });
     expect(result.success).toBeFalse();
   });
+
   it('only-additionalProperties', async () => {
     const jsonSchema = {
       additionalProperties: {
@@ -50,6 +51,20 @@ describe('json-schema-object', () => {
     let result = v.safeParse(Define, { a: '' });
     expect(result.success).toBeTrue();
     result = v.safeParse(Define, { a: 1 });
+    expect(result.success).toBeFalse();
+  });
+
+  it('propertyNames', async () => {
+    const jsonSchema = {
+      propertyNames: {
+        pattern: '^[a-z]+$',
+      },
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'loose_object');
+    let result = v.safeParse(Define, { a: '' });
+    expect(result.success).toBeTrue();
+    result = v.safeParse(Define, { a1: 1 });
     expect(result.success).toBeFalse();
   });
 });
