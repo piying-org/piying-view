@@ -413,9 +413,7 @@ export class JsonSchemaToValibot {
         ? v.pipe(v.any(), jsonActions.setComponent('always-true'))
         : v.pipe(
             v.any(),
-            v.check((value) => {
-              return isUndefined(value);
-            }),
+            v.check((value) => isUndefined(value)),
           );
     }
     if (this.cacheSchema.has(schema)) {
@@ -458,12 +456,11 @@ export class JsonSchemaToValibot {
     const type = types.types[0];
     const actionList: any[] = getMetadataAction(schema);
 
-    const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
-      return v.pipe(
+    const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) =>
+      v.pipe(
         types.optional ? v.optional(input, schema.default) : input,
         ...actionList,
       );
-    };
     if (!isNil(schema.const)) {
       return createTypeFn(v.literal(schema.const! as any));
     }
@@ -528,7 +525,7 @@ export class JsonSchemaToValibot {
             if (!isRequired && propVSchema.type !== 'optional') {
               propVSchema = v.optional(propVSchema);
             }
-            let depList = schema.dependentRequired?.[key];
+            const depList = schema.dependentRequired?.[key];
 
             if (depList) {
               propVSchema = v.pipe(
@@ -536,16 +533,14 @@ export class JsonSchemaToValibot {
                 jsonActions.patchHooks({
                   allFieldsResolved: (field) => {
                     field.form.control!.statusChanges.subscribe(() => {
-                      let valid = field.form.control!.valid;
+                      const valid = field.form.control!.valid;
                       depList.map((item) => {
                         field.form.parent
                           .get(item)
-                          ?.config$.update((config) => {
-                            return {
-                              ...config,
-                              required: valid,
-                            };
-                          });
+                          ?.config$.update((config) => ({
+                            ...config,
+                            required: valid,
+                          }));
                       });
                     });
                   },
@@ -563,7 +558,7 @@ export class JsonSchemaToValibot {
           // rest要符合的规则
           defaultRest = this.#itemToVSchema2(schema.additionalProperties!);
         }
-        let patternRestList = [] as {
+        const patternRestList = [] as {
           regexp: RegExp;
           schema: ResolvedSchema;
         }[];
@@ -582,7 +577,7 @@ export class JsonSchemaToValibot {
         /** 条件显示 */
         const conditionList = [];
         if (schema.dependentSchemas) {
-          let depSchemaMap = {} as Record<string, ResolvedSchema>;
+          const depSchemaMap = {} as Record<string, ResolvedSchema>;
           for (const key in schema.dependentSchemas) {
             const jSchema = schema.dependentSchemas[key];
             let vSchema = this.#itemToVSchema2(jSchema);
@@ -612,7 +607,7 @@ export class JsonSchemaToValibot {
               }
               Object.keys(schema.dependentSchemas!).forEach((key) => {
                 if ((dataset.value as any)?.[key] !== undefined) {
-                  let result = v.safeParse(depSchemaMap[key], dataset.value);
+                  const result = v.safeParse(depSchemaMap[key], dataset.value);
                   if (!result.success) {
                     for (const item of result.issues) {
                       addIssue({
@@ -626,13 +621,9 @@ export class JsonSchemaToValibot {
           );
         }
         if (isBoolean(schema.propertyNames) && !schema.propertyNames) {
-          actionList.push(
-            v.check(() => {
-              return false;
-            }),
-          );
+          actionList.push(v.check(() => false));
         } else if (schema.propertyNames) {
-          let propNameSchema = this.#itemToVSchema2(schema.propertyNames)!;
+          const propNameSchema = this.#itemToVSchema2(schema.propertyNames)!;
           actionList.push(
             v.rawCheck(({ dataset, addIssue }) => {
               if (dataset.issues) {
@@ -640,7 +631,7 @@ export class JsonSchemaToValibot {
               }
               if (dataset.value && typeof dataset.value === 'object') {
                 for (const key of Object.keys(dataset.value)) {
-                  let result = v.safeParse(propNameSchema, key);
+                  const result = v.safeParse(propNameSchema, key);
                   if (!result.success) {
                     addIssue({
                       label: `propertyNames:${key}`,
@@ -711,11 +702,11 @@ export class JsonSchemaToValibot {
                     continue;
                   }
                   for (const { regexp, schema } of patternRestList) {
-                    let isMatch = regexp.test(key);
+                    const isMatch = regexp.test(key);
                     if (!isMatch) {
                       continue;
                     }
-                    let result = v.safeParse(
+                    const result = v.safeParse(
                       schema,
                       (dataset.value as any)[key],
                     );
@@ -725,7 +716,7 @@ export class JsonSchemaToValibot {
                     continue datasetLoop;
                   }
                   if (defaultRest) {
-                    let result = v.safeParse(
+                    const result = v.safeParse(
                       defaultRest,
                       (dataset.value as any)[key],
                     );
@@ -848,8 +839,8 @@ export class JsonSchemaToValibot {
         string,
         JsonSchemaDraft07
       >;
-      let dependentRequiredData = {} as Record<string, string[]>;
-      let dependentSchemasData = {} as Record<string, JsonSchemaDraft202012>;
+      const dependentRequiredData = {} as Record<string, string[]>;
+      const dependentSchemasData = {} as Record<string, JsonSchemaDraft202012>;
       Object.keys(dependencies).forEach((prop) => {
         const dependency = dependencies![prop];
         if (Array.isArray(dependency)) {

@@ -10,7 +10,7 @@ describe('json-schema-array', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'array');
-    let result = v.safeParse(Define, [1]);
+    const result = v.safeParse(Define, [1]);
     expect(result.success).toBeTrue();
   });
   it('items-false', async () => {
@@ -20,7 +20,7 @@ describe('json-schema-array', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'tuple');
-    let result = v.safeParse(Define, [1]);
+    const result = v.safeParse(Define, [1]);
     expect(result.output).toEqual([]);
   });
 });

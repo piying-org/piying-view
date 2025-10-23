@@ -50,7 +50,7 @@ describe('object', () => {
     expect(field?.form.control?.valid).toBeTrue();
     expect(field?.form.control?.value).toEqual({ key1: 1, req1: 22 });
 
-    let control = field.form.control.get('req1');
+    const control = field.form.control.get('req1');
     assertFieldControl(control);
     expect(control.config$().required).toBeTrue();
   });

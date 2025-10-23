@@ -115,7 +115,7 @@ describe('json-schema-validation', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, '2018-11-13');
+    const result = v.safeParse(Define, '2018-11-13');
     expect(result.success).toBeTrue();
   });
   it('string-format-email', async () => {
@@ -125,7 +125,7 @@ describe('json-schema-validation', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, 'a@a.com');
+    const result = v.safeParse(Define, 'a@a.com');
     expect(result.success).toBeTrue();
   });
   it('string-format-ipv4', async () => {
@@ -135,7 +135,7 @@ describe('json-schema-validation', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, '1.1.1.1');
+    const result = v.safeParse(Define, '1.1.1.1');
     expect(result.success).toBeTrue();
   });
   it('string-format-ipv6', async () => {
@@ -145,7 +145,7 @@ describe('json-schema-validation', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, '2001:db8::8a2e:370:7334');
+    const result = v.safeParse(Define, '2001:db8::8a2e:370:7334');
     expect(result.success).toBeTrue();
   });
   it('string-format-uuid', async () => {
@@ -155,7 +155,7 @@ describe('json-schema-validation', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6');
+    const result = v.safeParse(Define, 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6');
     expect(result.success).toBeTrue();
   });
   it('string-format-uri', async () => {
@@ -165,7 +165,7 @@ describe('json-schema-validation', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, 'abc:1234');
+    const result = v.safeParse(Define, 'abc:1234');
     expect(result.success).toBeTrue();
   });
   it('array-item', async () => {
@@ -203,7 +203,7 @@ describe('json-schema-validation', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'string');
-    let result = v.safeParse(Define, '1');
+    const result = v.safeParse(Define, '1');
     expect(result.success).toBeTrue();
     expect(v.getTitle(Define)).toEqual('title1');
     expect(v.getDescription(Define)).toEqual('description1');

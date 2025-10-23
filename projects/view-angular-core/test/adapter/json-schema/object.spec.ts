@@ -80,7 +80,7 @@ describe('json-schema-object', () => {
     const instance = assertType(Define, 'object_with_rest');
     let result = v.safeParse(Define, { a: '1' });
     expect(result.success).toBeTrue();
-    result = v.safeParse(Define, { abc: 1 });    
+    result = v.safeParse(Define, { abc: 1 });
     expect(result.success).toBeTrue();
     result = v.safeParse(Define, { dd: 1 });
     expect(result.success).toBeFalse();
