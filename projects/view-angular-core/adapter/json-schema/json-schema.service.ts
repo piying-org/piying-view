@@ -796,31 +796,33 @@ export class JsonSchemaToValibot {
             }),
           );
         }
-
-        return v.lazy(() => {
-          if (fixedItems && fixedItems.length) {
-            const fixedList = fixedItems.map(
-              (item) => this.#itemToVSchema2(item)!,
-            );
-            if (schema.items) {
-              const result = this.#itemToVSchema2(schema.items);
-              parent = v.tupleWithRest(fixedList, result!);
-            } else if (schema.items === false) {
-              parent = v.tuple(fixedList);
-            } else {
-              parent = v.looseTuple(fixedList);
-            }
-          } else if (isBoolean(schema.items)) {
-            parent = schema.items ? v.array(v.any()) : v.tuple([]);
-          } else if (schema.items) {
-            const itemResult = this.#itemToVSchema2(schema.items);
-            parent = v.array(itemResult!);
+        const jSchemaToVSchema = (schema: JsonSchemaDraft202012) => {
+          let hasRef = this.#schemahasRef(schema);
+          return hasRef
+            ? v.lazy(() => this.#itemToVSchema2(schema!))
+            : this.#itemToVSchema2(schema);
+        };
+        if (fixedItems && fixedItems.length) {
+          const fixedList = fixedItems.map((item) => {
+            return jSchemaToVSchema(item);
+          });
+          if (schema.items) {
+            const result = jSchemaToVSchema(schema.items);
+            parent = v.tupleWithRest(fixedList, result!);
+          } else if (schema.items === false) {
+            parent = v.tuple(fixedList);
           } else {
-            parent = v.array(v.any());
+            parent = v.looseTuple(fixedList);
           }
-
-          return createTypeFn(parent!);
-        });
+        } else if (isBoolean(schema.items)) {
+          parent = schema.items ? v.array(v.any()) : v.tuple([]);
+        } else if (schema.items) {
+          const result = jSchemaToVSchema(schema.items);
+          parent = v.array(result);
+        } else {
+          parent = v.array(v.any());
+        }
+        return createTypeFn(parent!);
       }
       default:
         throw new Error(`未知类型:${type}`);
@@ -1051,7 +1053,14 @@ export class JsonSchemaToValibot {
   #resolveSchema2(schema: JsonSchemaDraft202012Object) {
     return this.#jsonSchemaCompatiable(this.#resolveDefinition(schema));
   }
-
+  #schemahasRef(schema: JsonSchemaDraft202012) {
+    if (isBoolean(schema)) {
+      return false;
+    } else {
+      let result = this.#resolveSchema2(schema);
+      return result.__resolved.hasRef;
+    }
+  }
   #parseEnum(schema: JsonSchemaDraft202012Object):
     | {
         type: string;
