@@ -32,13 +32,7 @@ const anyType = [
   'null',
   'integer',
 ] as Extract<JsonSchemaDraft202012Object['type'], any[]>;
-function isConst(schema: JsonSchemaDraft202012Object) {
-  return (
-    typeof schema === 'object' &&
-    (schema.hasOwnProperty('const') ||
-      (schema.enum && schema.enum.length === 1))
-  );
-}
+
 // todo 先按照类型不可变设计,之后修改代码支持组件变更
 const clone = rfdc({ proto: false, circles: false });
 type ResolvedSchema =
@@ -56,11 +50,11 @@ type ResolvedSchema =
 
 function getMetadataAction(schema: JSONSchemaRaw) {
   const action = [];
-  if ('title' in schema) {
-    action.push(v.title(schema['title']!));
+  if (isString(schema.title)) {
+    action.push(v.title(schema.title));
   }
-  if ('description' in schema) {
-    action.push(v.description(schema['description']!));
+  if (isString(schema.description)) {
+    action.push(v.description(schema.description));
   }
   return action;
 }
