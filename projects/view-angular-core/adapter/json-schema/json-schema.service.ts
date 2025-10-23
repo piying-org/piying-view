@@ -490,11 +490,10 @@ export class JsonSchemaToValibot {
       case 'object': {
         const childObject: Record<string, ResolvedSchema> = {};
         /** 附加 */
-        let additionalRest: ResolvedSchema | undefined;
+        let defaultRest: ResolvedSchema | undefined;
 
         let mode = 'default';
-        /** 条件显示 */
-        const conditionList = [];
+
         if (schema.dependentRequired) {
           actionList.push(
             v.rawCheck(({ dataset, addIssue }) => {
@@ -529,7 +528,30 @@ export class JsonSchemaToValibot {
             if (!isRequired && propVSchema.type !== 'optional') {
               propVSchema = v.optional(propVSchema);
             }
+            let depList = schema.dependentRequired?.[key];
 
+            if (depList) {
+              propVSchema = v.pipe(
+                propVSchema,
+                jsonActions.patchHooks({
+                  allFieldsResolved: (field) => {
+                    field.form.control!.statusChanges.subscribe(() => {
+                      let valid = field.form.control!.valid;
+                      depList.map((item) => {
+                        field.form.parent
+                          .get(item)
+                          ?.config$.update((config) => {
+                            return {
+                              ...config,
+                              required: valid,
+                            };
+                          });
+                      });
+                    });
+                  },
+                }),
+              );
+            }
             childObject[key] = propVSchema;
           }
         }
@@ -539,22 +561,26 @@ export class JsonSchemaToValibot {
         } else if (schema.additionalProperties) {
           mode = 'rest';
           // rest要符合的规则
-          additionalRest = this.#itemToVSchema2(schema.additionalProperties!);
+          defaultRest = this.#itemToVSchema2(schema.additionalProperties!);
         }
-        let patternMapRest = [] as { regexp: RegExp; schema: ResolvedSchema }[];
+        let patternRestList = [] as {
+          regexp: RegExp;
+          schema: ResolvedSchema;
+        }[];
         if (schema.patternProperties) {
           for (const key in schema.patternProperties) {
             const item = this.#itemToVSchema2(schema.patternProperties[key]);
             if (!item) {
               throw new Error(`patternProperties->${key}: 定义未找到`);
             }
-            patternMapRest.push({
+            patternRestList.push({
               regexp: new RegExp(key),
               schema: item,
             });
           }
         }
-
+        /** 条件显示 */
+        const conditionList = [];
         if (schema.dependentSchemas) {
           let depSchemaMap = {} as Record<string, ResolvedSchema>;
           for (const key in schema.dependentSchemas) {
@@ -657,22 +683,17 @@ export class JsonSchemaToValibot {
           // rest
           let restDefine = v.any() as NonNullable<ResolvedSchema>;
           //propCheck patternMapRest addonRest
-          if (additionalRest && !patternMapRest.length) {
-            restDefine = additionalRest;
+          if (defaultRest && !patternRestList.length) {
+            restDefine = defaultRest;
           } else {
             restDefine = v.any();
           }
-          if (patternMapRest) {
-            // todo valibot目前不支持rest key
-          }
 
           if (conditionList.length) {
-            schemaDefine = v.pipe(
-              v.intersect([
-                v.objectWithRest(childObject, restDefine),
-                ...conditionList,
-              ]),
-            );
+            schemaDefine = v.intersect([
+              v.objectWithRest(childObject, restDefine),
+              v.optional(v.intersect(conditionList)),
+            ]);
           } else {
             schemaDefine = v.pipe(v.objectWithRest(childObject, restDefine));
           }
@@ -689,7 +710,7 @@ export class JsonSchemaToValibot {
                   if (key in childObject) {
                     continue;
                   }
-                  for (const { regexp, schema } of patternMapRest) {
+                  for (const { regexp, schema } of patternRestList) {
                     let isMatch = regexp.test(key);
                     if (!isMatch) {
                       continue;
@@ -703,9 +724,9 @@ export class JsonSchemaToValibot {
                     }
                     continue datasetLoop;
                   }
-                  if (additionalRest) {
+                  if (defaultRest) {
                     let result = v.safeParse(
-                      additionalRest,
+                      defaultRest,
                       (dataset.value as any)[key],
                     );
                     if (!result.success) {
