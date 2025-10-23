@@ -732,10 +732,7 @@ export class JsonSchemaToValibot {
         return createTypeFn(schemaDefine);
       }
       case 'array': {
-        if (isUndefined(schema.items) && isUndefined(schema.prefixItems)) {
-          return v.lazy(() => createTypeFn(v.array(v.any())));
-        }
-        let parent: v.BaseSchema<any, any, any> | undefined;
+        let parent: v.BaseSchema<any, any, any>;
         const fixedItems = schema.prefixItems;
         if (fixedItems && fixedItems.length) {
           const fixedList = fixedItems.map(
@@ -755,6 +752,8 @@ export class JsonSchemaToValibot {
         } else if (schema.items) {
           const itemResult = this.#itemToVSchema2(schema.items as any);
           parent = v.array(itemResult!);
+        } else {
+          parent = v.array(v.any());
         }
         // 校验
         if ('contains' in schema) {
@@ -964,10 +963,10 @@ export class JsonSchemaToValibot {
           }
 
           case 'additionalProperties': {
+            // todo 此属性false在当前使用,子级会验证失败,
             // 附加属性
-            if (isUndefined(childSchema.additionalProperties)) {
-              childSchema.additionalProperties = base.additionalProperties;
-            }
+            childSchema.additionalProperties ??= base.additionalProperties;
+
             break;
           }
           case 'contains': {
