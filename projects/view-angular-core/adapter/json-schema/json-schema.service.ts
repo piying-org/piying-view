@@ -20,6 +20,18 @@ import {
 } from '@hyperjump/json-schema/draft-2020-12';
 import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { deepEqual } from 'fast-equals';
+function createImpasseAction(key: string, value?: any) {
+  return v.rawCheck(({ dataset, addIssue }) => {
+    if (!dataset.issues) {
+      return;
+    }
+    addIssue({
+      label: `impasse:${key}`,
+      expected: '[no validation conflict]',
+      received: value,
+    });
+  });
+}
 function isNumber(value?: any): value is number {
   return typeof value === 'number';
 }
@@ -734,31 +746,11 @@ export class JsonSchemaToValibot {
       case 'array': {
         let parent: v.BaseSchema<any, any, any>;
         const fixedItems = schema.prefixItems;
-        if (fixedItems && fixedItems.length) {
-          const fixedList = fixedItems.map(
-            (item) => this.#itemToVSchema2(<JsonSchemaDraft202012Object>item)!,
-          );
-          if (schema.items) {
-            const result = this.#itemToVSchema2(schema.items);
-            parent = v.tupleWithRest(fixedList, result!);
-          } else if (schema.items === false) {
-            parent = v.tuple(fixedList);
-          } else {
-            parent = v.looseTuple(fixedList);
-          }
-          return createTypeFn(parent);
-        } else if (isBoolean(schema.items)) {
-          parent = schema.items ? v.array(v.any()) : v.tuple([]);
-        } else if (schema.items) {
-          const itemResult = this.#itemToVSchema2(schema.items as any);
-          parent = v.array(itemResult!);
-        } else {
-          parent = v.array(v.any());
-        }
-        // 校验
-        if ('contains' in schema) {
-          const containsSchema = this.#itemToVSchema2(schema.contains as any)!;
-          const minContains = (schema as any).minContains ?? 1;
+        if (isBoolean(schema.contains) && !schema.contains) {
+          actionList.push(createImpasseAction('contains', schema.contains));
+        } else if (schema.contains && !isBoolean(schema.contains)) {
+          const containsSchema = this.#itemToVSchema2(schema.contains!)!;
+          const minContains = schema.minContains ?? 1;
           actionList.push(
             v.check((list) => {
               if (Array.isArray(list)) {
@@ -769,8 +761,8 @@ export class JsonSchemaToValibot {
                   return false;
                 }
 
-                if (typeof (schema as any).maxContains === 'number') {
-                  return result.length <= (schema as any).maxContains;
+                if (typeof schema.maxContains === 'number') {
+                  return result.length <= schema.maxContains;
                 }
 
                 return true;
@@ -779,7 +771,31 @@ export class JsonSchemaToValibot {
             }),
           );
         }
-        return v.lazy(() => createTypeFn(parent!));
+
+        return v.lazy(() => {
+          if (fixedItems && fixedItems.length) {
+            const fixedList = fixedItems.map(
+              (item) => this.#itemToVSchema2(item)!,
+            );
+            if (schema.items) {
+              const result = this.#itemToVSchema2(schema.items);
+              parent = v.tupleWithRest(fixedList, result!);
+            } else if (schema.items === false) {
+              parent = v.tuple(fixedList);
+            } else {
+              parent = v.looseTuple(fixedList);
+            }
+          } else if (isBoolean(schema.items)) {
+            parent = schema.items ? v.array(v.any()) : v.tuple([]);
+          } else if (schema.items) {
+            const itemResult = this.#itemToVSchema2(schema.items);
+            parent = v.array(itemResult!);
+          } else {
+            parent = v.array(v.any());
+          }
+
+          return createTypeFn(parent!);
+        });
       }
       default:
         throw new Error(`未知类型:${type}`);
