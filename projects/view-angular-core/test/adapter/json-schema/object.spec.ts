@@ -28,15 +28,28 @@ describe('json-schema-object', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'intersect');
-    
+
     let result = v.safeParse(Define, { other: '', other2: '', other3: '' });
-    
-    expect(result.success).toBeTrue();    
+
+    expect(result.success).toBeTrue();
     result = v.safeParse(Define, { foo: '' });
     expect(result.success).toBeTrue();
     result = v.safeParse(Define, { foo: '', bar: '' });
     expect(result.success).toBeTrue();
     result = v.safeParse(Define, { foo: '', baz: '', bar: '' });
+    expect(result.success).toBeFalse();
+  });
+  it('only-additionalProperties', async () => {
+    const jsonSchema = {
+      additionalProperties: {
+        type: 'string',
+      },
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'object_with_rest');
+    let result = v.safeParse(Define, { a: '' });
+    expect(result.success).toBeTrue();
+    result = v.safeParse(Define, { a: 1 });
     expect(result.success).toBeFalse();
   });
 });

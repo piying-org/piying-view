@@ -196,8 +196,7 @@ interface IOptions {
   schema: JSONSchemaRaw;
 }
 // 应该传入定制
-const WrapperList = [] as string[];
-// const WrapperList = ['tooltip', 'jsonschema-label', 'validator'];
+
 export function jsonSchemaToValibot(schema: JSONSchemaRaw) {
   return new JsonSchemaToValibot(schema).convert() as ResolvedSchema;
 }
