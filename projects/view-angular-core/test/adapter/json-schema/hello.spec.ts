@@ -125,6 +125,31 @@ describe('json-schema', () => {
     result = v.safeParse(Define, 2);
     expect(result.success).toBeFalse();
   });
+  it('null-type', async () => {
+    const jsonSchema = {
+      type: ['number', 'null'],
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'number');
+    let result = v.safeParse(Define, 1);
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual(1);
+    result = v.safeParse(Define, undefined);
+    expect(result.success).toBeTrue();
+    result = v.safeParse(Define, 'undefined');
+    expect(result.success).toBeFalse();
+  });
+  it('null', async () => {
+    const jsonSchema = {
+      type: 'null',
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'null');
+    let result = v.safeParse(Define, null);
+    expect(result.success).toBeTrue();
+    result = v.safeParse(Define, 1);
+    expect(result.success).toBeFalse();
+  });
   it('array-enum', async () => {
     const jsonSchema = {
       items: { enum: [1, 2] },
