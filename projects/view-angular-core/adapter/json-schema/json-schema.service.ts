@@ -12,7 +12,6 @@ import {
   union,
   uniq,
 } from 'es-toolkit';
-import { isNumber } from 'es-toolkit/compat';
 import { BehaviorSubject } from 'rxjs';
 import { schema as cSchema } from '@piying/valibot-visit';
 import {
@@ -21,6 +20,9 @@ import {
 } from '@hyperjump/json-schema/draft-2020-12';
 import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { deepEqual } from 'fast-equals';
+function isNumber(value?: any): value is number {
+  return typeof value === 'number';
+}
 const anyType = [
   'object',
   'array',
@@ -540,25 +542,7 @@ export class JsonSchemaToValibot {
             if (!isRequired && propVSchema.type !== 'optional') {
               propVSchema = v.optional(propVSchema);
             }
-            // 条件必须
-            const relateList = requiredRelate[key];
-            if (relateList) {
-              propVSchema = v.pipe(
-                propVSchema,
-                formConfig({
-                  validators: [
-                    (control) => {
-                      const hasValid = relateList.some(
-                        (item) => control.parent!.get(item)?.valid,
-                      );
-                      return hasValid
-                        ? undefined
-                        : { dependentRequired: `must required` };
-                    },
-                  ],
-                }),
-              );
-            }
+
             childObject[key] = propVSchema;
           }
         }
@@ -614,7 +598,11 @@ export class JsonSchemaToValibot {
                 if ((dataset.value as any)?.[key] !== undefined) {
                   let result = v.safeParse(depSchemaMap[key], dataset.value);
                   if (!result.success) {
-                    addIssue();
+                    for (const item of result.issues) {
+                      addIssue({
+                        ...item,
+                      });
+                    }
                   }
                 }
               });
