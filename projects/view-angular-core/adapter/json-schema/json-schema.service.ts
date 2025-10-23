@@ -223,16 +223,15 @@ export class JsonSchemaToValibot {
     return this.#itemToVSchema2(clone(this.root));
   }
 
-  #itemToVSchema(schema: JsonSchemaDraft202012Object) {
-    if (schema && schema.$ref) {
-      schema = this.#resolveDefinition(schema);
-    }
+  #itemToVSchema(input: JsonSchemaDraft202012Object) {
+    const schema = this.#resolveSchema2(input);
+
     if (schema.allOf) {
       const result = this.#mergeSchema(schema, ...schema.allOf);
       return v.pipe(this.#jsonSchemaBase(result.schema)!, ...result.actionList);
     }
     if (schema.anyOf) {
-      return this.#conditionCreate(this.#jsonSchemaCompatiable(schema), {
+      return this.#conditionCreate(schema, {
         useOr: false,
         getChildren: () => schema.anyOf!,
         conditionCheckActionFn(childOriginSchemaList, getActivateList) {
@@ -942,9 +941,7 @@ export class JsonSchemaToValibot {
     for (let childSchema of list.filter(
       (item) => !isBoolean(item),
     ) as any as JsonSchemaDraft202012Object[]) {
-      if (childSchema && childSchema.$ref) {
-        childSchema = this.#resolveDefinition(childSchema);
-      }
+      childSchema = this.#resolveSchema2(childSchema);
       actionList.push(...getValidationAction(childSchema));
       baseKeyList = union(baseKeyList, Object.keys(childSchema));
       for (const key of baseKeyList) {
@@ -1023,8 +1020,7 @@ export class JsonSchemaToValibot {
     return { schema: this.#jsonSchemaCompatiable(base), actionList };
   }
   #resolveSchema2(schema: JsonSchemaDraft202012Object) {
-    const result = this.#resolveDefinition(schema);
-    return this.#jsonSchemaCompatiable(result);
+    return this.#jsonSchemaCompatiable(this.#resolveDefinition(schema));
   }
 
   #parseEnum(schema: JsonSchemaDraft202012Object):
