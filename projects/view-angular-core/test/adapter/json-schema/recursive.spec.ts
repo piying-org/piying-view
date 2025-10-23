@@ -2,7 +2,7 @@ import { jsonSchemaToValibot } from '@piying/view-angular-core/adapter';
 import { assertType } from './util/assert-type';
 import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
 import * as v from 'valibot';
-fdescribe('recursive', () => {
+describe('recursive', () => {
   it('array', async () => {
     const jsonSchema = {
       definitions: {

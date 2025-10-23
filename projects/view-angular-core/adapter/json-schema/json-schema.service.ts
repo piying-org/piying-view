@@ -225,7 +225,7 @@ export class JsonSchemaToValibot {
 
   #itemToVSchema(schema: JsonSchemaDraft202012Object) {
     if (schema && schema.$ref) {
-      schema = this.resolveDefinition(schema, { schema: this.root });
+      schema = this.#resolveDefinition(schema);
     }
     if (schema.allOf) {
       const result = this.#mergeSchema(schema, ...schema.allOf);
@@ -802,10 +802,7 @@ export class JsonSchemaToValibot {
     }
   }
 
-  private resolveDefinition(
-    schema: JSONSchemaRaw,
-    options: IOptions,
-  ): JSONSchemaRaw {
+  #resolveDefinition(schema: JSONSchemaRaw): JSONSchemaRaw {
     if (!schema.$ref) {
       return schema;
     }
@@ -821,7 +818,7 @@ export class JsonSchemaToValibot {
           .reduce(
             (def, path) =>
               def?.hasOwnProperty(path) ? (def as any)[path] : null,
-            options.schema,
+            this.root,
           );
 
     if (!definition) {
@@ -829,7 +826,7 @@ export class JsonSchemaToValibot {
     }
 
     if (definition.$ref) {
-      return this.resolveDefinition(definition, options);
+      return this.#resolveDefinition(definition);
     }
 
     return {
@@ -953,9 +950,7 @@ export class JsonSchemaToValibot {
       (item) => !isBoolean(item),
     ) as any as JsonSchemaDraft202012Object[]) {
       if (childSchema && childSchema.$ref) {
-        childSchema = this.resolveDefinition(childSchema, {
-          schema: this.root,
-        });
+        childSchema = this.#resolveDefinition(childSchema);
       }
       actionList.push(...getValidationAction(childSchema));
       baseKeyList = union(baseKeyList, Object.keys(childSchema));
@@ -1035,7 +1030,7 @@ export class JsonSchemaToValibot {
     return { schema: this.#resolveJsonSchema(base), actionList };
   }
   #resolveSchema2(schema: JsonSchemaDraft202012Object) {
-    const result = this.resolveDefinition(schema, { schema: this.root });
+    const result = this.#resolveDefinition(schema);
     return this.#resolveJsonSchema(result);
   }
 
