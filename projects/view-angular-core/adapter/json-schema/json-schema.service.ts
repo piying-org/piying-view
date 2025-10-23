@@ -163,7 +163,6 @@ interface JSONSchemaRaw extends JsonSchemaDraft202012Object {
 }
 type ResolvedJsonSchema = JSONSchemaRaw & {
   resolved: {
-    objectDep?: ReturnType<JsonSchemaToValibot['resolveDependencies']>;
     type: {
       types: Extract<JsonSchemaDraft202012Object['type'], any[]>;
       optional: boolean;
@@ -435,7 +434,7 @@ export class JsonSchemaToValibot {
     const type = this.#guessSchemaType(schema);
     resolved.resolved = { type };
     if (type.types.includes('object')) {
-      resolved.resolved['objectDep'] = this.resolveDependencies(schema);
+     this.resolveDependencies(schema);
     }
     if (type.types.includes('array')) {
       const arrayItem = this.#getArrayConfig(schema);
@@ -823,13 +822,6 @@ export class JsonSchemaToValibot {
   }
 
   private resolveDependencies(schema: JsonSchemaDraft202012Object) {
-    const requiredRelate: { [id: string]: string[] } = {};
-    const dependentRequired = (dependency: string[], prop: string) => {
-      dependency.forEach((dep) => {
-        requiredRelate[dep] ??= [];
-        requiredRelate[dep].push(prop);
-      });
-    };
     if ('dependencies' in schema && schema.dependencies) {
       const dependencies = schema.dependencies as Record<
         string,
@@ -848,14 +840,6 @@ export class JsonSchemaToValibot {
       schema.dependentRequired = dependentRequiredData;
       schema.dependentSchemas = dependentSchemasData;
     }
-    if (schema.dependentRequired) {
-      Object.keys(schema.dependentRequired ?? {}).forEach((prop) => {
-        const dependency = (schema.dependentRequired as any)![prop];
-        dependentRequired(dependency, prop);
-      });
-    }
-
-    return { requiredRelate, schemaDeps: schema.dependentSchemas };
   }
   /** todo 当前只能存在一个类型 */
   #guessSchemaType(
