@@ -173,12 +173,18 @@ function getValidationAction(schema: JSONSchemaRaw) {
 interface JSONSchemaRaw extends JsonSchemaDraft202012Object {
   actions?: { name: string; params: any[] }[];
 }
-type ResolvedJsonSchema = JSONSchemaRaw & {
-  resolved: {
+interface JSONSchemaNoRef extends JSONSchemaRaw {
+  __resolved: {
+    hasRef: boolean;
+  };
+}
+type ResolvedJsonSchema = JSONSchemaNoRef & {
+  __resolved: {
     type: {
       types: Extract<JsonSchemaDraft202012Object['type'], any[]>;
       optional: boolean;
     };
+    isResolved: boolean;
   };
 };
 function arrayIntersection(a: any, b: any) {
@@ -418,7 +424,7 @@ export class JsonSchemaToValibot {
       ...getValidationAction(schema),
     );
   }
-  #itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema | undefined {
+  #itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema {
     if (isBoolean(schema)) {
       return schema
         ? v.pipe(v.any(), jsonActions.setComponent('always-true'))
@@ -436,12 +442,12 @@ export class JsonSchemaToValibot {
   }
 
   #jsonSchemaCompatiable(schema: JsonSchemaDraft202012Object) {
-    if ('resolved' in schema) {
+    if ('__resolved' in schema && (schema.__resolved as any).isResolved) {
       return schema as any as ResolvedJsonSchema;
     }
     const resolved = schema as any as ResolvedJsonSchema;
     const type = this.#guessSchemaType(resolved);
-    resolved.resolved = { type };
+    resolved.__resolved = { ...resolved.__resolved, type, isResolved: true };
     if (type.types.includes('object')) {
       this.#objectCompatible(resolved);
     }
@@ -462,7 +468,7 @@ export class JsonSchemaToValibot {
   }
 
   #jsonSchemaBase(schema: ResolvedJsonSchema) {
-    const types = schema.resolved.type;
+    const types = schema.__resolved.type;
     // 暂时为只支持一个
     const type = types.types[0];
     const actionList: any[] = getMetadataAction(schema);
@@ -528,37 +534,57 @@ export class JsonSchemaToValibot {
         if (schema.properties) {
           for (const key in schema.properties) {
             const propJSchema = schema.properties[key];
-            let propVSchema = this.#itemToVSchema2(propJSchema);
-            const isRequired = !!schema.required?.includes(key);
-            if (!propVSchema) {
-              continue;
+            let propData;
+            if (isBoolean(propJSchema)) {
+              propData = { optional: false, hasRef: false };
+            } else {
+              let rSchema = this.#resolveSchema2(propJSchema);
+              propData = {
+                optional: rSchema.__resolved.type.optional,
+                hasRef: rSchema.__resolved.hasRef,
+              };
             }
-            if (!isRequired && propVSchema.type !== 'optional') {
-              propVSchema = v.optional(propVSchema);
-            }
-            const depList = schema.dependentRequired?.[key];
 
-            if (depList) {
-              propVSchema = v.pipe(
-                propVSchema,
-                jsonActions.patchHooks({
-                  allFieldsResolved: (field) => {
-                    field.form.control!.statusChanges.subscribe(() => {
-                      const valid = field.form.control!.valid;
-                      depList.map((item) => {
-                        field.form.parent
-                          .get(item)
-                          ?.config$.update((config) => ({
-                            ...config,
-                            required: valid,
-                          }));
+            const isRequired = !!schema.required?.includes(key);
+            const wrapperOptional = !isRequired && !propData.optional;
+            const createRef = () => {
+              let propVSchema = this.#itemToVSchema2(propJSchema);
+              const depList = schema.dependentRequired?.[key];
+              if (depList) {
+                propVSchema = v.pipe(
+                  propVSchema,
+                  jsonActions.patchHooks({
+                    allFieldsResolved: (field) => {
+                      field.form.control!.statusChanges.subscribe(() => {
+                        const valid = field.form.control!.valid;
+                        depList.map((item) => {
+                          field.form.parent
+                            .get(item)
+                            ?.config$.update((config) => ({
+                              ...config,
+                              required: valid,
+                            }));
+                        });
                       });
-                    });
-                  },
-                }),
-              );
-            }
-            childObject[key] = propVSchema;
+                    },
+                  }),
+                );
+              }
+              return propVSchema;
+            };
+            childObject[key] = propData.hasRef
+              ? wrapperOptional
+                ? v.optional(
+                    v.lazy(() => {
+                      return createRef();
+                    }),
+                  )
+                : v.lazy(() => {
+                    return createRef();
+                  })
+              : wrapperOptional
+                ? v.optional(createRef())
+                : createRef();
           }
         }
         // 附加属性规则
@@ -841,13 +867,16 @@ export class JsonSchemaToValibot {
         {} as any,
       ),
       $ref: undefined,
-    };
+      __resolved: {
+        hasRef: true,
+      },
+    } as JSONSchemaNoRef;
   }
 
   /** todo 当前只能存在一个类型 */
   #guessSchemaType(
     schema: JsonSchemaDraft202012Object,
-  ): ResolvedJsonSchema['resolved']['type'] {
+  ): ResolvedJsonSchema['__resolved']['type'] {
     let type = schema?.type;
 
     if (isString(type)) {
@@ -1098,9 +1127,9 @@ export class JsonSchemaToValibot {
       return childEnum;
     }
     // 类型
-    const typeResult = parent?.resolved.type.types
-      ? intersection(parent.resolved.type.types, child.resolved.type.types)
-      : child.resolved.type.types;
+    const typeResult = parent?.__resolved.type.types
+      ? intersection(parent.__resolved.type.types, child.__resolved.type.types)
+      : child.__resolved.type.types;
     if (typeResult.length) {
       delete (child as any)['resolved'];
       const result = this.#jsonSchemaCompatiable({
@@ -1238,7 +1267,7 @@ export class JsonSchemaToValibot {
       (item) => item.schema,
     );
     const isObject = [schema, ...resolvedChildJSchemaList].every((item) =>
-      item.resolved.type.types.includes('object'),
+      item.__resolved.type.types.includes('object'),
     );
     const childOriginSchemaList = resolvedChildList.map((item) => {
       const result = this.#jsonSchemaBase(item.schema);
