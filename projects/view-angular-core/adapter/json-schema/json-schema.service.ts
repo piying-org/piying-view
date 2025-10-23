@@ -232,7 +232,7 @@ export class JsonSchemaToValibot {
       return v.pipe(this.#jsonSchemaBase(result.schema)!, ...result.actionList);
     }
     if (schema.anyOf) {
-      return this.#conditionCreate(this.#resolveJsonSchema(schema), {
+      return this.#conditionCreate(this.#jsonSchemaCompatiable(schema), {
         useOr: false,
         getChildren: () => schema.anyOf!,
         conditionCheckActionFn(childOriginSchemaList, getActivateList) {
@@ -274,7 +274,7 @@ export class JsonSchemaToValibot {
       });
     }
     if (schema.oneOf) {
-      const resolved = this.#resolveJsonSchema(schema);
+      const resolved = this.#jsonSchemaCompatiable(schema);
       return this.#conditionCreate(resolved, {
         useOr: true,
         getChildren() {
@@ -318,7 +318,7 @@ export class JsonSchemaToValibot {
     if ('if' in schema) {
       const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
-        this.#jsonSchemaBase(this.#resolveJsonSchema(schema)),
+        this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema)),
         ...getValidationAction(schema),
         hideWhen({
           disabled: false,
@@ -415,7 +415,7 @@ export class JsonSchemaToValibot {
     }
 
     return v.pipe(
-      this.#jsonSchemaBase(this.#resolveJsonSchema(schema)),
+      this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema)),
       ...getValidationAction(schema),
     );
   }
@@ -436,28 +436,28 @@ export class JsonSchemaToValibot {
     return result;
   }
 
-  #resolveJsonSchema(schema: JsonSchemaDraft202012Object) {
+  #jsonSchemaCompatiable(schema: JsonSchemaDraft202012Object) {
     if ('resolved' in schema) {
       return schema as any as ResolvedJsonSchema;
     }
     const resolved = schema as any as ResolvedJsonSchema;
-    const type = this.#guessSchemaType(schema);
+    const type = this.#guessSchemaType(resolved);
     resolved.resolved = { type };
     if (type.types.includes('object')) {
-      this.resolveDependencies(schema);
+      this.#objectCompatible(resolved);
     }
     if (type.types.includes('array')) {
-      const arrayItem = this.#getArrayConfig(schema);
-      resolved.prefixItems = arrayItem?.prefixItems;
-      resolved.items = arrayItem?.items;
+      this.#arrayCompatible(resolved);
     }
-    if ((schema.exclusiveMaximum as any) === true) {
-      schema.exclusiveMaximum = schema.maximum;
-      delete schema.maximum;
-    }
-    if ((schema.exclusiveMinimum as any) === true) {
-      schema.exclusiveMinimum = schema.minimum;
-      delete schema.minimum;
+    if (type.types.includes('number') || type.types.includes('integer')) {
+      if ((resolved.exclusiveMaximum as any) === true) {
+        resolved.exclusiveMaximum = resolved.maximum;
+        delete resolved.maximum;
+      }
+      if ((resolved.exclusiveMinimum as any) === true) {
+        resolved.exclusiveMinimum = resolved.minimum;
+        delete resolved.minimum;
+      }
     }
     return resolved;
   }
@@ -845,26 +845,6 @@ export class JsonSchemaToValibot {
     };
   }
 
-  private resolveDependencies(schema: JsonSchemaDraft202012Object) {
-    if ('dependencies' in schema && schema.dependencies) {
-      const dependencies = schema.dependencies as Record<
-        string,
-        JsonSchemaDraft07
-      >;
-      const dependentRequiredData = {} as Record<string, string[]>;
-      const dependentSchemasData = {} as Record<string, JsonSchemaDraft202012>;
-      Object.keys(dependencies).forEach((prop) => {
-        const dependency = dependencies![prop];
-        if (Array.isArray(dependency)) {
-          dependentRequiredData[prop] = dependency;
-        } else {
-          dependentSchemasData[prop] = dependency as any;
-        }
-      });
-      schema.dependentRequired = dependentRequiredData;
-      schema.dependentSchemas = dependentSchemasData;
-    }
-  }
   /** todo 当前只能存在一个类型 */
   #guessSchemaType(
     schema: JsonSchemaDraft202012Object,
@@ -916,24 +896,37 @@ export class JsonSchemaToValibot {
       ? { types: [type], optional: false }
       : { types: anyType, optional: false };
   }
+  #objectCompatible(schema: JsonSchemaDraft202012Object) {
+    if ('dependencies' in schema && schema.dependencies) {
+      const dependencies = schema.dependencies as Record<
+        string,
+        JsonSchemaDraft07
+      >;
+      const dependentRequiredData = {} as Record<string, string[]>;
+      const dependentSchemasData = {} as Record<string, JsonSchemaDraft202012>;
+      Object.keys(dependencies).forEach((prop) => {
+        const dependency = dependencies![prop];
+        if (Array.isArray(dependency)) {
+          dependentRequiredData[prop] = dependency;
+        } else {
+          dependentSchemasData[prop] = dependency as any;
+        }
+      });
+      schema.dependentRequired = dependentRequiredData;
+      schema.dependentSchemas = dependentSchemasData;
+    }
+  }
 
-  #getArrayConfig(schema: JsonSchemaDraft202012Object) {
-    if (this.root.$schema === Schema2012) {
-      if (!isNil((schema as any).prefixItems) || !isNil(schema.items)) {
-        return {
-          prefixItems: (schema as any).prefixItems as
-            | JsonSchemaDraft202012[]
-            | undefined,
-          items: schema.items as JsonSchemaDraft202012 | undefined,
-        };
-      }
-    } else {
+  #arrayCompatible(schema: JsonSchemaDraft202012Object) {
+    if (this.root.$schema !== Schema2012) {
       if (!isNil(schema.items) || !isNil(schema.additionalItems)) {
         // 2019-09
-        return {
-          prefixItems: schema.items as JsonSchemaDraft202012[] | undefined,
-          items: schema.additionalItems as JsonSchemaDraft202012 | undefined,
-        };
+        schema.prefixItems = schema.items as
+          | JsonSchemaDraft202012[]
+          | undefined;
+        schema.items = schema.additionalItems as
+          | JsonSchemaDraft202012
+          | undefined;
       }
     }
     return;
@@ -1027,11 +1020,11 @@ export class JsonSchemaToValibot {
 
       base = childSchema as any;
     }
-    return { schema: this.#resolveJsonSchema(base), actionList };
+    return { schema: this.#jsonSchemaCompatiable(base), actionList };
   }
   #resolveSchema2(schema: JsonSchemaDraft202012Object) {
     const result = this.#resolveDefinition(schema);
-    return this.#resolveJsonSchema(result);
+    return this.#jsonSchemaCompatiable(result);
   }
 
   #parseEnum(schema: JsonSchemaDraft202012Object):
@@ -1114,7 +1107,7 @@ export class JsonSchemaToValibot {
       : child.resolved.type.types;
     if (typeResult.length) {
       delete (child as any)['resolved'];
-      const result = this.#resolveJsonSchema({
+      const result = this.#jsonSchemaCompatiable({
         ...child,
         type: typeResult[0],
       });
@@ -1271,7 +1264,7 @@ export class JsonSchemaToValibot {
       if (conditionResult) {
         const childConditionVSchemaList =
           conditionResult.childConditionJSchemaList.map((schema) => {
-            const rSchema = this.#resolveJsonSchema(schema);
+            const rSchema = this.#jsonSchemaCompatiable(schema);
             return v.pipe(
               this.#jsonSchemaBase(rSchema),
               ...getValidationAction(rSchema),
@@ -1280,7 +1273,7 @@ export class JsonSchemaToValibot {
 
         const conditionVSchema = v.pipe(
           this.#jsonSchemaBase(
-            this.#resolveJsonSchema(conditionResult.conditionJSchema),
+            this.#jsonSchemaCompatiable(conditionResult.conditionJSchema),
           ),
           jsonActions.valueChange((fn) => {
             fn().subscribe(({ list: [value], field }) => {
