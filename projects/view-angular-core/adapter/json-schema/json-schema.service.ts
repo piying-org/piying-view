@@ -491,9 +491,7 @@ export class JsonSchemaToValibot {
       case 'object': {
         const childObject: Record<string, ResolvedSchema> = {};
         /** 附加 */
-        let additionalRest;
-        /** 正则附加 */
-        let patternMapRest: Record<string, ResolvedSchema> | undefined;
+        let additionalRest: ResolvedSchema | undefined;
 
         let mode = 'default';
         /** 条件显示 */
@@ -544,14 +542,17 @@ export class JsonSchemaToValibot {
           // rest要符合的规则
           additionalRest = this.#itemToVSchema2(schema.additionalProperties!);
         }
+        let patternMapRest = [] as { regexp: RegExp; schema: ResolvedSchema }[];
         if (schema.patternProperties) {
-          patternMapRest = {};
           for (const key in schema.patternProperties) {
             const item = this.#itemToVSchema2(schema.patternProperties[key]);
             if (!item) {
               throw new Error(`patternProperties->${key}: 定义未找到`);
             }
-            patternMapRest[key] = item;
+            patternMapRest.push({
+              regexp: new RegExp(key),
+              schema: item,
+            });
           }
         }
 
@@ -657,8 +658,10 @@ export class JsonSchemaToValibot {
           // rest
           let restDefine = v.any() as NonNullable<ResolvedSchema>;
           //propCheck patternMapRest addonRest
-          if (additionalRest) {
+          if (additionalRest && !patternMapRest.length) {
             restDefine = additionalRest;
+          } else {
+            restDefine = v.any();
           }
           if (patternMapRest) {
             // todo valibot目前不支持rest key
@@ -674,6 +677,46 @@ export class JsonSchemaToValibot {
           } else {
             schemaDefine = v.pipe(v.objectWithRest(childObject, restDefine));
           }
+        }
+        if (schema.patternProperties && schema.additionalProperties) {
+          actionList.push(
+            v.rawCheck(({ dataset, addIssue }) => {
+              if (dataset.issues || dataset.value === undefined) {
+                return;
+              }
+
+              if (typeof dataset.value === 'object') {
+                datasetLoop: for (const key in dataset.value) {
+                  if (key in childObject) {
+                    continue;
+                  }
+                  for (const { regexp, schema } of patternMapRest) {
+                    let isMatch = regexp.test(key);
+                    if (!isMatch) {
+                      continue;
+                    }
+                    let result = v.safeParse(
+                      schema,
+                      (dataset.value as any)[key],
+                    );
+                    if (!result.success) {
+                      addIssue();
+                    }
+                    continue datasetLoop;
+                  }
+                  if (additionalRest) {
+                    let result = v.safeParse(
+                      additionalRest,
+                      (dataset.value as any)[key],
+                    );
+                    if (!result.success) {
+                      addIssue();
+                    }
+                  }
+                }
+              }
+            }),
+          );
         }
         return createTypeFn(schemaDefine);
       }
