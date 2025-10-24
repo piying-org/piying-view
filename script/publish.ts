@@ -13,6 +13,13 @@ async function main() {
     return;
   }
   const TAG = process.env['PUBLISH_TAG'] ?? 'latest';
+  await $({ stdio: 'inherit' })`npm run changelog`;
+  await $({ stdio: 'inherit' })`git add .`;
+  await $({ stdio: 'inherit' })`git commit -m "changelog"`;
+  // await $({ stdio: 'inherit' })`git push`;
+  // await $({ stdio: 'inherit' })`git tag ${version}`;
+  // await $({ stdio: 'inherit' })`git push origin ${version}`;
+  return 
   for (const item of list) {
     await fs.promises.cp(
       path.join(process.cwd(), 'readme.md'),
@@ -29,8 +36,7 @@ async function main() {
     ]);
     console.log(`⬆️${item}✅`);
   }
-  await $({ stdio: 'inherit' })`git tag ${version}`;
-  await $({ stdio: 'inherit' })`git push origin ${version}`;
+
   console.log(`🏁⬆️🔚`);
 }
 main();
