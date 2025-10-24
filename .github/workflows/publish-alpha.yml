@@ -1,4 +1,4 @@
-name: alpha
+name: publish-alpha
 on:
   push:
     tags:
@@ -12,10 +12,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      # - name: init
-      #   run: |
-      #     git config --global user.name "${GITHUB_ACTOR}"
-      #     git config --global user.email "${GITHUB_ACTOR}@gmail.com"
       - uses: actions/checkout@v4
       - name: install-node
         uses: actions/setup-node@v4
