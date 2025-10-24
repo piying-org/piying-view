@@ -1,6 +1,5 @@
 import {
   computed,
-  createNgModule,
   Directive,
   inject,
   Injector,
@@ -12,15 +11,13 @@ import {
 import { PiResolvedViewFieldConfig, NgResolvedWraaperConfig } from '../type';
 import {
   DynamicComponentConfig,
-  RawDirectiveOutputs,
   NgResolvedComponentDefine2,
 } from '../type/component';
 import { EMPTY_ARRAY } from '../const';
 import { BaseComponent } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
-import { deepEqual } from 'fast-equals';
 import { FieldControl } from '@piying/view-angular-core';
-import { PI_COMPONENT_INDEX, PI_VIEW_FIELD_TOKEN } from '../type/view-token';
+import { PI_VIEW_FIELD_TOKEN } from '../type/view-token';
 import { FieldControlDirective } from '../directives/field-control-directive';
 
 @Directive({
@@ -33,8 +30,7 @@ export class NgComponentOutlet<T = any>
 {
   /** 输入 */
   ngComponentOutlet = input<NgResolvedComponentDefine2>();
-  ngComponentOutletInputs = input<Record<string, unknown>>();
-  ngComponentOutletOutputs = input<RawDirectiveOutputs>();
+  ngComponentOutletExtraInputs = input<Record<string, unknown>>();
   /** 控件用 */
   ngComponentOutletFormControl = input<FieldControl>();
   /** 包裹用 */
@@ -45,48 +41,18 @@ export class NgComponentOutlet<T = any>
   ngComponentOutletField = input.required<PiResolvedViewFieldConfig>();
   #viewContainerRef = inject(ViewContainerRef);
   // 这里感觉会在非发射时出现多次输入?
-  #wrappers = computed(() =>
-    this.ngComponentOutletWrappers()?.map((item) => ({
-      ...item,
-      type: item.type.component,
-      module: item.type.module,
-    })),
-  );
-  #onputEqual$$ = computed(() => this.ngComponentOutletOutputs(), {
-    equal: deepEqual,
-  });
 
-  #moduleDestroy?: () => void;
-
-  #moduleRef$$ = computed(() => {
-    this.#moduleDestroy?.();
-    const module = this.ngComponentOutlet()?.type.module;
-    if (!module) {
-      return;
-    }
-    const moduleRef = createNgModule(module, this.#injector);
-    this.#moduleDestroy = () => {
-      moduleRef.destroy();
-      this.#moduleDestroy = undefined;
-    };
-    return moduleRef;
-  });
-  #usedEnvInjector$$ = computed(() => {
-    const injector = this.#moduleRef$$()?.injector ?? this.#injector;
-    return Injector.create({
+  #usedEnvInjector$$ = computed(() =>
+    Injector.create({
       providers: [
         {
           provide: PI_VIEW_FIELD_TOKEN,
           useValue: this.ngComponentOutletField,
         },
-        {
-          provide: PI_COMPONENT_INDEX,
-          useValue: 0,
-        },
       ],
-      parent: injector,
-    }).get(Injector);
-  });
+      parent: this.#injector,
+    }).get(Injector),
+  );
   #injector = inject(Injector);
   #formControlDirectiveConfig$$ = computed(() => {
     const fieldControl = this.ngComponentOutletFormControl();
@@ -104,7 +70,10 @@ export class NgComponentOutlet<T = any>
       ? [...(directivesInputs?.() ?? []), formConfig]
       : directivesInputs?.();
   });
-
+  #componentInput$$ = computed(() => ({
+    ...this.ngComponentOutlet()?.inputs?.(),
+    ...this.ngComponentOutletExtraInputs(),
+  }));
   #componentConfig$$ = computed(() => {
     const define = this.ngComponentOutlet();
     if (!define) {
@@ -113,9 +82,8 @@ export class NgComponentOutlet<T = any>
     const directives = this.#directiveConfigList$$();
     return {
       ...define!,
-      type: define!.type.component,
-      module: define!.type.module,
-      inputs: this.ngComponentOutletInputs,
+      outputs: define.outputs?.(),
+      inputs: this.#componentInput$$,
       directives: directives
         ? directives.map((item) => {
             const outputs = item.outputs;
@@ -128,7 +96,6 @@ export class NgComponentOutlet<T = any>
             return item;
           })
         : undefined,
-      outputs: this.#onputEqual$$(),
     } as DynamicComponentConfig;
   });
   #componentList$$ = computed(() => {
@@ -136,14 +103,11 @@ export class NgComponentOutlet<T = any>
     if (!componentConfig) {
       return EMPTY_ARRAY;
     }
-    const injector = this.#usedEnvInjector$$();
-    const list: DynamicComponentConfig[] = [
-      ...(this.#wrappers() ?? []),
+    const list = [
+      ...(this.ngComponentOutletWrappers() ?? []),
       componentConfig,
-    ];
-
-    list[0] = { ...list[0], injector };
-
+    ] as DynamicComponentConfig[];
+    list[0].injector = this.#usedEnvInjector$$();
     return list;
   });
 
@@ -168,7 +132,6 @@ export class NgComponentOutlet<T = any>
   }
 
   ngOnDestroy() {
-    this.#moduleDestroy?.();
     this.destroyComponentFn?.();
   }
 }

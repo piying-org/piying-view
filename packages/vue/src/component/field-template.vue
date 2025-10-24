@@ -32,11 +32,11 @@ const fieldInput = computed(() => ({ ...attributes.value, ...inputs.value }));
 const fieldChildren = signalToRef(() => props.field.children?.());
 
 const wrappers = signalToRef(() => props.field.wrappers());
-
+const define = signalToRef(() => props.field.define?.());
 const componentType = computed(() =>
-  typeof props.field.define?.type === 'function' || isLazyMark(props.field.define?.type)
-    ? defineAsyncComponent(getLazyImport<any>(props.field.define?.type))
-    : props.field.define?.type,
+  typeof define.value?.type === 'function' || isLazyMark(define.value?.type)
+    ? defineAsyncComponent(getLazyImport<any>(define.value?.type))
+    : define.value?.type,
 );
 const field = computed(() => props.field);
 provide(PI_VIEW_FIELD_TOKEN, field);
@@ -63,7 +63,7 @@ onUnmounted(() => {
 
 <template>
   <template v-if="!renderConfig!.hidden">
-    <template v-if="field.define?.type">
+    <template v-if="define?.type">
       <pi-wrapper v-bind:wrappers="wrappers!">
         <!-- group -->
         <template v-if="fieldChildren">

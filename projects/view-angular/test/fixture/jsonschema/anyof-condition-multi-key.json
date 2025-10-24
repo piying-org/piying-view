@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "anyOf": [
+    {
+      "properties": {
+        "cond1": { "const": 1 },
+        "cond2": { "const": 2 },
+
+        "value1": { "type": "number" }
+      }
+    },
+    {
+      "properties": {
+        "cond1": { "const": 3 },
+        "cond2": { "const": 4 },
+
+        "value2": { "type": "number" }
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+
+  "properties": { "k1": { "type": "number" } },
+  "allOf": [
+    { "properties": { "k2": { "type": "number" } } },
+    { "properties": { "k3": { "type": "number" } } }
+  ]
+}

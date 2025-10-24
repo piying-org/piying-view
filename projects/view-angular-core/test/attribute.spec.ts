@@ -2,7 +2,7 @@ import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
 
-import { removeAttributes } from '../src/convert';
+import { removeAttributes } from '../convert';
 
 describe('attribute', () => {
   it('remove', async () => {

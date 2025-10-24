@@ -19,7 +19,7 @@ export type CoreRawComponentDefine = {
 /** 解析后define使用 */
 export type CoreResolvedComponentDefine = SetWrapper$<
   CoreRawComponentDefine,
-  'attributes' | 'inputs'
+  'attributes' | 'inputs' | 'outputs'
 >;
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
@@ -72,7 +72,7 @@ export type PiResolvedCommonViewFieldConfig<
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
   };
-  readonly define?: Define;
+  readonly define?: WritableSignal<Define>;
 
   wrappers: WritableSignal<CoreResolvedWrapperConfig[]>;
 } & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias'>> &

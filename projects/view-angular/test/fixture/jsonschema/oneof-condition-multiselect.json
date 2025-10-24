@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "oneOf": [
+    {
+      "properties": {
+        "cond1": {
+          "type": "array",
+          "items": {
+            "enum": [1, 2]
+          }
+        },
+        "value1": { "type": "number" }
+      },
+      "required": ["value1"]
+    },
+    {
+      "properties": {
+        "cond1": {
+          "type": "array",
+          "items": {
+            "enum": [2, 3]
+          }
+        },
+        "value2": { "type": "number" }
+      },
+      "required": ["value2"]
+    }
+  ]
+}

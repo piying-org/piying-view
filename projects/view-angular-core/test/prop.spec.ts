@@ -6,8 +6,8 @@ import {
   patchProps,
   removeProps,
   setProps,
-} from '../src/convert/action/prop';
-import { setComponent } from '../src/convert';
+} from '../convert/action/prop';
+import { setComponent } from '../convert';
 
 // 用于测试fields和model变动时,数值是否正确
 describe('prop', () => {

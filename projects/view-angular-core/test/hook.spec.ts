@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
-import { removeHooks } from '../src/convert';
+import { removeHooks } from '../convert';
 
 describe('hook', () => {
   it('remove', async () => {

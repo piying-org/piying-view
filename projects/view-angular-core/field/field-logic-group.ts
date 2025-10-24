@@ -84,6 +84,7 @@ export class FieldLogicGroup extends FieldArray {
         !this.config$().disableOrUpdateActivate &&
         !isUpdateActivate &&
         control.valid &&
+        control.shouldInclude$$() &&
         this.type() === 'or'
       ) {
         this.activateIndex$.set(i);

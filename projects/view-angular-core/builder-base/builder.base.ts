@@ -123,7 +123,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const type = field.type;
     let define;
     if (type) {
-      const result = this.#resolveComponent(type);
+      const result = this.#findConfig.findComponentConfig(type);
       viewDefaultConfig = result.defaultConfig;
       define = result.define;
     }
@@ -252,7 +252,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       inputs: inputs,
       outputs: outputs,
       attributes,
-      define: define ? { ...define, inputs, outputs, attributes } : undefined,
+      define: define
+        ? signal({ ...define, inputs, outputs, attributes })
+        : undefined,
       wrappers,
       injector: this.#envInjector,
     } as any as _PiResolvedCommonViewFieldConfig;
@@ -514,33 +516,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     result.injector = injector.get(EnvironmentInjector);
     return result;
   }
-  #resolveComponent(type: string | any) {
-    let define;
-    let defaultConfig;
-    // 查引用
-    if (typeof type === 'string') {
-      const config = this.#globalConfig?.types?.[type];
-      if (!config) {
-        throw new Error(`🈳define:[${type}]❗`);
-      }
-      defaultConfig = config;
-      if (Object.keys(config).length) {
-        define = {
-          ...config,
-        };
-        return {
-          define: { ...config },
-          defaultConfig,
-        };
-      }
-    } else {
-      return { define: { type: type } };
-    }
-    return {
-      define,
-      defaultConfig,
-    };
-  }
 
   protected configMergeRaw<T extends SignalInputValue<any>>(
     list: T[],
@@ -609,29 +584,13 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     wrappers?: CoreRawWrapperConfig[],
   ): WritableSignal<CoreResolvedWrapperConfig[]> {
     const result = (wrappers ?? []).map((wrapper) => {
-      // 查引用1
       const config = this.#findConfig.findWrapper(wrapper);
-      if (typeof wrapper === 'string') {
-        return {
-          ...config,
-          inputs: signal(config.inputs),
-          attributes: signal(config.attributes),
-        };
-      } else if (typeof wrapper.type === 'string') {
-        // 查引用2
-        return {
-          inputs: signal({ ...config.inputs, ...wrapper.inputs }),
-          outputs: { ...config.outputs, ...wrapper.outputs },
-          attributes: signal({ ...config.attributes, ...wrapper.attributes }),
-          type: config.type,
-        };
-      } else {
-        return {
-          ...wrapper,
-          inputs: signal(wrapper.inputs),
-          attributes: signal(wrapper.attributes),
-        };
-      }
+      return {
+        inputs: signal(config.inputs),
+        outputs: config.outputs,
+        attributes: signal(config.attributes),
+        type: config.type,
+      };
     });
     return signal(result);
   }

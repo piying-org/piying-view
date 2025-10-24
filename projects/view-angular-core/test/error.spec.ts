@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
-import { getDeepError } from '../src/util/get-error';
+import { getDeepError } from '../util/get-error';
 describe('error', () => {
   it('valid', () => {
     const obj = v.pipe(v.string());

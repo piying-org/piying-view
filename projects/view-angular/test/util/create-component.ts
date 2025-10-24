@@ -7,15 +7,18 @@ import {
 } from '@angular/core';
 import { PiyingView } from '@piying/view-angular';
 import { PiViewConfig } from '@piying/view-angular';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { Test1Component } from '../test1/test1.component';
 import {
   FieldArray,
   FieldControl,
   FieldGroup,
+  getLazyImport,
+  isLazyMark,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
 import { PiyingViewGroup } from '@piying/view-angular';
+import { isComponentType } from '../../lib/util/async-cache';
 
 export async function createSchemaComponent(
   field: WritableSignal<SchemaOrPipe>,
@@ -23,17 +26,35 @@ export async function createSchemaComponent(
   defaultConfig?: PiViewConfig,
   context?: any,
 ) {
+  // 预加载
+  const types = [
+    ...Object.values(defaultConfig?.types ?? {}).map((item) => item.type),
+    ...Object.values(defaultConfig?.wrappers ?? {}).map((item) => item.type),
+  ].filter(
+    (item) =>
+      !isComponentType(item) &&
+      (typeof item === 'function' || isLazyMark(item)),
+  );
+
+  if (types.length) {
+    await Promise.all(
+      types.map((item) => getLazyImport<() => Promise<any>>(item)!()),
+    );
+  }
   @Component({
     template: `<piying-view
       [schema]="fields$()"
       [(model)]="model$"
       (modelChange)="mdChange()"
       [options]="options"
+      #view
     ></piying-view>`,
     standalone: true,
     imports: [PiyingView],
   })
   class Hello {
+    view = viewChild.required('view', { read: PiyingView });
+    field$$ = computed(() => this.view().resolvedField$());
     fieldConfig = {
       ...defaultConfig,
       types: {
@@ -41,6 +62,9 @@ export async function createSchemaComponent(
           type: Test1Component,
         },
         object: {
+          type: PiyingViewGroup,
+        },
+        loose_object: {
           type: PiyingViewGroup,
         },
         intersect: {
@@ -85,7 +109,7 @@ export async function createSchemaComponent(
   }
   await TestBed.configureTestingModule({
     imports: [Hello],
-    providers: [],
+    providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
   }).compileComponents();
   const fixture = TestBed.createComponent(Hello);
   fixture.detectChanges();
@@ -93,5 +117,6 @@ export async function createSchemaComponent(
     fixture: fixture,
     instance: fixture.componentInstance,
     element: fixture.nativeElement as HTMLElement,
+    field$$: fixture.componentInstance.field$$,
   };
 }

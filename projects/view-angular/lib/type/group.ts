@@ -60,9 +60,12 @@ export type PiResolvedViewFieldConfig = PiResolvedCommonViewFieldConfig<
   directives?: WritableSignal<NgDirectiveConfig[]>;
 };
 
-export type NgResolvedWraaperConfig = Omit<
-  CoreResolvedWrapperConfig,
-  'type'
-> & {
-  type: NgComponentDefine;
-};
+export type NgResolvedWraaperConfig = Omit<CoreResolvedWrapperConfig, ''>;
+
+export type ComponentRawType =
+  | Type<any>
+  | LazyImport<Type<any>>
+  | NgComponentDefine
+  | LazyImport<NgComponentDefine>
+  | LazyMarkType<Type<any>>
+  | LazyMarkType<NgComponentDefine>;

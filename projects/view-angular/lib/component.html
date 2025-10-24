@@ -1,34 +1,25 @@
 <ng-template #dynamicComponent let-field>
   @let renderConfig = field.renderConfig();
   @if (!renderConfig?.hidden) {
-    @let typeResource = resolvedComponent | pure: field.define;
-    @let type = typeResource.value();
-    @let wrappersResource = resolvedWrapper | pure: field.wrappers();
-    @let wrappers = wrappersResource.value();
-    @if (type) {
-      @if (field.fixedChildren || field.restChildren) {
-        <!-- 自定义group -->
-        <ng-container
-          [ngComponentOutlet]="type"
-          [ngComponentOutletInputs]="
-            (groupInputsValue | pure: field.inputs : dynamicComponent)?.()
-          "
-          [ngComponentOutletOutputs]="field.outputs()"
-          [ngComponentOutletWrappers]="wrappers"
-          [ngComponentOutletField]="field"
-          [ngComponentOutletDirectives]="field.directives"
-        ></ng-container>
-      } @else {
-        <ng-container
-          [ngComponentOutlet]="type"
-          [ngComponentOutletInputs]="field.inputs()"
-          [ngComponentOutletOutputs]="field.outputs()"
-          [ngComponentOutletFormControl]="$any(field.form.control)"
-          [ngComponentOutletWrappers]="wrappers"
-          [ngComponentOutletField]="field"
-          [ngComponentOutletDirectives]="field.directives"
-        ></ng-container>
-      }
+    @if (field.fixedChildren || field.restChildren) {
+      <!-- 自定义group -->
+      <ng-container
+        [ngComponentOutlet]="field.define?.()"
+        [ngComponentOutletExtraInputs]="
+          groupInputsValue | pure: dynamicComponent
+        "
+        [ngComponentOutletWrappers]="field.wrappers()"
+        [ngComponentOutletField]="field"
+        [ngComponentOutletDirectives]="field.directives"
+      ></ng-container>
+    } @else {
+      <ng-container
+        [ngComponentOutlet]="field.define?.()"
+        [ngComponentOutletFormControl]="$any(field.form.control)"
+        [ngComponentOutletWrappers]="field.wrappers()"
+        [ngComponentOutletField]="field"
+        [ngComponentOutletDirectives]="field.directives"
+      ></ng-container>
     }
   }
 </ng-template>

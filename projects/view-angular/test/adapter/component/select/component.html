@@ -1,0 +1,5 @@
+<select [(ngModel)]="value$" [disabled]="disabled$()">
+  @for (item of options(); track $index) {
+    <option [value]="item.value">{{ item.label }}</option>
+  }
+</select>

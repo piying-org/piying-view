@@ -252,7 +252,7 @@ describe('action', () => {
     const obj = v.pipe(v.string(), setAttributes({ v: 1 }));
     const resolved = createBuilder(obj, config);
     expect(resolved.attributes()).toEqual({ v: 1 });
-    expect(resolved.define?.attributes?.()).toEqual({ v: 1 });
+    expect(resolved.define!()?.attributes?.()).toEqual({ v: 1 });
     const obj2 = v.pipe(
       v.string(),
       setAttributes({ v: 1 }),

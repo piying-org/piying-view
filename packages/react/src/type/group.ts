@@ -45,10 +45,7 @@ export type PiResolvedViewFieldConfig = PiResolvedCommonViewFieldConfig<
   () => PiResolvedViewFieldConfig,
   CoreResolvedComponentDefine
 > &
-  ResolvedComponentFieldConfig & {
-    /** 除了无component的控件,其他情况下都应该有define,group/array会赋值默认 */
-    define?: RawComponentDefine;
-  };
+  ResolvedComponentFieldConfig;
 
 export type PiComponentDefaultConfig = {
   type: any | (() => Promise<any>);
