@@ -23,6 +23,7 @@ import { deepEqual } from 'fast-equals';
 export type JSType = NonNullable<
   Exclude<JsonSchemaDraft202012Object['type'], any[]>
 >;
+type BaseAction = v.BaseMetadata<any> | v.BaseValidation<any, any, any>;
 function createImpasseAction(key: string, value?: any) {
   return v.rawCheck(({ dataset, addIssue }) => {
     if (!dataset.issues) {
@@ -259,7 +260,11 @@ export class JsonSchemaToValibot {
 
     if (schema.allOf) {
       const result = this.#mergeSchema(schema, ...schema.allOf);
-      return v.pipe(this.#jsonSchemaBase(result.schema)!, ...result.actionList);
+      return v.pipe(
+        this.#jsonSchemaBase(result.schema, () => {
+          return result.actionList;
+        })!,
+      );
     }
     if (schema.anyOf) {
       return this.#conditionCreate(schema, {
@@ -345,36 +350,48 @@ export class JsonSchemaToValibot {
         },
       });
     }
+    /**
+     * 当前设计中if/then/else是采用的分离显示
+     * 也就是then/else都会合并base,然后按条件展示,
+     */
     if ('if' in schema) {
       const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
-        this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema)),
-        ...getValidationAction(schema),
-        hideWhen({
-          disabled: false,
-          listen: (fn) =>
-            fn({}).pipe(
-              map(({ list: [value], field }) => {
-                const isThen = isBoolean(schema.if)
-                  ? schema.if
-                  : v.safeParse(ifVSchema, value).success;
-                (
-                  field.form.parent as jsonActions.FieldLogicGroup
-                ).activateIndex$.set(isThen ? 1 : 2);
-                useThen$.next(isThen);
-                return !((isThen && !thenSchema) || (!isThen && !elseSchema));
-              }),
-            ),
+        this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () => {
+          return [
+            ...getValidationAction(schema),
+            hideWhen({
+              disabled: false,
+              listen: (fn) =>
+                fn({}).pipe(
+                  map(({ list: [value], field }) => {
+                    const isThen = isBoolean(schema.if)
+                      ? schema.if
+                      : v.safeParse(ifVSchema, value).success;
+                    (
+                      field.form.parent as jsonActions.FieldLogicGroup
+                    ).activateIndex$.set(isThen ? 1 : 2);
+                    useThen$.next(isThen);
+                    return !(
+                      (isThen && !thenSchema) ||
+                      (!isThen && !elseSchema)
+                    );
+                  }),
+                ),
+            }),
+          ];
         }),
       );
+      /** 仅为验证项,非显示用 */
       let ifVSchema: ResolvedSchema;
       if (isBoolean(schema.if)) {
         ifVSchema = v.literal(schema.if);
       } else {
         const ifSchema = this.#mergeSchema(schema, schema.if!);
         ifVSchema = v.pipe(
-          this.#jsonSchemaBase(ifSchema.schema)!,
-          ...ifSchema.actionList,
+          this.#jsonSchemaBase(ifSchema.schema, () => {
+            return ifSchema.actionList;
+          })!,
         );
       }
       function hideAction(isThen: boolean) {
@@ -395,9 +412,9 @@ export class JsonSchemaToValibot {
       if (schema.then && !isBoolean(schema.then)) {
         const subSchema = this.#mergeSchema(schema, schema.then!);
         thenSchema = v.pipe(
-          this.#jsonSchemaBase(subSchema.schema),
-          ...subSchema.actionList,
-          ...hideAction(true),
+          this.#jsonSchemaBase(subSchema.schema, () => {
+            return [...subSchema.actionList, ...hideAction(true)];
+          }),
         );
       }
 
@@ -405,9 +422,9 @@ export class JsonSchemaToValibot {
       if (schema.else && !isBoolean(schema.else)) {
         const subSchema = this.#mergeSchema(schema, schema.else);
         elseSchema = v.pipe(
-          this.#jsonSchemaBase(subSchema.schema),
-          ...subSchema.actionList,
-          ...hideAction(false),
+          this.#jsonSchemaBase(subSchema.schema, () => {
+            return [...subSchema.actionList, ...hideAction(false)];
+          }),
         );
       }
 
@@ -445,8 +462,10 @@ export class JsonSchemaToValibot {
     }
 
     return v.pipe(
-      this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema)),
-      ...getValidationAction(schema),
+      // 通用部分
+      this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () => {
+        return getValidationAction(schema);
+      }),
     );
   }
   #applicatorNot(input: JsonSchemaDraft202012Object) {
@@ -518,17 +537,19 @@ export class JsonSchemaToValibot {
     return resolved;
   }
 
-  #jsonSchemaBase(schema: ResolvedJsonSchema) {
+  #jsonSchemaBase(
+    schema: ResolvedJsonSchema,
+    getValidationActionList: () => BaseAction[],
+  ) {
     const types = schema.__resolved.type;
     // 暂时为只支持一个
     const type = types.types[0];
     const actionList: any[] = getMetadataAction(schema);
 
-    const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) =>
-      v.pipe(
-        types.optional ? v.optional(input, schema.default) : input,
-        ...actionList,
-      );
+    const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
+      let result = v.pipe(input, ...actionList, ...getValidationActionList());
+      return types.optional ? v.optional(result, schema.default) : result;
+    };
     if (!isNil(schema.const)) {
       return createTypeFn(v.literal(schema.const! as any));
     }
@@ -1329,9 +1350,13 @@ export class JsonSchemaToValibot {
     const isObject = [schema, ...resolvedChildJSchemaList].every((item) =>
       item.__resolved.type.types.includes('object'),
     );
+    /** 通用子级验证部分,不显示  */
     const childOriginSchemaList = resolvedChildList.map((item) => {
-      const result = this.#jsonSchemaBase(item.schema);
-      return v.pipe(result, ...item.actionList);
+      return v.pipe(
+        this.#jsonSchemaBase(item.schema, () => {
+          return item.actionList;
+        }),
+      );
     });
     let activateList: boolean[] = [];
 
@@ -1347,18 +1372,23 @@ export class JsonSchemaToValibot {
       );
 
       if (conditionResult) {
+        /** 子级的共同部分验证,用于检测是哪个子级,不显示 */
         const childConditionVSchemaList =
           conditionResult.childConditionJSchemaList.map((schema) => {
             const rSchema = this.#jsonSchemaCompatiable(schema);
             return v.pipe(
-              this.#jsonSchemaBase(rSchema),
-              ...getValidationAction(rSchema),
+              this.#jsonSchemaBase(rSchema, () => {
+                return getValidationAction(rSchema);
+              }),
             );
           });
-
+        /** 主条件部分,用于显示切换 */
         const conditionVSchema = v.pipe(
           this.#jsonSchemaBase(
             this.#jsonSchemaCompatiable(conditionResult.conditionJSchema),
+            () => {
+              return [];
+            },
           ),
           jsonActions.valueChange((fn) => {
             fn().subscribe(({ list: [value], field }) => {
@@ -1396,27 +1426,31 @@ export class JsonSchemaToValibot {
           });
           delete schema.properties?.[key];
         });
-        const baseActionList = getValidationAction(schema);
+
         const baseSchema = v.pipe(
-          this.#jsonSchemaBase(schema),
-          ...baseActionList,
+          this.#jsonSchemaBase(schema, () => {
+            return getValidationAction(schema);
+          }),
         );
-        const childSchemaList = resolvedChildJSchemaList.map((item) => {
-          const result = this.#jsonSchemaBase(item);
-          return v.pipe(result);
+        const childVSchemaList = resolvedChildJSchemaList.map((item) => {
+          // 验证部分被单独提取出来
+          return v.pipe(this.#jsonSchemaBase(item, () => []));
         });
         return v.pipe(
           options.conditionSchemaFn(
             baseSchema,
             conditionVSchema,
-            childSchemaList,
+            childVSchemaList,
           ),
           conditionCheckAction,
         );
       }
     }
-    const baseActionList = getValidationAction(schema);
-    const baseSchema = v.pipe(this.#jsonSchemaBase(schema), ...baseActionList);
+    const baseSchema = v.pipe(
+      this.#jsonSchemaBase(schema, () => {
+        return getValidationAction(schema);
+      }),
+    );
     activateList = childOriginSchemaList.map((_, i) => true);
     return v.pipe(baseSchema, conditionCheckAction);
   }

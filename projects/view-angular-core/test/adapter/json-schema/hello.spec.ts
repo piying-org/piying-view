@@ -199,4 +199,20 @@ describe('json-schema', () => {
     expect(result.success).toBeTrue();
     expect(result.output).toEqual({ k1: 1, k2: undefined });
   });
+
+  it('pipe-sort', () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        k1: {
+          type: ['number', 'null'],
+          minimum: 1,
+        },
+      },
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'loose_object');
+    let result = v.safeParse(Define, { k1: undefined });
+    expect(result.success).toBeTrue();
+  });
 });
