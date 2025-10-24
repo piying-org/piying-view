@@ -1,3 +1,7 @@
+## 1.7.4 (2025-10-24)
+
+
+
 ## [1.7.2](https://github.com/piying-org/piying-view/compare/1.7.1...1.7.2) (2025-10-17)
 
 
