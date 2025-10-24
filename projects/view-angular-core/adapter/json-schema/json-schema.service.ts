@@ -914,7 +914,7 @@ export class JsonSchemaToValibot {
   }
 
   #arrayCompatible(schema: JsonSchemaDraft202012Object) {
-    if (this.root.$schema !== Schema2012) {
+    if (this.root.$schema !== Schema2012 || !isNil(schema.additionalItems)) {
       if (!isNil(schema.items) || !isNil(schema.additionalItems)) {
         // 2019-09
         schema.prefixItems = schema.items as
