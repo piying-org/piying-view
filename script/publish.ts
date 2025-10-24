@@ -9,17 +9,19 @@ async function main() {
     reject: false,
   })`git ls-remote --tags --exit-code origin refs/tags/${version}`;
   console.log(result2);
-  if (result2.stdout) {
-    return;
-  }
+  // if (result2.stdout) {
+  //   return;
+  // }
   const TAG = process.env['PUBLISH_TAG'] ?? 'latest';
   await $({ stdio: 'inherit' })`npm run changelog`;
   await $({ stdio: 'inherit' })`git add .`;
   await $({ stdio: 'inherit' })`git commit -m "changelog"`;
+  console.log('end');
+
   // await $({ stdio: 'inherit' })`git push`;
   // await $({ stdio: 'inherit' })`git tag ${version}`;
   // await $({ stdio: 'inherit' })`git push origin ${version}`;
-  return 
+  return;
   for (const item of list) {
     await fs.promises.cp(
       path.join(process.cwd(), 'readme.md'),
