@@ -25,7 +25,7 @@
     "coverage": "ng test test-view-angular --code-coverage --no-watch --no-progress --browsers=ChromeHeadless",
     "lint": "eslint --fix ./projects && prettier ./projects --write && npm run lint -ws --if-present",
     "publish-only": "tsx ./script/change-version.ts && tsx ./script/publish.ts",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -r 0"
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md"
   },
   "private": true,
   "workspaces": [
@@ -47,7 +47,6 @@
     "conventional-changelog": "^7.1.1",
     "es-toolkit": "^1.40.0",
     "fast-equals": "^5.2.2",
-    "json-schema": "^0.4.0",
     "rfdc": "^1.4.1",
     "rxjs": "~7.8.0",
     "static-injector": "^6.1.2",

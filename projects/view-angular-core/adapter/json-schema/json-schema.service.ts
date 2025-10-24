@@ -14,11 +14,11 @@ import {
 } from 'es-toolkit';
 import { BehaviorSubject } from 'rxjs';
 import { schema as cSchema } from '@piying/valibot-visit';
-import {
+import type {
   JsonSchemaDraft202012,
   JsonSchemaDraft202012Object,
 } from '@hyperjump/json-schema/draft-2020-12';
-import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
+import type { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { deepEqual } from 'fast-equals';
 export type JSType = NonNullable<
   Exclude<JsonSchemaDraft202012Object['type'], any[]>
@@ -139,7 +139,7 @@ interface J2VOptions {
 // 应该传入定制
 
 export function jsonSchemaToValibot(
-  schema: JSONSchemaRaw,
+  schema: Record<string, any>,
   options?: J2VOptions,
 ) {
   return new JsonSchemaToValibot(schema, options).convert() as ResolvedSchema;

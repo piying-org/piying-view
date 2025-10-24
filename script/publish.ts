@@ -30,6 +30,7 @@ async function main() {
     ]);
     console.log(`⬆️${item}✅`);
   }
+  await $({ stdio: 'inherit' })`git log`;
   await $({ stdio: 'inherit' })`npm run changelog`;
   await $({ stdio: 'inherit' })`git add ./CHANGELOG.md`;
   await $({ stdio: 'inherit' })`git commit -m "changelog"`;

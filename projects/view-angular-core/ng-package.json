@@ -9,7 +9,8 @@
     "@piying/valibot-visit",
     "rfdc",
     "fast-equals",
-    "clsx"
+    "clsx",
+    "es-toolkit"
   ],
   "assets": ["./readme.md"]
 }
