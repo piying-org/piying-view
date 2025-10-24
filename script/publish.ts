@@ -14,7 +14,8 @@ async function main() {
   // }
   const TAG = process.env['PUBLISH_TAG'] ?? 'latest';
   await $({ stdio: 'inherit' })`npm run changelog`;
-  await $({ stdio: 'inherit' })`git add changelog`;
+  await $({ stdio: 'inherit' })`ls- lh`;
+  await $({ stdio: 'inherit' })`git add ./changelog`;
   await $({ stdio: 'inherit' })`git commit -m "changelog"`;
   console.log('end');
 
