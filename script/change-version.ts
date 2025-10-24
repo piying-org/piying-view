@@ -1,7 +1,7 @@
 import { glob } from 'fast-glob';
 import path from 'path';
 import fs from 'fs';
-const version = process.env['PUBLISH_VERSION'];
+import { version } from '../package.json';
 
 if (!version) {
   throw new Error('version not found');
