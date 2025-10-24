@@ -9,9 +9,9 @@ async function main() {
     reject: false,
   })`git ls-remote --tags --exit-code origin refs/tags/${version}`;
   console.log(result2);
-  // if (result2.stdout) {
-  //   return;
-  // }
+  if (result2.stdout) {
+    return;
+  }
   const TAG = process.env['PUBLISH_TAG'] ?? 'latest';
 
   for (const item of list) {
