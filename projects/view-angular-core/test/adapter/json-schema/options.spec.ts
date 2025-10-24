@@ -15,7 +15,7 @@ describe('json-schema-options', () => {
       },
     });
     const instance = assertType(Define, 'number');
-    let title = v.getTitle(Define);
+    const title = v.getTitle(Define);
     expect(title).toEqual('hello');
   });
   it('type-afterResolve', async () => {
@@ -32,7 +32,7 @@ describe('json-schema-options', () => {
       },
     });
     const instance = assertType(Define, 'number');
-    let title = v.getTitle(Define);
+    const title = v.getTitle(Define);
     expect(title).toEqual('hello');
   });
   it('action', async () => {

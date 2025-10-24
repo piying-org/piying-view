@@ -97,11 +97,14 @@ function arrayIntersection(a: any, b: any) {
     a = Array.isArray(a) ? a : [a];
     b = Array.isArray(b) ? b : [b];
     if (a.length && b.length) {
-      if (intersection(a, b).length === 0) {
+      const result = intersection(a, b);
+      if (result.length === 0) {
         return {
           action: createImpasseAction('applicator'),
           value: undefined,
         };
+      } else {
+        return { value: result };
       }
     }
     return {
@@ -171,17 +174,30 @@ export class JsonSchemaToValibot {
             if (dataset.issues) {
               return;
             }
+            let childFailedResult:
+              | { index: number; issues?: any[] }
+              | undefined;
             // 验证项全为可选,所以需要这里再次验证
             const hasSuccess = childOriginSchemaList.some((item, index) => {
               const isActive = getActivateList()[index];
               if (!isActive) {
+                childFailedResult ??= { index: index };
                 return false;
               }
               const result = v.safeParse(item, dataset.value);
+              if (!result.success) {
+                childFailedResult = { index: index, issues: result.issues };
+              }
               return result.success;
             });
             if (!hasSuccess) {
-              addIssue();
+              const extMessage =
+                childFailedResult?.issues
+                  ?.map((item) => item.message)
+                  .join(',') ?? '';
+              addIssue({
+                label: `anyOf:${childFailedResult?.index ?? ''}:${extMessage}`,
+              });
             }
           });
         },
@@ -224,7 +240,11 @@ export class JsonSchemaToValibot {
               return result.success;
             });
             if (hasSuccess.length !== 1) {
-              addIssue();
+              addIssue({
+                label: `oneOf`,
+                expected: '1',
+                received: `${hasSuccess.length}`,
+              });
             }
           });
         },
@@ -441,7 +461,7 @@ export class JsonSchemaToValibot {
 
     const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
       const result = v.pipe(input, ...actionList, ...getValidationActionList());
-      let result2 = types.optional
+      const result2 = types.optional
         ? v.optional(result, schema.default)
         : result;
       return (
@@ -1432,7 +1452,7 @@ export class JsonSchemaToValibot {
     }
     if (schema.actions) {
       for (const rawAction of schema.actions!) {
-        let inlineActions =
+        const inlineActions =
           (jsonActions as any)[rawAction.name] ??
           this.#options?.customActions?.[rawAction.name];
         if (!inlineActions) {

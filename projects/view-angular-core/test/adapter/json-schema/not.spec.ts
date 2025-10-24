@@ -28,7 +28,7 @@ describe('json-schema-not', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'loose_object');
-    let result = v.safeParse(Define, { k2: 1 });
+    const result = v.safeParse(Define, { k2: 1 });
     expect(result.success).toBeFalse();
     expect(result.issues![0].message).toContain('impasse:not');
   });
