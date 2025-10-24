@@ -47,7 +47,7 @@ describe('merge', () => {
         },
       ],
     } as JsonSchemaDraft202012Object;
-    const Define = jsonSchemaToValibot(jsonSchema);    
+    const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'array');
     let result = v.safeParse(Define, [1]);
     expect(result.success).toBeTrue();

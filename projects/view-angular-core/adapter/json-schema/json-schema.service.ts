@@ -261,9 +261,7 @@ export class JsonSchemaToValibot {
     if (schema.allOf) {
       const result = this.#mergeSchema(schema, ...schema.allOf);
       return v.pipe(
-        this.#jsonSchemaBase(result.schema, () => {
-          return result.actionList;
-        })!,
+        this.#jsonSchemaBase(result.schema, () => result.actionList)!,
       );
     }
     if (schema.anyOf) {
@@ -357,30 +355,25 @@ export class JsonSchemaToValibot {
     if ('if' in schema) {
       const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
-        this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () => {
-          return [
-            ...getValidationAction(schema),
-            hideWhen({
-              disabled: false,
-              listen: (fn) =>
-                fn({}).pipe(
-                  map(({ list: [value], field }) => {
-                    const isThen = isBoolean(schema.if)
-                      ? schema.if
-                      : v.safeParse(ifVSchema, value).success;
-                    (
-                      field.form.parent as jsonActions.FieldLogicGroup
-                    ).activateIndex$.set(isThen ? 1 : 2);
-                    useThen$.next(isThen);
-                    return !(
-                      (isThen && !thenSchema) ||
-                      (!isThen && !elseSchema)
-                    );
-                  }),
-                ),
-            }),
-          ];
-        }),
+        this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () => [
+          ...getValidationAction(schema),
+          hideWhen({
+            disabled: false,
+            listen: (fn) =>
+              fn({}).pipe(
+                map(({ list: [value], field }) => {
+                  const isThen = isBoolean(schema.if)
+                    ? schema.if
+                    : v.safeParse(ifVSchema, value).success;
+                  (
+                    field.form.parent as jsonActions.FieldLogicGroup
+                  ).activateIndex$.set(isThen ? 1 : 2);
+                  useThen$.next(isThen);
+                  return !((isThen && !thenSchema) || (!isThen && !elseSchema));
+                }),
+              ),
+          }),
+        ]),
       );
       /** 仅为验证项,非显示用 */
       let ifVSchema: ResolvedSchema;
@@ -389,9 +382,7 @@ export class JsonSchemaToValibot {
       } else {
         const ifSchema = this.#mergeSchema(schema, schema.if!);
         ifVSchema = v.pipe(
-          this.#jsonSchemaBase(ifSchema.schema, () => {
-            return ifSchema.actionList;
-          })!,
+          this.#jsonSchemaBase(ifSchema.schema, () => ifSchema.actionList)!,
         );
       }
       function hideAction(isThen: boolean) {
@@ -412,9 +403,10 @@ export class JsonSchemaToValibot {
       if (schema.then && !isBoolean(schema.then)) {
         const subSchema = this.#mergeSchema(schema, schema.then!);
         thenSchema = v.pipe(
-          this.#jsonSchemaBase(subSchema.schema, () => {
-            return [...subSchema.actionList, ...hideAction(true)];
-          }),
+          this.#jsonSchemaBase(subSchema.schema, () => [
+            ...subSchema.actionList,
+            ...hideAction(true),
+          ]),
         );
       }
 
@@ -422,9 +414,10 @@ export class JsonSchemaToValibot {
       if (schema.else && !isBoolean(schema.else)) {
         const subSchema = this.#mergeSchema(schema, schema.else);
         elseSchema = v.pipe(
-          this.#jsonSchemaBase(subSchema.schema, () => {
-            return [...subSchema.actionList, ...hideAction(false)];
-          }),
+          this.#jsonSchemaBase(subSchema.schema, () => [
+            ...subSchema.actionList,
+            ...hideAction(false),
+          ]),
         );
       }
 
@@ -463,26 +456,26 @@ export class JsonSchemaToValibot {
 
     return v.pipe(
       // 通用部分
-      this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () => {
-        return getValidationAction(schema);
-      }),
+      this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () =>
+        getValidationAction(schema),
+      ),
     );
   }
   #applicatorNot(input: JsonSchemaDraft202012Object) {
     const schema = this.#resolveSchema2(input);
-    let actionList = [];
+    const actionList = [];
     if (isBoolean(schema.not)) {
       if (schema.not) {
         actionList.push(createImpasseAction('not', schema.not));
       }
     } else if (schema.not) {
-      let vSchema = this.#jSchemaToVSchema(schema.not);
+      const vSchema = this.#jSchemaToVSchema(schema.not);
       actionList.push(
         v.rawCheck(({ dataset, addIssue }) => {
           if (dataset.issues) {
             return;
           }
-          let result = v.safeParse(vSchema, dataset.value);
+          const result = v.safeParse(vSchema, dataset.value);
           if (result.success) {
             addIssue({ label: `applicator:not` });
           }
@@ -503,7 +496,7 @@ export class JsonSchemaToValibot {
     if (this.cacheSchema.has(schema)) {
       return this.cacheSchema.get(schema);
     }
-    let actionList = this.#applicatorNot(schema);
+    const actionList = this.#applicatorNot(schema);
     const result = actionList.length
       ? v.pipe(this.#applicatorParse(schema), ...actionList)
       : this.#applicatorParse(schema);
@@ -547,7 +540,7 @@ export class JsonSchemaToValibot {
     const actionList: any[] = getMetadataAction(schema);
 
     const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
-      let result = v.pipe(input, ...actionList, ...getValidationActionList());
+      const result = v.pipe(input, ...actionList, ...getValidationActionList());
       return types.optional ? v.optional(result, schema.default) : result;
     };
     if (!isNil(schema.const)) {
@@ -610,7 +603,7 @@ export class JsonSchemaToValibot {
             if (isBoolean(propJSchema)) {
               propData = { optional: false, hasRef: false };
             } else {
-              let rSchema = this.#resolveSchema2(propJSchema);
+              const rSchema = this.#resolveSchema2(propJSchema);
               propData = {
                 optional: rSchema.__resolved.type.optional,
                 hasRef: rSchema.__resolved.hasRef,
@@ -646,14 +639,8 @@ export class JsonSchemaToValibot {
             };
             childObject[key] = propData.hasRef
               ? wrapperOptional
-                ? v.optional(
-                    v.lazy(() => {
-                      return createRef();
-                    }),
-                  )
-                : v.lazy(() => {
-                    return createRef();
-                  })
+                ? v.optional(v.lazy(() => createRef()))
+                : v.lazy(() => createRef())
               : wrapperOptional
                 ? v.optional(createRef())
                 : createRef();
@@ -869,15 +856,13 @@ export class JsonSchemaToValibot {
           );
         }
         const jSchemaToVSchema = (schema: JsonSchemaDraft202012) => {
-          let hasRef = this.#schemahasRef(schema);
+          const hasRef = this.#schemahasRef(schema);
           return hasRef
             ? v.lazy(() => this.#jSchemaToVSchema(schema!))
             : this.#jSchemaToVSchema(schema);
         };
         if (fixedItems && fixedItems.length) {
-          const fixedList = fixedItems.map((item) => {
-            return jSchemaToVSchema(item);
-          });
+          const fixedList = fixedItems.map((item) => jSchemaToVSchema(item));
           if (schema.items) {
             const result = jSchemaToVSchema(schema.items);
             parent = v.tupleWithRest(fixedList, result!);
@@ -1129,7 +1114,7 @@ export class JsonSchemaToValibot {
     if (isBoolean(schema)) {
       return false;
     } else {
-      let result = this.#resolveSchema2(schema);
+      const result = this.#resolveSchema2(schema);
       return result.__resolved.hasRef;
     }
   }
@@ -1351,13 +1336,9 @@ export class JsonSchemaToValibot {
       item.__resolved.type.types.includes('object'),
     );
     /** 通用子级验证部分,不显示  */
-    const childOriginSchemaList = resolvedChildList.map((item) => {
-      return v.pipe(
-        this.#jsonSchemaBase(item.schema, () => {
-          return item.actionList;
-        }),
-      );
-    });
+    const childOriginSchemaList = resolvedChildList.map((item) =>
+      v.pipe(this.#jsonSchemaBase(item.schema, () => item.actionList)),
+    );
     let activateList: boolean[] = [];
 
     const conditionCheckAction = options.conditionCheckActionFn(
@@ -1377,18 +1358,14 @@ export class JsonSchemaToValibot {
           conditionResult.childConditionJSchemaList.map((schema) => {
             const rSchema = this.#jsonSchemaCompatiable(schema);
             return v.pipe(
-              this.#jsonSchemaBase(rSchema, () => {
-                return getValidationAction(rSchema);
-              }),
+              this.#jsonSchemaBase(rSchema, () => getValidationAction(rSchema)),
             );
           });
         /** 主条件部分,用于显示切换 */
         const conditionVSchema = v.pipe(
           this.#jsonSchemaBase(
             this.#jsonSchemaCompatiable(conditionResult.conditionJSchema),
-            () => {
-              return [];
-            },
+            () => [],
           ),
           jsonActions.valueChange((fn) => {
             fn().subscribe(({ list: [value], field }) => {
@@ -1428,14 +1405,12 @@ export class JsonSchemaToValibot {
         });
 
         const baseSchema = v.pipe(
-          this.#jsonSchemaBase(schema, () => {
-            return getValidationAction(schema);
-          }),
+          this.#jsonSchemaBase(schema, () => getValidationAction(schema)),
         );
-        const childVSchemaList = resolvedChildJSchemaList.map((item) => {
+        const childVSchemaList = resolvedChildJSchemaList.map((item) =>
           // 验证部分被单独提取出来
-          return v.pipe(this.#jsonSchemaBase(item, () => []));
-        });
+          v.pipe(this.#jsonSchemaBase(item, () => [])),
+        );
         return v.pipe(
           options.conditionSchemaFn(
             baseSchema,
@@ -1447,9 +1422,7 @@ export class JsonSchemaToValibot {
       }
     }
     const baseSchema = v.pipe(
-      this.#jsonSchemaBase(schema, () => {
-        return getValidationAction(schema);
-      }),
+      this.#jsonSchemaBase(schema, () => getValidationAction(schema)),
     );
     activateList = childOriginSchemaList.map((_, i) => true);
     return v.pipe(baseSchema, conditionCheckAction);

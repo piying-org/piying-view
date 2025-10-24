@@ -212,7 +212,7 @@ describe('json-schema', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     const instance = assertType(Define, 'loose_object');
-    let result = v.safeParse(Define, { k1: undefined });
+    const result = v.safeParse(Define, { k1: undefined });
     expect(result.success).toBeTrue();
   });
 });

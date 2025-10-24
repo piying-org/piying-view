@@ -45,7 +45,7 @@ export type PiResolvedViewFieldConfig = PiResolvedCommonViewFieldConfig<
   () => PiResolvedViewFieldConfig,
   CoreResolvedComponentDefine
 > &
-  ResolvedComponentFieldConfig 
+  ResolvedComponentFieldConfig;
 
 export type PiComponentDefaultConfig = {
   type: any | (() => Promise<any>);
