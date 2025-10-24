@@ -26,7 +26,7 @@ export type JSType = NonNullable<
 type BaseAction = v.BaseMetadata<any> | v.BaseValidation<any, any, any>;
 function createImpasseAction(key: string, value?: any) {
   return v.rawCheck(({ dataset, addIssue }) => {
-    if (!dataset.issues) {
+    if (dataset.issues) {
       return;
     }
     addIssue({
@@ -74,105 +74,6 @@ function getMetadataAction(schema: JSONSchemaRaw) {
   }
   return action;
 }
-function getValidationAction(schema: JSONSchemaRaw) {
-  const action = [];
-
-  // string/array
-  if (isNumber(schema.minLength) || isNumber(schema.minItems)) {
-    action.push(v.minLength(schema.minLength ?? schema.minItems!));
-  }
-  // string/array
-  if (isNumber(schema.maxLength) || isNumber(schema.maxItems)) {
-    action.push(v.maxLength(schema.maxLength ?? schema.maxItems!));
-  }
-
-  // string
-  if (isString(schema.pattern)) {
-    action.push(v.regex(new RegExp(schema.pattern)));
-  }
-  // todo format https://json-schema.org/understanding-json-schema/reference/type#built-in-formats
-  // duration idn-email idn-hostname uri-reference iri iri-reference uri-template json-pointer regex
-  if (schema.format) {
-    switch (schema.format) {
-      // case 'date-time': {
-      //   action.push(v.isoDateTime());
-      //   break;
-      // }
-      // case 'time': {
-      //   action.push(v.isoTime());
-      //   break;
-      // }
-      case 'date': {
-        action.push(v.isoDate());
-        break;
-      }
-      case 'email': {
-        action.push(v.email());
-        break;
-      }
-      case 'ipv4': {
-        action.push(v.ipv4());
-        break;
-      }
-      case 'ipv6': {
-        action.push(v.ipv6());
-        break;
-      }
-      case 'uuid': {
-        action.push(v.uuid());
-        break;
-      }
-      case 'uri': {
-        action.push(v.url());
-        break;
-      }
-
-      default:
-        break;
-    }
-  }
-
-  // number
-  if (isNumber(schema.exclusiveMinimum)) {
-    action.push(v.gtValue(schema.exclusiveMinimum!));
-  }
-  if (isNumber(schema.exclusiveMaximum)) {
-    action.push(v.ltValue(schema.exclusiveMaximum));
-  }
-  if (isNumber(schema.minimum)) {
-    action.push(v.minValue(schema.minimum));
-  }
-  if (isNumber(schema.maximum)) {
-    action.push(v.maxValue(schema.maximum));
-  }
-
-  // number
-  if (isNumber(schema.multipleOf)) {
-    action.push(v.multipleOf(schema.multipleOf));
-  }
-
-  // array
-  if (schema.uniqueItems) {
-    action.push(v.check((input: any[]) => uniq(input).length === input.length));
-  }
-  // object
-  if (isNumber(schema.maxProperties)) {
-    action.push(v.maxEntries(schema.maxProperties));
-  }
-  // object
-  if (isNumber(schema.minProperties)) {
-    action.push(v.minEntries(schema.minProperties));
-  }
-  if (schema.actions) {
-    for (const rawAction of schema.actions!) {
-      action.push(
-        (jsonActions as any)[rawAction.name].apply(undefined, rawAction.params),
-      );
-    }
-  }
-
-  return action;
-}
 
 interface JSONSchemaRaw extends JsonSchemaDraft202012Object {
   actions?: { name: string; params: any[] }[];
@@ -213,24 +114,23 @@ function arrayIntersection(a: any, b: any) {
  * 子级需要解析
  */
 export interface TypeHandle {
-  before: (jSchema: any, actionList: any) => any;
-  after: (jSchema: any, vSchema: any) => any;
+  afterResolve: (
+    type: string,
+    jSchema: any,
+    vSchema: ResolvedSchema,
+  ) => ResolvedSchema | undefined;
 }
 interface J2VOptions {
-  customAction: Record<
+  customActions?: Record<
     string,
-    v.BaseMetadata<any> | v.BaseValidation<any, any, any>
+    (...args: any[]) => v.BaseMetadata<any> | v.BaseValidation<any, any, any>
   >;
-  schemaHandle: {
-    type: Record<JSType, TypeHandle>;
-  };
-  applicator: {
-    allOf: any;
-    /** 可以分为条件或者基础 */
-    anyOf: any;
-    oneOf: any;
-    condition: any;
-    not: any;
+  schemaHandle?: {
+    type?: TypeHandle;
+    afterResolve?: (
+      jSchema: ResolvedJsonSchema,
+      vSchema: ResolvedSchema,
+    ) => ResolvedSchema | undefined;
   };
 }
 // 应该传入定制
@@ -255,17 +155,15 @@ export class JsonSchemaToValibot {
     return this.#jSchemaToVSchema(clone(this.root));
   }
 
-  #applicatorParse(input: JsonSchemaDraft202012Object) {
-    const schema = this.#resolveSchema2(input);
-
+  #applicatorParse(schema: ResolvedJsonSchema) {
+    let vSchema;
     if (schema.allOf) {
       const result = this.#mergeSchema(schema, ...schema.allOf);
-      return v.pipe(
+      vSchema = v.pipe(
         this.#jsonSchemaBase(result.schema, () => result.actionList)!,
       );
-    }
-    if (schema.anyOf) {
-      return this.#conditionCreate(schema, {
+    } else if (schema.anyOf) {
+      vSchema = this.#conditionCreate(schema, {
         useOr: false,
         getChildren: () => schema.anyOf!,
         conditionCheckActionFn(childOriginSchemaList, getActivateList) {
@@ -305,10 +203,8 @@ export class JsonSchemaToValibot {
           );
         },
       });
-    }
-    if (schema.oneOf) {
-      const resolved = this.#jsonSchemaCompatiable(schema);
-      return this.#conditionCreate(resolved, {
+    } else if (schema.oneOf) {
+      vSchema = this.#conditionCreate(schema, {
         useOr: true,
         getChildren() {
           return schema.oneOf!;
@@ -347,16 +243,16 @@ export class JsonSchemaToValibot {
           );
         },
       });
-    }
-    /**
-     * 当前设计中if/then/else是采用的分离显示
-     * 也就是then/else都会合并base,然后按条件展示,
-     */
-    if ('if' in schema) {
+    } else if ('if' in schema) {
+      /**
+       * 当前设计中if/then/else是采用的分离显示
+       * 也就是then/else都会合并base,然后按条件展示,
+       */
+
       const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
       const baseSchema = v.pipe(
-        this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () => [
-          ...getValidationAction(schema),
+        this.#jsonSchemaBase(schema, () => [
+          ...this.#getValidationAction(schema),
           hideWhen({
             disabled: false,
             listen: (fn) =>
@@ -422,7 +318,7 @@ export class JsonSchemaToValibot {
       }
 
       // 这种逻辑没问题,因为jsonschema验证中,也会出现base和子级架构一起验证
-      return v.pipe(
+      vSchema = v.pipe(
         v.union(
           [
             baseSchema,
@@ -452,17 +348,19 @@ export class JsonSchemaToValibot {
           }
         }),
       );
+    } else {
+      vSchema = v.pipe(
+        // 通用部分
+        this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () =>
+          this.#getValidationAction(schema),
+        ),
+      );
     }
-
-    return v.pipe(
-      // 通用部分
-      this.#jsonSchemaBase(this.#jsonSchemaCompatiable(schema), () =>
-        getValidationAction(schema),
-      ),
+    return (
+      this.#options?.schemaHandle?.afterResolve?.(schema, vSchema) ?? vSchema
     );
   }
-  #applicatorNot(input: JsonSchemaDraft202012Object) {
-    const schema = this.#resolveSchema2(input);
+  #applicatorNot(schema: ResolvedJsonSchema) {
     const actionList = [];
     if (isBoolean(schema.not)) {
       if (schema.not) {
@@ -484,23 +382,25 @@ export class JsonSchemaToValibot {
     }
     return actionList;
   }
-  #jSchemaToVSchema(schema: JsonSchemaDraft202012): ResolvedSchema {
-    if (isBoolean(schema)) {
-      return schema
+  #jSchemaToVSchema(input: JsonSchemaDraft202012): ResolvedSchema {
+    if (isBoolean(input)) {
+      return input
         ? v.pipe(v.any(), jsonActions.setComponent('always-true'))
         : v.pipe(
             v.any(),
             v.check((value) => isUndefined(value)),
           );
     }
-    if (this.cacheSchema.has(schema)) {
-      return this.cacheSchema.get(schema);
+    if (this.cacheSchema.has(input)) {
+      return this.cacheSchema.get(input);
     }
+    const schema = this.#resolveSchema2(input);
+
     const actionList = this.#applicatorNot(schema);
     const result = actionList.length
       ? v.pipe(this.#applicatorParse(schema), ...actionList)
       : this.#applicatorParse(schema);
-    this.cacheSchema.set(schema, result);
+    this.cacheSchema.set(input, result);
     return result;
   }
 
@@ -541,7 +441,16 @@ export class JsonSchemaToValibot {
 
     const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
       const result = v.pipe(input, ...actionList, ...getValidationActionList());
-      return types.optional ? v.optional(result, schema.default) : result;
+      let result2 = types.optional
+        ? v.optional(result, schema.default)
+        : result;
+      return (
+        this.#options?.schemaHandle?.type?.afterResolve(
+          type,
+          result2,
+          result,
+        ) ?? result2
+      );
     };
     if (!isNil(schema.const)) {
       return createTypeFn(v.literal(schema.const! as any));
@@ -1025,12 +934,12 @@ export class JsonSchemaToValibot {
   ) {
     let base = clone(schema);
     let baseKeyList = Object.keys(base);
-    const actionList = getValidationAction(base);
+    const actionList = this.#getValidationAction(base);
     for (let childSchema of list.filter(
       (item) => !isBoolean(item),
     ) as any as JsonSchemaDraft202012Object[]) {
       childSchema = this.#resolveSchema2(childSchema);
-      actionList.push(...getValidationAction(childSchema));
+      actionList.push(...this.#getValidationAction(childSchema));
       baseKeyList = union(baseKeyList, Object.keys(childSchema));
       for (const key of baseKeyList) {
         switch (key) {
@@ -1358,7 +1267,9 @@ export class JsonSchemaToValibot {
           conditionResult.childConditionJSchemaList.map((schema) => {
             const rSchema = this.#jsonSchemaCompatiable(schema);
             return v.pipe(
-              this.#jsonSchemaBase(rSchema, () => getValidationAction(rSchema)),
+              this.#jsonSchemaBase(rSchema, () =>
+                this.#getValidationAction(rSchema),
+              ),
             );
           });
         /** 主条件部分,用于显示切换 */
@@ -1405,7 +1316,7 @@ export class JsonSchemaToValibot {
         });
 
         const baseSchema = v.pipe(
-          this.#jsonSchemaBase(schema, () => getValidationAction(schema)),
+          this.#jsonSchemaBase(schema, () => this.#getValidationAction(schema)),
         );
         const childVSchemaList = resolvedChildJSchemaList.map((item) =>
           // 验证部分被单独提取出来
@@ -1422,9 +1333,115 @@ export class JsonSchemaToValibot {
       }
     }
     const baseSchema = v.pipe(
-      this.#jsonSchemaBase(schema, () => getValidationAction(schema)),
+      this.#jsonSchemaBase(schema, () => this.#getValidationAction(schema)),
     );
     activateList = childOriginSchemaList.map((_, i) => true);
     return v.pipe(baseSchema, conditionCheckAction);
+  }
+
+  #getValidationAction(schema: JSONSchemaRaw) {
+    const action = [];
+
+    // string/array
+    if (isNumber(schema.minLength) || isNumber(schema.minItems)) {
+      action.push(v.minLength(schema.minLength ?? schema.minItems!));
+    }
+    // string/array
+    if (isNumber(schema.maxLength) || isNumber(schema.maxItems)) {
+      action.push(v.maxLength(schema.maxLength ?? schema.maxItems!));
+    }
+
+    // string
+    if (isString(schema.pattern)) {
+      action.push(v.regex(new RegExp(schema.pattern)));
+    }
+    // todo format https://json-schema.org/understanding-json-schema/reference/type#built-in-formats
+    // duration idn-email idn-hostname uri-reference iri iri-reference uri-template json-pointer regex
+    if (schema.format) {
+      switch (schema.format) {
+        // case 'date-time': {
+        //   action.push(v.isoDateTime());
+        //   break;
+        // }
+        // case 'time': {
+        //   action.push(v.isoTime());
+        //   break;
+        // }
+        case 'date': {
+          action.push(v.isoDate());
+          break;
+        }
+        case 'email': {
+          action.push(v.email());
+          break;
+        }
+        case 'ipv4': {
+          action.push(v.ipv4());
+          break;
+        }
+        case 'ipv6': {
+          action.push(v.ipv6());
+          break;
+        }
+        case 'uuid': {
+          action.push(v.uuid());
+          break;
+        }
+        case 'uri': {
+          action.push(v.url());
+          break;
+        }
+
+        default:
+          break;
+      }
+    }
+
+    // number
+    if (isNumber(schema.exclusiveMinimum)) {
+      action.push(v.gtValue(schema.exclusiveMinimum!));
+    }
+    if (isNumber(schema.exclusiveMaximum)) {
+      action.push(v.ltValue(schema.exclusiveMaximum));
+    }
+    if (isNumber(schema.minimum)) {
+      action.push(v.minValue(schema.minimum));
+    }
+    if (isNumber(schema.maximum)) {
+      action.push(v.maxValue(schema.maximum));
+    }
+
+    // number
+    if (isNumber(schema.multipleOf)) {
+      action.push(v.multipleOf(schema.multipleOf));
+    }
+
+    // array
+    if (schema.uniqueItems) {
+      action.push(
+        v.check((input: any[]) => uniq(input).length === input.length),
+      );
+    }
+    // object
+    if (isNumber(schema.maxProperties)) {
+      action.push(v.maxEntries(schema.maxProperties));
+    }
+    // object
+    if (isNumber(schema.minProperties)) {
+      action.push(v.minEntries(schema.minProperties));
+    }
+    if (schema.actions) {
+      for (const rawAction of schema.actions!) {
+        let inlineActions =
+          (jsonActions as any)[rawAction.name] ??
+          this.#options?.customActions?.[rawAction.name];
+        if (!inlineActions) {
+          throw new Error(`action:[${rawAction.name}]❗`);
+        }
+        action.push(inlineActions.apply(undefined, rawAction.params));
+      }
+    }
+
+    return action;
   }
 }

@@ -21,4 +21,15 @@ describe('json-schema-not', () => {
     result = v.safeParse(Define, { k1: 1 });
     expect(result.success).toBeFalse();
   });
+  it('not-impasse', async () => {
+    const jsonSchema = {
+      not: true,
+      type: 'object',
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'loose_object');
+    let result = v.safeParse(Define, { k2: 1 });
+    expect(result.success).toBeFalse();
+    expect(result.issues![0].message).toContain('impasse:not');
+  });
 });
