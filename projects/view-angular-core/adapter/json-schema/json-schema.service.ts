@@ -20,6 +20,9 @@ import {
 } from '@hyperjump/json-schema/draft-2020-12';
 import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { deepEqual } from 'fast-equals';
+export type JSType = NonNullable<
+  Exclude<JsonSchemaDraft202012Object['type'], any[]>
+>;
 function createImpasseAction(key: string, value?: any) {
   return v.rawCheck(({ dataset, addIssue }) => {
     if (!dataset.issues) {
@@ -194,7 +197,7 @@ function arrayIntersection(a: any, b: any) {
     if (a.length && b.length) {
       if (intersection(a, b).length === 0) {
         return {
-          action: v.check(() => false, 'conflict'),
+          action: createImpasseAction('applicator'),
           value: undefined,
         };
       }
@@ -208,28 +211,50 @@ function arrayIntersection(a: any, b: any) {
 /** 合并schema
  * 子级需要解析
  */
-
-interface IOptions {
-  schema: JSONSchemaRaw;
+export interface TypeHandle {
+  before: (jSchema: any, actionList: any) => any;
+  after: (jSchema: any, vSchema: any) => any;
+}
+interface J2VOptions {
+  customAction: Record<
+    string,
+    v.BaseMetadata<any> | v.BaseValidation<any, any, any>
+  >;
+  schemaHandle: {
+    type: Record<JSType, TypeHandle>;
+  };
+  applicator: {
+    allOf: any;
+    /** 可以分为条件或者基础 */
+    anyOf: any;
+    oneOf: any;
+    condition: any;
+    not: any;
+  };
 }
 // 应该传入定制
 
-export function jsonSchemaToValibot(schema: JSONSchemaRaw) {
-  return new JsonSchemaToValibot(schema).convert() as ResolvedSchema;
+export function jsonSchemaToValibot(
+  schema: JSONSchemaRaw,
+  options?: J2VOptions,
+) {
+  return new JsonSchemaToValibot(schema, options).convert() as ResolvedSchema;
 }
 const Schema2012 = 'https://json-schema.org/draft/2020-12/schema';
 export class JsonSchemaToValibot {
   root;
+  #options;
   private cacheSchema = new WeakMap();
-  constructor(root: JSONSchemaRaw) {
+  constructor(root: JSONSchemaRaw, options?: J2VOptions) {
     this.root = root;
+    this.#options = options;
     root.$schema ??= Schema2012;
   }
   convert() {
-    return this.#itemToVSchema2(clone(this.root));
+    return this.#jSchemaToVSchema(clone(this.root));
   }
 
-  #itemToVSchema(input: JsonSchemaDraft202012Object) {
+  #applicatorParse(input: JsonSchemaDraft202012Object) {
     const schema = this.#resolveSchema2(input);
 
     if (schema.allOf) {
@@ -424,7 +449,30 @@ export class JsonSchemaToValibot {
       ...getValidationAction(schema),
     );
   }
-  #itemToVSchema2(schema: JsonSchemaDraft202012): ResolvedSchema {
+  #applicatorNot(input: JsonSchemaDraft202012Object) {
+    const schema = this.#resolveSchema2(input);
+    let actionList = [];
+    if (isBoolean(schema.not)) {
+      if (schema.not) {
+        actionList.push(createImpasseAction('not', schema.not));
+      }
+    } else if (schema.not) {
+      let vSchema = this.#jSchemaToVSchema(schema.not);
+      actionList.push(
+        v.rawCheck(({ dataset, addIssue }) => {
+          if (dataset.issues) {
+            return;
+          }
+          let result = v.safeParse(vSchema, dataset.value);
+          if (result.success) {
+            addIssue({ label: `applicator:not` });
+          }
+        }),
+      );
+    }
+    return actionList;
+  }
+  #jSchemaToVSchema(schema: JsonSchemaDraft202012): ResolvedSchema {
     if (isBoolean(schema)) {
       return schema
         ? v.pipe(v.any(), jsonActions.setComponent('always-true'))
@@ -436,7 +484,10 @@ export class JsonSchemaToValibot {
     if (this.cacheSchema.has(schema)) {
       return this.cacheSchema.get(schema);
     }
-    const result = this.#itemToVSchema(schema);
+    let actionList = this.#applicatorNot(schema);
+    const result = actionList.length
+      ? v.pipe(this.#applicatorParse(schema), ...actionList)
+      : this.#applicatorParse(schema);
     this.cacheSchema.set(schema, result);
     return result;
   }
@@ -548,7 +599,7 @@ export class JsonSchemaToValibot {
             const isRequired = !!schema.required?.includes(key);
             const wrapperOptional = !isRequired && !propData.optional;
             const createRef = () => {
-              let propVSchema = this.#itemToVSchema2(propJSchema);
+              let propVSchema = this.#jSchemaToVSchema(propJSchema);
               const depList = schema.dependentRequired?.[key];
               if (depList) {
                 propVSchema = v.pipe(
@@ -593,7 +644,7 @@ export class JsonSchemaToValibot {
         } else if (schema.additionalProperties) {
           mode = 'rest';
           // rest要符合的规则
-          defaultRest = this.#itemToVSchema2(schema.additionalProperties!);
+          defaultRest = this.#jSchemaToVSchema(schema.additionalProperties!);
         }
         const patternRestList = [] as {
           regexp: RegExp;
@@ -601,7 +652,7 @@ export class JsonSchemaToValibot {
         }[];
         if (schema.patternProperties) {
           for (const key in schema.patternProperties) {
-            const item = this.#itemToVSchema2(schema.patternProperties[key]);
+            const item = this.#jSchemaToVSchema(schema.patternProperties[key]);
             if (!item) {
               throw new Error(`patternProperties->${key}: 定义未找到`);
             }
@@ -617,7 +668,7 @@ export class JsonSchemaToValibot {
           const depSchemaMap = {} as Record<string, ResolvedSchema>;
           for (const key in schema.dependentSchemas) {
             const jSchema = schema.dependentSchemas[key];
-            let vSchema = this.#itemToVSchema2(jSchema);
+            let vSchema = this.#jSchemaToVSchema(jSchema);
             if (!vSchema) {
               throw new Error(`依赖->${key}: 定义未找到`);
             }
@@ -660,7 +711,7 @@ export class JsonSchemaToValibot {
         if (isBoolean(schema.propertyNames) && !schema.propertyNames) {
           actionList.push(v.check(() => false));
         } else if (schema.propertyNames) {
-          const propNameSchema = this.#itemToVSchema2(schema.propertyNames)!;
+          const propNameSchema = this.#jSchemaToVSchema(schema.propertyNames)!;
           actionList.push(
             v.rawCheck(({ dataset, addIssue }) => {
               if (dataset.issues) {
@@ -774,7 +825,7 @@ export class JsonSchemaToValibot {
         if (isBoolean(schema.contains) && !schema.contains) {
           actionList.push(createImpasseAction('contains', schema.contains));
         } else if (schema.contains && !isBoolean(schema.contains)) {
-          const containsSchema = this.#itemToVSchema2(schema.contains!)!;
+          const containsSchema = this.#jSchemaToVSchema(schema.contains!)!;
           const minContains = schema.minContains ?? 1;
           actionList.push(
             v.check((list) => {
@@ -799,8 +850,8 @@ export class JsonSchemaToValibot {
         const jSchemaToVSchema = (schema: JsonSchemaDraft202012) => {
           let hasRef = this.#schemahasRef(schema);
           return hasRef
-            ? v.lazy(() => this.#itemToVSchema2(schema!))
-            : this.#itemToVSchema2(schema);
+            ? v.lazy(() => this.#jSchemaToVSchema(schema!))
+            : this.#jSchemaToVSchema(schema);
         };
         if (fixedItems && fixedItems.length) {
           const fixedList = fixedItems.map((item) => {
