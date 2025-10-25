@@ -1,3 +1,12 @@
+## 1.7.5 (2025-10-25)
+
+
+### Bug Fixes
+
+* sync define ([3233d09](https://github.com/piying-org/piying-view/commit/3233d094c2d09278241e18e04b8925e4a12450fa))
+
+
+
 ## 1.7.4 (2025-10-24)
 
 
