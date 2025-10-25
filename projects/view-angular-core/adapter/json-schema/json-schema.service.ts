@@ -12,7 +12,7 @@ import {
   union,
   uniq,
 } from 'es-toolkit';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, merge } from 'rxjs';
 import { schema as cSchema } from '@piying/valibot-visit';
 import type {
   JsonSchemaDraft202012,
@@ -526,6 +526,7 @@ export class JsonSchemaToValibot {
             }),
           );
         }
+        let hasRequiredKey = false;
         // 普通属性
         if (schema.properties) {
           for (const key in schema.properties) {
@@ -543,6 +544,9 @@ export class JsonSchemaToValibot {
 
             const isRequired = !!schema.required?.includes(key);
             const wrapperOptional = !isRequired && !propData.optional;
+            if (isRequired && !propData.optional) {
+              hasRequiredKey = true;
+            }
             const createRef = () => {
               let propVSchema = this.#jSchemaToVSchema(propJSchema);
               const depList = schema.dependentRequired?.[key];
@@ -615,14 +619,23 @@ export class JsonSchemaToValibot {
 
             vSchema = v.pipe(
               vSchema,
+              jsonActions.renderConfig({ hidden: true }),
               hideWhen({
                 disabled: true,
-                listen: (fn, field) =>
-                  field
-                    .get(['..', '..', 0, key])!
-                    .form.control!.statusChanges.pipe(
-                      map((item) => item === 'VALID'),
-                    ),
+                listen: (fn, field) => {
+                  let controlField = field.get(['..', '..', 0, key])!.form
+                    .control!;
+                  return merge(
+                    controlField.valueChanges,
+                    controlField.statusChanges,
+                  ).pipe(
+                    map(() => {
+                      return !(
+                        controlField.valid && controlField.value !== undefined
+                      );
+                    }),
+                  );
+                },
               }),
             );
             conditionList.push(vSchema);
@@ -672,7 +685,7 @@ export class JsonSchemaToValibot {
           );
         }
         let schemaDefine;
-        if (!Object.keys(childObject).length) {
+        if (!Object.keys(childObject).length || !hasRequiredKey) {
           types.optional = true;
         }
         if (mode === 'default') {
@@ -932,6 +945,7 @@ export class JsonSchemaToValibot {
       });
       schema.dependentRequired = dependentRequiredData;
       schema.dependentSchemas = dependentSchemasData;
+      delete schema.dependencies;
     }
   }
 

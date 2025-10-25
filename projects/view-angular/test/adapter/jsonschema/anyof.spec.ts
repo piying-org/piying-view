@@ -13,12 +13,15 @@ import { signal } from '@angular/core';
 import { NumberComponent } from '../component/number/component';
 import {
   assertFieldControl,
+  assertFieldGroup,
   assertFieldLogicGroup,
 } from '@piying/view-angular-core/test';
 import { PiyingViewGroup } from '@piying/view-angular';
 import { SelectComponent } from '../component/select/component';
 import { isUndefined, omitBy } from 'es-toolkit';
 import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
+import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
+import { TextComponent } from '../component/text/component';
 describe('anyof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(anyOf as any) as any;
@@ -401,6 +404,62 @@ describe('anyof', () => {
     assertFieldLogicGroup(field.form.control);
     expect(field?.form.control?.valid).toBeFalse();
     expect(field.form.control.errors!['valibot'][0].message).toContain('anyOf');
-    expect(field.form.control.errors!['valibot'][0].message).toContain('value1');
+    expect(field.form.control.errors!['valibot'][0].message).toContain(
+      'value1',
+    );
+  });
+  it('test', async () => {
+    const jsonSchema = {
+      title: 'Schema dependencies',
+      description: 'These samples are best viewed without live validation.',
+      type: 'object',
+      properties: {
+        simple: {
+          title: 'Simple',
+          type: 'object',
+          properties: {
+            credit_card: {
+              type: 'number',
+              title: 'Credit card',
+            },
+          },
+          required: ['credit_card'],
+          dependencies: {
+            credit_card: {
+              properties: {
+                billing_address: {
+                  type: 'string',
+                  title: 'Billing address',
+                },
+              },
+              required: ['billing_address'],
+            },
+          },
+        },
+      },
+    } as JsonSchemaDraft07;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal({ simple: { credit_card: 11 } }),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          'anyOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldGroup(field.form.control);
+
+    expect(element.querySelectorAll('input').length).toEqual(2);
+    field.form.control.updateValue({});
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelectorAll('input').length).toEqual(1);
   });
 });
