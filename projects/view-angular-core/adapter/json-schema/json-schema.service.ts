@@ -1245,6 +1245,58 @@ export class JsonSchemaToValibot {
     return { conditionJSchema, childConditionJSchemaList, conditionKeyList };
   }
 
+  mergeList(schema: ResolvedJsonSchema, childList: ResolvedJsonSchema[]) {
+    if (!childList.length) {
+      return;
+    }
+    let currentType = undefined;
+    const childPropList: JsonSchemaDraft202012Object[] = [];
+    for (const sub of childList) {
+      const result = this.#intersectSchemaType(schema as any, sub as any);
+      if (!result) {
+        return;
+      } else if (
+        currentType === undefined ||
+        deepEqual(currentType, result.type)
+      ) {
+        currentType = result.type;
+        // 枚举
+        if (
+          result.data!.enum ||
+          'const' in result.data! ||
+          result.type === 'multiselect'
+        ) {
+          childPropList.push(result.data!);
+        } else {
+          childPropList.push(result.data as any);
+        }
+      } else {
+        break;
+      }
+    }
+
+    if (currentType === 'enum') {
+      return {
+        enum: childPropList.flatMap((item) => item.enum!),
+      };
+    } else if (currentType === 'const') {
+      return {
+        enum: childPropList.flatMap((item) => item.const!),
+      };
+    } else if (currentType === 'multiselect') {
+      return {
+        type: 'array' as const,
+        items: {
+          enum: childPropList.flatMap(
+            (item) => (item.items as JsonSchemaDraft202012Object)!.enum!,
+          ),
+        },
+        uniqueItems: true,
+      };
+    }
+
+    return;
+  }
   #conditionCreate(
     schema: ResolvedJsonSchema,
     options: {
@@ -1357,6 +1409,11 @@ export class JsonSchemaToValibot {
           conditionCheckAction,
         );
       }
+    }
+
+    let result = this.mergeList(schema, resolvedChildJSchemaList);
+    if (result) {
+      return this.#jSchemaToVSchema(result);
     }
     const baseSchema = v.pipe(
       this.#jsonSchemaBase(schema, () => this.#getValidationAction(schema)),

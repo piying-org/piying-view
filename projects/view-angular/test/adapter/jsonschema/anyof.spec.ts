@@ -409,4 +409,41 @@ describe('anyof', () => {
       'value1',
     );
   });
+  it('enum-merge', async () => {
+    const jsonSchema = {
+      type: 'string',
+      anyOf: [
+        {
+          title: 'Option 1',
+          enum: ['option1'],
+        },
+        {
+          title: 'Option 2',
+          enum: ['option2'],
+        },
+        {
+          title: 'Option 3',
+          enum: ['option3'],
+        },
+      ],
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal('option1'),
+      {
+        types: {
+          number: { type: NumberComponent },
+          'anyOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldControl(field.form.control);
+    expect(field?.form.control?.valid).toBeTrue();
+    expect(field?.form.control?.value).toEqual('option1');
+  });
 });
