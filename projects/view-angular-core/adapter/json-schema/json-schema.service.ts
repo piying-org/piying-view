@@ -118,9 +118,9 @@ function arrayIntersection(a: any, b: any) {
  */
 export interface TypeHandle {
   afterResolve: (
-    type: string,
-    jSchema: any,
     vSchema: ResolvedSchema,
+    jSchema: ResolvedJsonSchema,
+    type: JSType | 'const' | 'enum',
   ) => ResolvedSchema | undefined;
 }
 interface J2VOptions {
@@ -131,8 +131,8 @@ interface J2VOptions {
   schemaHandle?: {
     type?: TypeHandle;
     afterResolve?: (
-      jSchema: ResolvedJsonSchema,
       vSchema: ResolvedSchema,
+      jSchema: ResolvedJsonSchema,
     ) => ResolvedSchema | undefined;
   };
 }
@@ -377,7 +377,7 @@ export class JsonSchemaToValibot {
       );
     }
     return (
-      this.#options?.schemaHandle?.afterResolve?.(schema, vSchema) ?? vSchema
+      this.#options?.schemaHandle?.afterResolve?.(vSchema, schema) ?? vSchema
     );
   }
   #applicatorNot(schema: ResolvedJsonSchema) {
@@ -456,7 +456,7 @@ export class JsonSchemaToValibot {
   ) {
     const types = schema.__resolved.type;
     // 暂时为只支持一个
-    const type = types.types[0];
+    let type = types.types[0];
     const actionList: any[] = getMetadataAction(schema);
 
     const createTypeFn = <T extends v.BaseSchema<any, any, any>>(input: T) => {
@@ -466,16 +466,18 @@ export class JsonSchemaToValibot {
         : result;
       return (
         this.#options?.schemaHandle?.type?.afterResolve(
-          type,
           result2,
-          result,
+          schema,
+          type,
         ) ?? result2
       );
     };
     if (!isNil(schema.const)) {
+      type = 'const' as any;
       return createTypeFn(v.literal(schema.const! as any));
     }
     if (Array.isArray(schema.enum)) {
+      type = 'enum' as any;
       return createTypeFn(v.picklist(schema.enum as any));
     }
     switch (type) {

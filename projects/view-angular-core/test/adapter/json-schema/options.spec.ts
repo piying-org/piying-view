@@ -9,7 +9,7 @@ describe('json-schema-options', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema, {
       schemaHandle: {
-        afterResolve(jSchema, vSchema) {
+        afterResolve(vSchema, jSchema) {
           return v.pipe(vSchema, v.title('hello'));
         },
       },
@@ -25,7 +25,7 @@ describe('json-schema-options', () => {
     const Define = jsonSchemaToValibot(jsonSchema, {
       schemaHandle: {
         type: {
-          afterResolve(type, jSchema, vSchema) {
+          afterResolve(vSchema, jSchema, type) {
             return v.pipe(vSchema, v.title('hello'));
           },
         },
@@ -65,7 +65,7 @@ describe('json-schema-options', () => {
       v.safeParse(Define, 1);
     } catch (error) {
       expect(error instanceof Error).toBeTrue();
-      return
+      return;
     }
     throw new Error('');
   });
