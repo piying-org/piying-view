@@ -868,13 +868,13 @@ export class JsonSchemaToValibot {
     schema: JsonSchemaDraft202012Object,
   ): ResolvedJsonSchema['__resolved']['type'] {
     let type = schema?.type;
-
+    let optional = 'default' in schema;
     if (isString(type)) {
-      return { types: [type], optional: false };
+      return { types: [type], optional: optional };
     }
     if (Array.isArray(type)) {
       if (type.length === 1) {
-        return { types: type, optional: false };
+        return { types: type, optional: optional };
       }
       const nullIndex = type.findIndex((item) => item === 'null');
       if (nullIndex !== -1) {
@@ -882,7 +882,7 @@ export class JsonSchemaToValibot {
       }
       return {
         types: type,
-        optional: nullIndex !== -1,
+        optional: optional || nullIndex !== -1,
       };
     }
     if (
@@ -911,8 +911,8 @@ export class JsonSchemaToValibot {
     }
 
     return type
-      ? { types: [type], optional: false }
-      : { types: anyType, optional: false };
+      ? { types: [type], optional: optional }
+      : { types: anyType, optional: optional };
   }
   #objectCompatible(schema: JsonSchemaDraft202012Object) {
     if ('dependencies' in schema && schema.dependencies) {
