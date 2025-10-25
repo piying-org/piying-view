@@ -1,3 +1,12 @@
+## 1.7.7 (2025-10-25)
+
+
+### Bug Fixes
+
+* default optional ([3852a3d](https://github.com/piying-org/piying-view/commit/3852a3de92524ad5e1726c815d717187bad05447))
+
+
+
 ## 1.7.6 (2025-10-25)
 
 
