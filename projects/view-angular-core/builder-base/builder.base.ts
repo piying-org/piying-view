@@ -51,6 +51,23 @@ import {
 } from '../util';
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
+// todo 临时同步
+function defineSync(field: _PiResolvedCommonViewFieldConfig) {
+  let define = field.define?.();
+  if (
+    define &&
+    (field.inputs !== define.inputs ||
+      field.outputs !== define.outputs ||
+      field.attributes !== define.attributes)
+  ) {
+    (field.define as any) = signal({
+      ...define,
+      inputs: field.inputs,
+      outputs: field.outputs,
+      attributes: field.attributes,
+    });
+  }
+}
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
     inject(PI_FORM_BUILDER_ALIAS_MAP, { optional: true }) ??
@@ -260,6 +277,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
       this.afterResolveConfig(field, resolvedConfig) ?? resolvedConfig;
+    defineSync(resolvedConfig);
     if (field.movePath) {
       this.#moveViewField(field.movePath, resolvedConfig);
     } else {
