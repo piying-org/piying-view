@@ -1,3 +1,12 @@
+## 1.7.6 (2025-10-25)
+
+
+### Bug Fixes
+
+* jsonschema options ([ffdfc66](https://github.com/piying-org/piying-view/commit/ffdfc6692e66aa4dba7a66ea2fb3db02a0f882a7))
+
+
+
 ## 1.7.5 (2025-10-25)
 
 
