@@ -9,6 +9,10 @@ import {
 } from '@piying/view-angular-core/test';
 import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
 import { isUndefined, omitBy } from 'es-toolkit';
+import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
+import { PiyingViewGroup } from '../../../lib/component/group/component';
+import { SelectComponent } from '../component/select/component';
+import { TextComponent } from '../component/text/component';
 describe('object', () => {
   it('relate-req', async () => {
     const jsonSchema = {
@@ -108,5 +112,59 @@ describe('object', () => {
 
     assertFieldControl(control);
     expect(control.config$().required).toBeTrue();
+  });
+
+  it('dependencies-hidden', async () => {
+    const jsonSchema = {
+      title: 'Schema dependencies',
+      type: 'object',
+      properties: {
+        simple: {
+          title: 'Simple',
+          type: 'object',
+          properties: {
+            credit_card: {
+              type: 'number',
+              title: 'Credit card',
+            },
+          },
+          required: ['credit_card'],
+          dependencies: {
+            credit_card: {
+              properties: {
+                billing_address: {
+                  type: 'string',
+                  title: 'Billing address',
+                },
+              },
+              required: ['billing_address'],
+            },
+          },
+        },
+      },
+    } as JsonSchemaDraft07;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal({ simple: { credit_card: 11 } }),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          'anyOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldGroup(field.form.control);
+
+    expect(element.querySelectorAll('input').length).toEqual(2);
+    field.form.control.updateValue({});
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelectorAll('input').length).toEqual(1);
   });
 });

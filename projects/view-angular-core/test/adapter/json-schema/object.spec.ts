@@ -85,4 +85,38 @@ describe('json-schema-object', () => {
     result = v.safeParse(Define, { dd: 1 });
     expect(result.success).toBeFalse();
   });
+
+  it('allOfObjSchema', async () => {
+    const jsonSchema = {
+      properties: {
+        k1: { type: 'number' },
+      },
+      required: ['k1'],
+      allOf: [
+        {
+          properties: {
+            k2: { type: 'number' },
+          },
+          required: ['k2'],
+        },
+        {
+          properties: {
+            k3: { type: 'number' },
+          },
+          required: ['k3'],
+        },
+      ],
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'loose_object');
+    let result = v.safeParse(Define, { k1: 1 });
+    expect(result.success).toBeFalse();
+    result = v.safeParse(Define, { k2: 1 });
+    expect(result.success).toBeFalse();
+    result = v.safeParse(Define, { k3: 1 });
+    expect(result.success).toBeFalse();
+    result = v.safeParse(Define, { k3: 1, k1: 1, k2: 1 });
+    expect(result.success).toBeTrue();
+    expect(result.output).toEqual({ k3: 1, k1: 1, k2: 1 });
+  });
 });

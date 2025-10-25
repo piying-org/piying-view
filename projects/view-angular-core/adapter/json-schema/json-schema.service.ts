@@ -20,6 +20,7 @@ import type {
 } from '@hyperjump/json-schema/draft-2020-12';
 import type { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { deepEqual } from 'fast-equals';
+import { JSONSchemaRaw, ResolvedJsonSchema, JSONSchemaNoRef } from './type';
 export type JSType = NonNullable<
   Exclude<JsonSchemaDraft202012Object['type'], any[]>
 >;
@@ -75,23 +76,6 @@ function getMetadataAction(schema: JSONSchemaRaw) {
   return action;
 }
 
-interface JSONSchemaRaw extends JsonSchemaDraft202012Object {
-  actions?: { name: string; params: any[] }[];
-}
-interface JSONSchemaNoRef extends JSONSchemaRaw {
-  __resolved: {
-    hasRef: boolean;
-  };
-}
-type ResolvedJsonSchema = JSONSchemaNoRef & {
-  __resolved: {
-    type: {
-      types: Extract<JsonSchemaDraft202012Object['type'], any[]>;
-      optional: boolean;
-    };
-    isResolved: boolean;
-  };
-};
 function arrayIntersection(a: any, b: any) {
   if (!isNil(a) && !isNil(b)) {
     a = Array.isArray(a) ? a : [a];
@@ -1041,7 +1025,13 @@ export class JsonSchemaToValibot {
             }
             break;
           }
-
+          case 'required': {
+            childSchema.required = union(
+              childSchema.required ?? [],
+              base.required ?? [],
+            );
+            break;
+          }
           default:
             (childSchema as any)[key] ??= (base as any)[key];
             break;
