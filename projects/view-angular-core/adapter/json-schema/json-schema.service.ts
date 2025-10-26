@@ -1,4 +1,4 @@
-import { isBoolean, isNil, isString } from 'es-toolkit';
+import { isBoolean, isNil, isString, isUndefined } from 'es-toolkit';
 import type {
   JsonSchemaDraft202012,
   JsonSchemaDraft202012Object,
@@ -54,7 +54,7 @@ const TypeMap: Record<string, typeof BaseTypeService> = {
   object: ObjectTypeService,
   array: ArrayTypeService,
   common: CommonTypeService,
-  fixedList: ListTypeService,
+  __fixedList: ListTypeService,
   picklist: PicklistTypeService,
 };
 export class JsonSchemaToValibot {
@@ -148,8 +148,13 @@ export class JsonSchemaToValibot {
   #guessSchemaType(
     schema: JsonSchemaDraft202012Object,
   ): ResolvedJsonSchema['__resolved']['type'] {
-    let type = schema?.type;
     const optional = 'default' in schema;
+    if (!isUndefined(schema.const)) {
+      return { types: ['const'] as any, optional: optional };
+    } else if (Array.isArray(schema.enum)) {
+      return { types: ['picklist'] as any, optional: optional };
+    }
+    let type = schema?.type;
     if (isString(type)) {
       return { types: [type], optional: optional };
     }
@@ -192,7 +197,7 @@ export class JsonSchemaToValibot {
     }
 
     return type
-      ? { types: [type], optional: optional }
+      ? { types: [type as any], optional: optional }
       : { types: anyType, optional: optional };
   }
   #objectCompatible(schema: JsonSchemaDraft202012Object) {

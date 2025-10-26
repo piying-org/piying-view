@@ -3,10 +3,10 @@ import { BaseAction, ListType, ResolvedSchema } from '../type';
 import { BaseTypeService } from './base.service';
 import * as v from 'valibot';
 export class ListTypeService extends BaseTypeService {
-  override readonly name = 'fixedList';
+  override readonly name = '__fixedList' as any;
 
   override parse(actionList: BaseAction[]): ResolvedSchema {
-    const context = this.getData() as ListType;
+    const context: ListType = (this.schema as any)['data'] ?? this.getData();
     const define = v.pipe(
       v.picklist(context.options.flat().map((option) => option.value)),
       patchInputs({ options: context.options }),

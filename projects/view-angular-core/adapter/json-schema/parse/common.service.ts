@@ -10,7 +10,6 @@ import {
   isString,
   isUndefined,
   union,
-  uniq,
 } from 'es-toolkit';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { createImpasseAction } from '../../util/validation';
@@ -24,7 +23,6 @@ import { BaseTypeService } from './base.service';
 import * as v from 'valibot';
 import { schema as cSchema } from '@piying/valibot-visit';
 import * as jsonActions from '@piying/view-angular-core';
-import { deepEqual } from 'fast-equals';
 import { getBooleanDefine } from '../../util/define';
 import { clone } from '../../util/clone';
 function arrayIntersection(a: any, b: any) {
@@ -118,20 +116,10 @@ export class CommonTypeService extends BaseTypeService {
     const type = types.types[0];
     const actionList: BaseAction[] = getMetadataAction(schema);
 
-    if (!isNil(schema.const)) {
-      return this.typeParse('const', schema, [
-        ...getValidationActionList(),
-        ...actionList,
-      ]);
-    }
-    if (Array.isArray(schema.enum)) {
-      return this.typeParse('picklist', schema, [
-        ...getValidationActionList(),
-        ...actionList,
-      ]);
-    }
-
-    switch (type) {
+    switch (type as any) {
+      case 'picklist':
+      case 'const':
+      case '__fixedList':
       case 'array':
       case 'object':
       case 'null':
@@ -651,7 +639,7 @@ export class CommonTypeService extends BaseTypeService {
 
     const result = this.getOptions(resolvedChildJSchemaList);
     if (result) {
-      const instance = this.getTypeParse('fixedList', {} as any);
+      const instance = this.getTypeParse('__fixedList', {} as any);
       instance.setData(result);
       activateList = childOriginSchemaList.map((_, i) => true);
       return v.pipe(instance.parse([]), conditionCheckAction);
@@ -722,105 +710,32 @@ export class CommonTypeService extends BaseTypeService {
     };
   }
 
-  #parseEnum(schema: JsonSchemaDraft202012Object):
-    | {
-        type: string;
-        data: JsonSchemaDraft202012Object;
-      }
-    | undefined {
-    // 普通枚举
-    if (schema.enum) {
-      return {
-        type: 'enum',
-        data: {
-          enum: schema.enum,
-        },
-      };
-    } else if (schema.const) {
-      return { type: 'const', data: { const: schema.const } };
-    } else if (schema.items && !isBoolean(schema.items)) {
-      const result = this.#parseEnum(schema.items);
-      if (result?.data) {
-        return {
-          type: 'multiselect',
-          data: {
-            items: result.data,
-          },
-        };
-      }
-      return undefined;
-    }
-    return undefined;
-  }
-  #intersectSchemaType(
-    a: JsonSchemaDraft202012Object | undefined,
-    b: JsonSchemaDraft202012Object,
-  ) {
-    const parent = a ? this.resolveSchema2(a) : undefined;
-    b = parent ? this.#mergeSchema(parent, b).schema : b;
-    const child = this.resolveSchema2(b);
-    const parentEnum = parent ? this.#parseEnum(parent) : undefined;
-    const childEnum = this.#parseEnum(child);
-    if (parentEnum?.data.items && childEnum?.data.items) {
-      const result = intersection(
-        (parentEnum.data.items! as JsonSchemaDraft202012Object).enum!,
-        (childEnum.data.items! as JsonSchemaDraft202012Object).enum!,
-      );
-      if (result.length) {
-        return {
-          type: 'multiselect',
-          data: {
-            items: {
-              enum: result,
-            },
-          } as JsonSchemaDraft202012Object,
-        };
-      }
-    } else if (childEnum?.type === 'multiselect') {
-      return childEnum;
-    }
-
-    // 枚举
-    if (parentEnum?.data.enum && childEnum?.data.enum) {
-      const result = intersection(parentEnum.data.enum, childEnum.data.enum);
-      if (result.length) {
-        return {
-          type: 'enum',
-          data: { enum: result } as JsonSchemaDraft202012Object,
-        };
-      }
-    } else if (childEnum?.data.enum) {
-      return childEnum;
-    }
-    // 常量
-    if (isNil(parentEnum?.data.const) && !isNil(childEnum?.data.const)) {
-      return childEnum;
-    }
-    // 类型
-    const typeResult = parent?.__resolved.type.types
-      ? intersection(parent.__resolved.type.types, child.__resolved.type.types)
-      : child.__resolved.type.types;
-    if (typeResult.length) {
-      delete (child as any)['resolved'];
-      const result = this.resolveSchema2({
-        ...child,
-        type: typeResult[0],
-      });
-      return {
-        type: typeResult[0],
-        data: result,
-      };
-    }
-    return;
-  }
   #schemaExtract(
     schema: ResolvedJsonSchema,
     ...childList: ResolvedJsonSchema[]
   ) {
-    /** 所有子属性key */
-    const childKeyList = uniq(
-      childList.flatMap((item) => Object.keys(item.properties ?? {})),
-    );
+    const childKeyList = childList.reduce(
+      (cur, item) => {
+        if (cur && !cur.length) {
+          return cur;
+        }
+        const keyList = Object.keys(item.properties ?? {}).filter((key) => {
+          const propItem = item.properties![key]!;
+          if (isBoolean(propItem)) {
+            return false;
+          }
+          const resolved = this.resolveSchema2(propItem);
+          return !resolved.__resolved.type.types.includes('object');
+        });
+        if (!cur) {
+          return keyList;
+        } else {
+          return intersection(cur, keyList);
+        }
+      },
+      undefined as string[] | undefined,
+    )!;
+
     if (!childKeyList.length) {
       // 无效返回
       return;
@@ -833,82 +748,38 @@ export class CommonTypeService extends BaseTypeService {
       () => ({ properties: {} }) as JsonSchemaDraft202012Object,
     );
     const conditionKeyList = [];
+
     for (const key of childKeyList) {
       const parentItem = schema.properties?.[key] as any;
+
       //如果父级不存在这个属性,并且禁止添加,跳过
       // todo 还应该增加额外的匹配
       if (!parentItem && schema.additionalProperties === false) {
         continue;
       }
-      // 所有子级都存在某个Key
-      const keyExist = childList.every((item) => {
-        const propItem = item.properties?.[key];
-        // todo 对象应该先解析
-        return propItem && !isBoolean(propItem) && propItem.type !== 'object';
-      });
-      if (!keyExist) {
-        continue;
-      }
-
-      let currentType = undefined;
-      const childPropList: JsonSchemaDraft202012Object[] = [];
-      for (const sub of childList) {
-        const result = this.#intersectSchemaType(
-          schema?.properties?.[key] as any,
-          sub.properties![key] as any,
-        );
-        if (!result) {
-          currentType = undefined;
-          break;
-        } else if (
-          currentType === undefined ||
-          deepEqual(currentType, result.type)
-        ) {
-          currentType = result.type;
-          // 枚举
-          if (
-            result.data!.enum ||
-            'const' in result.data! ||
-            result.type === 'multiselect'
-          ) {
-            childPropList.push(result.data!);
-          } else {
-            childPropList.push(result.data as any);
-          }
-        } else {
-          break;
-        }
-      }
-
-      if (currentType) {
+      const optionsResult = this.getOptions(
+        childList.map((item) =>
+          this.resolveSchema2(item.properties![key] as any),
+        ),
+      );
+      if (optionsResult) {
         conditionKeyList.push(key);
-        for (let index = 0; index < childConditionJSchemaList.length; index++) {
-          const schema = childConditionJSchemaList[index];
-          schema.properties![key] = childPropList[index];
-        }
-        if (currentType === 'enum') {
-          conditionJSchema.properties![key] = {
-            enum: childPropList.flatMap((item) => item.enum!),
-          };
-        } else if (currentType === 'const') {
-          conditionJSchema.properties![key] = {
-            enum: childPropList.flatMap((item) => item.const!),
-          };
-        } else if (currentType === 'multiselect') {
-          conditionJSchema.properties![key] = {
-            type: 'array',
-            items: {
-              enum: childPropList.flatMap(
-                (item) => (item.items as JsonSchemaDraft202012Object)!.enum!,
-              ),
-            },
-            uniqueItems: true,
-          };
-        } else {
-          conditionJSchema.properties![key] = {
-            type: currentType as any,
-          };
-        }
+        conditionJSchema.properties![key] = {
+          type: '__fixedList',
+          data: optionsResult,
+        } as any;
+        childConditionJSchemaList.forEach((item, i) => {
+          item.properties![key] = childList[i].properties![key];
+        });
+      } else {
+        conditionKeyList.push(key);
+        conditionJSchema.properties![key] = {
+          type: this.resolveSchema2(childList[0].properties![key]! as any)
+            .__resolved.type.types[0],
+        };
+        childConditionJSchemaList.forEach((item, i) => {
+          item.properties![key] = childList[i].properties![key];
+        });
       }
     }
     return { conditionJSchema, childConditionJSchemaList, conditionKeyList };
