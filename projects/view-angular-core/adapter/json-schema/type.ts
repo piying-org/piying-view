@@ -61,3 +61,11 @@ export interface J2VOptions {
     ) => ResolvedSchema | undefined;
   };
 }
+
+export type ListType = {
+  multi: boolean;
+  options: {
+    value: any;
+    label: any;
+  }[][];
+};

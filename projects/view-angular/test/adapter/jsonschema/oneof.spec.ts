@@ -6,6 +6,7 @@ import { createSchemaComponent } from '../../util/create-component';
 import { signal } from '@angular/core';
 import { NumberComponent } from '../component/number/component';
 import {
+  assertFieldArray,
   assertFieldControl,
   assertFieldGroup,
   assertFieldLogicGroup,
@@ -167,5 +168,49 @@ describe('oneof', () => {
     fixture.detectChanges();
     expect(element.querySelectorAll('app-select').length).toEqual(1);
     expect(element.querySelectorAll('input').length).toEqual(1);
+  });
+  it('const-items', async () => {
+    const jsonSchema = {
+      oneOf: [
+        {
+          items: {
+            enum: [1, 2],
+          },
+        },
+        {
+          items: {
+            enum: [3, 4],
+          },
+        },
+      ],
+    } as JsonSchemaDraft07;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal([2, 1]),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          boolean: { type: BooleanComponent },
+
+          'oneOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldArray(field.form.control);
+    expect(field.form.control!.valid).toBeTrue();
+    field.form.control.updateValue([3, 2]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control!.valid).toBeFalse();
+    field.form.control.updateValue([1, 2, 3, 4]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control!.valid).toBeFalse();
   });
 });

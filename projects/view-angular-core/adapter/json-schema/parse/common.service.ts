@@ -649,11 +649,12 @@ export class CommonTypeService extends BaseTypeService {
       }
     }
 
-    const result = this.mergeList(schema, resolvedChildJSchemaList);
+    const result = this.getOptions(resolvedChildJSchemaList);
     if (result) {
       const instance = this.getTypeParse('fixedList', {} as any);
       instance.setData(result);
-      return instance.parse([]);
+      activateList = childOriginSchemaList.map((_, i) => true);
+      return v.pipe(instance.parse([]), conditionCheckAction);
     }
     const baseSchema = v.pipe(
       this.#jsonSchemaBase(schema, () => this.getValidationActionList(schema)),
@@ -661,62 +662,66 @@ export class CommonTypeService extends BaseTypeService {
     activateList = childOriginSchemaList.map((_, i) => true);
     return v.pipe(baseSchema, conditionCheckAction);
   }
-  /**
-   * todo
-   * 合并返回list格式即可
-   */
-  mergeList(schema: ResolvedJsonSchema, childList: ResolvedJsonSchema[]) {
+  getOptions(childList: ResolvedJsonSchema[]) {
     if (!childList.length) {
       return;
     }
-    let currentType = undefined;
-    const childPropList: JsonSchemaDraft202012Object[] = [];
-    for (const sub of childList) {
-      const result = this.#intersectSchemaType(schema as any, sub as any);
-      if (!result) {
-        return;
-      } else if (
-        currentType === undefined ||
-        deepEqual(currentType, result.type)
-      ) {
-        currentType = result.type;
-        // 枚举
-        if (
-          result.data!.enum ||
-          'const' in result.data! ||
-          result.type === 'multiselect'
-        ) {
-          childPropList.push(result.data!);
-        } else {
-          childPropList.push(result.data as any);
+    const fn2 = (isMulti: boolean | undefined = undefined) => {
+      const fn = (
+        schema: ResolvedJsonSchema,
+      ): { value: any; label: any }[] | undefined => {
+        let options;
+        let multi2 = false;
+        if (!isUndefined(schema.const)) {
+          options = [
+            { value: schema.const, label: schema.title ?? schema.const },
+          ];
+        } else if (schema.enum) {
+          if (schema.enum.length === 1) {
+            options = [
+              {
+                value: schema.enum[0],
+                label: schema.title ?? schema.enum[0],
+              },
+            ];
+          }
+          options = schema.enum.map((item) => ({ label: item, value: item }));
+        } else if (schema.items && !isBoolean(schema.items)) {
+          const items = this.resolveSchema2(schema.items);
+          options = fn2(undefined).fn(items);
+          multi2 = true;
         }
-      } else {
-        break;
+        if (!options) {
+          return undefined;
+        }
+        if (isMulti === undefined) {
+          isMulti = multi2;
+        } else if (isMulti !== multi2) {
+          throw new Error(`options multi conflict`);
+        }
+        return options!;
+      };
+      return {
+        fn,
+        getMulti: () => isMulti,
+      };
+    };
+
+    const list = [];
+    const fn$ = fn2(undefined);
+    for (const schema of childList) {
+      const item = fn$.fn(schema);
+      if (!item) {
+        return undefined;
       }
+      list.push(item);
     }
-
-    if (currentType === 'enum') {
-      return {
-        enum: childPropList.flatMap((item) => item.enum!),
-      };
-    } else if (currentType === 'const') {
-      return {
-        enum: childPropList.flatMap((item) => item.const!),
-      };
-    } else if (currentType === 'multiselect') {
-      return {
-        type: 'array' as const,
-        items: {
-          enum: childPropList.flatMap(
-            (item) => (item.items as JsonSchemaDraft202012Object)!.enum!,
-          ),
-        },
-        uniqueItems: true,
-      };
-    }
-
-    return;
+    return {
+      multi: fn$.getMulti()!,
+      options: list,
+    };
   }
+
   #parseEnum(schema: JsonSchemaDraft202012Object):
     | {
         type: string;
