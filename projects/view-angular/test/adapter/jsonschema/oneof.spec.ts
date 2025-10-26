@@ -7,10 +7,14 @@ import { signal } from '@angular/core';
 import { NumberComponent } from '../component/number/component';
 import {
   assertFieldControl,
+  assertFieldGroup,
   assertFieldLogicGroup,
 } from '@piying/view-angular-core/test';
 import { PiyingViewGroup } from '../../../lib/component/group/component';
 import { SelectComponent } from '../component/select/component';
+import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
+import { BooleanComponent } from '../component/boolean/component';
+import { TextComponent } from '../component/text/component';
 describe('oneof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(oneofSchema as any) as any;
@@ -81,5 +85,87 @@ describe('oneof', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field?.form.control?.valid).toBeTrue();
+  });
+
+  it('oneOf+dep', async () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        person: {
+          type: 'object',
+          properties: {
+            'Do you have any pets?': {
+              type: 'string',
+              enum: ['No', 'Yes: One', 'Yes: More than one'],
+              default: 'No',
+            },
+          },
+          required: ['Do you have any pets?'],
+          dependencies: {
+            'Do you have any pets?': {
+              oneOf: [
+                {
+                  properties: {
+                    'Do you have any pets?': {
+                      enum: ['No'],
+                    },
+                  },
+                },
+                {
+                  properties: {
+                    'Do you have any pets?': {
+                      enum: ['Yes: One'],
+                    },
+                    'How old is your pet?': {
+                      type: 'number',
+                    },
+                  },
+                  required: ['How old is your pet?'],
+                },
+                {
+                  properties: {
+                    'Do you have any pets?': {
+                      enum: ['Yes: More than one'],
+                    },
+                    'Do you want to get rid of any?': {
+                      type: 'boolean',
+                    },
+                  },
+                  required: ['Do you want to get rid of any?'],
+                },
+              ],
+            },
+          },
+        },
+      },
+    } as JsonSchemaDraft07;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal({}),
+      // signal({ person: { 'Do you have any pets?': 'No' } }),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          boolean: { type: BooleanComponent },
+
+          'oneOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldGroup(field.form.control);
+    expect(element.querySelectorAll('app-select').length).toEqual(1);
+    field.form.control.updateValue({
+      person: { 'Do you have any pets?': 'Yes: One' },
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelectorAll('app-select').length).toEqual(1);
+    expect(element.querySelectorAll('input').length).toEqual(1);
   });
 });

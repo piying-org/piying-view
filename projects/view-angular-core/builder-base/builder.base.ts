@@ -53,7 +53,7 @@ import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
 // todo 临时同步
 function defineSync(field: _PiResolvedCommonViewFieldConfig) {
-  let define = field.define?.();
+  const define = field.define?.();
   if (
     define &&
     (field.inputs !== define.inputs ||

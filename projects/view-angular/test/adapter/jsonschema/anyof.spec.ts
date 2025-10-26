@@ -13,16 +13,12 @@ import { signal } from '@angular/core';
 import { NumberComponent } from '../component/number/component';
 import {
   assertFieldControl,
-  assertFieldGroup,
   assertFieldLogicGroup,
 } from '@piying/view-angular-core/test';
 import { PiyingViewGroup } from '@piying/view-angular';
 import { SelectComponent } from '../component/select/component';
 import { isUndefined, omitBy } from 'es-toolkit';
 import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
-import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
-import { TextComponent } from '../component/text/component';
-import { BooleanComponent } from '../component/boolean/component';
 describe('anyof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(anyOf as any) as any;

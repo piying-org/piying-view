@@ -9,10 +9,10 @@ describe('default', () => {
       default: 1,
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
-    const instance = assertType(Define, 'number');    
+    const instance = assertType(Define, 'number');
     expect(Define.type).toEqual('optional');
     expect((Define as any).default).toEqual(1);
-    let result = v.safeParse(Define, undefined);
+    const result = v.safeParse(Define, undefined);
     expect(result.success).toBeTrue();
     expect(result.output).toEqual(1);
   });

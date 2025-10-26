@@ -1,6 +1,5 @@
 import { jsonSchemaToValibot } from '@piying/view-angular-core/adapter';
 import { assertType } from './util/assert-type';
-import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
 import * as v from 'valibot';
 import { JsonSchemaDraft04 } from '@hyperjump/json-schema/draft-04';
 describe('json-schema-compatible', () => {
