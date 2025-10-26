@@ -28,8 +28,6 @@ export class ObjectTypeService extends BaseTypeService {
   }
   override getBaseDefine() {
     const fixedObjName = `${this.instanceNamePrefix$$()}-fixed`;
-
-    // this.fixedObjName = fixedObjName;
     const actionList = this.actionList;
     const schema = this.schema;
     const childObject: Record<string, ResolvedSchema> = {};
@@ -320,6 +318,6 @@ export class ObjectTypeService extends BaseTypeService {
         }),
       );
     }
-    return schemaDefine;
+    return schemaDefine as ResolvedSchema;
   }
 }
