@@ -1,11 +1,11 @@
 import { map, merge } from 'rxjs';
-import { hideWhen } from '../../../convert';
 import { BaseAction, OptionJSType, ResolvedSchema } from '../type';
 import { BaseTypeService, ChildKind } from './base.service';
 import * as v from 'valibot';
 import { isBoolean } from 'es-toolkit';
 import * as jsonActions from '@piying/view-angular-core';
 import { schema as cSchema } from '@piying/valibot-visit';
+import { hideWhen } from '@piying/view-angular-core';
 
 export class ObjectTypeService extends BaseTypeService {
   override readonly name: OptionJSType = 'object';

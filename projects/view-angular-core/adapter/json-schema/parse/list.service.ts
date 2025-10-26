@@ -1,4 +1,4 @@
-import { patchInputs } from '../../../convert';
+import { patchInputs } from '@piying/view-angular-core';
 import { BaseAction, ListType, ResolvedSchema } from '../type';
 import { BaseTypeService } from './base.service';
 import * as v from 'valibot';
