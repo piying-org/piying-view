@@ -7,7 +7,7 @@ export class ConstTypeService extends BaseTypeService {
   override parseBase(actionList: BaseAction[]): ResolvedSchema {
     const value = this.schema.const!;
     const Define = v.pipe(
-      v.optional(v.literal(value as any), value as any),
+      v.literal(value as any),
       ...this.getAllActionList(actionList),
     );
     return Define;

@@ -15,6 +15,7 @@ import { SelectComponent } from '../component/select/component';
 import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { BooleanComponent } from '../component/boolean/component';
 import { TextComponent } from '../component/text/component';
+import { JsonSchemaDraft202012 } from '@hyperjump/json-schema/draft-2020-12';
 describe('oneof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(oneofSchema as any) as any;
@@ -316,5 +317,45 @@ describe('oneof', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control!.valid).toBeFalse();
+  });
+  it('default-hidden', async () => {
+    const jsonSchema = {
+      oneOf: [
+        {
+          properties: {
+            cond1: { const: 1 },
+            value1: { type: 'string' },
+          },
+          required: ['cond1'],
+        },
+        {
+          properties: {
+            cond1: { const: 2 },
+            value2: { type: 'string' },
+          },
+          required: ['cond1'],
+        },
+      ],
+    } as JsonSchemaDraft202012;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal({}),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          boolean: { type: BooleanComponent },
+          'oneOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+          'multiselect-repeat': { type: SelectComponent },
+          'oneOf-select': { type: PiyingViewGroup },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    expect(element.querySelectorAll('app-text').length).toEqual(0);
   });
 });

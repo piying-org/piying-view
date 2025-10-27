@@ -807,7 +807,7 @@ export class CommonTypeService extends BaseTypeService {
       additionalProperties: false,
     } as JsonSchemaDraft202012Object;
     const childConditionJSchemaList = childList.map(
-      () => ({ properties: {} }) as JsonSchemaDraft202012Object,
+      () => ({ properties: {}, required: [] }) as JsonSchemaDraft202012Object,
     );
     const conditionKeyList = [];
 
@@ -832,6 +832,9 @@ export class CommonTypeService extends BaseTypeService {
         } as any;
         childConditionJSchemaList.forEach((item, i) => {
           item.properties![key] = childList[i].properties![key];
+          if (childList[i].required && childList[i].required.includes(key)) {
+            item.required!.push(key);
+          }
         });
       } else {
         conditionKeyList.push(key);
@@ -841,6 +844,9 @@ export class CommonTypeService extends BaseTypeService {
         };
         childConditionJSchemaList.forEach((item, i) => {
           item.properties![key] = childList[i].properties![key];
+          if (childList[i].required && childList[i].required.includes(key)) {
+            item.required!.push(key);
+          }
         });
       }
     }
