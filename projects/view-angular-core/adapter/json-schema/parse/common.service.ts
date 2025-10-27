@@ -394,7 +394,7 @@ export class CommonTypeService extends BaseTypeService {
     for (const rawChildSchema of list.filter(
       (item) => !isBoolean(item),
     ) as any as JsonSchemaDraft202012Object[]) {
-      const childSchema = this.resolveSchema2(rawChildSchema);
+      const childSchema = clone(this.resolveSchema2(rawChildSchema));
       actionList.push(...this.getValidationActionList(childSchema));
       baseKeyList = union(baseKeyList, Object.keys(childSchema));
       for (const key of baseKeyList) {
@@ -519,7 +519,9 @@ export class CommonTypeService extends BaseTypeService {
     if (isObject) {
       const conditionResult = this.#schemaExtract(
         schema,
-        ...resolvedChildJSchemaList,
+        ...options.getChildren().map((item) => {
+          return this.resolveSchema2(item as any);
+        }),
       );
 
       if (conditionResult) {

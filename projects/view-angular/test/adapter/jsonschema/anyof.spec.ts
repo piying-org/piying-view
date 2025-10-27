@@ -506,4 +506,60 @@ describe('anyof', () => {
     expect(field.form.control!.valid).toBeTrue();
     expect(field.form.control!.value).toEqual({ lorem: '1', ipsum: '2' });
   });
+  it('not merge child', async () => {
+    const jsonSchema = {
+      type: 'object',
+      properties: {
+        age: {
+          type: 'integer',
+          title: 'Age',
+        },
+      },
+      anyOf: [
+        {
+          title: 'First method of identification',
+          properties: {
+            firstName: {
+              type: 'string',
+              title: 'First name',
+              default: 'Chuck',
+            },
+            lastName: {
+              type: 'string',
+              title: 'Last name',
+            },
+          },
+        },
+        {
+          title: 'Second method of identification',
+          properties: {
+            idCode: {
+              type: 'string',
+              title: 'ID code',
+            },
+          },
+        },
+      ],
+    } as JsonSchemaDraft07;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal({ age: 1, idCode: '1' }),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          boolean: { type: BooleanComponent },
+          'oneOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+          'multiselect-repeat': { type: SelectComponent },
+          'anyOf-select': { type: PiyingViewGroup },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    expect(field.form.control!.valid).toBeTrue();
+  });
 });
