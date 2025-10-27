@@ -22,7 +22,7 @@ export type ResolvedJsonSchema = JSONSchemaNoRef & {
 export type JSType = NonNullable<
   Exclude<JsonSchemaDraft202012Object['type'], any[]>
 >;
-export type OptionJSType = JSType | 'const' | 'enum';
+export type OptionJSType = JSType | 'const' | 'enum' | '__fixedList';
 export type BaseAction = v.BaseMetadata<any> | v.BaseValidation<any, any, any>;
 
 export type ResolvedSchema =
@@ -45,7 +45,7 @@ export interface TypeHandle {
   afterResolve: (
     vSchema: ResolvedSchema,
     jSchema: ResolvedJsonSchema,
-    type: JSType | 'const' | 'enum',
+    type: OptionJSType,
   ) => ResolvedSchema | undefined;
 }
 export interface J2VOptions {
