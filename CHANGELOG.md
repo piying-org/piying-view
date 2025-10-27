@@ -1,3 +1,12 @@
+## 1.8.7 (2025-10-27)
+
+
+### Bug Fixes
+
+* anyof/oneof child ([c242cbf](https://github.com/piying-org/piying-view/commit/c242cbf259dad16b66e873590b4113b05efab5a1))
+
+
+
 ## 1.8.6 (2025-10-27)
 
 
