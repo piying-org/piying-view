@@ -11,20 +11,19 @@ export class ListTypeService extends BaseTypeService {
 
   override parse(actionList: BaseAction[]): ResolvedSchema {
     const context: ListType = (this.schema as any)['data'];
-    const define = v.picklist(
-      context.options.flat().map((option) => option.value),
-    );
+    let options = context.options.flat();
+    const define = v.picklist(options.map((option) => option.value));
     if (context.multi) {
       return v.pipe(
         v.array(define),
-        patchInputs({ options: context.options }),
+        patchInputs({ options: options }),
         asControl(),
         setComponent(
           context.uniqueItems ? 'multiselect' : 'multiselect-repeat',
         ),
       );
     } else {
-      return v.pipe(define, patchInputs({ options: context.options }));
+      return v.pipe(define, patchInputs({ options: options }));
     }
   }
 }
