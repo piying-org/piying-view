@@ -10,7 +10,8 @@
     "rfdc",
     "fast-equals",
     "clsx",
-    "es-toolkit"
+    "es-toolkit",
+    "@hyperjump/json-schema"
   ],
   "assets": ["./readme.md"]
 }

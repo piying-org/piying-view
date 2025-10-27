@@ -39,7 +39,8 @@
     "rfdc": "^1.4.1",
     "fast-equals": "^5.2.2",
     "clsx": "^2.1.1",
-    "es-toolkit": "^1.40.0"
+    "es-toolkit": "^1.40.0",
+    "@hyperjump/json-schema": "^1.16.4"
   },
   "sideEffects": false
 }
