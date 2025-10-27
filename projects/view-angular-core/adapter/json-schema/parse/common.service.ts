@@ -691,7 +691,11 @@ export class CommonTypeService extends BaseTypeService {
             ];
           }
           options = schema.enum.map((item) => ({ label: item, value: item }));
-        } else if (schema.items && !isBoolean(schema.items)) {
+        } else if (
+          schema.items &&
+          !isBoolean(schema.items) &&
+          schema.uniqueItems
+        ) {
           const items = this.resolveSchema2(schema.items);
           options = fn2(undefined).fn(items);
           multi2 = true;

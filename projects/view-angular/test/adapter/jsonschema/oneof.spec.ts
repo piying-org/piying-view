@@ -176,11 +176,13 @@ describe('oneof', () => {
           items: {
             enum: [1, 2],
           },
+          uniqueItems: true,
         },
         {
           items: {
             enum: [3, 4],
           },
+          uniqueItems: true,
         },
       ],
     } as JsonSchemaDraft07;
