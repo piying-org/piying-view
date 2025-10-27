@@ -19,6 +19,9 @@ import { PiyingViewGroup } from '@piying/view-angular';
 import { SelectComponent } from '../component/select/component';
 import { isUndefined, omitBy } from 'es-toolkit';
 import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
+import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
+import { BooleanComponent } from '../component/boolean/component';
+import { TextComponent } from '../component/text/component';
 describe('anyof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(anyOf as any) as any;
@@ -441,5 +444,66 @@ describe('anyof', () => {
     assertFieldControl(field.form.control);
     expect(field?.form.control?.valid).toBeTrue();
     expect(field?.form.control?.value).toEqual('option1');
+  });
+
+  it('const-items', async () => {
+    const jsonSchema = {
+      type: 'object',
+      anyOf: [
+        {
+          title: 'Option 1',
+          properties: {
+            lorem: {
+              title: 'lorem',
+              type: 'string',
+            },
+          },
+          required: ['lorem'],
+        },
+        {
+          title: 'Option 2',
+          properties: {
+            ipsum: {
+              title: 'ipsum',
+              type: 'string',
+            },
+          },
+          required: ['ipsum'],
+        },
+      ],
+    } as JsonSchemaDraft07;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal({}),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          boolean: { type: BooleanComponent },
+          'oneOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+          'multiselect-repeat': { type: SelectComponent },
+          'anyOf-select': { type: PiyingViewGroup },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    expect(field.form.control!.valid).toBeFalse();
+    assertFieldLogicGroup(field.form.control);
+    field.form.control.activateControls$.set([field.form.control.controls[0]]);
+    field.form.control!.updateValue({ lorem: '1' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control!.valid).toBeTrue();
+    expect(field.form.control!.value).toEqual({ lorem: '1' });
+    field.form.control!.updateValue({ lorem: '1', ipsum: '2' });
+    field.form.control.activateControls$.set(field.form.control.controls);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control!.valid).toBeTrue();
+    expect(field.form.control!.value).toEqual({ lorem: '1', ipsum: '2' });
   });
 });

@@ -657,6 +657,20 @@ export class CommonTypeService extends BaseTypeService {
           ),
           conditionCheckAction,
         );
+      } else {
+        activateList = childOriginSchemaList.map((_, i) => true);
+        return v.pipe(
+          options.useOr
+            ? v.union(childOriginSchemaList)
+            : cSchema.intersect(
+                childOriginSchemaList.map((item) => v.optional(item)),
+              ),
+          ...getMetadataAction(schema),
+          conditionCheckAction,
+          jsonActions.setComponent(
+            `${options.useOr ? 'oneOf' : 'anyOf'}-select`,
+          ),
+        );
       }
     }
 

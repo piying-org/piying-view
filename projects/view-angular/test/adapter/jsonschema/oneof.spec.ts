@@ -170,7 +170,7 @@ describe('oneof', () => {
     expect(element.querySelectorAll('app-select').length).toEqual(1);
     expect(element.querySelectorAll('input').length).toEqual(1);
   });
-  it('const-items', async () => {
+  it('const-items-uniq', async () => {
     const jsonSchema = {
       oneOf: [
         {
@@ -260,5 +260,62 @@ describe('oneof', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control!.valid).toBeTrue();
+  });
+  it('default-select', async () => {
+    const jsonSchema = {
+      type: 'object',
+      oneOf: [
+        {
+          title: 'Option 1',
+          properties: {
+            lorem: {
+              title: 'lorem',
+              type: 'string',
+            },
+          },
+          required: ['lorem'],
+        },
+        {
+          title: 'Option 2',
+          properties: {
+            ipsum: {
+              title: 'ipsum',
+              type: 'string',
+            },
+          },
+          required: ['ipsum'],
+        },
+      ],
+    } as JsonSchemaDraft07;
+    const Define = jsonSchemaToValibot(jsonSchema as any);
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(Define as any),
+      signal({}),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          boolean: { type: BooleanComponent },
+          'oneOf-condition': { type: PiyingViewGroup },
+          picklist: { type: SelectComponent },
+          'multiselect-repeat': { type: SelectComponent },
+          'oneOf-select': { type: PiyingViewGroup },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    expect(field.form.control!.valid).toBeFalse();
+    assertFieldLogicGroup(field.form.control);
+    field.form.control!.updateValue({ lorem: '1' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control!.valid).toBeTrue();
+    expect(field.form.control!.value).toEqual({ lorem: '1' });
+    field.form.control!.updateValue({ lorem: '1', ipsum: '2' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control!.valid).toBeFalse();
   });
 });
