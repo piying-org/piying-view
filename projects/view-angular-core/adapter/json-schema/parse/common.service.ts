@@ -25,6 +25,7 @@ import { schema as cSchema } from '@piying/valibot-visit';
 import * as jsonActions from '@piying/view-angular-core';
 import { getBooleanDefine } from '../../util/define';
 import { clone } from '../../util/clone';
+import { toFixedList } from '../../util/to-fixed-list';
 function arrayIntersection(a: any, b: any) {
   if (!isNil(a) && !isNil(b)) {
     a = Array.isArray(a) ? a : [a];
@@ -117,7 +118,16 @@ export class CommonTypeService extends BaseTypeService {
     const actionList: BaseAction[] = getMetadataAction(schema);
 
     switch (type as any) {
-      case 'picklist':
+      case 'picklist': {
+        return this.typeParse(
+          '__fixedList',
+          {
+            type: '__fixedList',
+            data: { options: [toFixedList(schema.enum!)], multi: false },
+          } as any,
+          [...getValidationActionList(), ...actionList],
+        );
+      }
       case 'const':
       case '__fixedList':
       case 'object':

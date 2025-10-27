@@ -23,7 +23,6 @@ import { ObjectTypeService } from './parse/object.service';
 import { ArrayTypeService } from './parse/array.service';
 import { CommonTypeService } from './parse/common.service';
 import { ListTypeService } from './parse/list.service';
-import { PicklistTypeService } from './parse/picklist.service';
 
 const anyType = [
   'object',
@@ -55,7 +54,6 @@ const TypeMap: Record<string, typeof BaseTypeService> = {
   array: ArrayTypeService,
   common: CommonTypeService,
   __fixedList: ListTypeService,
-  picklist: PicklistTypeService,
 };
 export class JsonSchemaToValibot {
   root;
