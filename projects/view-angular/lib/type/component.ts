@@ -5,6 +5,8 @@ import {
   CoreRawViewAttributes,
   CoreRawViewInputs,
   CoreRawViewOutputs,
+  LazyImport,
+  LazyMarkType,
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */
 export interface RawDirectiveOutputs {
@@ -12,8 +14,13 @@ export interface RawDirectiveOutputs {
 }
 
 export interface DynamicComponentConfig {
-  type: Type<any>;
-  module?: Type<any>;
+  type:
+    | Type<any>
+    | LazyImport<Type<any>>
+    | NgComponentDefine
+    | LazyImport<NgComponentDefine>
+    | LazyMarkType<Type<any>>
+    | LazyMarkType<NgComponentDefine>;
   attributes: Signal<CoreRawViewAttributes | undefined>;
   inputs: Signal<CoreRawViewInputs | undefined>;
   directives?: DirectiveConfig[];
@@ -22,12 +29,7 @@ export interface DynamicComponentConfig {
 }
 
 /** 解析后组件已经加载 ngcomponentoutlet */
-export type NgResolvedComponentDefine2 = Omit<
-  NgResolvedComponentDefine1,
-  'type'
-> & {
-  type: NgComponentDefine;
-};
+export type NgResolvedComponentDefine2 = Omit<NgResolvedComponentDefine1, ''>;
 /** component,wrapper通用定义 */
 export type NgComponentDefine = {
   component: Type<any>;

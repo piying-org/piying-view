@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": { "cond1": { "type": "number" } },
+  "anyOf": [
+    {
+      "properties": {
+        "cond1": { "maximum": 5 },
+        "value1": { "type": "number" }
+      }
+    },
+    {
+      "properties": {
+        "cond1": { "minimum": 10 },
+        "value2": { "type": "number" }
+      }
+    }
+  ]
+}

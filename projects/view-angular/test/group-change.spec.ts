@@ -3,18 +3,13 @@ import { createSchemaComponent } from './util/create-component';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import {
   asVirtualGroup,
-  componentClass,
   FieldGroup,
   isFieldGroup,
 } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { getField, hooksConfig } from './util/action';
 import { UFCC } from './util/schema';
-import {
-  setComponent,
-  formConfig,
-  renderConfig,
-} from '@piying/view-angular-core';
+import { setComponent, formConfig } from '@piying/view-angular-core';
 import { assertFieldGroup } from '@piying/view-angular-core/test';
 
 describe('group相关', () => {
@@ -53,7 +48,6 @@ describe('group相关', () => {
 
     expect(field2.form.control!.parent).toBeTruthy();
   });
-
 
   it('空group继承父级control', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "anyOf": [
+    {
+      "properties": {
+        "cond1": {
+          "type": "array",
+          "items": {
+            "enum": [1, 2]
+          },
+          "uniqueItems": true
+        },
+        "value1": { "type": "number" }
+      }
+    },
+    {
+      "properties": {
+        "cond1": {
+          "type": "array",
+          "items": {
+            "enum": [2, 3]
+          },
+          "uniqueItems": true
+        },
+        "value2": { "type": "number" }
+      },
+      "required": ["value2"]
+    }
+  ]
+}

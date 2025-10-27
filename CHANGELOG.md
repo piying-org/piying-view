@@ -1,3 +1,91 @@
+## 1.8.12 (2025-10-27)
+
+
+
+## 1.8.11 (2025-10-27)
+
+
+
+## 1.8.10 (2025-10-27)
+
+
+
+## 1.8.9 (2025-10-27)
+
+
+
+## 1.8.8 (2025-10-27)
+
+
+
+## 1.8.7 (2025-10-27)
+
+
+### Bug Fixes
+
+* anyof/oneof child ([c242cbf](https://github.com/piying-org/piying-view/commit/c242cbf259dad16b66e873590b4113b05efab5a1))
+
+
+
+## 1.8.6 (2025-10-27)
+
+
+
+## 1.8.5 (2025-10-27)
+
+
+
+## 1.8.4 (2025-10-27)
+
+
+
+## 1.8.2 (2025-10-27)
+
+
+
+## 1.8.1 (2025-10-27)
+
+
+
+# 1.8.0 (2025-10-26)
+
+
+
+## 1.7.8 (2025-10-25)
+
+
+
+## 1.7.7 (2025-10-25)
+
+
+### Bug Fixes
+
+* default optional ([3852a3d](https://github.com/piying-org/piying-view/commit/3852a3de92524ad5e1726c815d717187bad05447))
+
+
+
+## 1.7.6 (2025-10-25)
+
+
+### Bug Fixes
+
+* jsonschema options ([ffdfc66](https://github.com/piying-org/piying-view/commit/ffdfc6692e66aa4dba7a66ea2fb3db02a0f882a7))
+
+
+
+## 1.7.5 (2025-10-25)
+
+
+### Bug Fixes
+
+* sync define ([3233d09](https://github.com/piying-org/piying-view/commit/3233d094c2d09278241e18e04b8925e4a12450fa))
+
+
+
+## 1.7.4 (2025-10-24)
+
+
+
 ## [1.7.2](https://github.com/piying-org/piying-view/compare/1.7.1...1.7.2) (2025-10-17)
 
 

@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { PiyingView } from '@piying/view-angular';
 import { PiViewConfig } from '@piying/view-angular';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { Test1Component } from '../test1/test1.component';
 import {
   FieldArray,
@@ -29,11 +29,14 @@ export async function createSchemaComponent(
       [(model)]="model$"
       (modelChange)="mdChange()"
       [options]="options"
+      #view
     ></piying-view>`,
     standalone: true,
     imports: [PiyingView],
   })
   class Hello {
+    view = viewChild.required('view', { read: PiyingView });
+    field$$ = computed(() => this.view().resolvedField$());
     fieldConfig = {
       ...defaultConfig,
       types: {
@@ -41,6 +44,9 @@ export async function createSchemaComponent(
           type: Test1Component,
         },
         object: {
+          type: PiyingViewGroup,
+        },
+        loose_object: {
           type: PiyingViewGroup,
         },
         intersect: {
@@ -85,7 +91,7 @@ export async function createSchemaComponent(
   }
   await TestBed.configureTestingModule({
     imports: [Hello],
-    providers: [],
+    providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
   }).compileComponents();
   const fixture = TestBed.createComponent(Hello);
   fixture.detectChanges();
@@ -93,5 +99,6 @@ export async function createSchemaComponent(
     fixture: fixture,
     instance: fixture.componentInstance,
     element: fixture.nativeElement as HTMLElement,
+    field$$: fixture.componentInstance.field$$,
   };
 }

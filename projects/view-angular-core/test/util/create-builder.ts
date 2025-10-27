@@ -18,6 +18,7 @@ export function createBuilder(
     types?: string[] | Record<string, any>;
     wrappers?: string[] | Record<string, any>;
     defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
+    builder?: any;
   },
 ) {
   const injector = Injector.create({
@@ -30,7 +31,7 @@ export function createBuilder(
   });
   const result = convert(obj, {
     injector,
-    builder: TestFormBuilder,
+    builder: options?.builder ?? TestFormBuilder,
     context: options?.context,
     handle: options?.handle,
     environments: options?.environments,

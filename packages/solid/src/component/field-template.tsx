@@ -25,8 +25,9 @@ export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
   }));
   const renderConfig = createSignalConvert(() => props.field.renderConfig());
   const wrappers = createSignalConvert(() => props.field.wrappers());
+  const define = createSignalConvert(() => props.field.define?.());
   const control = createMemo(() => props.field.form.control);
-  const ComponentType$$ = createMemo(() => props.field.define?.type);
+  const ComponentType$$ = createMemo(() => define()?.type);
   const isHidden = createMemo(() => {
     return !!renderConfig().hidden || !ComponentType$$();
   });

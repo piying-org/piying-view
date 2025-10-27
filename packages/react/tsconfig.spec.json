@@ -9,8 +9,8 @@
       "@piying/view-react": [
         "./src/index.ts"
       ],
-      "@piying/view-core": [
-        "../../dist/view-core"
+      "@piying/view-core/*": [
+        "../../dist/view-core/*"
       ],
     }
   }

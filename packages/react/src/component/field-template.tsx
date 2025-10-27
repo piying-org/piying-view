@@ -22,7 +22,8 @@ export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
   );
   const wrappers = useSignalToRef(props.field, (field) => field.wrappers());
   const control = props.field.form.control;
-  const ComponentType = props.field.define?.type;
+  const define = useSignalToRef(props.field, (field) => field.define?.());
+  const ComponentType = define?.type;
   const isHidden = useMemo(() => {
     return !!renderConfig.hidden || !ComponentType;
   }, [renderConfig.hidden, ComponentType]);

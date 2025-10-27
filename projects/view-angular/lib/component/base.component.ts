@@ -2,6 +2,7 @@ import {
   ApplicationRef,
   computed,
   createComponent,
+  createNgModule,
   Directive,
   ElementRef,
   EnvironmentInjector,
@@ -10,14 +11,15 @@ import {
   Injector,
   inputBinding,
   outputBinding,
+  PendingTasks,
   signal,
   Signal,
   TemplateRef,
   untracked,
   ViewContainerRef,
 } from '@angular/core';
-import { PiResolvedViewFieldConfig } from '../type';
-import { DynamicComponentConfig } from '../type/component';
+import { ComponentRawType, PiResolvedViewFieldConfig } from '../type';
+import { DynamicComponentConfig, NgComponentDefine } from '../type/component';
 import {
   ComponentCheckConfig,
   getComponentCheckConfig,
@@ -33,8 +35,11 @@ import {
   CoreRawViewAttributes,
   CoreRawViewInputs,
   CoreRawViewOutputs,
+  getLazyImport,
+  isLazyMark,
 } from '@piying/view-angular-core';
 import { AttributesDirective } from '../directives/attributes.directive';
+import { isComponentType } from '../util/async-cache';
 function createInputsBind(inputs?: Signal<CoreRawViewInputs | undefined>) {
   if (!inputs || !inputs()) {
     return [];
@@ -71,7 +76,7 @@ const EmptyOBJ = {};
 @Directive()
 export class BaseComponent {
   /** 第一次默认为空 */
-  #index = inject(PI_COMPONENT_INDEX, { optional: true })!;
+  #index = inject(PI_COMPONENT_INDEX, { optional: true }) ?? 0!;
 
   /** 发射提供到下一级 */
   #eventEmitter!: EventEmitter<DynamicComponentConfig[]>;
@@ -104,6 +109,30 @@ export class BaseComponent {
   };
   #configUpdate$ = signal(0);
   #app = inject(ApplicationRef);
+  #task = inject(PendingTasks);
+  #loadComponent(
+    type: ComponentRawType,
+    loadFn: (input: NgComponentDefine) => void,
+  ) {
+    if (isComponentType(type)) {
+      loadFn({ component: type });
+      return;
+    }
+    if (typeof type === 'function' || isLazyMark(type)) {
+      this.#task.run(() =>
+        getLazyImport<() => Promise<any>>(type)!()
+          .then((type) => {
+            if (isComponentType(type)) {
+              return { component: type };
+            }
+            return type;
+          })
+          .then((data) => loadFn(data)),
+      );
+      return;
+    }
+    loadFn(type as any);
+  }
   createComponent(
     list: DynamicComponentConfig[],
     viewContainerRef: ViewContainerRef,
@@ -115,83 +144,91 @@ export class BaseComponent {
     this.#eventEmitter = new EventEmitter();
     const componentConfig = list[this.#index];
 
-    this.#componentConfig = componentConfig;
-    this.#inputCache = {
-      inputs: computed(() => {
-        this.#configUpdate$();
-        return this.#componentConfig!.inputs!() ?? EmptyOBJ;
-      }),
-      attributes: computed(() => {
-        this.#configUpdate$();
-        return this.#componentConfig!.attributes!() ?? EmptyOBJ;
-      }),
-      directiveList: this.#componentConfig?.directives?.map((config, index) =>
-        config.inputs
-          ? computed(() => {
-              this.#configUpdate$();
-              return this.#componentConfig!.directives![index].inputs!();
-            })
-          : undefined,
-      ),
-    };
-    this.#setComponentCheck(componentConfig);
+    this.#loadComponent(componentConfig.type, (componentDefine) => {
+      this.#componentConfig = componentConfig;
+      this.#inputCache = {
+        inputs: computed(() => {
+          this.#configUpdate$();
+          return this.#componentConfig!.inputs!() ?? EmptyOBJ;
+        }),
+        attributes: computed(() => {
+          this.#configUpdate$();
+          return this.#componentConfig!.attributes!() ?? EmptyOBJ;
+        }),
+        directiveList: this.#componentConfig?.directives?.map(
+          (config, index) =>
+            config.inputs
+              ? computed(() => {
+                  this.#configUpdate$();
+                  return this.#componentConfig!.directives![index].inputs!();
+                })
+              : undefined,
+        ),
+      };
+      this.#setComponentCheck(componentConfig);
 
-    const componentInjector = Injector.create({
-      providers: [
-        { provide: PI_COMPONENT_LIST, useValue: list },
-        { provide: PI_COMPONENT_INDEX, useValue: this.#index + 1 },
-        { provide: PI_COMPONENT_LIST_LISTEN, useValue: this.#eventEmitter },
-      ],
-      parent: componentConfig.injector ?? viewContainerRef.injector,
-    });
-    const COMPONENT_VERSION: number | undefined = (componentConfig.type as any)
-      .__version;
-    const componentRef = createComponent(componentConfig.type as any, {
-      elementInjector: componentInjector,
-      environmentInjector: componentInjector.get(EnvironmentInjector),
-      bindings: [
-        ...createInputsBind(this.#inputCache.inputs),
-        ...createOutputsBind(componentConfig.outputs),
-      ],
-      directives: [
-        ...(componentConfig.directives ?? []).map((item, index) => ({
-          type: item.type,
-          bindings: [
-            ...createInputsBind(this.#inputCache.directiveList![index]),
-            ...createOutputsBind(item.outputs),
-          ],
-        })),
-        ...(COMPONENT_VERSION === 2
-          ? []
-          : createAttributesDirective(componentConfig.attributes)),
-      ],
-    });
-    this.fieldComponentInstance = componentRef.instance;
-    this.fieldElementRef = componentRef.location;
-    this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(
-      (item) => componentRef.injector.get(item.type),
-    );
-    if (COMPONENT_VERSION === 2) {
-      const templateRef = (
-        componentRef.instance as { templateRef: Signal<TemplateRef<any>> }
-      ).templateRef();
-      viewContainerRef.createEmbeddedView(templateRef, {
-        attributes: componentConfig.attributes,
+      const componentInjector = Injector.create({
+        providers: [
+          { provide: PI_COMPONENT_LIST, useValue: list },
+          { provide: PI_COMPONENT_INDEX, useValue: this.#index + 1 },
+          { provide: PI_COMPONENT_LIST_LISTEN, useValue: this.#eventEmitter },
+        ],
+        parent: componentConfig.injector ?? viewContainerRef.injector,
       });
-      this.#app.attachView(componentRef.hostView);
-      componentRef.changeDetectorRef.detectChanges();
-    } else {
-      viewContainerRef.insert(componentRef.hostView);
-    }
-    this.destroyComponentFn = () => {
-      viewContainerRef.clear();
-      componentRef.destroy();
-      this.#eventEmitter.unsubscribe();
-    };
-    if (list.length === this.#index + 1) {
-      const field = componentInjector.get(PI_VIEW_FIELD_TOKEN)();
-      field.hooks?.afterCreateComponent?.(field);
-    }
+      const COMPONENT_VERSION: number | undefined = (
+        componentDefine.component as any
+      ).__version;
+      const injector = componentDefine.module
+        ? createNgModule(componentDefine.module, componentInjector).injector
+        : componentInjector;
+
+      const componentRef = createComponent(componentDefine.component, {
+        elementInjector: injector,
+        environmentInjector: injector.get(EnvironmentInjector),
+        bindings: [
+          ...createInputsBind(this.#inputCache.inputs),
+          ...createOutputsBind(componentConfig.outputs),
+        ],
+        directives: [
+          ...(componentConfig.directives ?? []).map((item, index) => ({
+            type: item.type,
+            bindings: [
+              ...createInputsBind(this.#inputCache.directiveList![index]),
+              ...createOutputsBind(item.outputs),
+            ],
+          })),
+          ...(COMPONENT_VERSION === 2
+            ? []
+            : createAttributesDirective(componentConfig.attributes)),
+        ],
+      });
+      this.fieldComponentInstance = componentRef.instance;
+      this.fieldElementRef = componentRef.location;
+      this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(
+        (item) => componentRef.injector.get(item.type),
+      );
+      if (COMPONENT_VERSION === 2) {
+        const templateRef = (
+          componentRef.instance as { templateRef: Signal<TemplateRef<any>> }
+        ).templateRef();
+        viewContainerRef.createEmbeddedView(templateRef, {
+          attributes: componentConfig.attributes,
+        });
+        this.#app.attachView(componentRef.hostView);
+        componentRef.changeDetectorRef.detectChanges();
+      } else {
+        viewContainerRef.insert(componentRef.hostView);
+      }
+      this.destroyComponentFn = () => {
+        viewContainerRef.clear();
+        componentRef.destroy();
+        this.#eventEmitter.unsubscribe();
+      };
+      if (list.length === this.#index + 1) {
+        const field = componentInjector.get(PI_VIEW_FIELD_TOKEN)();
+        field.hooks?.afterCreateComponent?.(field);
+      }
+    });
   }
 
   update(list: DynamicComponentConfig[]) {

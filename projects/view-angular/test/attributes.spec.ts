@@ -5,6 +5,7 @@ import { componentClass, topClass } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, setWrappers } from '@piying/view-angular-core';
+import { Test1Component } from './test1/test1.component';
 
 describe('attributes', () => {
   it('classonly-default', async () => {
@@ -18,10 +19,7 @@ describe('attributes', () => {
       {
         types: {
           test1: {
-            type: () =>
-              import('./test1/test1.component').then(
-                (a) => a.Test1Component,
-              ) as any,
+            type: Test1Component,
           },
         },
       },
@@ -41,10 +39,7 @@ describe('attributes', () => {
       {
         types: {
           test1: {
-            type: () =>
-              import('./test1/test1.component').then(
-                (a) => a.Test1Component,
-              ) as any,
+            type: Test1Component,
           },
         },
       },
@@ -69,10 +64,7 @@ describe('attributes', () => {
       {
         types: {
           test1: {
-            type: () =>
-              import('./test1/test1.component').then(
-                (a) => a.Test1Component,
-              ) as any,
+            type: Test1Component,
           },
         },
       },
@@ -98,10 +90,7 @@ describe('attributes', () => {
       {
         types: {
           test1: {
-            type: () =>
-              import('./test1/test1.component').then(
-                (a) => a.Test1Component,
-              ) as any,
+            type: Test1Component,
           },
         },
       },

@@ -9,7 +9,9 @@
     "@piying/valibot-visit",
     "rfdc",
     "fast-equals",
-    "clsx"
+    "clsx",
+    "es-toolkit",
+    "@hyperjump/json-schema"
   ],
   "assets": ["./readme.md"]
 }

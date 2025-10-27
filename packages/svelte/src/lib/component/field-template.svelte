@@ -35,39 +35,37 @@
 
 	const wrappers = signalToState(() => props.field.wrappers());
 	const ComponentType = $derived.by(() => {
-		return props.field.define?.type;
+		return props.field.define?.()?.type;
 	});
 	const isLazy = $derived.by(() => {
-		return isLazyMark(props.field.define?.type);
+		return isLazyMark(ComponentType);
 	});
 	const loading = $derived.by(() => {
-		return getLazyImport<() => Promise<any>>(props.field.define?.type)!();
+		return getLazyImport<() => Promise<any>>(ComponentType)!();
 	});
 	const field = $derived(props.field);
 	setContext(PI_VIEW_FIELD_TOKEN, () => field);
 </script>
 
-{#if !renderConfig()?.hidden}
-	{#if field.define?.type}
-		{#snippet children()}
-			{#if isLazy}
-				{#await loading then LazyComponent}
-					{#if fieldChildren()}
-						<LazyComponent {...fieldInputs()}></LazyComponent>
-					{:else if field.form.control}
-						<LazyComponent {...fieldInputs()} bind:this={controlRef}></LazyComponent>
-					{:else}
-						<LazyComponent {...fieldInputs()}></LazyComponent>
-					{/if}
-				{/await}
-			{:else if fieldChildren()}
-				<ComponentType {...fieldInputs()}></ComponentType>
-			{:else if field.form.control}
-				<ComponentType {...fieldInputs()} bind:this={controlRef}></ComponentType>
-			{:else}
-				<ComponentType {...fieldInputs()}></ComponentType>
-			{/if}
-		{/snippet}
-		<PiWrapper wrappers={wrappers()!} {children}></PiWrapper>
-	{/if}
+{#if !renderConfig()?.hidden && ComponentType}
+	{#snippet children()}
+		{#if isLazy}
+			{#await loading then LazyComponent}
+				{#if fieldChildren()}
+					<LazyComponent {...fieldInputs()}></LazyComponent>
+				{:else if field.form.control}
+					<LazyComponent {...fieldInputs()} bind:this={controlRef}></LazyComponent>
+				{:else}
+					<LazyComponent {...fieldInputs()}></LazyComponent>
+				{/if}
+			{/await}
+		{:else if fieldChildren()}
+			<ComponentType {...fieldInputs()}></ComponentType>
+		{:else if field.form.control}
+			<ComponentType {...fieldInputs()} bind:this={controlRef}></ComponentType>
+		{:else}
+			<ComponentType {...fieldInputs()}></ComponentType>
+		{/if}
+	{/snippet}
+	<PiWrapper wrappers={wrappers()!} {children}></PiWrapper>
 {/if}
