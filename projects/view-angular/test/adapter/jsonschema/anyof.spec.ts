@@ -529,6 +529,7 @@ describe('anyof', () => {
               title: 'Last name',
             },
           },
+          required: ['firstName', 'lastName'],
         },
         {
           title: 'Second method of identification',
@@ -538,6 +539,7 @@ describe('anyof', () => {
               title: 'ID code',
             },
           },
+          required: ['idCode'],
         },
       ],
     } as JsonSchemaDraft07;
@@ -560,6 +562,19 @@ describe('anyof', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = field$$()!;
+    const childF = field.get([1]);
+    assertFieldLogicGroup(childF?.form.control);
+    childF?.form.control!.activateControls$.set([
+      childF?.form.control.controls[1],
+    ]);
+    await fixture.whenStable();
+    fixture.detectChanges();
     expect(field.form.control!.valid).toBeTrue();
+
+    expect(element.querySelectorAll('app-number').length).toEqual(1);
+    field.form.control!.updateValue({ age: 1 });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(field.form.control!.valid).toBeFalse();
   });
 });

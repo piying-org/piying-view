@@ -6,7 +6,6 @@ import { createSchemaComponent } from '../../util/create-component';
 import { signal } from '@angular/core';
 import { NumberComponent } from '../component/number/component';
 import {
-  assertFieldArray,
   assertFieldControl,
   assertFieldGroup,
   assertFieldLogicGroup,

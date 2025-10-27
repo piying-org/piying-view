@@ -519,9 +519,9 @@ export class CommonTypeService extends BaseTypeService {
     if (isObject) {
       const conditionResult = this.#schemaExtract(
         schema,
-        ...options.getChildren().map((item) => {
-          return this.resolveSchema2(item as any);
-        }),
+        ...options
+          .getChildren()
+          .map((item) => this.resolveSchema2(item as any)),
       );
 
       if (conditionResult) {
@@ -661,17 +661,28 @@ export class CommonTypeService extends BaseTypeService {
         );
       } else {
         activateList = childOriginSchemaList.map((_, i) => true);
+        const chilList = options.getChildren()!.map((item) => {
+          const resolved = this.resolveSchema2(item as any);
+
+          return this.#jsonSchemaBase(resolved, () =>
+            this.getValidationActionList(resolved),
+          );
+        });
+
         return v.pipe(
-          options.useOr
-            ? v.union(childOriginSchemaList)
-            : cSchema.intersect(
-                childOriginSchemaList.map((item) => v.optional(item)),
+          v.intersect([
+            v.pipe(this.#jsonSchemaBase(schema, () => [])),
+            v.pipe(
+              options.useOr
+                ? v.union(chilList)
+                : cSchema.intersect(chilList.map((item) => v.optional(item))),
+              ...getMetadataAction(schema),
+              jsonActions.setComponent(
+                `${options.useOr ? 'oneOf' : 'anyOf'}-select`,
               ),
-          ...getMetadataAction(schema),
+            ),
+          ]),
           conditionCheckAction,
-          jsonActions.setComponent(
-            `${options.useOr ? 'oneOf' : 'anyOf'}-select`,
-          ),
         );
       }
     }
