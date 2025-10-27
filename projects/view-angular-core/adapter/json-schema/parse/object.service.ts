@@ -6,6 +6,7 @@ import { isBoolean } from 'es-toolkit';
 import * as jsonActions from '@piying/view-angular-core';
 import { schema as cSchema } from '@piying/valibot-visit';
 import { hideWhen } from '@piying/view-angular-core';
+import { createImpasseAction } from '../../util/validation';
 
 export class ObjectTypeService extends BaseTypeService {
   override readonly name: OptionJSType = 'object';
@@ -200,7 +201,7 @@ export class ObjectTypeService extends BaseTypeService {
       );
     }
     if (isBoolean(schema.propertyNames) && !schema.propertyNames) {
-      actionList.push(v.check(() => false));
+      actionList.push(createImpasseAction('propertyNames', 'false'));
     } else if (schema.propertyNames) {
       const propNameSchema = this.commonTypeParse(schema.propertyNames)!;
       actionList.push(

@@ -44,4 +44,15 @@ describe('json-schema-array', () => {
     const result = v.safeParse(Define, [1, true, '1']);
     expect(result.output).toEqual([1, true, '1']);
   });
+  it('contains-false', async () => {
+    const jsonSchema = {
+      type: 'array',
+      items: true,
+      contains: false,
+    } as JsonSchemaDraft202012Object;
+    const Define = jsonSchemaToValibot(jsonSchema);
+    const instance = assertType(Define, 'array');
+    const result = v.safeParse(Define, [1]);
+    expect(result.success).toBeFalse();
+  });
 });
