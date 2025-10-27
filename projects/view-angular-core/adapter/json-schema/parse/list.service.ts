@@ -21,9 +21,10 @@ export class ListTypeService extends BaseTypeService {
         setComponent(
           context.uniqueItems ? 'multiselect' : 'multiselect-repeat',
         ),
+        ...actionList,
       );
     } else {
-      return v.pipe(define, patchInputs({ options: options }));
+      return v.pipe(define, patchInputs({ options: options }), ...actionList);
     }
   }
 }

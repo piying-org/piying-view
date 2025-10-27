@@ -667,7 +667,10 @@ export class CommonTypeService extends BaseTypeService {
         type: '__fixedList',
       } as any);
       activateList = childOriginSchemaList.map((_, i) => true);
-      return v.pipe(instance.parse([]), conditionCheckAction);
+      return instance.parse([
+        ...getMetadataAction(schema),
+        conditionCheckAction,
+      ]);
     }
     const baseSchema = v.pipe(
       this.#jsonSchemaBase(schema, () => this.getValidationActionList(schema)),

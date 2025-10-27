@@ -17,12 +17,14 @@ describe('json-schema-fixedlist', () => {
   });
   it('const-enum', async () => {
     const jsonSchema = {
+      title: 'title1',
       oneOf: [
         { enum: [1], title: 'label1' },
         { enum: [2], title: 'label2' },
       ],
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
+    expect(v.getTitle(Define)).toEqual('title1');
     const instance = assertType(Define, 'picklist');
     const result = v.safeParse(Define, 1);
     expect(result.success).toBeTrue();
