@@ -13,12 +13,9 @@ import {
   FieldArray,
   FieldControl,
   FieldGroup,
-  getLazyImport,
-  isLazyMark,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
 import { PiyingViewGroup } from '@piying/view-angular';
-import { isComponentType } from '../../lib/util/async-cache';
 
 export async function createSchemaComponent(
   field: WritableSignal<SchemaOrPipe>,
@@ -26,21 +23,6 @@ export async function createSchemaComponent(
   defaultConfig?: PiViewConfig,
   context?: any,
 ) {
-  // 预加载
-  const types = [
-    ...Object.values(defaultConfig?.types ?? {}).map((item) => item.type),
-    ...Object.values(defaultConfig?.wrappers ?? {}).map((item) => item.type),
-  ].filter(
-    (item) =>
-      !isComponentType(item) &&
-      (typeof item === 'function' || isLazyMark(item)),
-  );
-
-  if (types.length) {
-    await Promise.all(
-      types.map((item) => getLazyImport<() => Promise<any>>(item)!()),
-    );
-  }
   @Component({
     template: `<piying-view
       [schema]="fields$()"

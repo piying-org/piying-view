@@ -12,7 +12,6 @@ import {
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, setWrappers } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
-import { delay } from './util/delay';
 import { Wrapper2Component } from './wrapper2/component';
 
 describe('带异步wrappers', () => {
@@ -52,7 +51,6 @@ describe('带异步wrappers', () => {
         },
       },
     );
-    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element).toBeTruthy();
@@ -98,7 +96,6 @@ describe('带异步wrappers', () => {
         },
       },
     );
-    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;
@@ -150,8 +147,8 @@ describe('带异步wrappers', () => {
       },
     );
 
-    await delay(10);
-
+    await fixture.whenStable();
+    fixture.detectChanges();
     const inputEl = element.querySelector('input')!;
     const displayValueEl = element.querySelector('.test1-div-modelValue')!;
 
@@ -206,7 +203,6 @@ describe('带异步wrappers', () => {
       key1: v.pipe(v.string(), setComponent('test1')),
     });
     instance.fields$.set(define2);
-    await delay(10);
     await fixture.whenStable();
     fixture.detectChanges();
     await fixture.whenStable();

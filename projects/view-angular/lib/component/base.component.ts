@@ -11,6 +11,7 @@ import {
   Injector,
   inputBinding,
   outputBinding,
+  PendingTasks,
   signal,
   Signal,
   TemplateRef,
@@ -108,6 +109,7 @@ export class BaseComponent {
   };
   #configUpdate$ = signal(0);
   #app = inject(ApplicationRef);
+  #task = inject(PendingTasks);
   #loadComponent(
     type: ComponentRawType,
     loadFn: (input: NgComponentDefine) => void,
@@ -117,14 +119,16 @@ export class BaseComponent {
       return;
     }
     if (typeof type === 'function' || isLazyMark(type)) {
-      getLazyImport<() => Promise<any>>(type)!()
-        .then((type) => {
-          if (isComponentType(type)) {
-            return { component: type };
-          }
-          return type;
-        })
-        .then((data) => loadFn(data));
+      this.#task.run(() =>
+        getLazyImport<() => Promise<any>>(type)!()
+          .then((type) => {
+            if (isComponentType(type)) {
+              return { component: type };
+            }
+            return type;
+          })
+          .then((data) => loadFn(data)),
+      );
       return;
     }
     loadFn(type as any);
