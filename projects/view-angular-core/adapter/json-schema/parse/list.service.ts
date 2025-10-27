@@ -9,7 +9,7 @@ import * as v from 'valibot';
 export class ListTypeService extends BaseTypeService {
   override readonly name = '__fixedList';
 
-  override parse(actionList: BaseAction[]): ResolvedSchema {
+  override parseBase(actionList: BaseAction[]): ResolvedSchema {
     const context: ListType = (this.schema as any)['data'];
     const options = context.options.flat();
     const define = v.picklist(options.map((option) => option.value));
