@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, OnInit } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BaseControl } from '@piying/view-angular';
 
@@ -12,9 +12,9 @@ import { BaseControl } from '@piying/view-angular';
       multi: true,
     },
   ],
-  host:{
-    '[class]':'input1()'
-  }
+  host: {
+    '[class]': 'input1()',
+  },
 })
 export class Update1Component extends BaseControl {
   input1 = input();

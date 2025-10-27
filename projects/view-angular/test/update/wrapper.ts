@@ -1,6 +1,4 @@
-import { Component, forwardRef, input, OnInit } from '@angular/core';
-import { BaseControl } from '../../lib/component/form/control.base.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component } from '@angular/core';
 import { PiyingViewWrapperBase } from '@piying/view-angular';
 
 @Component({

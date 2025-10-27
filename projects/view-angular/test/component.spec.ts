@@ -10,7 +10,6 @@ import {
   patchAsyncClass,
   patchHooks,
   patchInputs,
-  setInputs,
   setOutputs,
   setWrappers,
 } from '@piying/view-angular-core';
