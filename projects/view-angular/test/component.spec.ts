@@ -9,13 +9,19 @@ import {
   NFCSchema,
   patchAsyncClass,
   patchHooks,
+  patchInputs,
+  setInputs,
   setOutputs,
+  setWrappers,
 } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
 import { NgControl } from '@angular/forms';
 import { TestAttrClassComponent } from './test-attr-class/component';
 import { Subject } from 'rxjs';
+import { Update1Component } from './update/comp1';
+import { Update2Component } from './update/comp2';
+import { UpdateW } from './update/wrapper';
 
 describe('组件', () => {
   it('module', async () => {
@@ -196,5 +202,52 @@ describe('组件', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('app-test2')).toBeTruthy();
+  });
+  it('组件切换2', async () => {
+    const define = v.pipe(
+      v.string(),
+      setComponent('update1'),
+      patchInputs({
+        input1: 'a1',
+      }),
+      setWrappers(['wrapper1']),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+
+      {
+        types: {
+          update1: {
+            type: Update1Component,
+          },
+          update2: {
+            type: Update2Component,
+          },
+        },
+        wrappers: {
+          wrapper1: {
+            type: UpdateW,
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('app-update1.a1')).toBeTruthy();
+    instance.fields$.set(
+      v.pipe(
+        v.string(),
+        setComponent('update2'),
+        patchInputs({
+          input2: 'a2',
+        }),
+        setWrappers(['wrapper1']),
+      ),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelector('app-update2.a2')).toBeTruthy();
   });
 });

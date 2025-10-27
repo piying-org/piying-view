@@ -12,6 +12,7 @@ import {
   PI_COMPONENT_LIST_LISTEN,
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
+import { DynamicComponentConfig } from '../type/component';
 
 @Directive()
 export class PiyingViewWrapperBase extends BaseComponent {
@@ -22,10 +23,13 @@ export class PiyingViewWrapperBase extends BaseComponent {
   props$$ = computed(() => this.field$$().props());
   #listen = inject(PI_COMPONENT_LIST_LISTEN);
   #list = inject(PI_COMPONENT_LIST);
-  override createComponent() {
+  override createComponent(
+    list?: DynamicComponentConfig[],
+    viewContainerRef?: ViewContainerRef,
+  ) {
     const result = super.createComponent(
-      this.#list,
-      this.fieldComponentAnchor()!,
+      list ?? this.#list,
+      viewContainerRef ?? this.fieldComponentAnchor()!,
     );
     this.#listen.subscribe((list) => {
       this.update(list);
