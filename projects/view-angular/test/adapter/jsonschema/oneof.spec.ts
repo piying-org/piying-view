@@ -73,6 +73,7 @@ describe('oneof', () => {
           number: { type: NumberComponent },
           'oneOf-condition': { type: PiyingViewGroup },
           picklist: { type: SelectComponent },
+          multiselect: { type: SelectComponent },
         },
       },
     );
@@ -198,13 +199,14 @@ describe('oneof', () => {
 
           'oneOf-condition': { type: PiyingViewGroup },
           picklist: { type: SelectComponent },
+          multiselect: { type: SelectComponent },
         },
       },
     );
     await fixture.whenStable();
     fixture.detectChanges();
     const field = field$$()!;
-    assertFieldArray(field.form.control);
+    assertFieldControl(field.form.control);
     expect(field.form.control!.valid).toBeTrue();
     field.form.control.updateValue([3, 2]);
     await fixture.whenStable();

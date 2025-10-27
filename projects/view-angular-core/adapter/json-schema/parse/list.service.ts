@@ -1,20 +1,28 @@
-import { patchInputs } from '@piying/view-angular-core';
+import {
+  asControl,
+  patchInputs,
+  setComponent,
+} from '@piying/view-angular-core';
 import { BaseAction, ListType, ResolvedSchema } from '../type';
 import { BaseTypeService } from './base.service';
 import * as v from 'valibot';
 export class ListTypeService extends BaseTypeService {
-  override readonly name = '__fixedList' as any;
+  override readonly name = '__fixedList';
 
   override parse(actionList: BaseAction[]): ResolvedSchema {
     const context: ListType = (this.schema as any)['data'];
-    const define = v.pipe(
-      v.picklist(context.options.flat().map((option) => option.value)),
-      patchInputs({ options: context.options }),
+    const define = v.picklist(
+      context.options.flat().map((option) => option.value),
     );
     if (context.multi) {
-      return v.array(define);
+      return v.pipe(
+        v.array(define),
+        patchInputs({ options: context.options }),
+        asControl(),
+        setComponent('multiselect'),
+      );
     } else {
-      return define;
+      return v.pipe(define, patchInputs({ options: context.options }));
     }
   }
 }

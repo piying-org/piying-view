@@ -34,7 +34,7 @@ export class BaseTypeService {
   parent?: BaseTypeService;
   instance;
   schema;
-  name!: OptionJSType | 'fixedList';
+  name!: OptionJSType | '__fixedList';
   index = 0;
   instanceNamePrefix$$ = computed(() => `${this.index}-type`);
   constructor(instance: JsonSchemaToValibot, schema: ResolvedJsonSchema) {
