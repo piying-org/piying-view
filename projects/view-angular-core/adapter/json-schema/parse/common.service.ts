@@ -249,8 +249,8 @@ export class CommonTypeService extends BaseTypeService {
             if (hasSuccess.length !== 1) {
               addIssue({
                 label: `oneOf`,
-                expected: '1',
-                received: `${hasSuccess.length}`,
+                expected: '1📏',
+                received: `${hasSuccess.length}📏`,
               });
             }
           });
@@ -681,7 +681,11 @@ export class CommonTypeService extends BaseTypeService {
     if (!childList.length) {
       return;
     }
-    const fn2 = (isMulti: boolean | undefined = undefined) => {
+    const fn2 = () => {
+      let data = {
+        multi: undefined as boolean | undefined,
+        uniqueItems: true,
+      };
       const fn = (
         schema: ResolvedJsonSchema,
       ): { value: any; label: any }[] | undefined => {
@@ -701,33 +705,30 @@ export class CommonTypeService extends BaseTypeService {
             ];
           }
           options = schema.enum.map((item) => ({ label: item, value: item }));
-        } else if (
-          schema.items &&
-          !isBoolean(schema.items) &&
-          schema.uniqueItems
-        ) {
+        } else if (schema.items && !isBoolean(schema.items)) {
           const items = this.resolveSchema2(schema.items);
-          options = fn2(undefined).fn(items);
+          options = fn2().fn(items);
           multi2 = true;
+          data.uniqueItems &&= !!schema.uniqueItems;
         }
         if (!options) {
           return undefined;
         }
-        if (isMulti === undefined) {
-          isMulti = multi2;
-        } else if (isMulti !== multi2) {
+        if (data.multi === undefined) {
+          data.multi = multi2;
+        } else if (data.multi !== multi2) {
           throw new Error(`options multi conflict`);
         }
         return options!;
       };
       return {
         fn,
-        getMulti: () => isMulti,
+        getData: () => data,
       };
     };
 
     const list = [];
-    const fn$ = fn2(undefined);
+    const fn$ = fn2();
     for (const schema of childList) {
       const item = fn$.fn(schema);
       if (!item) {
@@ -735,8 +736,10 @@ export class CommonTypeService extends BaseTypeService {
       }
       list.push(item);
     }
+    let data = fn$.getData();
     return {
-      multi: fn$.getMulti()!,
+      uniqueItems: data.uniqueItems,
+      multi: data.multi!,
       options: list,
     };
   }

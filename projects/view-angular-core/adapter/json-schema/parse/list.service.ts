@@ -19,7 +19,9 @@ export class ListTypeService extends BaseTypeService {
         v.array(define),
         patchInputs({ options: context.options }),
         asControl(),
-        setComponent('multiselect'),
+        setComponent(
+          context.uniqueItems ? 'multiselect' : 'multiselect-repeat',
+        ),
       );
     } else {
       return v.pipe(define, patchInputs({ options: context.options }));

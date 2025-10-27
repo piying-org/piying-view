@@ -68,4 +68,5 @@ export type ListType = {
     value: any;
     label: any;
   }[][];
+  uniqueItems?: boolean;
 };
