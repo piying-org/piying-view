@@ -58,7 +58,7 @@ const TypeMap: Record<string, typeof BaseTypeService> = {
 export class JsonSchemaToValibot {
   root;
   options;
-  private cacheSchema = new WeakMap();
+  cacheSchema = new WeakMap();
   constructor(root: JSONSchemaRaw, options?: J2VOptions) {
     this.root = root;
     this.options = options;

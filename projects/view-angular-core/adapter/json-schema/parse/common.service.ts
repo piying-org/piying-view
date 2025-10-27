@@ -60,7 +60,6 @@ function getMetadataAction(schema: JSONSchemaRaw) {
 
 export class CommonTypeService extends BaseTypeService {
   override readonly name: any = 'common';
-  private cacheSchema = new WeakMap();
 
   override parse(actionList: BaseAction[]): ResolvedSchema {
     return this.jSchemaToVSchema2(this.schema);
@@ -69,9 +68,8 @@ export class CommonTypeService extends BaseTypeService {
     if (isBoolean(input)) {
       return getBooleanDefine(input);
     }
-
-    if (this.cacheSchema.has(input)) {
-      return this.cacheSchema.get(input);
+    if (this.instance.cacheSchema.has(input)) {
+      return this.instance.cacheSchema.get(input);
     }
     const schema = this.resolveSchema2(input);
     this.schema = schema;
@@ -79,7 +77,7 @@ export class CommonTypeService extends BaseTypeService {
     const result = actionList.length
       ? v.pipe(this.#applicatorParse(schema), ...actionList)
       : this.#applicatorParse(schema);
-    this.cacheSchema.set(input, result);
+    this.instance.cacheSchema.set(input, result);
     return result;
   }
   #applicatorNot(schema: ResolvedJsonSchema) {
@@ -143,7 +141,7 @@ export class CommonTypeService extends BaseTypeService {
       }
       case 'array': {
         if (schema.items && !isBoolean(schema.items)) {
-          let result = this.getOptions([this.resolveSchema2(schema)]);
+          const result = this.getOptions([this.resolveSchema2(schema)]);
           if (result) {
             return this.typeParse(
               '__fixedList',
@@ -682,7 +680,7 @@ export class CommonTypeService extends BaseTypeService {
       return;
     }
     const fn2 = () => {
-      let data = {
+      const data = {
         multi: undefined as boolean | undefined,
         uniqueItems: true,
       };
@@ -736,7 +734,7 @@ export class CommonTypeService extends BaseTypeService {
       }
       list.push(item);
     }
-    let data = fn$.getData();
+    const data = fn$.getData();
     return {
       uniqueItems: data.uniqueItems,
       multi: data.multi!,

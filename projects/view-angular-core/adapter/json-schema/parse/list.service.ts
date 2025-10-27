@@ -11,7 +11,7 @@ export class ListTypeService extends BaseTypeService {
 
   override parse(actionList: BaseAction[]): ResolvedSchema {
     const context: ListType = (this.schema as any)['data'];
-    let options = context.options.flat();
+    const options = context.options.flat();
     const define = v.picklist(options.map((option) => option.value));
     if (context.multi) {
       return v.pipe(

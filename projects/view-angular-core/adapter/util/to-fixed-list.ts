@@ -2,7 +2,5 @@ export function toFixedList(
   data: any[],
   labelFn: (arg: any) => any = (a) => a,
 ) {
-  return data.map((item) => {
-    return { label: labelFn(item), value: item };
-  });
+  return data.map((item) => ({ label: labelFn(item), value: item }));
 }
