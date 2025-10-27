@@ -120,13 +120,28 @@ export class CommonTypeService extends BaseTypeService {
       case 'picklist':
       case 'const':
       case '__fixedList':
-      case 'array':
       case 'object':
       case 'null':
       case 'string':
       case 'boolean':
       case 'integer':
       case 'number': {
+        return this.typeParse(type, schema, [
+          ...getValidationActionList(),
+          ...actionList,
+        ]);
+      }
+      case 'array': {
+        if (schema.items && !isBoolean(schema.items)) {
+          let result = this.getOptions([this.resolveSchema2(schema)]);
+          if (result) {
+            return this.typeParse(
+              '__fixedList',
+              { type: '__fixedList', data: result } as any,
+              [...getValidationActionList(), ...actionList],
+            );
+          }
+        }
         return this.typeParse(type, schema, [
           ...getValidationActionList(),
           ...actionList,
@@ -639,8 +654,10 @@ export class CommonTypeService extends BaseTypeService {
 
     const result = this.getOptions(resolvedChildJSchemaList);
     if (result) {
-      const instance = this.getTypeParse('__fixedList', {} as any);
-      instance.setData(result);
+      const instance = this.getTypeParse('__fixedList', {
+        data: result,
+        type: '__fixedList',
+      } as any);
       activateList = childOriginSchemaList.map((_, i) => true);
       return v.pipe(instance.parse([]), conditionCheckAction);
     }

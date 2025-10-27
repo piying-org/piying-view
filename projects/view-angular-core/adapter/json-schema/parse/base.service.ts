@@ -228,13 +228,6 @@ export class BaseTypeService {
       return result.__resolved.hasRef;
     }
   }
-  extraData = {} as Record<string, any>;
-  getData() {
-    return this.extraData;
-  }
-  setData(data: any) {
-    this.extraData = data;
-  }
 
   getFixedChild() {
     let context: TypeContext | undefined = this.context;
