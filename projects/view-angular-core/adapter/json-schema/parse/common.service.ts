@@ -11,7 +11,13 @@ import {
   isUndefined,
   union,
 } from 'es-toolkit';
-import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  switchMap,
+} from 'rxjs';
 import { createImpasseAction } from '../../util/validation';
 import {
   BaseAction,
@@ -275,31 +281,38 @@ export class CommonTypeService extends BaseTypeService {
        */
 
       const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
-      const baseSchema = v.pipe(
+      let base1Schema = v.pipe(
         this.#jsonSchemaBase(schema, () => [
           ...this.getValidationActionList(schema),
-          jsonActions.hideWhen({
-            disabled: false,
-            listen: (fn) =>
-              fn({}).pipe(
-                map(({ list: [value], field }) => {
-                  const isThen = isBoolean(schema.if)
-                    ? schema.if
-                    : v.safeParse(ifVSchema, value).success;
-                  (
-                    field.form.parent as jsonActions.FieldLogicGroup
-                  ).activateIndex$.set(isThen ? 1 : 2);
-                  useThen$.next(isThen);
-                  return !((isThen && !thenSchema) || (!isThen && !elseSchema));
-                }),
-              ),
-          }),
         ]),
+      );
+      const baseSchema = v.pipe(
+        base1Schema,
+        jsonActions.hideWhen({
+          disabled: false,
+          listen: (fn) =>
+            fn({}).pipe(
+              map(({ list: [value], field }) => {
+                const isThen = isBoolean(schema.if)
+                  ? schema.if
+                  : v.safeParse(ifVSchema, value).success;
+                (
+                  field.form.parent as jsonActions.FieldLogicGroup
+                ).activateIndex$.set(isThen ? 1 : 2);
+                useThen$.next(isThen);
+
+                return true;
+              }),
+            ),
+        }),
       );
       /** 仅为验证项,非显示用 */
       let ifVSchema: ResolvedSchema;
       if (isBoolean(schema.if)) {
-        ifVSchema = v.literal(schema.if);
+        ifVSchema = v.pipe(
+          v.any(),
+          v.check(() => !!schema.if),
+        );
       } else {
         const ifSchema = this.#mergeSchema(schema, schema.if!);
         ifVSchema = v.pipe(
@@ -315,42 +328,47 @@ export class CommonTypeService extends BaseTypeService {
               return fn({ list: [['..', 0]] }).pipe(
                 switchMap(({ list: [] }) => useThen$),
                 map((a) => (a === undefined ? true : isThen ? !a : a)),
+                distinctUntilChanged(),
               );
             },
           }),
         ];
       }
-      let thenSchema: ResolvedSchema | undefined;
+      let thenSchema: ResolvedSchema;
       if (schema.then && !isBoolean(schema.then)) {
         const subSchema = this.#mergeSchema(schema, schema.then!);
         thenSchema = v.pipe(
           this.#jsonSchemaBase(subSchema.schema, () => [
             ...subSchema.actionList,
-            ...hideAction(true),
           ]),
         );
+      } else {
+        thenSchema = base1Schema;
       }
+      thenSchema = v.pipe(
+        thenSchema,
+        ...hideAction(true),
+      );
 
-      let elseSchema: ResolvedSchema | undefined;
+      let elseSchema: ResolvedSchema;
       if (schema.else && !isBoolean(schema.else)) {
         const subSchema = this.#mergeSchema(schema, schema.else);
         elseSchema = v.pipe(
           this.#jsonSchemaBase(subSchema.schema, () => [
             ...subSchema.actionList,
-            ...hideAction(false),
           ]),
         );
+      } else {
+        elseSchema = base1Schema;
       }
+      elseSchema = v.pipe(
+        elseSchema,
+        ...hideAction(false),
+      );
 
       // 这种逻辑没问题,因为jsonschema验证中,也会出现base和子级架构一起验证
       vSchema = v.pipe(
-        v.union(
-          [
-            baseSchema,
-            thenSchema ?? baseSchema,
-            elseSchema ?? baseSchema,
-          ].filter(Boolean),
-        ),
+        v.union([baseSchema, thenSchema, elseSchema]),
         jsonActions.formConfig({ disableOrUpdateActivate: true }),
         v.rawCheck(({ dataset, addIssue }) => {
           if (dataset.issues) {

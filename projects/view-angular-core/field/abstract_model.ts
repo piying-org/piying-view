@@ -18,6 +18,7 @@ import {
 import { PI_CONTEXT_TOKEN } from '../builder-base/type/token';
 import { clone } from '../util/clone';
 import { toObservable } from '../util/to_observable';
+import { deepEqual } from 'fast-equals';
 export type ValidationErrors = {
   [key: string]: any;
 };
@@ -327,7 +328,7 @@ export abstract class AbstractControl<TValue = any> {
   /** @internal */
   _forEachChild(cb: (c: AbstractControl, key: any) => void) {}
   updateValue(value: any) {}
-  config$: FieldFormConfig$ = signal({});
+  config$: FieldFormConfig$ = signal({}, { equal: deepEqual });
   /** @internal */
   initConfig(config: any) {
     this.config$ = config;
@@ -335,6 +336,9 @@ export abstract class AbstractControl<TValue = any> {
   protected getInitValue(value: any) {
     return value ?? this.config$().defaultValue;
   }
+  protected transfomerToModel$$ = computed(() => {
+    return this.config$().transfomer?.toModel;
+  });
   /** @internal */
   updateInitValue(value: any) {}
   find(name: string | number): AbstractControl | null {

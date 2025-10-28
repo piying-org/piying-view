@@ -8,6 +8,9 @@ import { createSchemaComponent } from '../../util/create-component';
 import { signal } from '@angular/core';
 import { NumberComponent } from '../component/number/component';
 import { assertFieldLogicGroup } from '@piying/view-angular-core/test';
+import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-12';
+import { TextComponent } from '../component/text/component';
+import { BooleanComponent } from '../component/boolean/component';
 describe('if', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(IfSchema as any) as any;
@@ -123,5 +126,69 @@ describe('if', () => {
     fixture.detectChanges();
     expect(field?.form.control?.valid).toBeFalse();
     expect(element.querySelectorAll('app-number').length).toEqual(1);
+  });
+  it('if-object', async () => {
+    let jsonschema = {
+      properties: {
+        k1: {
+          type: 'number',
+        },
+      },
+      required: ['k1'],
+      if: {
+        properties: {
+          k1: {
+            minimum: 5,
+          },
+        },
+      },
+      then: {
+        properties: {
+          k2: {
+            type: 'string',
+          },
+        },
+      },
+      else: {
+        properties: {
+          k3: {
+            type: 'boolean',
+          },
+        },
+      },
+    } as JsonSchemaDraft202012Object;
+    const define = jsonSchemaToValibot(jsonschema) as any;
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal({}),
+      {
+        types: {
+          number: { type: NumberComponent },
+          string: { type: TextComponent },
+          boolean: { type: BooleanComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = field$$()!;
+    assertFieldLogicGroup(field.form.control);
+
+    expect(field?.form.control?.valid).toBeFalse();
+
+    expect(element.querySelectorAll('app-boolean').length).toEqual(1);
+    expect(element.querySelectorAll('app-text').length).toEqual(0);
+    field?.form.control?.updateValue({ k1: 6 });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelectorAll('app-boolean').length).toEqual(0);
+    expect(element.querySelectorAll('app-text').length).toEqual(1);
+    field?.form.control?.updateValue({ k1: 4 });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelectorAll('app-boolean').length).toEqual(1);
+    expect(element.querySelectorAll('app-text').length).toEqual(0);
   });
 });

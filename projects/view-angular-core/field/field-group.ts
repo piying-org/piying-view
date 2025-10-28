@@ -19,9 +19,8 @@ export class FieldGroup<
     const returnResult = Object.keys(result).length
       ? result
       : this.emptyValue$$();
-    return (
-      this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
-    );
+
+    return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
   });
   #controls$$ = computed(() => ({
     ...this.fixedControls$(),

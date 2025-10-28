@@ -24,7 +24,7 @@ export class FieldArray<
     list = [...list, ...(this.resetValue$() ?? [])];
     const returnResult = list.length === 0 ? this.emptyValue$$() : list;
     return (
-      this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
+      this.transfomerToModel$$()?.(returnResult, this) ?? returnResult
     );
   });
   override children$$ = computed(() => [

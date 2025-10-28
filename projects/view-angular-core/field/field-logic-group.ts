@@ -11,7 +11,7 @@ export class FieldLogicGroup extends FieldArray {
   override value$$ = computed<any>(() => {
     const returnResult = this.getValue(false);
     return (
-      this.config$().transfomer?.toModel?.(returnResult, this) ?? returnResult
+      this.transfomerToModel$$()?.(returnResult, this) ?? returnResult
     );
   });
 
