@@ -16,6 +16,7 @@ import {
   combineLatest,
   distinctUntilChanged,
   map,
+  skip,
   switchMap,
 } from 'rxjs';
 import { createImpasseAction } from '../../util/validation';
@@ -332,6 +333,16 @@ export class CommonTypeService extends BaseTypeService {
               );
             },
           }),
+          jsonActions.mergeHooks({
+            allFieldsResolved: (field) => {
+              let baseField = field.get(['..', 0]);
+              field.form.control?.valueChanges
+                .pipe(skip(1))
+                .subscribe((value) => {
+                  baseField?.form.control?.updateValue(value);
+                });
+            },
+          }),
         ];
       }
       let thenSchema: ResolvedSchema;
@@ -345,10 +356,7 @@ export class CommonTypeService extends BaseTypeService {
       } else {
         thenSchema = base1Schema;
       }
-      thenSchema = v.pipe(
-        thenSchema,
-        ...hideAction(true),
-      );
+      thenSchema = v.pipe(thenSchema, ...hideAction(true));
 
       let elseSchema: ResolvedSchema;
       if (schema.else && !isBoolean(schema.else)) {
@@ -361,10 +369,7 @@ export class CommonTypeService extends BaseTypeService {
       } else {
         elseSchema = base1Schema;
       }
-      elseSchema = v.pipe(
-        elseSchema,
-        ...hideAction(false),
-      );
+      elseSchema = v.pipe(elseSchema, ...hideAction(false));
 
       // 这种逻辑没问题,因为jsonschema验证中,也会出现base和子级架构一起验证
       vSchema = v.pipe(
@@ -567,7 +572,7 @@ export class CommonTypeService extends BaseTypeService {
           }
           conditionResult.conditionKeyList = excludeFixedConditionList;
         }
-        const checkAction = jsonActions.patchHooks({
+        const checkAction = jsonActions.mergeHooks({
           allFieldsResolved: (field) => {
             const displayName = ['..', 2];
             const list = [];

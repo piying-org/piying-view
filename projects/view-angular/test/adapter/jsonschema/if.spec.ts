@@ -178,13 +178,13 @@ describe('if', () => {
 
     expect(element.querySelectorAll('app-boolean').length).toEqual(1);
     expect(element.querySelectorAll('app-text').length).toEqual(0);
-    field?.form.control?.updateValue({ k1: 6 });
+    field.get([2])?.form.control?.updateValue({ k1: 6 });
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(element.querySelectorAll('app-boolean').length).toEqual(0);
     expect(element.querySelectorAll('app-text').length).toEqual(1);
-    field?.form.control?.updateValue({ k1: 4 });
+    field.get([2])?.form.control?.updateValue({ k1: 4 });
     await fixture.whenStable();
     fixture.detectChanges();
 

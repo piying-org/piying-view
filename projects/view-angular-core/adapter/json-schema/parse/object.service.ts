@@ -89,7 +89,7 @@ export class ObjectTypeService extends BaseTypeService {
           if (depList) {
             propVSchema = v.pipe(
               propVSchema,
-              jsonActions.patchHooks({
+              jsonActions.mergeHooks({
                 allFieldsResolved: (field) => {
                   field.form.control!.statusChanges.subscribe(() => {
                     const valid = field.form.control!.valid;
