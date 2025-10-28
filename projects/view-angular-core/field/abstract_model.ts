@@ -336,9 +336,9 @@ export abstract class AbstractControl<TValue = any> {
   protected getInitValue(value: any) {
     return value ?? this.config$().defaultValue;
   }
-  protected transfomerToModel$$ = computed(() => {
-    return this.config$().transfomer?.toModel;
-  });
+  protected transfomerToModel$$ = computed(
+    () => this.config$().transfomer?.toModel,
+  );
   /** @internal */
   updateInitValue(value: any) {}
   find(name: string | number): AbstractControl | null {

@@ -16,7 +16,6 @@ import {
   combineLatest,
   distinctUntilChanged,
   map,
-  skip,
   switchMap,
 } from 'rxjs';
 import { createImpasseAction } from '../../util/validation';
@@ -33,6 +32,7 @@ import * as jsonActions from '@piying/view-angular-core';
 import { getBooleanDefine } from '../../util/define';
 import { clone } from '../../util/clone';
 import { toFixedList } from '../../util/to-fixed-list';
+const EMPTY_DEFINE = v.pipe(v.any(), jsonActions.setComponent(''));
 function arrayIntersection(a: any, b: any) {
   if (!isNil(a) && !isNil(b)) {
     a = Array.isArray(a) ? a : [a];
@@ -276,37 +276,6 @@ export class CommonTypeService extends BaseTypeService {
         },
       });
     } else if ('if' in schema) {
-      /**
-       * 当前设计中if/then/else是采用的分离显示
-       * 也就是then/else都会合并base,然后按条件展示,
-       */
-
-      const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
-      let base1Schema = v.pipe(
-        this.#jsonSchemaBase(schema, () => [
-          ...this.getValidationActionList(schema),
-        ]),
-      );
-      const baseSchema = v.pipe(
-        base1Schema,
-        jsonActions.hideWhen({
-          disabled: false,
-          listen: (fn) =>
-            fn({}).pipe(
-              map(({ list: [value], field }) => {
-                const isThen = isBoolean(schema.if)
-                  ? schema.if
-                  : v.safeParse(ifVSchema, value).success;
-                (
-                  field.form.parent as jsonActions.FieldLogicGroup
-                ).activateIndex$.set(isThen ? 1 : 2);
-                useThen$.next(isThen);
-
-                return true;
-              }),
-            ),
-        }),
-      );
       /** 仅为验证项,非显示用 */
       let ifVSchema: ResolvedSchema;
       if (isBoolean(schema.if)) {
@@ -315,11 +284,35 @@ export class CommonTypeService extends BaseTypeService {
           v.check(() => !!schema.if),
         );
       } else {
-        const ifSchema = this.#mergeSchema(schema, schema.if!);
+        const ifSchema = this.resolveSchema2(schema.if!);
         ifVSchema = v.pipe(
-          this.#jsonSchemaBase(ifSchema.schema, () => ifSchema.actionList)!,
+          this.#jsonSchemaBase(ifSchema, () =>
+            this.getValidationActionList(ifSchema),
+          )!,
         );
       }
+      /**
+       * 当前设计中if/then/else是采用的分离显示
+       * 也就是then/else都会合并base,然后按条件展示,
+       */
+
+      const useThen$ = new BehaviorSubject<boolean | undefined>(undefined);
+
+      const baseSchema = this.#jsonSchemaBase(schema, () => [
+        ...this.getValidationActionList(schema),
+        jsonActions.valueChange((fn) => {
+          fn().subscribe(({ list: [value], field }) => {
+            const isThen = isBoolean(schema.if)
+              ? schema.if
+              : v.safeParse(ifVSchema, value).success;
+            (
+              field.form.parent as jsonActions.FieldLogicGroup
+            ).activateIndex$.set(isThen ? 1 : 2);
+            useThen$.next(isThen);
+          });
+        }),
+      ]);
+
       function hideAction(isThen: boolean) {
         return [
           jsonActions.renderConfig({ hidden: true }),
@@ -333,44 +326,47 @@ export class CommonTypeService extends BaseTypeService {
               );
             },
           }),
-          jsonActions.mergeHooks({
-            allFieldsResolved: (field) => {
-              let baseField = field.get(['..', 0]);
-              field.form.control?.valueChanges
-                .pipe(skip(1))
-                .subscribe((value) => {
-                  baseField?.form.control?.updateValue(value);
-                });
-            },
-          }),
         ];
       }
       let thenSchema: ResolvedSchema;
       if (schema.then && !isBoolean(schema.then)) {
-        const subSchema = this.#mergeSchema(schema, schema.then!);
+        const subSchema = this.resolveSchema2(schema.then!);
         thenSchema = v.pipe(
-          this.#jsonSchemaBase(subSchema.schema, () => [
-            ...subSchema.actionList,
+          this.#jsonSchemaBase(subSchema, () => [
+            ...this.getValidationActionList(subSchema),
+            ...hideAction(true),
           ]),
         );
+        if (!subSchema.__resolved.type.types.includes('object')) {
+          thenSchema = v.pipe(
+            thenSchema,
+            jsonActions.setComponent(''),
+            jsonActions.renderConfig({ hidden: true }),
+          );
+        }
       } else {
-        thenSchema = base1Schema;
+        thenSchema = EMPTY_DEFINE;
       }
-      thenSchema = v.pipe(thenSchema, ...hideAction(true));
 
       let elseSchema: ResolvedSchema;
       if (schema.else && !isBoolean(schema.else)) {
-        const subSchema = this.#mergeSchema(schema, schema.else);
+        const subSchema = this.resolveSchema2(schema.else);
         elseSchema = v.pipe(
-          this.#jsonSchemaBase(subSchema.schema, () => [
-            ...subSchema.actionList,
+          this.#jsonSchemaBase(subSchema, () => [
+            ...this.getValidationActionList(subSchema),
+            ...hideAction(false),
           ]),
         );
+        if (!subSchema.__resolved.type.types.includes('object')) {
+          elseSchema = v.pipe(
+            elseSchema,
+            jsonActions.setComponent(''),
+            jsonActions.renderConfig({ hidden: true }),
+          );
+        }
       } else {
-        elseSchema = base1Schema;
+        elseSchema = EMPTY_DEFINE;
       }
-      elseSchema = v.pipe(elseSchema, ...hideAction(false));
-
       // 这种逻辑没问题,因为jsonschema验证中,也会出现base和子级架构一起验证
       vSchema = v.pipe(
         v.union([baseSchema, thenSchema, elseSchema]),
@@ -379,18 +375,23 @@ export class CommonTypeService extends BaseTypeService {
           if (dataset.issues) {
             return;
           }
+          const result = v.safeParse(baseSchema, dataset.value);
+          if (!result.success) {
+            addIssue({ label: `if:default` });
+            return;
+          }
           const status = useThen$.value;
           if (status && thenSchema) {
             const result = v.safeParse(thenSchema, dataset.value);
             if (!result.success) {
-              addIssue();
+              addIssue({ label: `if:then` });
               return;
             }
           }
           if (!status && elseSchema) {
             const result = v.safeParse(elseSchema, dataset.value);
             if (!result.success) {
-              addIssue();
+              addIssue({ label: `if:else` });
               return;
             }
           }

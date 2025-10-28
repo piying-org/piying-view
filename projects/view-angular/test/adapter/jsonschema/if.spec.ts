@@ -128,7 +128,7 @@ describe('if', () => {
     expect(element.querySelectorAll('app-number').length).toEqual(1);
   });
   it('if-object', async () => {
-    let jsonschema = {
+    const jsonschema = {
       properties: {
         k1: {
           type: 'number',
@@ -141,6 +141,7 @@ describe('if', () => {
             minimum: 5,
           },
         },
+        required: ['k1'],
       },
       then: {
         properties: {
@@ -175,19 +176,16 @@ describe('if', () => {
     assertFieldLogicGroup(field.form.control);
 
     expect(field?.form.control?.valid).toBeFalse();
-
     expect(element.querySelectorAll('app-boolean').length).toEqual(1);
     expect(element.querySelectorAll('app-text').length).toEqual(0);
-    field.get([2])?.form.control?.updateValue({ k1: 6 });
+    field.get([0])?.form.control?.updateValue({ k1: 6 });
     await fixture.whenStable();
     fixture.detectChanges();
-
     expect(element.querySelectorAll('app-boolean').length).toEqual(0);
     expect(element.querySelectorAll('app-text').length).toEqual(1);
-    field.get([2])?.form.control?.updateValue({ k1: 4 });
+    field.get([0])?.form.control?.updateValue({ k1: 4 });
     await fixture.whenStable();
     fixture.detectChanges();
-
     expect(element.querySelectorAll('app-boolean').length).toEqual(1);
     expect(element.querySelectorAll('app-text').length).toEqual(0);
   });

@@ -10,9 +10,7 @@ export class FieldLogicGroup extends FieldArray {
   activateControls$ = signal<AbstractControl[] | undefined>(undefined);
   override value$$ = computed<any>(() => {
     const returnResult = this.getValue(false);
-    return (
-      this.transfomerToModel$$()?.(returnResult, this) ?? returnResult
-    );
+    return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
   });
 
   #getActivateControls() {
