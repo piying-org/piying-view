@@ -2,10 +2,5 @@
     "$schema": "https://context7.com/schema/context7.json",
     "projectTitle": "皮影视图-前端表单解决方案",
     "description": "让表单可以快速的被定义使用,并且可以在不同前端框架上迁移;此项目分离了视图与逻辑部分,只定义一次组件就可以在任意地方使用",
-    "branch": "main",
-    "folders": [
-        "./public",
-        "./projects/view-angular-core/test",
-        "./projects/view-angular/test"
-    ]
+    "branch": "main"
 }
