@@ -66,7 +66,7 @@ function createAttributesDirective(
     return [
       {
         type: AttributesDirective,
-        bindings: [inputBinding('a', attributes)],
+        bindings: [inputBinding('attributes', attributes)],
       },
     ];
   }
