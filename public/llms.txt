@@ -1,0 +1,15 @@
+# 皮影-前端表单解决方案
+
+## 介绍
+
+- 皮影表单的灵感来自于`ngx-formly`与`angular`的表单库
+- 但是进行了高度抽象使其可应用于`Angular`,`Vue`,`React`,`Svelte`,`Solid`多个前端框架
+- 并且视图与逻辑进行了分离,使其逻辑部分可以应用于任意框架,不同框架迁移时,只需要保证视图组件的定义一致即可
+
+## 向导
+
+- [转换为Angular皮影表单控件](https://github.com/piying-org/piying-view/blob/main/public/llm/to-angular-piying-control.md)
+- [转换为Angular皮影非表单控件](https://github.com/piying-org/piying-view/blob/main/public/llm/to-angular-piying-non-control.md)
+- [转换为Angular皮影表单控件组](https://github.com/piying-org/piying-view/blob/main/public/llm/to-angular-piying-group.md)
+- [在Angular中使用皮影](https://github.com/piying-org/piying-view/blob/main/public/llm/use-angular-piying.md)
+- [将Angular组件转换为selectorless无标签](https://github.com/piying-org/piying-view/blob/main/public/llm/to-angular-selectorless.md)
