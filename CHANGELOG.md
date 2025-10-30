@@ -1,3 +1,12 @@
+## 1.9.5 (2025-10-30)
+
+
+### Features
+
+* export attributes ([292648c](https://github.com/piying-org/piying-view/commit/292648c9a4197ba5a347a5d629d7f89d5e44a385))
+
+
+
 ## 1.9.4 (2025-10-28)
 
 
