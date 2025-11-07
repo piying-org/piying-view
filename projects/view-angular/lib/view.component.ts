@@ -14,6 +14,7 @@ import {
   SimpleChanges,
   TemplateRef,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { NgComponentOutlet } from './hook/ng_component_outlet';
 
@@ -45,6 +46,8 @@ const DefaultConvertOptions = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PiyingView implements OnChanges {
+  templateRef = viewChild.required('templateRef');
+  readonly selectorless = input<boolean>(false);
   schema = input.required<
     v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>
   >();

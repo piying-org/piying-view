@@ -23,9 +23,13 @@
     }
   }
 </ng-template>
-
-@if (resolvedField$(); as field) {
-  <ng-container
-    *ngTemplateOutlet="dynamicComponent; context: { $implicit: field }"
-  ></ng-container>
+<ng-template #templateRef>
+  @if (resolvedField$(); as field) {
+    <ng-container
+      *ngTemplateOutlet="dynamicComponent; context: { $implicit: field }"
+    ></ng-container>
+  }
+</ng-template>
+@if (!selectorless()) {
+  <ng-container *ngTemplateOutlet="templateRef"></ng-container>
 }
