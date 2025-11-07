@@ -1,3 +1,12 @@
+## 1.9.6 (2025-11-07)
+
+
+### Features
+
+* piying view selectorless ([ba44901](https://github.com/piying-org/piying-view/commit/ba44901aae60644df2a4fcae10e3faea0a2b4e2a))
+
+
+
 ## 1.9.5 (2025-10-30)
 
 
