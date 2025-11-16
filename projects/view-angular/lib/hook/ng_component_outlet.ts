@@ -1,6 +1,7 @@
 import {
   computed,
   Directive,
+  EnvironmentInjector,
   inject,
   Injector,
   input,
@@ -41,6 +42,7 @@ export class NgComponentOutlet<T = any>
   ngComponentOutletField = input.required<PiResolvedViewFieldConfig>();
   #viewContainerRef = inject(ViewContainerRef);
   // 这里感觉会在非发射时出现多次输入?
+  ngComponentOutletEnvInjector = input<EnvironmentInjector | undefined>();
 
   #usedEnvInjector$$ = computed(() =>
     Injector.create({
@@ -122,9 +124,13 @@ export class NgComponentOutlet<T = any>
       const field = this.ngComponentOutletField();
       field.hooks?.beforeCreateComponent?.(field);
       this.setFieldData(this.ngComponentOutletField, 0);
-      this.createComponent(list, this.#viewContainerRef);
+      this.createComponent(
+        list,
+        this.#viewContainerRef,
+        this.ngComponentOutletEnvInjector(),
+      );
     } else if (this.#lastList !== list) {
-      this.update(list);
+      this.update(list, this.ngComponentOutletEnvInjector());
     }
     // 监听输入/输出变更,重新进行赋值
 

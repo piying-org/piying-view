@@ -18,7 +18,13 @@ import {
 } from '@angular/core';
 import { NgComponentOutlet } from './hook/ng_component_outlet';
 
-import { PiViewConfig, PiResolvedViewFieldConfig } from './type';
+import {
+  PiViewConfig,
+  PiResolvedViewFieldConfig,
+  PI_INPUT_OPTIONS_TOKEN,
+  PI_INPUT_SCHEMA_TOKEN,
+  PI_INPUT_MODEL_TOKEN,
+} from './type';
 
 import { NgTemplateOutlet } from '@angular/common';
 import {
@@ -85,11 +91,27 @@ export class PiyingView implements OnChanges {
   #builderEnvInjector?: EnvironmentInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
   #listenDispose?: () => void;
-
+  envInjector2$$ = createEnvironmentInjector(
+    [
+      {
+        provide: PI_INPUT_OPTIONS_TOKEN,
+        useValue: this.options,
+      },
+      {
+        provide: PI_INPUT_SCHEMA_TOKEN,
+        useValue: this.schema,
+      },
+      {
+        provide: PI_INPUT_MODEL_TOKEN,
+        useValue: this.model,
+      },
+    ],
+    this.#envInjector,
+  );
   #updateField() {
     this.#clean();
     // 临时销毁
-    const envInjector = createEnvironmentInjector([], this.#envInjector);
+    const envInjector = createEnvironmentInjector([], this.envInjector2$$);
     this.#builderEnvInjector = envInjector;
     const result = convert<PiResolvedViewFieldConfig>(this.schema() as any, {
       ...DefaultConvertOptions,

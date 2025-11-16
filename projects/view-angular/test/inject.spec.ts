@@ -2,9 +2,10 @@ import { Signal, signal } from '@angular/core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
-import { setOutputs } from '@piying/view-angular-core';
+import { NFCSchema, patchOutputs, setOutputs } from '@piying/view-angular-core';
 import { setComponent } from '@piying/view-angular-core';
 import { keyEqual } from '@piying/view-angular-core/test';
+import { InjectTokenComponent } from './input-options/component';
 
 describe('inject', () => {
   it('field注入', async () => {
@@ -28,5 +29,32 @@ describe('inject', () => {
     fixture.detectChanges();
     keyEqual((await field$.promise)().keyPath, 'v1');
     expect((await field$.promise)().form).toBeTruthy();
+  });
+  it('获得注入参数', async () => {
+    let output1$ = Promise.withResolvers<any>();
+    const define = v.pipe(
+      NFCSchema,
+      setComponent('inject-token'),
+      patchOutputs({
+        output1: (data) => {
+          output1$.resolve(data);
+        },
+      }),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+      {
+        types: {
+          'inject-token': { type: InjectTokenComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    let output1 = await output1$.promise;
+    expect(output1.model).toEqual(undefined);
+    expect(output1.schema).toBe(define);
+    expect(output1.options).toBeTruthy();
   });
 });

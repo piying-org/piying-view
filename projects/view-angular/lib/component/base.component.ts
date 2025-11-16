@@ -29,6 +29,7 @@ import {
   PI_COMPONENT_INDEX,
   PI_COMPONENT_LIST,
   PI_COMPONENT_LIST_LISTEN,
+  PI_INPUT_OPTIONS_TOKEN,
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
 import {
@@ -136,6 +137,7 @@ export class BaseComponent {
   createComponent(
     list: DynamicComponentConfig[],
     viewContainerRef: ViewContainerRef,
+    envInjector?: EnvironmentInjector,
   ) {
     // 销毁
     this.destroyComponentFn?.();
@@ -184,7 +186,7 @@ export class BaseComponent {
 
       const componentRef = createComponent(componentDefine.component, {
         elementInjector: injector,
-        environmentInjector: injector.get(EnvironmentInjector),
+        environmentInjector: envInjector ?? injector.get(EnvironmentInjector),
         bindings: [
           ...createInputsBind(this.#inputCache.inputs),
           ...createOutputsBind(componentConfig.outputs),
@@ -231,7 +233,7 @@ export class BaseComponent {
     });
   }
 
-  update(list: DynamicComponentConfig[]) {
+  update(list: DynamicComponentConfig[], envInjector?: EnvironmentInjector) {
     const item = list[this.#index];
     const currentCheckConfig = getComponentCheckConfig(item);
     const isEqual = deepEqual(
@@ -245,7 +247,7 @@ export class BaseComponent {
       // 相等不处理
       this.#eventEmitter.next(list);
     } else {
-      this.createComponent(list, this.#viewContainerRef!);
+      this.createComponent(list, this.#viewContainerRef!, envInjector);
     }
   }
 }
