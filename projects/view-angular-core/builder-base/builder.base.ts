@@ -569,7 +569,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         ) as any;
       }
     }
-    return clone(value) as any;
+    return value;
   }
   /**
    * 后面覆盖前面
