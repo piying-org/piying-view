@@ -52,12 +52,15 @@ function createInputsBind(inputs?: Signal<CoreRawViewInputs | undefined>) {
     ),
   );
 }
-function createOutputsBind(outputs?: CoreRawViewOutputs) {
+function createOutputsBind(
+  outputs?: CoreRawViewOutputs,
+  config?: Signal<PiResolvedViewFieldConfig>,
+) {
   if (!outputs) {
     return [];
   }
   return Object.entries(outputs).map(([key, value]) =>
-    outputBinding(key, value),
+    outputBinding(key, config ? (event) => value(event, config()) : value),
   );
 }
 function createAttributesDirective(
@@ -183,7 +186,6 @@ export class BaseComponent {
       const injector = componentDefine.module
         ? createNgModule(componentDefine.module, componentInjector).injector
         : componentInjector;
-
       const componentRef = createComponent(componentDefine.component, {
         elementInjector: injector,
         environmentInjector: envInjector ?? injector.get(EnvironmentInjector),
@@ -196,7 +198,10 @@ export class BaseComponent {
             type: item.type,
             bindings: [
               ...createInputsBind(this.#inputCache.directiveList![index]),
-              ...createOutputsBind(item.outputs),
+              ...createOutputsBind(
+                item.outputs,
+                injector!.get(PI_VIEW_FIELD_TOKEN),
+              ),
             ],
           })),
           ...(COMPONENT_VERSION === 2

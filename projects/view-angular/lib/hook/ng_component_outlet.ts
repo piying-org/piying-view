@@ -44,7 +44,7 @@ export class NgComponentOutlet<T = any>
   // 这里感觉会在非发射时出现多次输入?
   ngComponentOutletEnvInjector = input<EnvironmentInjector | undefined>();
 
-  #usedEnvInjector$$ = computed(() =>
+  #injector$$ = computed(() =>
     Injector.create({
       providers: [
         {
@@ -109,7 +109,7 @@ export class NgComponentOutlet<T = any>
       ...(this.ngComponentOutletWrappers() ?? []),
       componentConfig,
     ] as DynamicComponentConfig[];
-    list[0].injector = this.#usedEnvInjector$$();
+    list[0].injector = this.#injector$$();
     return list;
   });
 

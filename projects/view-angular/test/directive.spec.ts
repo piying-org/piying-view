@@ -166,7 +166,8 @@ describe('指令', () => {
         {
           type: TestNgControlDirective,
           outputs: {
-            dataChange: (event: any) => {
+            dataChange: (event: any, field) => {
+              expect(field).toBeTruthy();
               ngControl$.resolve(event);
             },
           },
