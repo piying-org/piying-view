@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import {
   PI_INPUT_MODEL_TOKEN,
   PI_INPUT_OPTIONS_TOKEN,

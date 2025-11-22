@@ -95,7 +95,7 @@ export function asyncInputMerge(
       data$.set(value);
     };
     newData.update = (fn: any) => {
-      let result = fn(newData());
+      const result = fn(newData());
       data$.set(result);
     };
     return newData;

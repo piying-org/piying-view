@@ -11,11 +11,9 @@ import { PiyingViewWrapperBase } from '@piying/view-angular';
 export class ChangeInputWrapper extends PiyingViewWrapperBase {
   constructor() {
     super();
-    this.field$$().inputs.update((data) => {
-      return {
-        ...data,
-        input1: '123',
-      };
-    });
+    this.field$$().inputs.update((data) => ({
+      ...data,
+      input1: '123',
+    }));
   }
 }

@@ -363,7 +363,7 @@ describe('带异步wrappers', () => {
     expect(input1Div.innerHTML).toEqual('div-display2');
   });
   it('wrapper change input', async () => {
-    let input2$ = signal('2');
+    const input2$ = signal('2');
     const define = v.pipe(
       NFCSchema,
       setComponent(WrapperChange),
@@ -373,9 +373,7 @@ describe('带异步wrappers', () => {
         },
       ]),
       patchAsyncInputs({
-        input2: () => {
-          return computed(() => input2$());
-        },
+        input2: () => computed(() => input2$()),
       }),
     );
     const { fixture, instance, element, field$$ } = await createSchemaComponent(

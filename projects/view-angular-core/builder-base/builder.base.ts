@@ -45,7 +45,6 @@ import {
   SortedArray,
   SignalInputValue,
   UnWrapSignal,
-  clone,
   toArray,
   KeyPath,
 } from '../util';

@@ -31,7 +31,7 @@ describe('inject', () => {
     expect((await field$.promise)().form).toBeTruthy();
   });
   it('获得注入参数', async () => {
-    let output1$ = Promise.withResolvers<any>();
+    const output1$ = Promise.withResolvers<any>();
     const define = v.pipe(
       NFCSchema,
       setComponent('inject-token'),
@@ -52,13 +52,13 @@ describe('inject', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let output1 = await output1$.promise;
+    const output1 = await output1$.promise;
     expect(output1.model).toEqual(undefined);
     expect(output1.schema).toBe(define);
     expect(output1.options).toBeTruthy();
   });
   it('获得注入参数-obj', async () => {
-    let output1$ = Promise.withResolvers<any>();
+    const output1$ = Promise.withResolvers<any>();
     const define = v.object({
       a: v.pipe(
         NFCSchema,
@@ -81,7 +81,7 @@ describe('inject', () => {
     );
     await fixture.whenStable();
     fixture.detectChanges();
-    let output1 = await output1$.promise;
+    const output1 = await output1$.promise;
     expect(output1.model).toEqual(undefined);
     expect(output1.schema).toBe(define);
     expect(output1.options).toBeTruthy();

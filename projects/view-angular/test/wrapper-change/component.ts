@@ -1,6 +1,5 @@
-import { Component, input, viewChild } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PiyingViewWrapperBase } from '@piying/view-angular';
 
 @Component({
   selector: 'comp1',
