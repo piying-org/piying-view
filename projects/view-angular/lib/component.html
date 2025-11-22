@@ -11,7 +11,7 @@
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletEnvInjector]="envInjector"
+        [ngComponentOutletEnvInjector]="envInjector ?? envInjector2$$"
       ></ng-container>
     } @else {
       <ng-container
@@ -20,7 +20,7 @@
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletEnvInjector]="envInjector"
+        [ngComponentOutletEnvInjector]="envInjector ?? envInjector2$$"
       ></ng-container>
     }
   }

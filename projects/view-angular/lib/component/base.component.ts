@@ -29,7 +29,6 @@ import {
   PI_COMPONENT_INDEX,
   PI_COMPONENT_LIST,
   PI_COMPONENT_LIST_LISTEN,
-  PI_INPUT_OPTIONS_TOKEN,
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
 import {
