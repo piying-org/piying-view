@@ -82,7 +82,7 @@ export function asyncInputMerge(
   const signalKeyList = Object.keys(signalObj);
 
   if (signalKeyList.length) {
-    return linkedSignal(
+    const newData = linkedSignal(
       computed(() => ({
         ...data$(),
         ...signalKeyList.reduce(
@@ -91,6 +91,14 @@ export function asyncInputMerge(
         ),
       })),
     );
+    newData.set = (value) => {
+      data$.set(value);
+    };
+    newData.update = (fn: any) => {
+      let result = fn(newData());
+      data$.set(result);
+    };
+    return newData;
   }
   return data$;
 }

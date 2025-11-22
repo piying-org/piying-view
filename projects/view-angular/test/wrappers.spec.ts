@@ -1,9 +1,11 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import {
+  NFCSchema,
+  patchAsyncInputs,
   patchAsyncWrapper,
   setInputs,
   setOutputs,
@@ -13,6 +15,8 @@ import { createSchemaComponent } from './util/create-component';
 import { setComponent, setWrappers } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { Wrapper2Component } from './wrapper2/component';
+import { WrapperChange } from './wrapper-change/component';
+import { ChangeInputWrapper } from './wrapper-change/change-input/component';
 
 describe('带异步wrappers', () => {
   it('存在', async () => {
@@ -357,5 +361,35 @@ describe('带异步wrappers', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(input1Div.innerHTML).toEqual('div-display2');
+  });
+  it('wrapper change input', async () => {
+    let input2$ = signal('2');
+    const define = v.pipe(
+      NFCSchema,
+      setComponent(WrapperChange),
+      setWrappers([
+        {
+          type: ChangeInputWrapper,
+        },
+      ]),
+      patchAsyncInputs({
+        input2: () => {
+          return computed(() => input2$());
+        },
+      }),
+    );
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+      {},
+    );
+    expect(field$$()?.inputs()['input1']).toEqual('123');
+    expect(field$$()?.inputs()['input2']).toEqual('2');
+    input2$.set('22');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    expect(field$$()?.inputs()['input1']).toEqual('123');
+    expect(field$$()?.inputs()['input2']).toEqual('22');
   });
 });
