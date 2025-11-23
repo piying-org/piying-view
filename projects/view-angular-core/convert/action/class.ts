@@ -48,6 +48,7 @@ export function componentClass<T>(className: ClassValue, merge?: boolean) {
     };
   });
 }
+export const bottomClass = componentClass;
 export function patchAsyncClass<T>(
   fn: (field: _PiResolvedCommonViewFieldConfig) => AsyncResult,
 ) {
