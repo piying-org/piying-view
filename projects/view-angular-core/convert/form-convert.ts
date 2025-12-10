@@ -24,6 +24,7 @@ import {
   FindConfigFactory,
   FindConfigToken,
 } from '../builder-base/find-config';
+import { BaseMetadata } from 'valibot';
 export function convert<
   RESULT extends Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>,
 >(
@@ -78,6 +79,18 @@ export function convert<
     {
       ...options,
       handle: options?.handle ?? (CoreSchemaHandle as any),
+      defaultMetadataActionsGroup: Object.keys(
+        options.fieldGlobalConfig?.types ?? {},
+      ).reduce(
+        (obj, item) => {
+          let { actions } = options.fieldGlobalConfig!.types![item];
+          if (actions) {
+            obj[item] = actions;
+          }
+          return obj;
+        },
+        {} as Record<string, BaseMetadata<any>[]>,
+      ),
     },
   );
 }

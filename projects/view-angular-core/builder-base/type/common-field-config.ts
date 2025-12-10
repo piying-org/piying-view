@@ -4,8 +4,13 @@ import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
-import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
+import {
+  AnyCoreSchemaHandle,
+  CoreSchemaHandle,
+  setComponent,
+} from '../../convert';
 import { KeyPath, SetWrapper$, Wrapper$, LazyImport } from '../../util';
+import { BaseMetadata, BaseTransformation, BaseValidation } from 'valibot';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
@@ -103,7 +108,10 @@ export type PiCommonDefaultConfig = Partial<
     | 'outputs'
     | 'wrappers'
     | 'attributes'
-  > & { type: any }
+  > & {
+    type: any;
+    actions?: BaseMetadata<any>[];
+  }
 >;
 
 export interface FormBuilderOptions<T> {

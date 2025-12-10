@@ -1,3 +1,4 @@
+import { BaseMetadata, BaseTransformation, BaseValidation } from 'valibot';
 import { LazyImport } from '../../util';
 import {
   ConfigMergeStrategy,
@@ -13,8 +14,12 @@ export interface PiCommonConfig {
     string,
     Omit<CoreWrapperConfig1, 'type'> & {
       type: any | LazyImport<any>;
+      actions?: BaseMetadata<any>[];
     }
   >;
 }
 
-export type DefaultConfigKey = Exclude<keyof PiCommonDefaultConfig, 'type'>;
+export type DefaultConfigKey = Exclude<
+  keyof PiCommonDefaultConfig,
+  'type' | 'actions'
+>;
