@@ -437,4 +437,17 @@ describe('action', () => {
     expect(list.length).toEqual(1);
     expect(list[0].form.control).toBeFalsy();
   });
+  it('defaultAction', async () => {
+    const obj = v.pipe(v.string(), setComponent('test1'));
+    const field = createBuilder(obj, {
+      types: {
+        test1: {
+          type: Symbol(),
+          actions: [v.title('testTitle')],
+        },
+      },
+    });
+    expect(field).toBeTruthy();
+    expect(field.props()['title']).toEqual('testTitle');
+  });
 });
