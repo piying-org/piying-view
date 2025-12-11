@@ -8,7 +8,10 @@ export function setComponent<T>(type: any) {
     ? metadataList<T>([
         defineName<T>(type),
         rawConfig<T>((field) => {
-          field.type = type;
+          // 需要保留,因为type还未完全废弃
+          if (typeof field.type === 'string') {
+            field.type = type;
+          }
         }),
       ])
     : rawConfig<T>((field) => {
