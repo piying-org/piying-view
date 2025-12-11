@@ -30,7 +30,7 @@ export type PiDefaultRawViewFieldConfig = Pick<
   | 'attributes'
 >;
 export type NgRawComponentDefine = Omit<CoreRawComponentDefine, 'type'> & {
-  type:
+  type?:
     | string
     | Type<any>
     | LazyImport<Type<any>>
