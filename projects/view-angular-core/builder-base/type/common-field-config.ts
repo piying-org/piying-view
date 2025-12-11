@@ -113,7 +113,6 @@ export type PiCommonDefaultConfig = {
   wrappers?: CoreSchemaHandle<any, any>['wrappers'];
   /** @deprecated 使用actions代替*/
   attributes?: CoreSchemaHandle<any, any>['attributes'];
-} & {
   type: any;
   actions?: BaseMetadata<any>[];
 };
