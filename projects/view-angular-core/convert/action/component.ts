@@ -4,12 +4,16 @@ import { FindConfigToken } from '../../builder-base/find-config';
 import { rawConfig } from './raw-config';
 
 export function setComponent<T>(type: any) {
-  return metadataList<T>([
-    defineName<T>(type),
-    rawConfig<T>((field) => {
-      field.type = type;
-    }),
-  ]);
+  return typeof type === 'string'
+    ? metadataList<T>([
+        defineName<T>(type),
+        rawConfig<T>((field) => {
+          field.type = type;
+        }),
+      ])
+    : rawConfig<T>((field) => {
+        field.type = type;
+      });
 }
 export function findComponent<T>(
   field: _PiResolvedCommonViewFieldConfig,

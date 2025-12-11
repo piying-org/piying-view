@@ -450,4 +450,16 @@ describe('action', () => {
     expect(field).toBeTruthy();
     expect(field.props()['title']).toEqual('testTitle');
   });
+  it('defaultAction-componenttype', async () => {
+    const obj = v.pipe(v.string(), setComponent('test1'));
+    const field = createBuilder(obj, {
+      types: {
+        test1: {
+          actions: [setComponent(Symbol()), v.title('testTitle')],
+        },
+      },
+    });
+    expect(field).toBeTruthy();
+    expect(field.props()['title']).toEqual('testTitle');
+  });
 });
