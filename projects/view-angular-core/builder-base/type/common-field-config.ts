@@ -16,10 +16,15 @@ export interface FieldRenderConfig {
 }
 /** 全局定义使用 */
 export type CoreRawComponentDefine = {
+  /** @deprecated 使用actions */
   type: any;
+  /** @deprecated 使用actions */
   attributes?: Record<string, any>;
+  /** @deprecated 使用actions */
   inputs?: CoreRawViewInputs;
+  /** @deprecated 使用actions */
   outputs?: CoreRawViewOutputs;
+  actions?: BaseMetadata<any>[];
 };
 /** 解析后define使用 */
 export type CoreResolvedComponentDefine = SetWrapper$<
