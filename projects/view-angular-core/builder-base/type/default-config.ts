@@ -7,8 +7,8 @@ import {
 } from './common-field-config';
 export interface PiCommonConfig {
   types?: Record<string, PiCommonDefaultConfig>;
-
-  defaultConfig?: PiCommonDefaultConfig;
+  /** @deprecated 使用defaultConfig中的actions代替 */
+  defaultConfig?: Omit<PiCommonDefaultConfig, 'type'>;
   /** @deprecated 使用defaultConfig中的actions代替 */
   defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
   wrappers?: Record<
