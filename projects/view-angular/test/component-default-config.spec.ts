@@ -2,7 +2,11 @@ import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import { Test1Component } from './test1/test1.component';
 import * as v from 'valibot';
-import { setComponent, formConfig } from '@piying/view-angular-core';
+import {
+  setComponent,
+  formConfig,
+  patchProps,
+} from '@piying/view-angular-core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { getField } from './util/action';
 describe('组件默认配置', () => {
@@ -102,6 +106,32 @@ describe('组件默认配置', () => {
             props: {
               value: 1,
             },
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const field = await fields$.promise;
+    expect(field.props()).toEqual({ value: 1 });
+  });
+  it('actions', async () => {
+    const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const define = v.pipe(v.string(), setComponent('test2'), getField(fields$));
+
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal({ v1: 'd1' }),
+
+      {
+        types: {
+          test2: {
+            actions: [
+              setComponent(Test1Component),
+              patchProps({
+                value: 1,
+              }),
+            ],
           },
         },
       },
