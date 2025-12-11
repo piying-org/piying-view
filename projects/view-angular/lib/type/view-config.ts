@@ -12,7 +12,9 @@ import {
 } from '@piying/view-angular-core';
 // 全局配置相关
 export type PiComponentDefaultConfig = NgRawComponentDefine & {
+  /** @deprecated */
   directives?: NgDirectiveConfig[];
+  /** @deprecated */
   wrappers?: CoreRawWrapperConfig[];
 };
 
@@ -23,7 +25,9 @@ export type ConfigMergeStrategyObject = Record<
 export interface PiViewConfig {
   types?: Record<
     string,
-    PiComponentDefaultConfig & { props?: Record<string, any> }
+    PiComponentDefaultConfig & {
+      /** @deprecated 使用actions */ props?: Record<string, any>;
+    }
   >;
   wrappers?: Record<
     string,

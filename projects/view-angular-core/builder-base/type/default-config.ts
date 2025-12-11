@@ -9,6 +9,7 @@ export interface PiCommonConfig {
   types?: Record<string, PiCommonDefaultConfig>;
 
   defaultConfig?: PiCommonDefaultConfig;
+  /** @deprecated 使用defaultConfig中的actions代替 */
   defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
   wrappers?: Record<
     string,

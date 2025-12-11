@@ -98,21 +98,25 @@ export type _PiResolvedCommonViewFieldConfig = PiResolvedCommonViewFieldConfig<
 
 export type ConfigMergeStrategy = 'merge' | 'replace';
 
-export type PiCommonDefaultConfig = Partial<
-  Pick<
-    CoreSchemaHandle<any, any>,
-    | 'formConfig'
-    | 'props'
-    | 'renderConfig'
-    | 'inputs'
-    | 'outputs'
-    | 'wrappers'
-    | 'attributes'
-  > & {
-    type: any;
-    actions?: BaseMetadata<any>[];
-  }
->;
+export type PiCommonDefaultConfig = {
+  /** @deprecated 使用actions代替 */
+  formConfig?: CoreSchemaHandle<any, any>['formConfig'];
+  /** @deprecated 使用actions代替 */
+  props?: CoreSchemaHandle<any, any>['props'];
+  /** @deprecated 使用actions代替 */
+  renderConfig?: CoreSchemaHandle<any, any>['renderConfig'];
+  /** @deprecated 使用actions代替 */
+  inputs?: CoreSchemaHandle<any, any>['inputs'];
+  /** @deprecated 使用actions代替 */
+  outputs?: CoreSchemaHandle<any, any>['outputs'];
+  /** @deprecated 使用actions代替 */
+  wrappers?: CoreSchemaHandle<any, any>['wrappers'];
+  /** @deprecated 使用actions代替*/
+  attributes?: CoreSchemaHandle<any, any>['attributes'];
+} & {
+  type: any;
+  actions?: BaseMetadata<any>[];
+};
 
 export interface FormBuilderOptions<T> {
   form$$: Signal<FieldGroup>;
