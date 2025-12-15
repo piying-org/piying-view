@@ -11,3 +11,4 @@ export * from './create-view-control-link';
 export * from './control-status-to-class';
 export * from './init-listen';
 export * from './get-error';
+export * from './create-observable-signal';
