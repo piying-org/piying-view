@@ -21,6 +21,8 @@ export type CoreRawComponentDefine = {
   /** @deprecated 使用actions */
   attributes?: Record<string, any>;
   /** @deprecated 使用actions */
+  events?: Record<string, any>;
+  /** @deprecated 使用actions */
   inputs?: CoreRawViewInputs;
   /** @deprecated 使用actions */
   outputs?: CoreRawViewOutputs;
@@ -29,7 +31,7 @@ export type CoreRawComponentDefine = {
 /** 解析后define使用 */
 export type CoreResolvedComponentDefine = SetWrapper$<
   CoreRawComponentDefine,
-  'attributes' | 'inputs' | 'outputs'
+  'attributes' | 'inputs' | 'outputs' | 'events'
 >;
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
@@ -91,7 +93,12 @@ export type PiResolvedCommonViewFieldConfig<
       Required<
         Pick<
           AnyCoreSchemaHandle,
-          'inputs' | 'outputs' | 'attributes' | 'formConfig' | 'renderConfig'
+          | 'inputs'
+          | 'outputs'
+          | 'attributes'
+          | 'formConfig'
+          | 'renderConfig'
+          | 'events'
         >
       >
     >
@@ -141,6 +148,7 @@ export type CoreWrapperConfig1 = {
   attributes?: CoreRawViewAttributes;
   inputs?: CoreRawViewInputs;
   outputs?: CoreRawViewOutputs;
+  events?: Record<string, (event: any) => any>;
 };
 export type CoreRawWrapperConfig = string | CoreWrapperConfig1;
 export type CoreResolvedWrapperConfig = {

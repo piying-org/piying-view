@@ -40,6 +40,7 @@ import {
 } from '@piying/view-angular-core';
 import { AttributesDirective } from '../directives/attributes.directive';
 import { isComponentType } from '../util/async-cache';
+import { EventsDirective } from '../directives/events.directive';
 function createInputsBind(inputs?: Signal<CoreRawViewInputs | undefined>) {
   if (!inputs || !inputs()) {
     return [];
@@ -70,6 +71,19 @@ function createAttributesDirective(
       {
         type: AttributesDirective,
         bindings: [inputBinding('attributes', attributes)],
+      },
+    ];
+  }
+  return [];
+}
+function createEventsDirective(
+  events: Signal<CoreRawViewAttributes | undefined>,
+) {
+  if (events()) {
+    return [
+      {
+        type: EventsDirective,
+        bindings: [inputBinding('events', events)],
       },
     ];
   }
@@ -107,7 +121,6 @@ export class BaseComponent {
    */
   #inputCache!: {
     inputs?: Signal<Record<string, any>>;
-    attributes?: Signal<Record<string, any>>;
     directiveList?: (Signal<Record<string, any>> | undefined)[];
   };
   #configUpdate$ = signal(0);
@@ -155,10 +168,7 @@ export class BaseComponent {
           this.#configUpdate$();
           return this.#componentConfig!.inputs!() ?? EmptyOBJ;
         }),
-        attributes: computed(() => {
-          this.#configUpdate$();
-          return this.#componentConfig!.attributes!() ?? EmptyOBJ;
-        }),
+
         directiveList: this.#componentConfig?.directives?.map(
           (config, index) =>
             config.inputs
@@ -205,7 +215,10 @@ export class BaseComponent {
           })),
           ...(COMPONENT_VERSION === 2
             ? []
-            : createAttributesDirective(componentConfig.attributes)),
+            : [
+                ...createAttributesDirective(componentConfig.attributes),
+                ...createEventsDirective(componentConfig.events),
+              ]),
         ],
       });
       this.fieldComponentInstance = componentRef.instance;
@@ -219,6 +232,7 @@ export class BaseComponent {
         ).templateRef();
         viewContainerRef.createEmbeddedView(templateRef, {
           attributes: componentConfig.attributes,
+          events: componentConfig.events,
         });
         this.#app.attachView(componentRef.hostView);
         componentRef.changeDetectorRef.detectChanges();

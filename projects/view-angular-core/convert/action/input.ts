@@ -111,7 +111,9 @@ export type AsyncProperty = (
   field: _PiResolvedCommonViewFieldConfig,
 ) => AsyncResult;
 
-export function patchAsyncFn(patchKey: 'props' | 'inputs' | 'attributes') {
+export function patchAsyncFn(
+  patchKey: 'props' | 'inputs' | 'attributes' | 'events',
+) {
   return <T>(
     dataObj: Record<string, AsyncProperty>,
     options?: {

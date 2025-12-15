@@ -176,10 +176,9 @@ export function createViewControlLink(
   }
   return (destroy?: boolean) => {
     disposeList.forEach((fn) => fn());
-    if (!destroy) {
-      untracked(() => {
-        fieldControl().updateValue(fieldControl().value$$(), true);
-      });
-    }
+    // todo 需要优化
+    untracked(() => {
+      fieldControl().updateValue(fieldControl().value$$(), true);
+    });
   };
 }

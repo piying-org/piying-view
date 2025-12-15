@@ -76,6 +76,20 @@ export function patchAsyncWrapper<T>(
               attributes$,
             );
           }
+          let events$ = signal({});
+
+          if (inputWrapper.events && Object.keys(inputWrapper.events).length) {
+            events$ = asyncInputMerge(
+              Object.entries(inputWrapper.events).reduce(
+                (obj, [key, value]) => {
+                  obj[key] = value(field);
+                  return obj;
+                },
+                {} as Record<string, any>,
+              ),
+              events$,
+            );
+          }
           const oldOutputs = inputWrapper.outputs;
           const outputs: Record<string, (...args: any) => any> = {};
           if (oldOutputs && Object.keys(oldOutputs).length) {
@@ -90,6 +104,7 @@ export function patchAsyncWrapper<T>(
             inputs: inputs$,
             outputs,
             attributes: attributes$,
+            events: events$,
           };
           field.wrappers.update((wrappers) =>
             options.position === 'tail'

@@ -22,6 +22,7 @@ export interface DynamicComponentConfig {
     | LazyMarkType<Type<any>>
     | LazyMarkType<NgComponentDefine>;
   attributes: Signal<CoreRawViewAttributes | undefined>;
+  events: Signal<Record<string, (event: any) => any> | undefined>;
   inputs: Signal<CoreRawViewInputs | undefined>;
   directives?: DirectiveConfig[];
   outputs?: CoreRawViewOutputs;

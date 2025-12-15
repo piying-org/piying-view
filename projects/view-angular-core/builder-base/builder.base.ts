@@ -57,13 +57,15 @@ function defineSync(field: _PiResolvedCommonViewFieldConfig) {
     define &&
     (field.inputs !== define.inputs ||
       field.outputs !== define.outputs ||
-      field.attributes !== define.attributes)
+      field.attributes !== define.attributes ||
+      field.events !== define.events)
   ) {
     (field.define as any) = signal({
       ...define,
       inputs: field.inputs,
       outputs: field.outputs,
       attributes: field.attributes,
+      events: field.events,
     });
   }
 }
@@ -172,6 +174,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       false,
       mergeStrategy?.attributes ?? DCONFIG_EFAULT_MERGE_STRAGEGY.attributes,
     );
+    const events = signal(field.events);
     const wrappers1 = this.configMergeRaw(
       [
         this.#globalConfig?.defaultConfig?.wrappers,
@@ -267,9 +270,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       alias: field.alias,
       inputs: inputs,
       outputs: outputs,
+      events: events,
       attributes,
       define: define
-        ? signal({ ...define, inputs, outputs, attributes })
+        ? signal({ ...define, inputs, outputs, attributes, events })
         : undefined,
       wrappers,
       injector: this.#envInjector,
@@ -606,6 +610,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         inputs: signal(config.inputs),
         outputs: config.outputs,
         attributes: signal(config.attributes),
+        events: signal(config.events),
         type: config.type,
       };
     });

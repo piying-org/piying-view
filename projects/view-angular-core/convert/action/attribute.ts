@@ -28,3 +28,5 @@ export function removeAttributes<T>(list: string[]) {
   });
 }
 export const patchAsyncAttributes = patchAsyncFn('attributes');
+
+export const patchAsyncEvents = patchAsyncFn('events');
