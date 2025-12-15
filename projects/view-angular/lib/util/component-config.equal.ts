@@ -10,8 +10,11 @@ export function getComponentCheckConfig(a: DynamicComponentConfig) {
           inputs: `${config.inputs ? Object.keys(config.inputs()).join(',') : ''}`,
         }))
       : undefined,
-    attributes: '',
-    events: '',
+    // todo 这里是为了schema被替换时,进行比较,感觉应该有更好的方法
+    attributes: Object.entries(a.attributes() ?? {})
+      .map((key, value) => `${key}:${value}`)
+      .join(','),
+    events: Object.keys(a.events() ?? {}).join(','),
   };
 }
 
