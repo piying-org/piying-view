@@ -1,39 +1,79 @@
-import { CreateSignalOptions, Signal, signal } from '@angular/core';
+import {
+  CreateSignalOptions,
+  DestroyRef,
+  inject,
+  Injector,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import {
   BehaviorSubject,
+  noop,
   Observable,
   OperatorFunction,
+  pipe,
   shareReplay,
+  tap,
 } from 'rxjs';
-type ObservableSignal<T> = Signal<T> & {
-  asObservable: () => Observable<T>;
-  pipe: Observable<T>['pipe'];
-  subscribe: Observable<T>['subscribe'];
+type ObservableSignal<Input, Output> = WritableSignal<Input> & {
+  input: Signal<Input>;
+  output: Signal<Output>;
+  loading: Signal<boolean>;
+  input$$: Observable<Input>;
+  subject: BehaviorSubject<Input>;
+  output$$: Observable<Output>;
 };
-export function observableSignal<T, R>(
-  initialValue: T,
-  options?: CreateSignalOptions<T> & { pipe: OperatorFunction<T, R> },
-): ObservableSignal<T> {
-  const value$ = signal(initialValue, options);
-  const value2$ = new BehaviorSubject(initialValue);
-  const a = value2$.pipe(shareReplay());
-  const oldSet = value$.set;
-  a.subscribe((value) => {
-    oldSet(value);
+const DefaultOptions = { autoDestroy: true };
+export function observableSignal<Input, Output>(
+  initialValue: Input,
+  options?: CreateSignalOptions<Input> & {
+    pipe?: OperatorFunction<Input, Output>;
+    injector?: Injector;
+    autoDestroy?: boolean;
+  },
+) {
+  options = { ...DefaultOptions, ...options };
+  const inputS$ = signal(initialValue, options);
+  let outputS$ = signal<any>(undefined);
+  let loading$ = signal(false);
+  const inputR$ = new BehaviorSubject<any>(undefined);
+  inputR$.next(inputS$());
+  let data: Observable<Output> = inputR$.pipe(
+    tap(() => {
+      loading$.set(true);
+    }),
+    options?.pipe ? options.pipe : (pipe() as any),
+    shareReplay(),
+  );
+  data.subscribe((value) => {
+    outputS$.set(value);
+    loading$.set(false);
   });
-  value$.set = (value: T) => {
-    value2$.next(value);
+  let oldSet = inputS$.set;
+  let changed$ = inputS$ as any as ObservableSignal<Input, Output>;
+  changed$.set = (value: Input) => {
+    inputR$.next(value);
+    return oldSet(value);
   };
+  changed$.update = (fn: (value: Input) => Input) => {
+    const newValue = fn(inputS$());
+    inputR$.next(newValue);
+    return oldSet(newValue);
+  };
+  changed$.output = outputS$;
+  changed$.input = inputS$;
+  changed$.input$$ = inputR$.asObservable();
+  changed$.output$$ = data;
+  changed$.subject = inputR$;
+  if (options?.injector || options.autoDestroy) {
+    const injector = options?.injector ?? inject(Injector, { optional: true });
+    if (injector) {
+      injector.get(DestroyRef).onDestroy(() => {
+        inputR$.complete();
+      });
+    }
+  }
 
-  value$.update = (fn: (value: T) => T) => {
-    const result = fn(value$());
-    value2$.next(result);
-  };
-  (value$ as any as ObservableSignal<T>).asObservable = () =>
-    value2$.asObservable();
-  (value$ as any as ObservableSignal<T>).pipe = ((...args: any[]) =>
-    (value2$.pipe as any)(...args)) as any;
-  (value$ as any as ObservableSignal<T>).subscribe = ((...args: any[]) =>
-    (value2$.subscribe as any)(...args)) as any;
-  return value$ as any;
+  return changed$;
 }
