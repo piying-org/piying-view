@@ -20,6 +20,7 @@ export function FindConfigFactory() {
             inputs: { ...defaultConfig.inputs, ...wrapper.inputs },
             attributes: { ...defaultConfig.attributes, ...wrapper.attributes },
             outputs: { ...defaultConfig.outputs, ...wrapper.outputs },
+            events: wrapper.events,
           };
         }
         type = wrapper.type;

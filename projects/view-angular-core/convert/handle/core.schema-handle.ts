@@ -43,6 +43,7 @@ export class CoreSchemaHandle<
   outputs?: CoreRawViewOutputs;
   wrappers?: CoreRawWrapperConfig[];
   attributes?: Record<string, any>;
+  events?: Record<string, (event: any) => any>;
   alias?: string;
   movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;
