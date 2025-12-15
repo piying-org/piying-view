@@ -13,7 +13,7 @@ import {
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
 import { DynamicComponentConfig } from '../type/component';
-
+/** @deprecated use InsertFieldDirective for ng-container*/
 @Directive()
 export class PiyingViewWrapperBase extends BaseComponent {
   fieldComponentAnchor = viewChild('fieldComponent', {
@@ -27,6 +27,10 @@ export class PiyingViewWrapperBase extends BaseComponent {
     list?: DynamicComponentConfig[],
     viewContainerRef?: ViewContainerRef,
   ) {
+    let anchor = viewContainerRef ?? this.fieldComponentAnchor()!;
+    if (!anchor) {
+      return;
+    }
     const result = super.createComponent(
       list ?? this.#list,
       viewContainerRef ?? this.fieldComponentAnchor()!,
