@@ -278,16 +278,12 @@ describe('配置切换时', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const field = await field$.promise;
-    field.wrappers.update((list) => {
-      list = list.slice();
-      untracked(() => {
-        list[0].inputs.update((inputs: any) => ({
-          ...inputs,
-          wInput1: 'wvalue2',
-        }));
+
+    field.wrappers
+      .items()[0]()
+      .inputs.update((inputs) => {
+        return { ...inputs, wInput1: 'wvalue2' };
       });
-      return list;
-    });
     await fixture.whenStable();
     fixture.detectChanges();
     expect(firstDestroy).toBe(false);

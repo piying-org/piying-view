@@ -11,6 +11,7 @@ import {
 } from '../../convert';
 import { KeyPath, SetWrapper$, Wrapper$, LazyImport } from '../../util';
 import { BaseMetadata, BaseTransformation, BaseValidation } from 'valibot';
+import { CombineSignal } from '../../util/create-combine-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
@@ -86,7 +87,7 @@ export type PiResolvedCommonViewFieldConfig<
   };
   readonly define?: WritableSignal<Define>;
 
-  wrappers: WritableSignal<CoreResolvedWrapperConfig[]>;
+  wrappers: CombineSignal<CoreResolvedWrapperConfig>;
 } & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias'>> &
   Readonly<
     Wrapper$<

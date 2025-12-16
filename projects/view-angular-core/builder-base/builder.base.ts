@@ -50,6 +50,7 @@ import {
 } from '../util';
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
+import { combineSignal } from '../util/create-combine-signal';
 // todo 临时同步
 function defineSync(field: _PiResolvedCommonViewFieldConfig) {
   const define = field.define?.();
@@ -601,19 +602,17 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     parent.fixedChildren!().push(inputField);
   }
   #findConfig = inject(FindConfigToken);
-  #resolveWrappers(
-    wrappers?: CoreRawWrapperConfig[],
-  ): WritableSignal<CoreResolvedWrapperConfig[]> {
+  #resolveWrappers(wrappers?: CoreRawWrapperConfig[]) {
     const result = (wrappers ?? []).map((wrapper) => {
       const config = this.#findConfig.findWrapper(wrapper);
-      return {
+      return signal({
         inputs: signal(config.inputs),
         outputs: config.outputs,
         attributes: signal(config.attributes),
         events: signal(config.events),
         type: config.type,
-      };
+      });
     });
-    return signal(result);
+    return combineSignal(result);
   }
 }

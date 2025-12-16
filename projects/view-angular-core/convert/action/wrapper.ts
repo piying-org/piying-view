@@ -103,13 +103,13 @@ export function patchAsyncWrapper<T>(
             }
           }
           const defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
-          const newWrapper = {
+          const newWrapper = signal({
             ...defaultWrapperConfig,
             inputs: inputs$,
             outputs,
             attributes: attributes$,
             events: events$,
-          };
+          });
           field.wrappers.update((wrappers) =>
             options.position === 'tail'
               ? [...wrappers, newWrapper]
@@ -160,14 +160,10 @@ export function patchAsyncWrapper2<T>(
           /** 顶级的 */
           let initData = signal<CoreResolvedWrapperConfig>({} as any);
           // todo 改为全信号?
-          field.wrappers.update((list) => {
-            list = list.slice();
-            list.push(initData());
-            return list;
-          });
+          field.wrappers.add(initData);
           let updateFn = (fn: (value: any) => any) => {
             let result = fn(initData);
-            // todo 
+            // todo
             // field.wrappers.update((list) => {
             //   list = list.indexOf(initData())
             //   list.push(initData());

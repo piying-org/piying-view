@@ -6,10 +6,14 @@ import {
 } from '@angular/core';
 
 import { computed } from '@angular/core';
-type CombineSignal<Input> = Signal<Input[]> & {
-  add: (item: WritableSignal<Input>) => void;
+export type CombineSignal<Input> = Signal<Input[]> & {
+  add: (item: WritableSignal<Input>, index?: number) => void;
   remove: (item: WritableSignal<Input>) => void;
   items: () => WritableSignal<Input>[];
+  clean: () => void;
+  update: (
+    fn: (list: WritableSignal<Input>[]) => WritableSignal<Input>[],
+  ) => void;
 };
 export function combineSignal<Input>(
   initialValue: WritableSignal<Input>[] = [],
@@ -20,8 +24,13 @@ export function combineSignal<Input>(
     return list$().map((item) => item());
   }, options);
   let changed$ = input$$ as any as CombineSignal<Input>;
-  changed$.add = (item) => {
+  changed$.add = (item, index) => {
     list$.update((list) => {
+      if (typeof index === 'number') {
+        list = list.slice();
+        list.splice(index, 0, item);
+        return list;
+      }
       return [...list, item];
     });
     list$.set([item]);
@@ -38,5 +47,10 @@ export function combineSignal<Input>(
     });
   };
   changed$.items = () => list$();
+  changed$.clean = () => list$.set([]);
+  changed$.update = (fn) => {
+    let list = fn(list$());
+    list$.set(list);
+  };
   return changed$;
 }
