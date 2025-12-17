@@ -87,17 +87,15 @@ export const patchAsyncInputsCommon = (
   dataObj: Record<string, AsyncProperty>,
 ): CommonComponentAction => {
   let key = 'inputs';
-  return (data, resolvedField$) => {
-    let needInit = !!data[key];
-    data[key] ??= signal({});
-    let content$: WritableSignal<any> = data[key];
+  return (data$, resolvedField) => {
+    let content$: WritableSignal<any> = data$()[key];
     const inputList = Object.keys(dataObj);
     // 设置初始值
-    content$.update((data) => {
+    content$.update((content) => {
       return {
-        ...content$,
+        ...content,
         ...inputList.reduce((obj, item) => {
-          obj[item] = data[item] ?? undefined;
+          obj[item] = content[item] ?? undefined;
           return obj;
         }, {} as any),
       };
@@ -106,16 +104,16 @@ export const patchAsyncInputsCommon = (
     const result = asyncInputMerge(
       Object.entries(dataObj).reduce(
         (obj, [key, value]) => {
-          obj[key] = value(resolvedField$);
+          obj[key] = value(resolvedField);
           return obj;
         },
         {} as Record<string, any>,
       ),
       content$,
     );
-    if (result !== content$ || needInit) {
-      content$.update((obj) => {
-        return { ...obj, [key]: result };
+    if (result !== content$) {
+      data$.update((data) => {
+        return { ...data, [key]: result };
       });
     }
   };

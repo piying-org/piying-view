@@ -18,22 +18,20 @@ import { Test1Component } from './test1/test1.component';
 
 fdescribe('wrappers-actions', () => {
   it('存在', async () => {
-    const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent('test1'),
-        patchAsyncWrapper2('test1', [
-          patchAsyncInputsCommon({
-            wInput1: (field) => {
-              return signal('input1');
-            },
-          }),
-        ]),
-      ),
-    });
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      patchAsyncWrapper2('wrapper1', [
+        patchAsyncInputsCommon({
+          wInput1: (field) => {
+            return signal('input1');
+          },
+        }),
+      ]),
+    );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal({ key1: 'value1' }),
+      signal(''),
 
       {
         types: {
@@ -51,9 +49,10 @@ fdescribe('wrappers-actions', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element).toBeTruthy();
-    const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;
+    const input1Div = element.querySelector(
+      '.wrapper1-div-label',
+    ) as HTMLElement;
     expect(input1Div).toBeTruthy();
-    // todo
-    expect(input1Div.innerHTML).toEqual('div-display');
+    expect(input1Div.innerHTML.trim()).toEqual('input1');
   });
 });

@@ -4,11 +4,12 @@ import {
   CoreRawWrapperConfig,
   CoreResolvedWrapperConfig,
 } from '../../builder-base';
-import { toArray } from '../../util';
+import { observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
 import { signal, WritableSignal } from '@angular/core';
 import { asyncInputMerge, AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
+import { map, pipe } from 'rxjs';
 
 export function setWrappers<T>(wrappers: CoreRawWrapperConfig[]) {
   return rawConfig<T>((field) => {
@@ -143,7 +144,7 @@ export function removeWrappers<T>(list: string[]) {
   });
 }
 export type CommonComponentAction = (
-  data: Record<string, WritableSignal<any>>,
+  data: WritableSignal<Record<string, WritableSignal<any>>>,
   resolvedField$: _PiResolvedCommonViewFieldConfig,
 ) => void;
 export function patchAsyncWrapper2<T>(
@@ -154,13 +155,30 @@ export function patchAsyncWrapper2<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          // todo type如果是string,那么就需要转换
-          /** 顶级的 */
-          let initData = signal<CoreResolvedWrapperConfig>({
-            type,
-            attributes: signal(undefined),
-            events: signal(undefined),
-          } as CoreResolvedWrapperConfig);
+          const findConfig = field.injector.get(FindConfigToken);
+          let initData = observableSignal<
+            CoreResolvedWrapperConfig,
+            CoreResolvedWrapperConfig
+          >(
+            {
+              type,
+              attributes: signal(undefined),
+              events: signal(undefined),
+              inputs: signal({}),
+              outputs: {},
+            } as CoreResolvedWrapperConfig,
+            {
+              pipe: pipe(
+                map((item) => {
+                  const defaultWrapperConfig = findConfig.findWrapperComponent(
+                    item.type,
+                  );
+                  return { ...item, type: defaultWrapperConfig };
+                }),
+              ),
+              injector: field.injector,
+            },
+          );
           field.wrappers.add(initData);
           for (const item of actions) {
             item(initData as any, field);

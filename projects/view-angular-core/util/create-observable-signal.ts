@@ -46,20 +46,21 @@ export function observableSignal<Input, Output>(
     options?.pipe ? options.pipe : (pipe() as any),
     shareReplay(),
   );
+  let oldOutputSet = outputS$.set;
+
   data.subscribe((value) => {
-    outputS$.set(value);
+    oldOutputSet(value);
     loading$.set(false);
   });
   let oldSet = inputS$.set;
-  let changed$ = inputS$ as any as ObservableSignal<Input, Output>;
+  let changed$ = outputS$ as any as ObservableSignal<Input, Output>;
   changed$.set = (value: Input) => {
     inputR$.next(value);
     return oldSet(value);
   };
   changed$.update = (fn: (value: Input) => Input) => {
     const newValue = fn(inputS$());
-    inputR$.next(newValue);
-    return oldSet(newValue);
+    return changed$.set(newValue);
   };
   changed$.output = outputS$;
   changed$.input = inputS$;
