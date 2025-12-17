@@ -1,19 +1,12 @@
-import { Signal, signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
-import { PiResolvedViewFieldConfig } from '../lib/type';
 import * as v from 'valibot';
-import { getField } from './util/action';
 import {
   patchAsyncInputsCommon,
   patchAsyncWrapper2,
   setComponent,
-  setWrappers,
-  topClass,
 } from '@piying/view-angular-core';
-import { setOutputs } from '@piying/view-angular-core';
-import { keyEqual } from '@piying/view-angular-core/test';
 import { Wrapper3Component } from './wrapper3/component';
-import { Wrapper4Component } from './wrapper4/component';
 import { Test1Component } from './test1/test1.component';
 
 describe('wrappers-actions', () => {
@@ -23,9 +16,7 @@ describe('wrappers-actions', () => {
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [
         patchAsyncInputsCommon({
-          wInput1: (field) => {
-            return signal('input1');
-          },
+          wInput1: (field) => signal('input1'),
         }),
       ]),
     );

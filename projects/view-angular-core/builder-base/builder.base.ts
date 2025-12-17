@@ -25,7 +25,6 @@ import {
   _PiResolvedCommonViewFieldConfig,
   ConfigMergeStrategy,
   CoreRawWrapperConfig,
-  CoreResolvedWrapperConfig,
   PiCommonDefaultConfig,
   PiResolvedCommonViewFieldConfig,
 } from './type/common-field-config';

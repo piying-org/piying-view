@@ -156,7 +156,7 @@ export function patchAsyncWrapper2<T>(
       {
         allFieldsResolved: (field) => {
           const findConfig = field.injector.get(FindConfigToken);
-          let initData = observableSignal<
+          const initData = observableSignal<
             CoreResolvedWrapperConfig,
             CoreResolvedWrapperConfig
           >(

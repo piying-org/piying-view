@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  output,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { EventsDirective } from '../../lib/directives/events.directive';
 
 @Component({

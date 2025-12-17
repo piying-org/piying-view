@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  output,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
 import { EventsDirective } from '../../lib/directives/events.directive';
 
 @Component({
@@ -12,7 +7,7 @@ import { EventsDirective } from '../../lib/directives/events.directive';
   standalone: true,
   providers: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports:[EventsDirective]
+  imports: [EventsDirective],
 })
 export class Event1Component {
   static __version = 2;

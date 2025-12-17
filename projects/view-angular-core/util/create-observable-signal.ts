@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import {
   BehaviorSubject,
-  noop,
   Observable,
   OperatorFunction,
   pipe,
@@ -36,25 +35,25 @@ export function observableSignal<Input, Output>(
 ) {
   options = { ...DefaultOptions, ...options };
   const inputS$ = signal(initialValue, options);
-  let outputS$ = signal<any>(undefined);
-  let loading$ = signal(false);
+  const outputS$ = signal<any>(undefined);
+  const loading$ = signal(false);
   const inputR$ = new BehaviorSubject<any>(undefined);
   inputR$.next(inputS$());
-  let data: Observable<Output> = inputR$.pipe(
+  const data: Observable<Output> = inputR$.pipe(
     tap(() => {
       loading$.set(true);
     }),
     options?.pipe ? options.pipe : (pipe() as any),
     shareReplay(),
   );
-  let oldOutputSet = outputS$.set;
+  const oldOutputSet = outputS$.set;
 
   data.subscribe((value) => {
     oldOutputSet(value);
     loading$.set(false);
   });
-  let oldSet = inputS$.set;
-  let changed$ = outputS$ as any as ObservableSignal<Input, Output>;
+  const oldSet = inputS$.set;
+  const changed$ = outputS$ as any as ObservableSignal<Input, Output>;
   changed$.set = (value: Input) => {
     inputR$.next(value);
     return oldSet(value);

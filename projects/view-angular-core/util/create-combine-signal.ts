@@ -19,11 +19,9 @@ export function combineSignal<Input>(
   initialValue: WritableSignal<Input>[] = [],
   options?: CreateSignalOptions<Input[]>,
 ) {
-  let list$ = signal<WritableSignal<Input>[]>(initialValue);
-  const input$$ = computed(() => {
-    return list$().map((item) => item());
-  }, options);
-  let changed$ = input$$ as any as CombineSignal<Input>;
+  const list$ = signal<WritableSignal<Input>[]>(initialValue);
+  const input$$ = computed(() => list$().map((item) => item()), options);
+  const changed$ = input$$ as any as CombineSignal<Input>;
   changed$.add = (item, index) => {
     list$.update((list) => {
       if (typeof index === 'number') {
@@ -37,7 +35,7 @@ export function combineSignal<Input>(
   };
   changed$.remove = (item) => {
     list$.update((list) => {
-      let index = list.indexOf(item);
+      const index = list.indexOf(item);
       if (index === -1) {
         return list;
       }
@@ -49,7 +47,7 @@ export function combineSignal<Input>(
   changed$.items = () => list$();
   changed$.clean = () => list$.set([]);
   changed$.update = (fn) => {
-    let list = fn(list$());
+    const list = fn(list$());
     list$.set(list);
   };
   return changed$;

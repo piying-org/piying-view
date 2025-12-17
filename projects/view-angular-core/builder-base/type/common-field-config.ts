@@ -4,13 +4,9 @@ import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
-import {
-  AnyCoreSchemaHandle,
-  CoreSchemaHandle,
-  setComponent,
-} from '../../convert';
+import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
 import { KeyPath, SetWrapper$, Wrapper$, LazyImport } from '../../util';
-import { BaseMetadata, BaseTransformation, BaseValidation } from 'valibot';
+import { BaseMetadata } from 'valibot';
 import { CombineSignal } from '../../util/create-combine-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;

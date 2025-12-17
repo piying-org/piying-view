@@ -2,19 +2,12 @@ import {
   computed,
   isSignal,
   linkedSignal,
-  signal,
   Signal,
   WritableSignal,
 } from '@angular/core';
-import { rawConfig } from './raw-config';
-import {
-  _PiResolvedCommonViewFieldConfig,
-  CoreRawViewInputs,
-} from '../../builder-base';
-import { mergeHooksFn } from './hook';
+import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { Observable } from 'rxjs';
 import { isPromise, isSubscribable } from '../util/is-promise';
-import { unWrapSignal, Writeable } from '../../util';
 import { CommonComponentAction } from './wrapper';
 
 function asyncInputMerge(
@@ -86,20 +79,18 @@ type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 export const patchAsyncInputsCommon = (
   dataObj: Record<string, AsyncProperty>,
 ): CommonComponentAction => {
-  let key = 'inputs';
+  const key = 'inputs';
   return (data$, resolvedField) => {
-    let content$: WritableSignal<any> = data$()[key];
+    const content$: WritableSignal<any> = data$()[key];
     const inputList = Object.keys(dataObj);
     // 设置初始值
-    content$.update((content) => {
-      return {
-        ...content,
-        ...inputList.reduce((obj, item) => {
-          obj[item] = content[item] ?? undefined;
-          return obj;
-        }, {} as any),
-      };
-    });
+    content$.update((content) => ({
+      ...content,
+      ...inputList.reduce((obj, item) => {
+        obj[item] = content[item] ?? undefined;
+        return obj;
+      }, {} as any),
+    }));
 
     const result = asyncInputMerge(
       Object.entries(dataObj).reduce(
@@ -112,9 +103,7 @@ export const patchAsyncInputsCommon = (
       content$,
     );
     if (result !== content$) {
-      data$.update((data) => {
-        return { ...data, [key]: result };
-      });
+      data$.update((data) => ({ ...data, [key]: result }));
     }
   };
 };

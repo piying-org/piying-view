@@ -83,7 +83,7 @@ export function convert<
         options.fieldGlobalConfig?.types ?? {},
       ).reduce(
         (obj, item) => {
-          let { actions } = options.fieldGlobalConfig!.types![item];
+          const { actions } = options.fieldGlobalConfig!.types![item];
           if (actions) {
             obj[item] = actions;
           }
