@@ -23,9 +23,7 @@ function asyncInputMerge(
       // promise
       result.then((value: any) => {
         data$.update((lastData) => {
-          lastData = { ...lastData };
-          lastData[key] = value;
-          return lastData;
+          return { ...lastData, [key]: value };
         });
       });
     } else if (isSubscribable(result)) {
@@ -33,9 +31,7 @@ function asyncInputMerge(
       result.subscribe({
         next: (value) => {
           data$.update((lastData) => {
-            lastData = { ...lastData };
-            lastData[key] = value;
-            return lastData;
+            return { ...lastData, [key]: value };
           });
         },
       });
@@ -44,9 +40,7 @@ function asyncInputMerge(
     } else {
       // 普通类型
       data$.update((lastData) => {
-        lastData = { ...lastData };
-        lastData[key] = result;
-        return lastData;
+        return { ...lastData, [key]: result };
       });
     }
   });
