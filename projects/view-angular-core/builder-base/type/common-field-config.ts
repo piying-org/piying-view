@@ -154,7 +154,8 @@ export type CoreWrapperConfig1 = {
 export type CoreRawWrapperConfig = string | CoreWrapperConfig1;
 export type CoreResolvedWrapperConfig = {
   type: any | LazyImport<any>;
-  attributes: WritableSignal<CoreRawViewAttributes | undefined>;
   inputs: WritableSignal<CoreRawViewInputs | undefined>;
   outputs?: CoreRawViewOutputs;
+  attributes: WritableSignal<CoreRawViewAttributes | undefined>;
+  events: WritableSignal<Record<string, (event: any) => any> | undefined>;
 };

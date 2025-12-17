@@ -15,8 +15,9 @@ import { mergeHooksFn } from './hook';
 import { Observable } from 'rxjs';
 import { isPromise, isSubscribable } from '../util/is-promise';
 import { unWrapSignal, Writeable } from '../../util';
+import { CommonComponentAction } from './wrapper';
 
-export function asyncInputMerge(
+function asyncInputMerge(
   dataObj: Record<string, any>,
   data$: WritableSignal<any>,
 ) {
@@ -79,74 +80,14 @@ export function asyncInputMerge(
   }
   return data$;
 }
-export type AsyncResult =
-  | Promise<any>
-  | Observable<any>
-  | Signal<any>
-  | (any & {});
-export type AsyncProperty = (
-  field: _PiResolvedCommonViewFieldConfig,
-) => AsyncResult;
-
-export function patchAsyncFn(
-  patchKey: 'props' | 'inputs' | 'attributes' | 'events',
-) {
-  return <T>(
-    dataObj: Record<string, AsyncProperty>,
-    options?: {
-      addPosition: 'top' | 'bottom';
-      hookName: 'fieldResolved' | 'allFieldsResolved';
-    },
-  ) =>
-    rawConfig<T>((rawField) => {
-      const inputList = Object.keys(dataObj);
-      const hookName = options?.hookName ?? ('allFieldsResolved' as const);
-      // 设置初始值
-      rawField[patchKey] = {
-        ...rawField[patchKey],
-        ...inputList.reduce((obj, item) => {
-          obj[item] = rawField[patchKey]?.[item] ?? undefined;
-          return obj;
-        }, {} as any),
-      };
-      return mergeHooksFn(
-        {
-          [hookName]: (field: _PiResolvedCommonViewFieldConfig) => {
-            const result = asyncInputMerge(
-              Object.entries(dataObj).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              field[patchKey],
-            );
-            if (patchKey !== 'props') {
-              field.define!.update((data) => ({
-                ...data,
-                [patchKey]: result,
-              }));
-            }
-            (field as Writeable<_PiResolvedCommonViewFieldConfig>)[patchKey] =
-              result;
-          },
-        },
-        { position: options?.addPosition ?? 'bottom' },
-        rawField,
-      );
-    });
-}
+type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
+type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 
 export const patchAsyncInputsCommon = (
   dataObj: Record<string, AsyncProperty>,
-) => {
+): CommonComponentAction => {
   let key = 'inputs';
-  return (
-    data: any,
-    resolvedField$: any,
-    updateFn: (value: (value: any) => any) => void,
-  ) => {
+  return (data, resolvedField$) => {
     let needInit = !!data[key];
     data[key] ??= signal({});
     let content$: WritableSignal<any> = data[key];
@@ -173,11 +114,8 @@ export const patchAsyncInputsCommon = (
       content$,
     );
     if (result !== content$ || needInit) {
-      updateFn((data) => {
-        return {
-          ...data,
-          [key]: result,
-        };
+      content$.update((obj) => {
+        return { ...obj, [key]: result };
       });
     }
   };

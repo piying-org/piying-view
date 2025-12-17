@@ -16,3 +16,4 @@ export * from './value-change';
 export * from './disable-when';
 export * from './class';
 export * from './non-field-control';
+export * from './input-common';

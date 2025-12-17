@@ -6,7 +6,7 @@ import {
 } from '../../builder-base';
 import { toArray } from '../../util';
 import { mergeHooksFn } from './hook';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { asyncInputMerge, AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 
@@ -143,9 +143,8 @@ export function removeWrappers<T>(list: string[]) {
   });
 }
 export type CommonComponentAction = (
-  data: any,
+  data: Record<string, WritableSignal<any>>,
   resolvedField$: _PiResolvedCommonViewFieldConfig,
-  updateFn: (value: (value: any) => any) => void,
 ) => void;
 export function patchAsyncWrapper2<T>(
   type: any,
@@ -155,23 +154,16 @@ export function patchAsyncWrapper2<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          // ! wrappers的内容必须是信号,又或者是一种连接的信号(combineSignal?)
-          let list = field.wrappers();
+          // todo type如果是string,那么就需要转换
           /** 顶级的 */
-          let initData = signal<CoreResolvedWrapperConfig>({} as any);
-          // todo 改为全信号?
+          let initData = signal<CoreResolvedWrapperConfig>({
+            type,
+            attributes: signal(undefined),
+            events: signal(undefined),
+          } as CoreResolvedWrapperConfig);
           field.wrappers.add(initData);
-          let updateFn = (fn: (value: any) => any) => {
-            let result = fn(initData);
-            // todo
-            // field.wrappers.update((list) => {
-            //   list = list.indexOf(initData())
-            //   list.push(initData());
-            //   return list;
-            // });
-          };
           for (const item of actions) {
-            item(initData, field, updateFn);
+            item(initData as any, field);
           }
         },
       },
