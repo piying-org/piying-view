@@ -22,26 +22,20 @@ function asyncInputMerge(
     if (isPromise(result)) {
       // promise
       result.then((value: any) => {
-        data$.update((lastData) => {
-          return { ...lastData, [key]: value };
-        });
+        data$.update((lastData) => ({ ...lastData, [key]: value }));
       });
     } else if (isSubscribable(result)) {
       // rxjs
       result.subscribe({
         next: (value) => {
-          data$.update((lastData) => {
-            return { ...lastData, [key]: value };
-          });
+          data$.update((lastData) => ({ ...lastData, [key]: value }));
         },
       });
     } else if (isSignal(result)) {
       signalObj[key] = result;
     } else {
       // 普通类型
-      data$.update((lastData) => {
-        return { ...lastData, [key]: result };
-      });
+      data$.update((lastData) => ({ ...lastData, [key]: result }));
     }
   });
   const signalKeyList = Object.keys(signalObj);
@@ -70,18 +64,17 @@ function asyncInputMerge(
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 
-export const patchAsyncInputsCommon = (
-  dataObj: Record<string, AsyncProperty>,
-): CommonComponentAction => {
-  const key = 'inputs';
-  return (data$, resolvedField) => {
+export const patchAsyncInputsCommonFn =
+  (key: 'inputs' | 'attributes' | 'events') =>
+  (dataObj: Record<string, AsyncProperty>): CommonComponentAction =>
+  (data$, resolvedField) => {
     const content$: WritableSignal<any> = data$()[key];
     const inputList = Object.keys(dataObj);
     // 设置初始值
     content$.update((content) => ({
       ...content,
       ...inputList.reduce((obj, item) => {
-        obj[item] = content[item] ?? undefined;
+        obj[item] = content?.[item] ?? undefined;
         return obj;
       }, {} as any),
     }));
@@ -100,4 +93,8 @@ export const patchAsyncInputsCommon = (
       data$.update((data) => ({ ...data, [key]: result }));
     }
   };
-};
+
+export const patchAsyncInputsCommon = patchAsyncInputsCommonFn('inputs');
+export const patchAsyncAttributesCommon =
+  patchAsyncInputsCommonFn('attributes');
+export const patchAsyncEventsCommon = patchAsyncInputsCommonFn('events');
