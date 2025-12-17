@@ -29,7 +29,12 @@ describe('wrapper', () => {
   it('1层wrapper', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
 
-    const schema = v.pipe(NFCSchema, getField(field$), setComponent('inputTest'), setWrappers(['wrapper1']));
+    const schema = v.pipe(
+      NFCSchema,
+      getField(field$),
+      setComponent('inputTest'),
+      setWrappers(['wrapper1']),
+    );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
       defaultConfig: {
@@ -49,7 +54,12 @@ describe('wrapper', () => {
   });
   it('2层wrapper', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const schema = v.pipe(NFCSchema, getField(field$), setComponent('inputTest'), setWrappers(['wrapper1', 'wrapper2']));
+    const schema = v.pipe(
+      NFCSchema,
+      getField(field$),
+      setComponent('inputTest'),
+      setWrappers(['wrapper1', 'wrapper2']),
+    );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
       defaultConfig: {
@@ -67,7 +77,9 @@ describe('wrapper', () => {
     expect(inputEl).ok;
     expect(instance.container.querySelector('.wrapper1')).ok;
     expect(instance.container.querySelector('.wrapper2')).ok;
-    expect(instance.container.querySelector('.wrapper1')?.querySelector('.wrapper2')).ok;
+    expect(
+      instance.container.querySelector('.wrapper1')?.querySelector('.wrapper2'),
+    ).ok;
   });
 
   it('wrapper-input', async () => {
@@ -77,7 +89,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([{ type: 'wrapper1', inputs: { input1: 'input1-value' } }])
+      setWrappers([{ type: 'wrapper1', inputs: { input1: 'input1-value' } }]),
     );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
@@ -94,14 +106,17 @@ describe('wrapper', () => {
     expect(field.form.control).toBeFalsy();
     const inputEl = instance.container.querySelector('.inputs-test');
     expect(inputEl).ok;
-    expect(instance.container.querySelector('.wrapper1')?.textContent).contain('input1-value');
-    field.wrappers.update((list) => {
-      list = list.slice();
-      list[0].inputs.update((inputs) => ({ ...inputs, input1: 'input2-value' }));
-      return list;
-    });
+    expect(instance.container.querySelector('.wrapper1')?.textContent).contain(
+      'input1-value',
+    );
+
+    field.wrappers
+      .items()[0]()
+      .inputs.update((inputs) => ({ ...inputs, input1: 'input2-value' }));
     await delay(10);
-    expect(instance.container.querySelector('.wrapper1')?.textContent).contain('input2-value');
+    expect(instance.container.querySelector('.wrapper1')?.textContent).contain(
+      'input2-value',
+    );
   });
   it('wrapper-attr', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -110,7 +125,13 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([{ type: 'wrapper1', inputs: { input1: 'input1-value' }, attributes: { class: 'hello' } }])
+      setWrappers([
+        {
+          type: 'wrapper1',
+          inputs: { input1: 'input1-value' },
+          attributes: { class: 'hello' },
+        },
+      ]),
     );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
@@ -148,7 +169,7 @@ describe('wrapper', () => {
             },
           },
         },
-      ])
+      ]),
     );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
@@ -189,7 +210,7 @@ describe('wrapper', () => {
             },
           },
         },
-      ])
+      ]),
     );
     const value = '1234';
     const { instance } = await createComponent(schema, value, {
