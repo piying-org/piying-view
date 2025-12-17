@@ -25,6 +25,7 @@ type ObservableSignal<Input, Output> = WritableSignal<Input> & {
   output$$: Observable<Output>;
 };
 const DefaultOptions = { autoDestroy: true };
+/** set输入,()输出的是管道后的值, */
 export function observableSignal<Input, Output>(
   initialValue: Input,
   options?: CreateSignalOptions<Input> & {

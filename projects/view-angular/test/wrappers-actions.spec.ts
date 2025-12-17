@@ -16,7 +16,7 @@ import { Wrapper3Component } from './wrapper3/component';
 import { Wrapper4Component } from './wrapper4/component';
 import { Test1Component } from './test1/test1.component';
 
-fdescribe('wrappers-actions', () => {
+describe('wrappers-actions', () => {
   it('存在', async () => {
     const define = v.pipe(
       v.string(),
