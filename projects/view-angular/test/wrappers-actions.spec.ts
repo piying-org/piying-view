@@ -3,6 +3,7 @@ import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
 import {
   patchAsyncAttributesCommon,
+  patchAsyncClassCommon,
   patchAsyncEventsCommon,
   patchAsyncInputsCommon,
   patchAsyncWrapper2,
@@ -97,5 +98,25 @@ describe('wrappers-actions', () => {
     input1Div.click();
 
     expect(eventRun).toBe(true);
+  });
+  it('class', async () => {
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      patchAsyncWrapper2('wrapper1', [patchAsyncClassCommon(() => 'input1')]),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+      Define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    const input1Div = element.querySelector(
+      'app-wrapper3.input1',
+    ) as HTMLElement;
+
+    expect(input1Div).toBeTruthy();
   });
 });

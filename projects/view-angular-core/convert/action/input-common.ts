@@ -98,3 +98,9 @@ export const patchAsyncInputsCommon = patchAsyncInputsCommonFn('inputs');
 export const patchAsyncAttributesCommon =
   patchAsyncInputsCommonFn('attributes');
 export const patchAsyncEventsCommon = patchAsyncInputsCommonFn('events');
+export const patchAsyncClassCommon = (
+  fn: (field: _PiResolvedCommonViewFieldConfig) => string,
+) =>
+  patchAsyncInputsCommonFn('attributes')({
+    class: fn,
+  });
