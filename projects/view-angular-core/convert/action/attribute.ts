@@ -1,7 +1,8 @@
 import { rawConfig } from './raw-config';
 import { CoreRawViewAttributes } from '../../builder-base';
 import { unWrapSignal } from '../../util';
-import { patchAsyncFn } from './input';
+
+import { patchAsyncAttributesCommon, patchAsyncEventsCommon } from './input-common';
 export function setAttributes<T>(attributes: CoreRawViewAttributes) {
   return rawConfig<T>((field) => {
     field.attributes = attributes;
@@ -27,6 +28,6 @@ export function removeAttributes<T>(list: string[]) {
     field.attributes = oldValue;
   });
 }
-export const patchAsyncAttributes = patchAsyncFn('attributes');
+export const patchAsyncAttributes =patchAsyncAttributesCommon
 
-export const patchAsyncEvents = patchAsyncFn('events');
+export const patchAsyncEvents = patchAsyncEventsCommon

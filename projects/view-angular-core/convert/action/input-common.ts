@@ -2,6 +2,7 @@ import {
   computed,
   isSignal,
   linkedSignal,
+  signal,
   Signal,
   WritableSignal,
 } from '@angular/core';
@@ -67,7 +68,7 @@ type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 export const WrapperSymbol = Symbol();
 export const patchAsyncInputsCommonFn =
-  (key: 'inputs' | 'attributes' | 'events') =>
+  (key: 'inputs' | 'attributes' | 'events' | 'props') =>
   <T>(dataObj: Record<string, AsyncProperty>) => {
     return rawConfig<T>((rawField, _, ...args) => {
       return mergeHooksFn(
@@ -80,10 +81,13 @@ export const patchAsyncInputsCommonFn =
               WrapperSymbol in args[args.length - 1]
             ) {
               data$ = args[args.length - 1][WrapperSymbol];
+            } else if (key === 'props') {
+              data$ = (() => field) as any;
             } else {
               data$ = field.define!;
             }
-            const content$: WritableSignal<any> = data$()[key];
+            let needInited = !data$()[key];
+            const content$: WritableSignal<any> = data$()[key] ?? signal({});
             const inputList = Object.keys(dataObj);
             // 设置初始值
             content$.update((content) => ({
@@ -94,7 +98,7 @@ export const patchAsyncInputsCommonFn =
               }, {} as any),
             }));
 
-            const result = asyncInputMerge(
+            const result$ = asyncInputMerge(
               Object.entries(dataObj).reduce(
                 (obj, [key, value]) => {
                   obj[key] = value(field);
@@ -104,8 +108,13 @@ export const patchAsyncInputsCommonFn =
               ),
               content$,
             );
-            if (result !== content$) {
-              data$.update((data) => ({ ...data, [key]: result }));
+
+            if (needInited || result$ !== content$) {
+              if (key === 'props') {
+                (field as any).props = result$;
+              } else {
+                data$.update((data) => ({ ...data, [key]: result$ }));
+              }
             }
           },
         },

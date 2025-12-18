@@ -112,55 +112,5 @@ export type AsyncProperty = (
   field: _PiResolvedCommonViewFieldConfig,
 ) => AsyncResult;
 
-export function patchAsyncFn(
-  patchKey: 'props' | 'inputs' | 'attributes' | 'events',
-) {
-  return <T>(
-    dataObj: Record<string, AsyncProperty>,
-    options?: {
-      addPosition: 'top' | 'bottom';
-      hookName: 'fieldResolved' | 'allFieldsResolved';
-    },
-  ) =>
-    rawConfig<T>((rawField) => {
-      const inputList = Object.keys(dataObj);
-      const hookName = options?.hookName ?? ('allFieldsResolved' as const);
-      // 设置初始值
-      rawField[patchKey] = {
-        ...rawField[patchKey],
-        ...inputList.reduce((obj, item) => {
-          obj[item] = rawField[patchKey]?.[item] ?? undefined;
-          return obj;
-        }, {} as any),
-      };
-      return mergeHooksFn(
-        {
-          [hookName]: (field: _PiResolvedCommonViewFieldConfig) => {
-            let content$ = field[patchKey];
-            const result = asyncInputMerge(
-              Object.entries(dataObj).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              field[patchKey],
-            );
 
-            if (content$ !== result) {
-              field.define!.update((data) => {
-                return {
-                  ...data,
-                  [patchKey]: result,
-                };
-              });
-            }
-          },
-        },
-        { position: options?.addPosition ?? 'bottom' },
-        rawField,
-      );
-    });
-}
 export const patchAsyncInputs = patchAsyncInputsCommon;
