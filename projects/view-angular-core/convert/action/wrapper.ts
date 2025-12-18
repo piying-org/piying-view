@@ -7,10 +7,10 @@ import {
 import { observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
 import { signal, WritableSignal } from '@angular/core';
-import { asyncInputMerge, AsyncProperty } from './input';
+import {  AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
-import { WrapperSymbol } from './input-common';
+import { asyncInputMerge, WrapperSymbol } from './input-common';
 import { RawConfigAction } from '@piying/valibot-visit';
 
 export function setWrappers<T>(wrappers: CoreRawWrapperConfig[]) {

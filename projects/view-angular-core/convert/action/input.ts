@@ -40,69 +40,7 @@ export function removeInputs<T>(list: string[]) {
     field.inputs = oldValue;
   });
 }
-export function asyncInputMerge(
-  dataObj: Record<string, any>,
-  data$: WritableSignal<any>,
-) {
-  const signalObj = {} as Record<string, Signal<any>>;
-  const inputList = Object.keys(dataObj);
 
-  inputList.forEach((key) => {
-    const result = dataObj[key];
-    if (isPromise(result)) {
-      // promise
-      result.then((value: any) => {
-        data$.update((lastData) => {
-          lastData = { ...lastData };
-          lastData[key] = value;
-          return lastData;
-        });
-      });
-    } else if (isSubscribable(result)) {
-      // rxjs
-      result.subscribe({
-        next: (value) => {
-          data$.update((lastData) => {
-            lastData = { ...lastData };
-            lastData[key] = value;
-            return lastData;
-          });
-        },
-      });
-    } else if (isSignal(result)) {
-      signalObj[key] = result;
-    } else {
-      // 普通类型
-      data$.update((lastData) => {
-        lastData = { ...lastData };
-        lastData[key] = result;
-        return lastData;
-      });
-    }
-  });
-  const signalKeyList = Object.keys(signalObj);
-
-  if (signalKeyList.length) {
-    const newData = linkedSignal(
-      computed(() => ({
-        ...data$(),
-        ...signalKeyList.reduce(
-          (obj, key) => ({ ...obj, [key]: signalObj[key]() }),
-          {} as Record<string, any>,
-        ),
-      })),
-    );
-    newData.set = (value) => {
-      data$.set(value);
-    };
-    newData.update = (fn: any) => {
-      const result = fn(newData());
-      data$.set(result);
-    };
-    return newData;
-  }
-  return data$;
-}
 export type AsyncResult =
   | Promise<any>
   | Observable<any>

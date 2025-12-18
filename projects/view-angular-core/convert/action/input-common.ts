@@ -13,7 +13,7 @@ import { CommonComponentAction } from './wrapper';
 import { rawConfig } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
 
-function asyncInputMerge(
+export function asyncInputMerge(
   dataObj: Record<string, any>,
   data$: WritableSignal<any>,
 ) {
