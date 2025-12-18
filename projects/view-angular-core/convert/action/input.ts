@@ -1,19 +1,11 @@
-import {
-  computed,
-  isSignal,
-  linkedSignal,
-  Signal,
-  WritableSignal,
-} from '@angular/core';
+import { Signal } from '@angular/core';
 import { rawConfig } from './raw-config';
 import {
   _PiResolvedCommonViewFieldConfig,
   CoreRawViewInputs,
 } from '../../builder-base';
-import { mergeHooksFn } from './hook';
 import { Observable } from 'rxjs';
-import { isPromise, isSubscribable } from '../util/is-promise';
-import { unWrapSignal, Writeable } from '../../util';
+import { unWrapSignal } from '../../util';
 import { patchAsyncInputsCommon } from './input-common';
 export function setInputs<T>(inputs: CoreRawViewInputs) {
   return rawConfig<T>((field) => {
@@ -49,6 +41,5 @@ export type AsyncResult =
 export type AsyncProperty = (
   field: _PiResolvedCommonViewFieldConfig,
 ) => AsyncResult;
-
 
 export const patchAsyncInputs = patchAsyncInputsCommon;

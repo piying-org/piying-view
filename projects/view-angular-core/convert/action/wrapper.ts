@@ -1,13 +1,12 @@
 import { rawConfig } from './raw-config';
 import {
-  _PiResolvedCommonViewFieldConfig,
   CoreRawWrapperConfig,
   CoreResolvedWrapperConfig,
 } from '../../builder-base';
 import { observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
 import { signal, WritableSignal } from '@angular/core';
-import {  AsyncProperty } from './input';
+import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { asyncInputMerge, WrapperSymbol } from './input-common';
@@ -145,11 +144,7 @@ export function removeWrappers<T>(list: string[]) {
     field.wrappers = wrappers;
   });
 }
-export type CommonComponentAction = (
-  resolvedField$: any,
-  ctx: undefined,
-  data: Record<string, WritableSignal<any>>,
-) => void;
+
 export function patchAsyncWrapper2<T>(
   type: any,
   actions: RawConfigAction<'rawConfig', any, any>[],
@@ -184,7 +179,7 @@ export function patchAsyncWrapper2<T>(
           );
           field.wrappers.add(initData);
           for (const item of actions) {
-            let tempField = {};
+            const tempField = {};
             (item.value as any)(tempField, undefined, {
               [WrapperSymbol]: initData,
             });

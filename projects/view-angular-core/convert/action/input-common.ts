@@ -9,7 +9,6 @@ import {
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { Observable } from 'rxjs';
 import { isPromise, isSubscribable } from '../util/is-promise';
-import { CommonComponentAction } from './wrapper';
 import { rawConfig } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
 
@@ -69,9 +68,9 @@ type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 export const WrapperSymbol = Symbol();
 export const patchAsyncInputsCommonFn =
   (key: 'inputs' | 'attributes' | 'events' | 'props') =>
-  <T>(dataObj: Record<string, AsyncProperty>) => {
-    return rawConfig<T>((rawField, _, ...args) => {
-      return mergeHooksFn(
+  <T>(dataObj: Record<string, AsyncProperty>) =>
+    rawConfig<T>((rawField, _, ...args) =>
+      mergeHooksFn(
         {
           allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
             let data$: WritableSignal<any>;
@@ -86,7 +85,7 @@ export const patchAsyncInputsCommonFn =
             } else {
               data$ = field.define!;
             }
-            let needInited = !data$()[key];
+            const needInited = !data$()[key];
             const content$: WritableSignal<any> = data$()[key] ?? signal({});
             const inputList = Object.keys(dataObj);
             // 设置初始值
@@ -120,9 +119,8 @@ export const patchAsyncInputsCommonFn =
         },
         { position: 'bottom' },
         rawField,
-      );
-    });
-  };
+      ),
+    );
 
 export const patchAsyncInputsCommon = patchAsyncInputsCommonFn('inputs');
 export const patchAsyncAttributesCommon =
