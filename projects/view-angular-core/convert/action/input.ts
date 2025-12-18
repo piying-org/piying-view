@@ -14,6 +14,7 @@ import { mergeHooksFn } from './hook';
 import { Observable } from 'rxjs';
 import { isPromise, isSubscribable } from '../util/is-promise';
 import { unWrapSignal, Writeable } from '../../util';
+import { patchAsyncInputsCommon } from './input-common';
 export function setInputs<T>(inputs: CoreRawViewInputs) {
   return rawConfig<T>((field) => {
     field.inputs = inputs;
@@ -135,6 +136,7 @@ export function patchAsyncFn(
       return mergeHooksFn(
         {
           [hookName]: (field: _PiResolvedCommonViewFieldConfig) => {
+            let content$ = field[patchKey];
             const result = asyncInputMerge(
               Object.entries(dataObj).reduce(
                 (obj, [key, value]) => {
@@ -145,14 +147,15 @@ export function patchAsyncFn(
               ),
               field[patchKey],
             );
-            if (patchKey !== 'props') {
-              field.define!.update((data) => ({
-                ...data,
-                [patchKey]: result,
-              }));
+
+            if (content$ !== result) {
+              field.define!.update((data) => {
+                return {
+                  ...data,
+                  [patchKey]: result,
+                };
+              });
             }
-            (field as Writeable<_PiResolvedCommonViewFieldConfig>)[patchKey] =
-              result;
           },
         },
         { position: options?.addPosition ?? 'bottom' },
@@ -160,4 +163,4 @@ export function patchAsyncFn(
       );
     });
 }
-export const patchAsyncInputs = patchAsyncFn('inputs');
+export const patchAsyncInputs = patchAsyncInputsCommon;

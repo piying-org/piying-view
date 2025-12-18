@@ -232,10 +232,19 @@ describe('action', () => {
   });
   it('setInputs', () => {
     const index = 0;
-    const obj = v.pipe(v.string(), setInputs({ v: 1 }));
+    const obj = v.pipe(
+      v.string(),
+      setInputs({ v: 1 }),
+      setComponent('mock-input'),
+    );
     const resolved = createBuilder(obj);
     expect(resolved.inputs()).toEqual({ v: 1 });
-    const obj2 = v.pipe(v.string(), setInputs({ v: 1 }), patchInputs({ k: 2 }));
+    const obj2 = v.pipe(
+      v.string(),
+      setInputs({ v: 1 }),
+      patchInputs({ k: 2 }),
+      setComponent('mock-input'),
+    );
     const resolved2 = createBuilder(obj2);
     expect(resolved2.inputs()).toEqual({ v: 1, k: 2 });
     const obj3 = v.pipe(
@@ -243,6 +252,7 @@ describe('action', () => {
       setInputs({ v: 1 }),
       patchInputs({ k: 2 }),
       removeInputs(['v']),
+      setComponent('mock-input'),
     );
     const resolved3 = createBuilder(obj3);
     expect(resolved3.inputs()).toEqual({ k: 2 });
@@ -292,12 +302,17 @@ describe('action', () => {
       expect(field).toBeTruthy();
       fn2CallCount++;
     };
-    const obj = v.pipe(v.string(), setOutputs({ v: fn }));
+    const obj = v.pipe(
+      v.string(),
+      setOutputs({ v: fn }),
+      setComponent('mock-input'),
+    );
     const resolved = createBuilder(obj);
     resolved.outputs()['v'](1);
     expect(fn1CallCount).toEqual(1);
     const obj2 = v.pipe(
       v.string(),
+      setComponent('mock-input'),
       setOutputs({ v: fn }),
       patchOutputs({ k: fn2 }),
     );
@@ -309,6 +324,7 @@ describe('action', () => {
 
     const obj3 = v.pipe(
       v.string(),
+      setComponent('mock-input'),
       setOutputs({ v: fn }),
       patchOutputs({ k: fn }),
       removeOutputs(['v']),
@@ -455,7 +471,7 @@ describe('action', () => {
     const field = createBuilder(obj, {
       types: {
         test1: {
-          actions: [setComponent(Symbol()), v.title('testTitle')],
+          actions: [setComponent('mock-input'), v.title('testTitle')],
         },
       },
     });

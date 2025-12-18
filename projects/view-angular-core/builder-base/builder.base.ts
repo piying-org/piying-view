@@ -50,25 +50,7 @@ import {
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
 import { combineSignal } from '../util/create-combine-signal';
-// todo 临时同步
-function defineSync(field: _PiResolvedCommonViewFieldConfig) {
-  const define = field.define?.();
-  if (
-    define &&
-    (field.inputs !== define.inputs ||
-      field.outputs !== define.outputs ||
-      field.attributes !== define.attributes ||
-      field.events !== define.events)
-  ) {
-    (field.define as any) = signal({
-      ...define,
-      inputs: field.inputs,
-      outputs: field.outputs,
-      attributes: field.attributes,
-      events: field.events,
-    });
-  }
-}
+
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
     inject(PI_FORM_BUILDER_ALIAS_MAP, { optional: true }) ??
@@ -268,10 +250,18 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       priority: field.priority,
       hooks: field.hooks,
       alias: field.alias,
-      inputs: inputs,
-      outputs: outputs,
-      events: events,
-      attributes,
+      get inputs() {
+        return resolvedConfig.define!().inputs;
+      },
+      get outputs() {
+        return resolvedConfig.define!().outputs;
+      },
+      get events() {
+        return resolvedConfig.define!().events;
+      },
+      get attributes() {
+        return resolvedConfig.define!().attributes;
+      },
       define: define
         ? signal({ ...define, inputs, outputs, attributes, events })
         : undefined,
@@ -280,7 +270,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
       this.afterResolveConfig(field, resolvedConfig) ?? resolvedConfig;
-    defineSync(resolvedConfig);
     if (field.movePath) {
       this.#moveViewField(field.movePath, resolvedConfig);
     } else {
