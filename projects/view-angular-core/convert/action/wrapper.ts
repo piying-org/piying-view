@@ -10,6 +10,8 @@ import { signal, WritableSignal } from '@angular/core';
 import { asyncInputMerge, AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
+import { WrapperSymbol } from './input-common';
+import { RawConfigAction } from '@piying/valibot-visit';
 
 export function setWrappers<T>(wrappers: CoreRawWrapperConfig[]) {
   return rawConfig<T>((field) => {
@@ -144,14 +146,15 @@ export function removeWrappers<T>(list: string[]) {
   });
 }
 export type CommonComponentAction = (
-  data: WritableSignal<Record<string, WritableSignal<any>>>,
-  resolvedField$: _PiResolvedCommonViewFieldConfig,
+  resolvedField$: any,
+  ctx: undefined,
+  data: Record<string, WritableSignal<any>>,
 ) => void;
 export function patchAsyncWrapper2<T>(
   type: any,
-  actions: CommonComponentAction[],
+  actions: RawConfigAction<'rawConfig', any, any>[],
 ) {
-  return rawConfig<T>((field) => {
+  return rawConfig<T>((rawFiled) => {
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
@@ -181,12 +184,16 @@ export function patchAsyncWrapper2<T>(
           );
           field.wrappers.add(initData);
           for (const item of actions) {
-            item(initData as any, field);
+            let tempField = {};
+            (item.value as any)(tempField, undefined, {
+              [WrapperSymbol]: initData,
+            });
+            (tempField as any).hooks.allFieldsResolved(field);
           }
         },
       },
       { position: 'bottom' },
-      field,
+      rawFiled,
     );
   });
 }

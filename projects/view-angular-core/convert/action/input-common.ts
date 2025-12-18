@@ -9,6 +9,8 @@ import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { Observable } from 'rxjs';
 import { isPromise, isSubscribable } from '../util/is-promise';
 import { CommonComponentAction } from './wrapper';
+import { rawConfig } from '@piying/valibot-visit';
+import { mergeHooksFn } from './hook';
 
 function asyncInputMerge(
   dataObj: Record<string, any>,
@@ -63,35 +65,54 @@ function asyncInputMerge(
 }
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
-
+export const WrapperSymbol = Symbol();
 export const patchAsyncInputsCommonFn =
   (key: 'inputs' | 'attributes' | 'events') =>
-  (dataObj: Record<string, AsyncProperty>): CommonComponentAction =>
-  (data$, resolvedField) => {
-    const content$: WritableSignal<any> = data$()[key];
-    const inputList = Object.keys(dataObj);
-    // 设置初始值
-    content$.update((content) => ({
-      ...content,
-      ...inputList.reduce((obj, item) => {
-        obj[item] = content?.[item] ?? undefined;
-        return obj;
-      }, {} as any),
-    }));
+  <T>(dataObj: Record<string, AsyncProperty>) => {
+    return rawConfig<T>((rawField, _, ...args) => {
+      return mergeHooksFn(
+        {
+          allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
+            let data$: WritableSignal<any>;
+            if (
+              args.length > 0 &&
+              typeof args[args.length - 1] === 'object' &&
+              WrapperSymbol in args[args.length - 1]
+            ) {
+              data$ = args[args.length - 1][WrapperSymbol];
+            } else {
+              data$ = field.define!;
+            }
+            const content$: WritableSignal<any> = data$()[key];
+            const inputList = Object.keys(dataObj);
+            // 设置初始值
+            content$.update((content) => ({
+              ...content,
+              ...inputList.reduce((obj, item) => {
+                obj[item] = content?.[item] ?? undefined;
+                return obj;
+              }, {} as any),
+            }));
 
-    const result = asyncInputMerge(
-      Object.entries(dataObj).reduce(
-        (obj, [key, value]) => {
-          obj[key] = value(resolvedField);
-          return obj;
+            const result = asyncInputMerge(
+              Object.entries(dataObj).reduce(
+                (obj, [key, value]) => {
+                  obj[key] = value(field);
+                  return obj;
+                },
+                {} as Record<string, any>,
+              ),
+              content$,
+            );
+            if (result !== content$) {
+              data$.update((data) => ({ ...data, [key]: result }));
+            }
+          },
         },
-        {} as Record<string, any>,
-      ),
-      content$,
-    );
-    if (result !== content$) {
-      data$.update((data) => ({ ...data, [key]: result }));
-    }
+        { position: 'bottom' },
+        rawField,
+      );
+    });
   };
 
 export const patchAsyncInputsCommon = patchAsyncInputsCommonFn('inputs');
