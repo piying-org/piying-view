@@ -3,9 +3,9 @@ import {
   CoreRawWrapperConfig,
   CoreResolvedWrapperConfig,
 } from '../../builder-base';
-import { observableSignal, toArray } from '../../util';
+import { ObservableSignal, observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
-import { signal, WritableSignal } from '@angular/core';
+import { Signal, signal, WritableSignal } from '@angular/core';
 import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
@@ -179,6 +179,37 @@ export function patchAsyncWrapper2<T>(
             },
           );
           field.wrappers.add(initData);
+          for (const item of actions) {
+            const tempField = {};
+            (item.value as any)(tempField, undefined, {
+              [WrapperSymbol]: initData,
+            });
+            (tempField as any).hooks.allFieldsResolved(field);
+          }
+        },
+      },
+      { position: 'bottom' },
+      rawFiled,
+    );
+  });
+}
+export function changeAsyncWrapper2<T>(
+  indexFn: (list: Signal<CoreResolvedWrapperConfig>[]) => any,
+  actions: RawConfigAction<'rawConfig', any, any>[],
+) {
+  return rawConfig<T>((rawFiled) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          let initData = indexFn(
+            field.wrappers
+              .items()
+              .map((item) => (item as ObservableSignal<any, any>).input),
+          );
+
+          if (!initData) {
+            throw new Error(`change wrapper not found`);
+          }
           for (const item of actions) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {

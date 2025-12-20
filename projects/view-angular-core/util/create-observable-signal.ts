@@ -15,7 +15,7 @@ import {
   shareReplay,
   tap,
 } from 'rxjs';
-type ObservableSignal<Input, Output> = WritableSignal<Input> & {
+export type ObservableSignal<Input, Output> = WritableSignal<Input> & {
   input: Signal<Input>;
   output: Signal<Output>;
   loading: Signal<boolean>;

@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
 import {
+  changeAsyncWrapper2,
   patchAsyncAttributesCommon,
   patchAsyncClassCommon,
   patchAsyncEventsCommon,
@@ -115,6 +116,33 @@ describe('wrappers-actions', () => {
     expect(element).toBeTruthy();
     const input1Div = element.querySelector(
       'app-wrapper3.input1',
+    ) as HTMLElement;
+
+    expect(input1Div).toBeTruthy();
+  });
+  it('change', async () => {
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      patchAsyncWrapper2('wrapper1', [patchAsyncClassCommon(() => 'input1')]),
+      changeAsyncWrapper2(
+        (list) => {
+          return list.find((item) => item().type === 'wrapper1');
+        },
+        [patchAsyncClassCommon(() => 'input2')],
+      ),
+    );
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+      Define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    expect(field$$()?.wrappers().length).toEqual(1);
+    const input1Div = element.querySelector(
+      'app-wrapper3.input2',
     ) as HTMLElement;
 
     expect(input1Div).toBeTruthy();
