@@ -5,7 +5,6 @@ import {
   CoreRawViewInputs,
 } from '../../builder-base';
 import { Observable } from 'rxjs';
-import { unWrapSignal } from '../../util';
 import { patchAsyncInputsCommon } from './input-common';
 export function setInputs<T>(inputs: CoreRawViewInputs) {
   return rawConfig<T>((field) => {
@@ -22,7 +21,7 @@ export function patchInputs<T>(inputs: CoreRawViewInputs) {
 }
 export function removeInputs<T>(list: string[]) {
   return rawConfig<T>((field) => {
-    const oldValue = unWrapSignal(field.inputs);
+    const oldValue = field.inputs;
     if (!oldValue) {
       return;
     }

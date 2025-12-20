@@ -15,7 +15,6 @@ import {
 } from '@angular/core';
 
 import { createField } from './create-field';
-import { unWrapSignal } from './util/unwrap-signal';
 import { DCONFIG_EFAULT_MERGE_STRAGEGY } from './const';
 import { ParentMap } from './class/parent-map';
 
@@ -548,27 +547,21 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         value = list
           .filter(Boolean)
           .flat()
-          .map((item) => unWrapSignal(item)) as any;
+          .map((item) => item) as any;
       } else {
-        value = list.reduce(
-          (data, item: any) => unWrapSignal(item) ?? data,
-          [],
-        ) as any;
+        value = list.reduce((data, item: any) => item ?? data, []) as any;
       }
     } else {
       if (strategy === 'merge') {
         value = list.reduce(
           (obj, item: any) => ({
             ...obj,
-            ...unWrapSignal(item),
+            ...item,
           }),
           {},
         ) as any;
       } else {
-        value = list.reduce(
-          (data, item: any) => unWrapSignal(item) ?? data,
-          {},
-        ) as any;
+        value = list.reduce((data, item: any) => item ?? data, {}) as any;
       }
     }
     return value;

@@ -1,6 +1,5 @@
 import { rawConfig } from './raw-config';
 import { CoreRawProps } from '../../builder-base';
-import { unWrapSignal } from '../../util';
 import { patchAsyncInputsCommonFn } from './input-common';
 export function setProps<T>(props: CoreRawProps) {
   return rawConfig<T>((field) => {
@@ -17,7 +16,7 @@ export function patchProps<T>(props: CoreRawProps) {
 }
 export function removeProps<T>(list: string[]) {
   return rawConfig<T>((field) => {
-    const oldValue = unWrapSignal(field.props);
+    const oldValue = field.props;
     if (!oldValue) {
       return;
     }

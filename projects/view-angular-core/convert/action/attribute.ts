@@ -1,6 +1,5 @@
 import { rawConfig } from './raw-config';
 import { CoreRawViewAttributes } from '../../builder-base';
-import { unWrapSignal } from '../../util';
 
 import {
   patchAsyncAttributesCommon,
@@ -21,7 +20,7 @@ export function patchAttributes<T>(attributes: CoreRawViewAttributes) {
 }
 export function removeAttributes<T>(list: string[]) {
   return rawConfig<T>((field) => {
-    const oldValue = unWrapSignal(field.attributes);
+    const oldValue = field.attributes;
     if (!oldValue) {
       return;
     }
