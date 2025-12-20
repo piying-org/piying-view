@@ -5,7 +5,7 @@ import {
   CoreRawViewInputs,
 } from '../../builder-base';
 import { Observable } from 'rxjs';
-import { patchAsyncInputsCommon } from './input-common';
+import { patchAsyncInputsCommon, removeInputsCommonFn } from './input-common';
 export function setInputs<T>(inputs: CoreRawViewInputs) {
   return rawConfig<T>((field) => {
     field.inputs = inputs;
@@ -19,18 +19,7 @@ export function patchInputs<T>(inputs: CoreRawViewInputs) {
     };
   });
 }
-export function removeInputs<T>(list: string[]) {
-  return rawConfig<T>((field) => {
-    const oldValue = field.inputs;
-    if (!oldValue) {
-      return;
-    }
-    list.forEach((item) => {
-      delete oldValue[item];
-    });
-    field.inputs = oldValue;
-  });
-}
+export const removeInputs = removeInputsCommonFn('inputs');
 
 export type AsyncResult =
   | Promise<any>

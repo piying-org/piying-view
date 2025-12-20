@@ -28,6 +28,42 @@ export function asyncInputMerge(
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 export const WrapperSymbol = Symbol();
+
+export const removeInputsCommonFn =
+  (key: 'inputs' | 'attributes' | 'events' | 'props') =>
+  <T>(list: string[]) =>
+    rawConfig<T>((rawField, _, ...args) =>
+      mergeHooksFn(
+        {
+          allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
+            let data$: WritableSignal<any>;
+            if (
+              args.length > 0 &&
+              typeof args[args.length - 1] === 'object' &&
+              WrapperSymbol in args[args.length - 1]
+            ) {
+              data$ = args[args.length - 1][WrapperSymbol];
+            } else if (key === 'props') {
+              data$ = (() => field) as any;
+            } else {
+              data$ = field.define!;
+            }
+            const obj$ = data$()[key] as AsyncObjectSignal<any>;
+
+            list.forEach((key) => {
+              obj$.disconnect(key);
+              obj$.update((object) => {
+                object = { ...object };
+                delete object[key];
+                return object;
+              });
+            });
+          },
+        },
+        { position: 'bottom' },
+        rawField,
+      ),
+    );
 export const patchAsyncInputsCommonFn =
   (key: 'inputs' | 'attributes' | 'events' | 'props') =>
   <T>(dataObj: Record<string, AsyncProperty>) =>
