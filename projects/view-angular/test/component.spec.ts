@@ -43,9 +43,9 @@ describe('组件', () => {
           test2: {
             type: { component: Test2Component, module: Test2Module },
 
-            inputs: signal({
+            inputs: {
               input1: 'test1',
-            }),
+            },
             outputs: {
               output3: () => {
                 fields$.resolve(true);

@@ -98,10 +98,11 @@ describe('自定义handle', () => {
         rawConfig: any,
         config: _PiResolvedCommonViewFieldConfig,
       ): _PiResolvedCommonViewFieldConfig | undefined {
-        return {
-          ...config,
+        config.define!.update((data) => ({
+          ...data,
           inputs: signal({ input1: '2' }),
-        };
+        }));
+        return config;
       }
     }
 

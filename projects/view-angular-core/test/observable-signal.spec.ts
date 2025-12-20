@@ -18,10 +18,10 @@ describe('observable-signal', () => {
       pipe: pipe(map((value) => value * 2)),
       autoDestroy: false,
     });
-    expect(value$()).toEqual(1);
+    expect(value$()).toEqual(2);
     expect(value$.output()).toEqual(2);
     value$.set(2);
-    expect(value$()).toEqual(2);
+    expect(value$()).toEqual(4);
     expect(value$.output()).toEqual(4);
     let input: any;
     value$.input$$.subscribe((value) => {

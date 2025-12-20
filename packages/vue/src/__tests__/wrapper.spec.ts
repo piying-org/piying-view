@@ -103,11 +103,9 @@ describe('wrapper', () => {
     const inputEl = instance.find('.inputs-test');
     expect(inputEl).ok;
     expect(instance.find('.wrapper1').text()).contain('input1-value');
-    field.wrappers.update((list) => {
-      list = list.slice();
-      list[0].inputs.update((inputs) => ({ ...inputs, input1: 'input2-value' }));
-      return list;
-    });
+    field.wrappers
+      .items()[0]()
+      .inputs.update((inputs) => ({ ...inputs, input1: 'input2-value' }));
     await nextTick();
     await delay();
     expect(instance.find('.wrapper1').text()).contain('input2-value');

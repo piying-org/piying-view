@@ -1,6 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
+import { Component, input, output } from '@angular/core';
 import { InsertFieldDirective } from '../../lib/component/insert-field.directive';
 
 @Component({

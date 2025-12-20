@@ -1,7 +1,6 @@
 import { rawConfig } from './raw-config';
 import { CoreRawProps } from '../../builder-base';
-import { unWrapSignal } from '../../util';
-import { patchAsyncFn } from './input';
+import { patchAsyncInputsCommonFn, removeInputsCommonFn } from './input-common';
 export function setProps<T>(props: CoreRawProps) {
   return rawConfig<T>((field) => {
     field.props = props;
@@ -15,16 +14,5 @@ export function patchProps<T>(props: CoreRawProps) {
     };
   });
 }
-export function removeProps<T>(list: string[]) {
-  return rawConfig<T>((field) => {
-    const oldValue = unWrapSignal(field.props);
-    if (!oldValue) {
-      return;
-    }
-    list.forEach((item) => {
-      delete oldValue[item];
-    });
-    field.props = oldValue;
-  });
-}
-export const patchAsyncProps = patchAsyncFn('props');
+export const removeProps = removeInputsCommonFn('props');
+export const patchAsyncProps = patchAsyncInputsCommonFn('props');

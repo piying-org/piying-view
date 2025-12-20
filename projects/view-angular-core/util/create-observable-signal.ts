@@ -9,14 +9,13 @@ import {
 } from '@angular/core';
 import {
   BehaviorSubject,
-  noop,
   Observable,
   OperatorFunction,
   pipe,
   shareReplay,
   tap,
 } from 'rxjs';
-type ObservableSignal<Input, Output> = WritableSignal<Input> & {
+export type ObservableSignal<Input, Output> = WritableSignal<Input> & {
   input: Signal<Input>;
   output: Signal<Output>;
   loading: Signal<boolean>;
@@ -25,6 +24,7 @@ type ObservableSignal<Input, Output> = WritableSignal<Input> & {
   output$$: Observable<Output>;
 };
 const DefaultOptions = { autoDestroy: true };
+/** set输入,()输出的是管道后的值, */
 export function observableSignal<Input, Output>(
   initialValue: Input,
   options?: CreateSignalOptions<Input> & {
@@ -35,31 +35,32 @@ export function observableSignal<Input, Output>(
 ) {
   options = { ...DefaultOptions, ...options };
   const inputS$ = signal(initialValue, options);
-  let outputS$ = signal<any>(undefined);
-  let loading$ = signal(false);
+  const outputS$ = signal<any>(undefined);
+  const loading$ = signal(false);
   const inputR$ = new BehaviorSubject<any>(undefined);
   inputR$.next(inputS$());
-  let data: Observable<Output> = inputR$.pipe(
+  const data: Observable<Output> = inputR$.pipe(
     tap(() => {
       loading$.set(true);
     }),
     options?.pipe ? options.pipe : (pipe() as any),
     shareReplay(),
   );
+  const oldOutputSet = outputS$.set;
+
   data.subscribe((value) => {
-    outputS$.set(value);
+    oldOutputSet(value);
     loading$.set(false);
   });
-  let oldSet = inputS$.set;
-  let changed$ = inputS$ as any as ObservableSignal<Input, Output>;
+  const oldSet = inputS$.set;
+  const changed$ = outputS$ as any as ObservableSignal<Input, Output>;
   changed$.set = (value: Input) => {
     inputR$.next(value);
     return oldSet(value);
   };
   changed$.update = (fn: (value: Input) => Input) => {
     const newValue = fn(inputS$());
-    inputR$.next(newValue);
-    return oldSet(newValue);
+    return changed$.set(newValue);
   };
   changed$.output = outputS$;
   changed$.input = inputS$;

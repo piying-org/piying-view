@@ -21,13 +21,11 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
     const field = rawConfig;
     const type = rawConfig.type;
     let componentDefaultConfig: PiComponentDefaultConfig | undefined;
-    let define;
     const mergeStrategy = this.#globalConfig
       .defaultConfigMergeStrategy as ConfigMergeStrategyObject;
 
     if (type) {
       const result = this.#resolveComponent(type);
-      define = result.define;
       componentDefaultConfig = result.defaultConfig;
     }
 
@@ -35,11 +33,10 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
       [componentDefaultConfig?.directives, field.directives],
       true,
       mergeStrategy?.directives ?? NG_CONFIG_DEFAULT_MERGE_STRAGEGY.directives,
+      false,
     );
-    return {
-      ...config,
-      directives: directives,
-    };
+    config.directives = directives;
+    return config;
   }
 
   #resolveComponent(type: string | Type<any> | (() => Promise<Type<any>>)) {

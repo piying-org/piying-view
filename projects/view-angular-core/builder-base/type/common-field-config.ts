@@ -4,13 +4,11 @@ import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
-import {
-  AnyCoreSchemaHandle,
-  CoreSchemaHandle,
-  setComponent,
-} from '../../convert';
+import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
 import { KeyPath, SetWrapper$, Wrapper$, LazyImport } from '../../util';
-import { BaseMetadata, BaseTransformation, BaseValidation } from 'valibot';
+import { BaseMetadata } from 'valibot';
+import { CombineSignal } from '../../util/create-combine-signal';
+import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
@@ -86,7 +84,7 @@ export type PiResolvedCommonViewFieldConfig<
   };
   readonly define?: WritableSignal<Define>;
 
-  wrappers: WritableSignal<CoreResolvedWrapperConfig[]>;
+  wrappers: CombineSignal<CoreResolvedWrapperConfig>;
 } & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias'>> &
   Readonly<
     Wrapper$<
@@ -153,7 +151,8 @@ export type CoreWrapperConfig1 = {
 export type CoreRawWrapperConfig = string | CoreWrapperConfig1;
 export type CoreResolvedWrapperConfig = {
   type: any | LazyImport<any>;
-  attributes: WritableSignal<CoreRawViewAttributes | undefined>;
-  inputs: WritableSignal<CoreRawViewInputs | undefined>;
+  inputs: AsyncObjectSignal<CoreRawViewInputs | undefined>;
   outputs?: CoreRawViewOutputs;
+  attributes: AsyncObjectSignal<CoreRawViewAttributes | undefined>;
+  events: AsyncObjectSignal<Record<string, (event: any) => any> | undefined>;
 };

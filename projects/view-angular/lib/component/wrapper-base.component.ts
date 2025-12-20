@@ -27,7 +27,7 @@ export class PiyingViewWrapperBase extends BaseComponent {
     list?: DynamicComponentConfig[],
     viewContainerRef?: ViewContainerRef,
   ) {
-    let anchor = viewContainerRef ?? this.fieldComponentAnchor()!;
+    const anchor = viewContainerRef ?? this.fieldComponentAnchor()!;
     if (!anchor) {
       return;
     }

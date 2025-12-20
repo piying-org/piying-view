@@ -84,13 +84,21 @@ describe('input/output action', () => {
     expect(inputs['value1']).toBe(1);
   });
   it('remove input', async () => {
-    const obj = v.pipe(v.string(), removeInputs(['k1']));
+    const obj = v.pipe(
+      v.string(),
+      removeInputs(['k1']),
+      setComponent('mock-input'),
+    );
     const resolved = createBuilder(obj);
     const inputs = resolved.inputs();
     expect(Object.keys(inputs).length).toBe(0);
   });
   it('remove output', async () => {
-    const obj = v.pipe(v.string(), removeOutputs(['k1']));
+    const obj = v.pipe(
+      v.string(),
+      removeOutputs(['k1']),
+      setComponent('mock-input'),
+    );
     const resolved = createBuilder(obj);
     const outputs = resolved.outputs();
     expect(Object.keys(outputs).length).toBe(0);

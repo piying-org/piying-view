@@ -1,10 +1,17 @@
 import { rawConfig } from './raw-config';
-import { CoreRawWrapperConfig } from '../../builder-base';
-import { toArray } from '../../util';
+import {
+  CoreRawWrapperConfig,
+  CoreResolvedWrapperConfig,
+} from '../../builder-base';
+import { ObservableSignal, observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
-import { signal } from '@angular/core';
-import { asyncInputMerge, AsyncProperty } from './input';
+import { Signal, signal, WritableSignal } from '@angular/core';
+import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
+import { map, pipe } from 'rxjs';
+import { asyncInputMerge, WrapperSymbol } from './input-common';
+import { RawConfigAction } from '@piying/valibot-visit';
+import { asyncObjectSignal } from '../../util/create-async-object-signal';
 
 export function setWrappers<T>(wrappers: CoreRawWrapperConfig[]) {
   return rawConfig<T>((field) => {
@@ -47,7 +54,7 @@ export function patchAsyncWrapper<T>(
       {
         allFieldsResolved: (field) => {
           const findConfig = field.injector.get(FindConfigToken);
-          let inputs$ = signal({});
+          let inputs$ = asyncObjectSignal({});
           if (inputWrapper.inputs && Object.keys(inputWrapper.inputs).length) {
             inputs$ = asyncInputMerge(
               Object.entries(inputWrapper.inputs).reduce(
@@ -60,7 +67,7 @@ export function patchAsyncWrapper<T>(
               inputs$,
             );
           }
-          let attributes$ = signal({});
+          let attributes$ = asyncObjectSignal({});
           if (
             inputWrapper.attributes &&
             Object.keys(inputWrapper.attributes).length
@@ -76,7 +83,7 @@ export function patchAsyncWrapper<T>(
               attributes$,
             );
           }
-          let events$ = signal({});
+          let events$ = asyncObjectSignal({});
 
           if (inputWrapper.events && Object.keys(inputWrapper.events).length) {
             events$ = asyncInputMerge(
@@ -99,13 +106,13 @@ export function patchAsyncWrapper<T>(
             }
           }
           const defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
-          const newWrapper = {
+          const newWrapper = signal({
             ...defaultWrapperConfig,
             inputs: inputs$,
             outputs,
             attributes: attributes$,
             events: events$,
-          };
+          });
           field.wrappers.update((wrappers) =>
             options.position === 'tail'
               ? [...wrappers, newWrapper]
@@ -118,23 +125,101 @@ export function patchAsyncWrapper<T>(
     );
   });
 }
-export function removeWrappers<T>(list: string[]) {
+export function removeWrappers<T>(removeList: string[]) {
   return rawConfig<T>((field) => {
-    if (!field.wrappers) {
-      return;
-    }
-    const wrappers = field.wrappers;
-    for (let i = 0; i < list.length; i++) {
-      const name = list[i];
-      for (let j = 0; j < wrappers.length; j++) {
-        const config = wrappers[j];
-        const name2 = typeof config === 'string' ? config : config.type;
-        if (name2 === name) {
-          wrappers.splice(j, 1);
-          break;
-        }
-      }
-    }
-    field.wrappers = wrappers;
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          let list = field.wrappers.items().filter((item) => {
+            let type = (item as ObservableSignal<any, any>).input().type;
+            return removeList.every((name) => name !== type);
+          });
+          field.wrappers.update(() => {
+            return list;
+          });
+        },
+      },
+      { position: 'bottom' },
+      field,
+    );
+  });
+}
+
+export function patchAsyncWrapper2<T>(
+  type: any,
+  actions: RawConfigAction<'rawConfig', any, any>[],
+) {
+  return rawConfig<T>((rawFiled) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          const findConfig = field.injector.get(FindConfigToken);
+          const initData = observableSignal<
+            CoreResolvedWrapperConfig,
+            CoreResolvedWrapperConfig
+          >(
+            {
+              type,
+              attributes: asyncObjectSignal(undefined),
+              events: asyncObjectSignal(undefined),
+              inputs: asyncObjectSignal({}),
+              outputs: {},
+            } as CoreResolvedWrapperConfig,
+            {
+              pipe: pipe(
+                map((item) => {
+                  const defaultWrapperConfig = findConfig.findWrapperComponent(
+                    item.type,
+                  );
+                  return { ...item, type: defaultWrapperConfig };
+                }),
+              ),
+              injector: field.injector,
+            },
+          );
+          field.wrappers.add(initData);
+          for (const item of actions) {
+            const tempField = {};
+            (item.value as any)(tempField, undefined, {
+              [WrapperSymbol]: initData,
+            });
+            (tempField as any).hooks.allFieldsResolved(field);
+          }
+        },
+      },
+      { position: 'bottom' },
+      rawFiled,
+    );
+  });
+}
+export function changeAsyncWrapper2<T>(
+  indexFn: (list: Signal<CoreResolvedWrapperConfig>[]) => any,
+  actions: RawConfigAction<'rawConfig', any, any>[],
+) {
+  return rawConfig<T>((rawFiled) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          let initData = indexFn(
+            field.wrappers
+              .items()
+              .map((item) => (item as ObservableSignal<any, any>).input),
+          );
+
+          if (!initData) {
+            throw new Error(`change wrapper not found`);
+          }
+          for (const item of actions) {
+            const tempField = {};
+            (item.value as any)(tempField, undefined, {
+              [WrapperSymbol]: initData,
+            });
+            (tempField as any).hooks.allFieldsResolved(field);
+          }
+        },
+      },
+      { position: 'bottom' },
+      rawFiled,
+    );
   });
 }
