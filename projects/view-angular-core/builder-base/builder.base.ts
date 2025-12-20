@@ -45,6 +45,7 @@ import {
   UnWrapSignal,
   toArray,
   KeyPath,
+  observableSignal,
 } from '../util';
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
@@ -53,6 +54,7 @@ import {
   AsyncObjectSignal,
   asyncObjectSignal,
 } from '../util/create-async-object-signal';
+import { map, pipe } from 'rxjs';
 
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
@@ -172,7 +174,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       true,
       mergeStrategy?.wrappers ?? DCONFIG_EFAULT_MERGE_STRAGEGY.wrappers,
     );
-    const wrappers = this.#resolveWrappers(wrappers1);
+    const wrappers = this.#resolveWrappers(wrappers1, this.#envInjector);
     const props = this.configMerge(
       [
         this.#globalConfig?.defaultConfig?.props,
@@ -603,16 +605,28 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     parent.fixedChildren!().push(inputField);
   }
   #findConfig = inject(FindConfigToken);
-  #resolveWrappers(wrappers?: CoreRawWrapperConfig[]) {
+  #resolveWrappers(wrappers: CoreRawWrapperConfig[], injector: Injector) {
     const result = (wrappers ?? []).map((wrapper) => {
       const config = this.#findConfig.findWrapper(wrapper);
-      return signal({
-        inputs: asyncObjectSignal(config.inputs),
-        outputs: config.outputs,
-        attributes: asyncObjectSignal(config.attributes),
-        events: asyncObjectSignal(config.events),
-        type: config.type,
-      });
+      return observableSignal(
+        {
+          inputs: asyncObjectSignal(config.inputs),
+          outputs: config.outputs,
+          attributes: asyncObjectSignal(config.attributes),
+          events: asyncObjectSignal(config.events),
+          type: config.type,
+        },
+        {
+          pipe: pipe(
+            map((item) => {
+              const defaultWrapperConfig =
+                this.#findConfig.findWrapperComponent(item.type);
+              return { ...item, type: defaultWrapperConfig };
+            }),
+          ),
+          injector: injector,
+        },
+      );
     });
     return combineSignal(result);
   }

@@ -125,24 +125,23 @@ export function patchAsyncWrapper<T>(
     );
   });
 }
-export function removeWrappers<T>(list: string[]) {
+export function removeWrappers<T>(removeList: string[]) {
   return rawConfig<T>((field) => {
-    if (!field.wrappers) {
-      return;
-    }
-    const wrappers = field.wrappers;
-    for (let i = 0; i < list.length; i++) {
-      const name = list[i];
-      for (let j = 0; j < wrappers.length; j++) {
-        const config = wrappers[j];
-        const name2 = typeof config === 'string' ? config : config.type;
-        if (name2 === name) {
-          wrappers.splice(j, 1);
-          break;
-        }
-      }
-    }
-    field.wrappers = wrappers;
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          let list = field.wrappers.items().filter((item) => {
+            let type = (item as ObservableSignal<any, any>).input().type;
+            return removeList.every((name) => name !== type);
+          });
+          field.wrappers.update(() => {
+            return list;
+          });
+        },
+      },
+      { position: 'bottom' },
+      field,
+    );
   });
 }
 
