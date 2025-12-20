@@ -33,6 +33,7 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
       [componentDefaultConfig?.directives, field.directives],
       true,
       mergeStrategy?.directives ?? NG_CONFIG_DEFAULT_MERGE_STRAGEGY.directives,
+      false,
     );
     config.directives = directives;
     return config;

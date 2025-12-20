@@ -12,3 +12,4 @@ export * from './control-status-to-class';
 export * from './init-listen';
 export * from './get-error';
 export * from './create-observable-signal';
+export * from './create-async-object-signal';

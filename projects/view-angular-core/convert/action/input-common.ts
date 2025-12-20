@@ -11,56 +11,18 @@ import { Observable } from 'rxjs';
 import { isPromise, isSubscribable } from '../util/is-promise';
 import { rawConfig } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
+import {
+  asyncObjectSignal,
+  AsyncObjectSignal,
+} from '../../util/create-async-object-signal';
 
 export function asyncInputMerge(
   dataObj: Record<string, any>,
-  data$: WritableSignal<any>,
+  data$: AsyncObjectSignal<any>,
 ) {
-  const signalObj = {} as Record<string, Signal<any>>;
-  const inputList = Object.keys(dataObj);
-
-  inputList.forEach((key) => {
-    const result = dataObj[key];
-    if (isPromise(result)) {
-      // promise
-      result.then((value: any) => {
-        data$.update((lastData) => ({ ...lastData, [key]: value }));
-      });
-    } else if (isSubscribable(result)) {
-      // rxjs
-      result.subscribe({
-        next: (value) => {
-          data$.update((lastData) => ({ ...lastData, [key]: value }));
-        },
-      });
-    } else if (isSignal(result)) {
-      signalObj[key] = result;
-    } else {
-      // 普通类型
-      data$.update((lastData) => ({ ...lastData, [key]: result }));
-    }
+  Object.keys(dataObj).forEach((key) => {
+    data$.connect(key, dataObj[key]);
   });
-  const signalKeyList = Object.keys(signalObj);
-
-  if (signalKeyList.length) {
-    const newData = linkedSignal(
-      computed(() => ({
-        ...data$(),
-        ...signalKeyList.reduce(
-          (obj, key) => ({ ...obj, [key]: signalObj[key]() }),
-          {} as Record<string, any>,
-        ),
-      })),
-    );
-    newData.set = (value) => {
-      data$.set(value);
-    };
-    newData.update = (fn: any) => {
-      const result = fn(newData());
-      data$.set(result);
-    };
-    return newData;
-  }
   return data$;
 }
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
@@ -86,7 +48,8 @@ export const patchAsyncInputsCommonFn =
               data$ = field.define!;
             }
             const needInited = !data$()[key];
-            const content$: WritableSignal<any> = data$()[key] ?? signal({});
+            const content$: AsyncObjectSignal<any> =
+              data$()[key] ?? asyncObjectSignal({});
             const inputList = Object.keys(dataObj);
             // 设置初始值
             content$.update((content) => ({

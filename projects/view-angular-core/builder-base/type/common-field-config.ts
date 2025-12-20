@@ -8,6 +8,7 @@ import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
 import { KeyPath, SetWrapper$, Wrapper$, LazyImport } from '../../util';
 import { BaseMetadata } from 'valibot';
 import { CombineSignal } from '../../util/create-combine-signal';
+import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
@@ -150,8 +151,8 @@ export type CoreWrapperConfig1 = {
 export type CoreRawWrapperConfig = string | CoreWrapperConfig1;
 export type CoreResolvedWrapperConfig = {
   type: any | LazyImport<any>;
-  inputs: WritableSignal<CoreRawViewInputs | undefined>;
+  inputs: AsyncObjectSignal<CoreRawViewInputs | undefined>;
   outputs?: CoreRawViewOutputs;
-  attributes: WritableSignal<CoreRawViewAttributes | undefined>;
-  events: WritableSignal<Record<string, (event: any) => any> | undefined>;
+  attributes: AsyncObjectSignal<CoreRawViewAttributes | undefined>;
+  events: AsyncObjectSignal<Record<string, (event: any) => any> | undefined>;
 };

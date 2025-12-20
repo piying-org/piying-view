@@ -50,6 +50,10 @@ import {
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
 import { combineSignal } from '../util/create-combine-signal';
+import {
+  AsyncObjectSignal,
+  asyncObjectSignal,
+} from '../util/create-async-object-signal';
 
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
@@ -137,6 +141,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       ],
       false,
       mergeStrategy?.inputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.inputs,
+      true,
     );
     const outputs = this.configMerge(
       [
@@ -146,6 +151,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       ],
       false,
       mergeStrategy?.outputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.outputs,
+      true,
     );
     const attributes = this.configMerge(
       [
@@ -155,8 +161,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       ],
       false,
       mergeStrategy?.attributes ?? DCONFIG_EFAULT_MERGE_STRAGEGY.attributes,
+      true,
     );
-    const events = signal(field.events);
+    const events = asyncObjectSignal(field.events);
     const wrappers1 = this.configMergeRaw(
       [
         this.#globalConfig?.defaultConfig?.wrappers,
@@ -175,6 +182,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       ],
       false,
       mergeStrategy?.props ?? DCONFIG_EFAULT_MERGE_STRAGEGY.props,
+      true,
     );
 
     const formConfig$ = this.configMerge(
@@ -185,6 +193,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       ],
       false,
       mergeStrategy?.formConfig ?? DCONFIG_EFAULT_MERGE_STRAGEGY.formConfig,
+      false,
     );
     const renderConfig = this.configMerge(
       [
@@ -194,6 +203,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       ],
       false,
       mergeStrategy?.renderConfig ?? DCONFIG_EFAULT_MERGE_STRAGEGY.renderConfig,
+      false,
     );
     let control;
     let keyPath: RawKeyPath | undefined = field.key;
@@ -527,7 +537,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return result;
   }
 
-  protected configMergeRaw<T extends SignalInputValue<any>>(
+  protected configMergeRaw<T extends SignalInputValue<Record<string, any>>>(
     list: T[],
     isArray: boolean,
     strategy: ConfigMergeStrategy,
@@ -566,12 +576,22 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   /**
    * 后面覆盖前面
    * */
-  protected configMerge<T extends SignalInputValue<any>>(
+  protected configMerge<
+    T extends SignalInputValue<Record<string, any>>,
+    IsInput extends boolean,
+  >(
     list: T[],
     isArray: boolean,
     strategy: ConfigMergeStrategy,
-  ): WritableSignal<UnWrapSignal<NonNullable<T>>> {
-    return signal(this.configMergeRaw(list, isArray, strategy));
+    isInput: IsInput,
+  ): IsInput extends true
+    ? AsyncObjectSignal<UnWrapSignal<NonNullable<T>>>
+    : WritableSignal<UnWrapSignal<NonNullable<T>>> {
+    return isInput
+      ? (asyncObjectSignal(
+          this.configMergeRaw(list, isArray, strategy) as any,
+        ) as any)
+      : (signal(this.configMergeRaw(list, isArray, strategy)) as any);
   }
   #moveViewField(key: KeyPath, inputField: _PiResolvedCommonViewFieldConfig) {
     const parent = fieldQuery(
@@ -594,10 +614,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const result = (wrappers ?? []).map((wrapper) => {
       const config = this.#findConfig.findWrapper(wrapper);
       return signal({
-        inputs: signal(config.inputs),
+        inputs: asyncObjectSignal(config.inputs),
         outputs: config.outputs,
-        attributes: signal(config.attributes),
-        events: signal(config.events),
+        attributes: asyncObjectSignal(config.attributes),
+        events: asyncObjectSignal(config.events),
         type: config.type,
       });
     });

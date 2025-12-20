@@ -11,6 +11,7 @@ import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { asyncInputMerge, WrapperSymbol } from './input-common';
 import { RawConfigAction } from '@piying/valibot-visit';
+import { asyncObjectSignal } from '../../util/create-async-object-signal';
 
 export function setWrappers<T>(wrappers: CoreRawWrapperConfig[]) {
   return rawConfig<T>((field) => {
@@ -53,7 +54,7 @@ export function patchAsyncWrapper<T>(
       {
         allFieldsResolved: (field) => {
           const findConfig = field.injector.get(FindConfigToken);
-          let inputs$ = signal({});
+          let inputs$ = asyncObjectSignal({});
           if (inputWrapper.inputs && Object.keys(inputWrapper.inputs).length) {
             inputs$ = asyncInputMerge(
               Object.entries(inputWrapper.inputs).reduce(
@@ -66,7 +67,7 @@ export function patchAsyncWrapper<T>(
               inputs$,
             );
           }
-          let attributes$ = signal({});
+          let attributes$ = asyncObjectSignal({});
           if (
             inputWrapper.attributes &&
             Object.keys(inputWrapper.attributes).length
@@ -82,7 +83,7 @@ export function patchAsyncWrapper<T>(
               attributes$,
             );
           }
-          let events$ = signal({});
+          let events$ = asyncObjectSignal({});
 
           if (inputWrapper.events && Object.keys(inputWrapper.events).length) {
             events$ = asyncInputMerge(
@@ -160,9 +161,9 @@ export function patchAsyncWrapper2<T>(
           >(
             {
               type,
-              attributes: signal(undefined),
-              events: signal(undefined),
-              inputs: signal({}),
+              attributes: asyncObjectSignal(undefined),
+              events: asyncObjectSignal(undefined),
+              inputs: asyncObjectSignal({}),
               outputs: {},
             } as CoreResolvedWrapperConfig,
             {

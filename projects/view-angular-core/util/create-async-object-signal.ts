@@ -19,10 +19,9 @@ export type AsyncObjectSignal<Input> = Signal<Input> & {
   set(value: Input): void;
   update(updateFn: (value: Input) => Input): void;
 };
-export function asyncObjectSignal<Input extends Record<string, any>>(
-  initialValue: Input = {} as Input,
-  options?: CreateSignalOptions<Input>,
-) {
+export function asyncObjectSignal<
+  Input extends Record<string, any> | undefined,
+>(initialValue: Input, options?: CreateSignalOptions<Input>) {
   const data$ = signal(initialValue);
   let signalList$ = signal<[string, Signal<any>][]>([]);
   let value$$ = computed(() => {
@@ -33,7 +32,7 @@ export function asyncObjectSignal<Input extends Record<string, any>>(
     }
     let data2 = { ...data };
     signalList.forEach(([key, value]) => {
-      (data2[key] as Record<string, any>) = value();
+      (data2![key] as Record<string, any>) = value();
     });
     return data2;
   }, options);

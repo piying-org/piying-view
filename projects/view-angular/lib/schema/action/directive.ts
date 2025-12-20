@@ -1,6 +1,7 @@
 import {
   _PiResolvedCommonViewFieldConfig,
   asyncInputMerge,
+  asyncObjectSignal,
   mergeHooksFn,
 } from '@piying/view-angular-core';
 import { NgDirectiveConfig } from '../../type';
@@ -31,7 +32,7 @@ export function patchAsyncDirective<T>(
           field.directives ??= signal([]);
           const directive = fn(field);
           const inputs = directive.inputs;
-          let inputs$ = signal<Record<string, any>>({});
+          let inputs$ = asyncObjectSignal<Record<string, any>>({});
           if (inputs) {
             inputs$.set(
               Object.keys(inputs).reduce(
