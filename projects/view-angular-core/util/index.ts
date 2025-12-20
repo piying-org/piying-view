@@ -13,3 +13,4 @@ export * from './init-listen';
 export * from './get-error';
 export * from './create-observable-signal';
 export * from './create-async-object-signal';
+export * from './create-combine-signal';

@@ -1,5 +1,6 @@
 import { rawConfig } from './raw-config';
 import {
+  _PiResolvedCommonViewFieldConfig,
   CoreRawWrapperConfig,
   CoreResolvedWrapperConfig,
 } from '../../builder-base';
@@ -40,10 +41,14 @@ export function patchWrappers<T>(
 }
 export type AsyncCoreRawWrapperConfig = Omit<
   Exclude<CoreRawWrapperConfig, string>,
-  'inputs' | 'attributes'
+  'inputs' | 'attributes' | 'outputs'
 > & {
   inputs?: Record<string, AsyncProperty>;
   attributes?: Record<string, AsyncProperty>;
+  outputs?: Record<
+    string,
+    (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
+  >;
 };
 export function patchAsyncWrapper<T>(
   inputWrapper: AsyncCoreRawWrapperConfig,
@@ -97,19 +102,32 @@ export function patchAsyncWrapper<T>(
               events$,
             );
           }
-          const oldOutputs = inputWrapper.outputs;
-          const outputs: Record<string, (...args: any) => any> = {};
-          if (oldOutputs && Object.keys(oldOutputs).length) {
-            for (const key in oldOutputs) {
-              const oldFn = oldOutputs[key];
-              outputs[key] = (...args: any[]) => (oldFn as any)(...args, field);
-            }
+          let outputs$ = asyncObjectSignal<
+            Record<
+              string,
+              (field: _PiResolvedCommonViewFieldConfig) => (...args: any) => any
+            >
+          >({});
+          if (
+            inputWrapper.outputs &&
+            Object.keys(inputWrapper.outputs).length
+          ) {
+            outputs$ = asyncInputMerge(
+              Object.entries(inputWrapper.outputs).reduce(
+                (obj, [key, value]) => {
+                  obj[key] = value(field);
+                  return obj;
+                },
+                {} as Record<string, any>,
+              ),
+              outputs$,
+            );
           }
           const defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
           const newWrapper = signal({
             ...defaultWrapperConfig,
             inputs: inputs$,
-            outputs,
+            outputs: outputs$,
             attributes: attributes$,
             events: events$,
           });
@@ -163,7 +181,7 @@ export function patchAsyncWrapper2<T>(
               attributes: asyncObjectSignal(undefined),
               events: asyncObjectSignal(undefined),
               inputs: asyncObjectSignal({}),
-              outputs: {},
+              outputs: asyncObjectSignal({}),
             } as CoreResolvedWrapperConfig,
             {
               pipe: pipe(

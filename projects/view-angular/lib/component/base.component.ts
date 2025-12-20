@@ -53,13 +53,13 @@ function createInputsBind(inputs?: Signal<CoreRawViewInputs | undefined>) {
   );
 }
 function createOutputsBind(
-  outputs?: CoreRawViewOutputs,
+  outputs?: () => CoreRawViewOutputs | undefined,
   config?: Signal<PiResolvedViewFieldConfig>,
 ) {
-  if (!outputs) {
+  if (!outputs?.()) {
     return [];
   }
-  return Object.entries(outputs).map(([key, value]) =>
+  return Object.entries(outputs!()!).map(([key, value]) =>
     outputBinding(key, config ? (event) => value(event, config()) : value),
   );
 }
@@ -174,7 +174,9 @@ export class BaseComponent {
             config.inputs
               ? computed(() => {
                   this.#configUpdate$();
-                  return this.#componentConfig!.directives![index].inputs!();
+                  return (
+                    this.#componentConfig!.directives![index].inputs!() ?? {}
+                  );
                 })
               : undefined,
         ),

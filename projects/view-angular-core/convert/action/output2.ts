@@ -1,15 +1,17 @@
 import { rawConfig } from './raw-config';
-import {
-  _PiResolvedCommonViewFieldConfig,
-  CoreRawViewOutputs,
-} from '../../builder-base';
+import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
-import { patchAsyncInputsCommonFn, removeInputsCommonFn } from './input-common';
+export interface CoreRawViewOutputs2 {
+  [name: string]: (
+    field: _PiResolvedCommonViewFieldConfig,
+  ) => (...args: any[]) => void;
+}
+
 function createOutputListener<T>(
-  outputs: CoreRawViewOutputs,
+  outputs: CoreRawViewOutputs2,
   options: { setOutputs: boolean; mergeOutput: boolean },
 ) {
   return rawConfig<T>((field) => {
@@ -24,7 +26,7 @@ function createOutputListener<T>(
                 if (options.mergeOutput && oldFn) {
                   oldFn(...args, field);
                 }
-                return (outputs as any)[key](...args, field);
+                return (outputs as any)[key](field)(...args);
               };
             }
             return originOutputs;
@@ -36,20 +38,19 @@ function createOutputListener<T>(
     );
   });
 }
-export function setOutputs<T>(outputs: CoreRawViewOutputs) {
+export function setOutputs2<T>(outputs: CoreRawViewOutputs2) {
   return createOutputListener<T>(outputs, {
     setOutputs: true,
     mergeOutput: false,
   });
 }
-export function patchOutputs<T>(outputs: CoreRawViewOutputs) {
+export function patchOutputs2<T>(outputs: CoreRawViewOutputs2) {
   return createOutputListener<T>(outputs, {
     setOutputs: false,
     mergeOutput: false,
   });
 }
-export const patchAsyncOutputs = patchAsyncInputsCommonFn('outputs');
-export function removeOutputs<T>(list: string[]) {
+export function removeOutputs2<T>(list: string[]) {
   return rawConfig<T>((field) => {
     mergeHooksFn(
       {
@@ -73,7 +74,7 @@ export function removeOutputs<T>(list: string[]) {
 
 export function mergeOutputFn(
   field: _PiResolvedCommonViewFieldConfig,
-  outputs: CoreRawViewOutputs,
+  outputs: CoreRawViewOutputs2,
 ) {
   field.outputs.update((originOutputs) => {
     originOutputs = { ...originOutputs };
@@ -88,9 +89,7 @@ export function mergeOutputFn(
   });
 }
 
-export const mergeOutputs = <T>(
-  outputs: Record<string, (...args: any[]) => void>,
-) =>
+export const mergeOutputs2 = <T>(outputs: CoreRawViewOutputs2) =>
   createOutputListener<T>(outputs, {
     setOutputs: false,
     mergeOutput: true,
@@ -125,9 +124,11 @@ export function outputChangeFn(
             const emitField = !item.list ? field : field.get(item.list)!;
             const subject = new Subject();
             mergeOutputFn(field, {
-              [item.output]: (...args: any[]) => {
-                subject.next(args);
-              },
+              [item.output]:
+                () =>
+                (...args: any[]) => {
+                  subject.next(args);
+                },
             });
             resultList.push({
               subject,
@@ -151,6 +152,6 @@ export function outputChangeFn(
   );
 }
 
-export function outputChange<T>(fn: EventChangeFn) {
+export function outputChange2<T>(fn: EventChangeFn) {
   return rawConfig<T>((field) => outputChangeFn(field, fn));
 }

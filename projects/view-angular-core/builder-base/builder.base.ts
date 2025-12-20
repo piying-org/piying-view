@@ -588,6 +588,17 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         ) as any)
       : (signal(this.configMergeRaw(list, isArray, strategy)) as any);
   }
+  /** 临时增加,之后要删除 */
+  protected configMergeD<T extends SignalInputValue<Record<string, any>>>(
+    list: T[],
+    isArray: boolean,
+    strategy: ConfigMergeStrategy,
+  ) {
+    let result = this.configMergeRaw(list, isArray, strategy) as any[];
+    return combineSignal<any>(
+      result.map((item) => asyncObjectSignal(item)) as any,
+    );
+  }
   #moveViewField(key: KeyPath, inputField: _PiResolvedCommonViewFieldConfig) {
     const parent = fieldQuery(
       key,
@@ -611,7 +622,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       return observableSignal(
         {
           inputs: asyncObjectSignal(config.inputs),
-          outputs: config.outputs,
+          outputs: asyncObjectSignal(config.outputs),
           attributes: asyncObjectSignal(config.attributes),
           events: asyncObjectSignal(config.events),
           type: config.type,

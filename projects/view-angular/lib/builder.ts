@@ -29,11 +29,10 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
       componentDefaultConfig = result.defaultConfig;
     }
 
-    const directives = this.configMerge(
+    const directives = this.configMergeD(
       [componentDefaultConfig?.directives, field.directives],
       true,
       mergeStrategy?.directives ?? NG_CONFIG_DEFAULT_MERGE_STRAGEGY.directives,
-      false,
     );
     config.directives = directives;
     return config;

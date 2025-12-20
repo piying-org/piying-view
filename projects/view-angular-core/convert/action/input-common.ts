@@ -30,7 +30,7 @@ type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 export const WrapperSymbol = Symbol();
 
 export const removeInputsCommonFn =
-  (key: 'inputs' | 'attributes' | 'events' | 'props') =>
+  (key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') =>
   <T>(list: string[]) =>
     rawConfig<T>((rawField, _, ...args) =>
       mergeHooksFn(
@@ -65,7 +65,7 @@ export const removeInputsCommonFn =
       ),
     );
 export const patchAsyncInputsCommonFn =
-  (key: 'inputs' | 'attributes' | 'events' | 'props') =>
+  (key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') =>
   <T>(dataObj: Record<string, AsyncProperty>) =>
     rawConfig<T>((rawField, _, ...args) =>
       mergeHooksFn(

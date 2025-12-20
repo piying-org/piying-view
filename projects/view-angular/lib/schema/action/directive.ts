@@ -2,12 +2,15 @@ import {
   _PiResolvedCommonViewFieldConfig,
   asyncInputMerge,
   asyncObjectSignal,
+  combineSignal,
   mergeHooksFn,
+  WrapperSymbol,
 } from '@piying/view-angular-core';
 import { NgDirectiveConfig } from '../../type';
 import { rawConfig } from './raw-config';
 import { NgSchemaHandle } from '../ng-schema';
-import { linkedSignal, signal } from '@angular/core';
+import { linkedSignal, signal, Type } from '@angular/core';
+import { RawConfigAction } from '@piying/valibot-visit';
 
 export function setDirectives<T>(items: NgDirectiveConfig[]) {
   return rawConfig<T>((field) => {
@@ -21,39 +24,33 @@ export function patchDirectives<T>(items: NgDirectiveConfig[]) {
   });
 }
 export function patchAsyncDirective<T>(
-  fn: (
-    field: _PiResolvedCommonViewFieldConfig,
-  ) => Omit<NgDirectiveConfig, 'inputs'> & { inputs?: Record<string, any> },
+  type: Type<any>,
+  actions: RawConfigAction<'rawConfig', any, any>[],
 ) {
-  return rawConfig<T>((field) => {
-    mergeHooksFn<NgSchemaHandle>(
+  return rawConfig<T>((rawFiled) => {
+    mergeHooksFn(
       {
-        fieldResolved: (field) => {
-          field.directives ??= signal([]);
-          const directive = fn(field);
-          const inputs = directive.inputs;
-          let inputs$ = asyncObjectSignal<Record<string, any>>({});
-          if (inputs) {
-            inputs$.set(
-              Object.keys(inputs).reduce(
-                (obj, key) => {
-                  obj[key] = undefined;
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-            );
-            inputs$ = asyncInputMerge(inputs, inputs$);
+        allFieldsResolved: (field) => {
+          field.directives ??= combineSignal([]);
+          const initData = signal({
+            type,
+            attributes: asyncObjectSignal(undefined),
+            events: asyncObjectSignal(undefined),
+            inputs: asyncObjectSignal({}),
+            outputs: asyncObjectSignal({}),
+          } as NgDirectiveConfig);
+          field.directives.add(initData);
+          for (const item of actions) {
+            const tempField = {};
+            (item.value as any)(tempField, undefined, {
+              [WrapperSymbol]: initData,
+            });
+            (tempField as any).hooks.allFieldsResolved(field);
           }
-          const oldDirectives = field.directives;
-          field.directives = linkedSignal(() => [
-            ...oldDirectives(),
-            { ...directive, inputs: inputs$ },
-          ]);
         },
       },
       { position: 'bottom' },
-      field,
+      rawFiled,
     );
   });
 }

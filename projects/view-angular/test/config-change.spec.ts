@@ -13,7 +13,7 @@ import {
   setWrappers,
 } from '@piying/view-angular-core';
 
-describe('配置切换时', () => {
+describe('配置切换时-angular', () => {
   it('field,model同时变更时的值', async () => {
     let field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({

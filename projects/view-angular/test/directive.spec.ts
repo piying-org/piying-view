@@ -3,8 +3,12 @@ import { createSchemaComponent } from './util/create-component';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
-import { getField, hooksConfig } from './util/action';
-import { setComponent } from '@piying/view-angular-core';
+import { getField, hooksConfig, mergeHooks } from './util/action';
+import {
+  patchAsyncInputs,
+  patchAsyncOutputs,
+  setComponent,
+} from '@piying/view-angular-core';
 
 import {
   patchAsyncDirective,
@@ -59,10 +63,7 @@ describe('指令', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        patchAsyncDirective((field) => {
-          expect(field.renderConfig).toBeTruthy();
-          return { type: D1Directive };
-        }),
+        patchAsyncDirective(D1Directive, []),
         getField(field$),
       ),
     });
@@ -79,10 +80,9 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective((field) => ({
-        type: D1Directive,
-        inputs: { id: Promise.resolve('d1') },
-      })),
+      patchAsyncDirective(D1Directive, [
+        patchAsyncInputs({ id: () => Promise.resolve('d1') }),
+      ]),
       getField(field$),
     );
     const { fixture, instance, element } = await createSchemaComponent(
@@ -98,10 +98,10 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective((field) => ({
-        type: D1Directive,
-        inputs: { id: new BehaviorSubject('d1') },
-      })),
+      patchAsyncDirective(D1Directive, [
+        patchAsyncInputs({ id: () => new BehaviorSubject('d1') }),
+      ]),
+
       getField(field$),
     );
     const { fixture, instance, element } = await createSchemaComponent(
@@ -117,10 +117,10 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective((field) => ({
-        type: D1Directive,
-        inputs: { id: signal('d1') },
-      })),
+      patchAsyncDirective(D1Directive, [
+        patchAsyncInputs({ id: () => signal('d1') }),
+      ]),
+
       getField(field$),
     );
     const { fixture, instance, element } = await createSchemaComponent(
@@ -133,22 +133,21 @@ describe('指令', () => {
   });
   it('指令输入', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const define = v.object({
-      v1: v.pipe(
-        v.string(),
-        setComponent('test1'),
-        setDirectives([{ type: D1Directive, inputs: signal({ id: '' }) }]),
-        hooksConfig({
-          fieldResolved(field) {
-            field$.resolve(field);
-            (field.directives!()[0].inputs! as WritableSignal<any>).set({
-              id: 'setId',
-            });
-          },
-        }),
-      ),
-    });
-    const { fixture, instance, element } = await createSchemaComponent(
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      patchAsyncDirective(D1Directive, [
+        patchAsyncInputs({ id: () => signal('') }),
+      ]),
+      mergeHooks({
+        allFieldsResolved(field) {
+          field$.resolve(field);
+          field.directives!()[0].inputs!.disconnect('id');
+          field.directives!()[0].inputs!.set({ id: 'setId' });
+        },
+      }),
+    );
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal({ v1: 'd1' }),
     );
@@ -162,16 +161,16 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent(Test1Component),
-      setDirectives([
-        {
-          type: TestNgControlDirective,
-          outputs: {
-            dataChange: (event: any, field) => {
+
+      patchAsyncDirective(TestNgControlDirective, [
+        patchAsyncOutputs({
+          dataChange: (field) => {
+            return (event: any) => {
               expect(field).toBeTruthy();
               ngControl$.resolve(event);
-            },
+            };
           },
-        },
+        }),
       ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
@@ -198,11 +197,13 @@ describe('指令', () => {
   });
 
   it('指令-输入变更', async () => {
-    const inputs = signal({ id: 'id1' });
+    const inputs = signal('id1');
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      setDirectives([{ type: D1Directive, inputs: inputs }]),
+      patchAsyncDirective(D1Directive, [
+        patchAsyncInputs({ id: () => inputs }),
+      ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -211,7 +212,7 @@ describe('指令', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('#id1')).toBeTruthy();
-    inputs.set({ id: 'id2' });
+    inputs.set('id2');
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('#id2')).toBeTruthy();
