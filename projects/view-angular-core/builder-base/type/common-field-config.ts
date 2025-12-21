@@ -106,7 +106,6 @@ export type _PiResolvedCommonViewFieldConfig = PiResolvedCommonViewFieldConfig<
   CoreResolvedComponentDefine
 >;
 
-export type ConfigMergeStrategy = 'merge' | 'replace';
 
 export type PiCommonDefaultConfig = {
   /** @deprecated 使用actions代替 */
@@ -148,7 +147,7 @@ export type CoreWrapperConfig1 = {
   outputs?: CoreRawViewOutputs;
   events?: Record<string, (event: any) => any>;
 };
-export type CoreRawWrapperConfig = string | CoreWrapperConfig1;
+export type CoreRawWrapperConfig = CoreWrapperConfig1;
 export type CoreResolvedWrapperConfig = {
   type: any | LazyImport<any>;
   inputs: AsyncObjectSignal<CoreRawViewInputs | undefined>;

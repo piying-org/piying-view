@@ -3,42 +3,48 @@ import {
   _PiResolvedCommonViewFieldConfig,
   CoreRawWrapperConfig,
   CoreResolvedWrapperConfig,
+  PI_VIEW_CONFIG_TOKEN,
 } from '../../builder-base';
 import { ObservableSignal, observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
 import { Signal, signal } from '@angular/core';
-import { AsyncProperty } from './input';
+import { AsyncProperty, patchAsyncInputs } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { asyncInputMerge, WrapperSymbol } from './input-common';
-import { RawConfigAction } from '@piying/valibot-visit';
+import { metadataList, RawConfigAction } from '@piying/valibot-visit';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
+function objToFnObj(input: any) {
+  return Object.keys(input).reduce((obj, item) => {
+    obj[item] = () => input[item];
+    return obj;
+  }, {} as any);
+}
+export function setWrappers<T>(wrappers: (CoreRawWrapperConfig | string)[]) {
+  return metadataList<T>([
+    setWrapperEmpty(),
+    ...wrappers.map((item) => {
+      if (typeof item === 'string') {
+        return patchAsyncWrapper2(item);
+      }
+      let list = [];
+      if (item.inputs) {
+        list.push(patchAsyncInputs(objToFnObj(item.inputs)));
+      }
+      if (item.outputs) {
+        list.push(patchAsyncInputs(objToFnObj(item.outputs)));
+      }
+      if (item.attributes) {
+        list.push(patchAsyncInputs(objToFnObj(item.attributes)));
+      }
+      if (item.events) {
+        list.push(patchAsyncInputs(objToFnObj(item.events)));
+      }
+      return patchAsyncWrapper2(item.type, list);
+    }),
+  ]);
+}
 
-export function setWrappers<T>(wrappers: CoreRawWrapperConfig[]) {
-  return rawConfig<T>((field) => {
-    field.wrappers = wrappers;
-  });
-}
-type PatchWrappersOptions = {
-  position: 'head' | 'tail';
-};
-const defaultValue: PatchWrappersOptions = {
-  position: 'tail',
-};
-export function patchWrappers<T>(
-  wrappers: CoreRawWrapperConfig | CoreRawWrapperConfig[],
-  options: PatchWrappersOptions = defaultValue,
-) {
-  return rawConfig<T>((field) => {
-    const list = toArray(wrappers)!;
-    field.wrappers ??= [];
-    if (options.position === 'tail') {
-      field.wrappers.push(...list);
-    } else {
-      field.wrappers.unshift(...list);
-    }
-  });
-}
 export type AsyncCoreRawWrapperConfig = Omit<
   Exclude<CoreRawWrapperConfig, string>,
   'inputs' | 'attributes' | 'outputs'
@@ -50,99 +56,7 @@ export type AsyncCoreRawWrapperConfig = Omit<
     (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
   >;
 };
-export function patchAsyncWrapper<T>(
-  inputWrapper: AsyncCoreRawWrapperConfig,
-  options: PatchWrappersOptions = defaultValue,
-) {
-  return rawConfig<T>((field) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          const findConfig = field.injector.get(FindConfigToken);
-          let inputs$ = asyncObjectSignal({});
-          if (inputWrapper.inputs && Object.keys(inputWrapper.inputs).length) {
-            inputs$ = asyncInputMerge(
-              Object.entries(inputWrapper.inputs).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              inputs$,
-            );
-          }
-          let attributes$ = asyncObjectSignal({});
-          if (
-            inputWrapper.attributes &&
-            Object.keys(inputWrapper.attributes).length
-          ) {
-            attributes$ = asyncInputMerge(
-              Object.entries(inputWrapper.attributes).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              attributes$,
-            );
-          }
-          let events$ = asyncObjectSignal({});
 
-          if (inputWrapper.events && Object.keys(inputWrapper.events).length) {
-            events$ = asyncInputMerge(
-              Object.entries(inputWrapper.events).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              events$,
-            );
-          }
-          let outputs$ = asyncObjectSignal<
-            Record<
-              string,
-              (field: _PiResolvedCommonViewFieldConfig) => (...args: any) => any
-            >
-          >({});
-          if (
-            inputWrapper.outputs &&
-            Object.keys(inputWrapper.outputs).length
-          ) {
-            outputs$ = asyncInputMerge(
-              Object.entries(inputWrapper.outputs).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              outputs$,
-            );
-          }
-          const defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
-          const newWrapper = signal({
-            ...defaultWrapperConfig,
-            inputs: inputs$,
-            outputs: outputs$,
-            attributes: attributes$,
-            events: events$,
-          });
-          field.wrappers.update((wrappers) =>
-            options.position === 'tail'
-              ? [...wrappers, newWrapper]
-              : [newWrapper, ...wrappers],
-          );
-        },
-      },
-      { position: 'bottom' },
-      field,
-    );
-  });
-}
 export function removeWrappers<T>(removeList: string[]) {
   return rawConfig<T>((field) => {
     mergeHooksFn(
@@ -161,11 +75,26 @@ export function removeWrappers<T>(removeList: string[]) {
   });
 }
 
+export function setWrapperEmpty<T>() {
+  return rawConfig<T>((rawFiled) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          field.wrappers.clean();
+        },
+      },
+      { position: 'bottom' },
+      rawFiled,
+    );
+  });
+}
 export function patchAsyncWrapper2<T>(
   type: any,
-  actions: RawConfigAction<'rawConfig', any, any>[],
+  actions?: RawConfigAction<'rawConfig', any, any>[],
+  options?: { insertIndex?: number },
 ) {
   return rawConfig<T>((rawFiled) => {
+    // 在这里增加要处理的wrapper类型
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
@@ -193,8 +122,16 @@ export function patchAsyncWrapper2<T>(
               injector: field.injector,
             },
           );
-          field.wrappers.add(initData);
-          for (const item of actions) {
+          field.wrappers.add(initData, options?.insertIndex);
+
+          let defaultConfig = field.injector.get(PI_VIEW_CONFIG_TOKEN);
+          let defaultActions: RawConfigAction<'rawConfig', any, any>[] = [];
+          if (typeof type === 'string') {
+            defaultActions = defaultConfig.wrappers?.[type]?.actions ?? [];
+          }
+          let allActions = [...defaultActions, ...(actions ?? [])];
+
+          for (const item of allActions) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {
               [WrapperSymbol]: initData,

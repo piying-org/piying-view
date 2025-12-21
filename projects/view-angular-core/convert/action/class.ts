@@ -13,7 +13,7 @@ export function topClass<T>(className: ClassValue, merge?: boolean) {
   return rawConfig<T>((rawField) => {
     mergeHooksFn(
       {
-        fieldResolved: (field) => {
+        allFieldsResolved: (field) => {
           const wrappers = field.wrappers();
           if (wrappers?.length) {
             wrappers[0].attributes.update((attributes) => ({

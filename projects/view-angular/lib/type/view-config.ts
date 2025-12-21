@@ -6,10 +6,10 @@ import {
 } from './group';
 import { LazyImport } from '@piying/view-angular-core';
 import {
-  ConfigMergeStrategy,
   CoreRawWrapperConfig,
   CoreWrapperConfig1,
 } from '@piying/view-angular-core';
+import { RawConfigAction } from '@piying/valibot-visit';
 // 全局配置相关
 export type PiComponentDefaultConfig = NgRawComponentDefine & {
   /** @deprecated */
@@ -18,24 +18,14 @@ export type PiComponentDefaultConfig = NgRawComponentDefine & {
   wrappers?: CoreRawWrapperConfig[];
 };
 
-export type ConfigMergeStrategyObject = Record<
-  keyof PiDefaultRawViewFieldConfig,
-  ConfigMergeStrategy
->;
 export interface PiViewConfig {
-  types?: Record<
-    string,
-    PiComponentDefaultConfig & {
-      /** @deprecated 使用actions */ props?: Record<string, any>;
-    }
-  >;
+  types?: Record<string, Pick<PiComponentDefaultConfig, 'type' | 'actions'>>;
   wrappers?: Record<
     string,
-    Omit<CoreWrapperConfig1, 'type'> & {
+    {
       type: Type<any> | LazyImport<Type<any>>;
+      /** 目前设计为field全部初始化后再用,也就是等价为patchAsyncWrapper */
+      actions?: RawConfigAction<'rawConfig', any, any>[];
     }
   >;
-  defaultConfig?: PiDefaultRawViewFieldConfig;
-  /** merge 数组/对象会合并 replace 优先自身/组件/全局 */
-  defaultConfigMergeStrategy?: ConfigMergeStrategyObject;
 }

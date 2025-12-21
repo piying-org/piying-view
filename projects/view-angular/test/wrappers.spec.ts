@@ -5,8 +5,10 @@ import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import {
   NFCSchema,
+  patchAsyncAttributes,
   patchAsyncInputs,
-  patchAsyncWrapper,
+  patchAsyncOutputs,
+  patchAsyncWrapper2,
   setInputs,
   setOutputs,
 } from '@piying/view-angular-core';
@@ -46,7 +48,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -94,7 +96,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: { type: Wrapper2Component },
         },
@@ -141,7 +143,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -189,7 +191,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -237,7 +239,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: Wrapper2Component,
@@ -274,22 +276,21 @@ describe('带异步wrappers', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper({
-        type: 'wrapper1',
-        attributes: {
+      patchAsyncWrapper2('wrapper1', [
+        patchAsyncAttributes({
           class: () => 'test1',
-        },
-        inputs: {
+        }),
+        patchAsyncInputs({
           wInput1: (filed) => 'div-display',
-        },
-        outputs: {
-          output1: (field) => (event) => {
+        }),
+        patchAsyncOutputs({
+          output1: (field) => (event: any) => {
             outputed = true;
             expect(event).toBeTruthy();
             expect(field).toBeTruthy();
           },
-        },
-      }),
+        }),
+      ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -324,12 +325,11 @@ describe('带异步wrappers', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper({
-        type: 'wrapper1',
-        inputs: {
+      patchAsyncWrapper2('wrapper1', [
+        patchAsyncInputs({
           wInput1: (filed) => data$,
-        },
-      }),
+        }),
+      ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

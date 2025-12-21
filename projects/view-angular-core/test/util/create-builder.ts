@@ -1,8 +1,6 @@
 import { EnvironmentInjector, Injectable, Injector } from '@angular/core';
 import {
   _PiResolvedCommonViewFieldConfig,
-  ConfigMergeStrategy,
-  DefaultConfigKey,
   FormBuilder,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
@@ -17,7 +15,6 @@ export function createBuilder(
     environments?: string[];
     types?: string[] | Record<string, any>;
     wrappers?: string[] | Record<string, any>;
-    defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
     builder?: any;
   },
 ) {
@@ -72,7 +69,6 @@ export function createBuilder(
             }, {} as any)
           : (options?.wrappers ?? {})),
       },
-      defaultConfigMergeStrategy: options?.defaultConfigMergeStrategy,
     },
   });
   return result as _PiResolvedCommonViewFieldConfig;

@@ -4,6 +4,7 @@ import {
   condition,
   layout,
   mergeHooks,
+  patchAsyncWrapper2,
   patchHooks,
   removeHooks,
   setComponent,
@@ -22,7 +23,7 @@ import {
   setOutputs,
 } from '@piying/view-angular-core';
 import {
-  patchWrappers,
+  
   removeWrappers,
   setWrappers,
 } from '@piying/view-angular-core';
@@ -347,7 +348,7 @@ describe('action', () => {
     const obj2 = v.pipe(
       v.string(),
       setWrappers(['w1', 'w2']),
-      patchWrappers(['w3']),
+      patchAsyncWrapper2('w3'),
     );
     const resolved2 = createBuilder(obj2, options);
     expect(resolved2.wrappers().map((item) => item.type)).toEqual([
@@ -364,7 +365,7 @@ describe('action', () => {
     const obj3 = v.pipe(
       v.string(),
       setWrappers(['w1', 'w2']),
-      patchWrappers(['w3']),
+      patchAsyncWrapper2('w3'),
       removeWrappers(['w1']),
     );
     const resolved3 = createBuilder(obj3, options);

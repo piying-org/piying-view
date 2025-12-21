@@ -22,7 +22,7 @@ export function patchDirectives<T>(items: NgDirectiveConfig[]) {
 }
 export function patchAsyncDirective<T>(
   type: Type<any>,
-  actions: RawConfigAction<'rawConfig', any, any>[],
+  actions?: RawConfigAction<'rawConfig', any, any>[],
 ) {
   return rawConfig<T>((rawFiled) => {
     mergeHooksFn(
@@ -37,7 +37,7 @@ export function patchAsyncDirective<T>(
             outputs: asyncObjectSignal({}),
           } as NgDirectiveConfig);
           field.directives.add(initData);
-          for (const item of actions) {
+          for (const item of actions ?? []) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {
               [WrapperSymbol]: initData,

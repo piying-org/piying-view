@@ -11,7 +11,6 @@ describe('array', () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const schema = v.pipe(v.array(v.string()), getField(field$));
     const { instance } = await createComponent(schema, [], {
-      defaultConfig: {},
     });
     const field = await field$.promise;
     field.action.set('1', 0);

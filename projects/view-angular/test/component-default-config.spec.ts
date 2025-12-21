@@ -8,6 +8,7 @@ import {
   patchProps,
   setInputs,
   setOutputs,
+  patchAsyncProps,
 } from '@piying/view-angular-core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { getField } from './util/action';
@@ -105,9 +106,7 @@ describe('组件默认配置', () => {
         types: {
           test2: {
             type: Test1Component,
-            props: {
-              value: 1,
-            },
+            actions: [patchAsyncProps({ value: () => 1 })],
           },
         },
       },

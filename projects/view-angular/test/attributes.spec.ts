@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
-import { componentClass, topClass } from '@piying/view-angular-core';
+import {
+  componentClass,
+  patchAsyncInputs,
+  patchAsyncWrapper2,
+  topClass,
+} from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, setWrappers } from '@piying/view-angular-core';
@@ -126,7 +131,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -165,7 +170,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -206,7 +211,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -237,13 +242,13 @@ describe('attributes', () => {
               import('./test1/test1.component').then(
                 (a) => a.Test1Component,
               ) as any,
-            wrappers: ['wrapper1'],
+            actions: [patchAsyncWrapper2('wrapper1')],
           },
         },
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
           },
         },
       },

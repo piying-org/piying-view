@@ -2,7 +2,11 @@ import { signal } from '@angular/core';
 import * as v from 'valibot';
 
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, setWrappers } from '@piying/view-angular-core';
+import {
+  patchAsyncInputs,
+  setComponent,
+  setWrappers,
+} from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { SelectorLessW } from './wrapper-unless/component';
 import { Test1SelectorlessComponent } from './test1-selectorless/component';
@@ -52,7 +56,7 @@ describe('selectorless', () => {
         wrappers: {
           'selectorless-wrapper': {
             type: SelectorLessW,
-            inputs: { wInput1: 'inputClass' },
+            actions: [patchAsyncInputs({ wInput1: () => 'inputClass' })],
           },
         },
       },

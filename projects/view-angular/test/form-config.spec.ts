@@ -213,6 +213,7 @@ describe('表单控件配置', () => {
         getField(field$),
         formConfig({
           disabled: true,
+          disabledValue: 'delete',
         }),
       ),
     });
@@ -220,13 +221,7 @@ describe('表单控件配置', () => {
       signal(define),
       signal({ v1: 'd1' }),
 
-      {
-        defaultConfig: {
-          formConfig: {
-            disabledValue: 'delete',
-          },
-        },
-      },
+      {},
     );
     await fixture.whenStable();
     fixture.detectChanges();

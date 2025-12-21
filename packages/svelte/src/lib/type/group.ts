@@ -1,6 +1,5 @@
 import type { SvelteSchemaHandle } from '../svelte-schema';
 import type {
-	ConfigMergeStrategy,
 	CoreResolvedComponentDefine,
 	PiResolvedCommonViewFieldConfig
 } from '@piying/view-core';
@@ -60,11 +59,4 @@ export interface PiViewConfig {
 			inputs?: Record<string, any>;
 		}
 	>;
-	defaultConfig?: PiDefaultRawViewFieldConfig;
-	/** merge 数组/对象会合并 replace 优先自身/组件/全局 */
-	defaultConfigMergeStrategy?: ConfigMergeStrategy | ConfigMergeStrategyObject;
 }
-export type ConfigMergeStrategyObject = Record<
-	keyof PiDefaultRawViewFieldConfig,
-	ConfigMergeStrategy
->;

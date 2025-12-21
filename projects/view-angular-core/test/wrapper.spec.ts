@@ -3,7 +3,7 @@ import { createBuilder } from './util/create-builder';
 import { getField } from './util/action';
 import {
   _PiResolvedCommonViewFieldConfig,
-  patchWrappers,
+  patchAsyncWrapper2,
   removeWrappers,
   setWrappers,
 } from '@piying/view-angular-core';
@@ -19,8 +19,8 @@ describe('wrapper', () => {
     expect(field.wrappers().map((item) => item.type)).toEqual(['w1']);
     resolved.wrappers().forEach((item, index) => {
       expect(item.type).toBe(`w${index + 1}`);
-      expect(item.inputs()).toBe(undefined);
-      expect(item.attributes()).toBe(undefined);
+      expect(item.inputs()).toEqual({});
+      expect(item.attributes()).toEqual(undefined);
     });
   });
   it('类型测试-type', async () => {
@@ -47,10 +47,8 @@ describe('wrapper', () => {
   it('patch', async () => {
     const k1Schema = v.pipe(
       v.string(),
-      patchWrappers([{ type: 'w2' }]),
-      patchWrappers([{ type: 'w1' }], {
-        position: 'head',
-      }),
+      patchAsyncWrapper2('w2'),
+      patchAsyncWrapper2('w1', undefined, { insertIndex: 0 }),
     );
     const result = createBuilder(k1Schema, { wrappers: ['w1', 'w2'] });
 
