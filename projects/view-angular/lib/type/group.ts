@@ -1,8 +1,9 @@
-import { Signal, Type, WritableSignal } from '@angular/core';
+import { Type } from '@angular/core';
 
-import { NgComponentDefine, RawDirectiveOutputs } from './component';
+import { NgComponentDefine } from './component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import {
+  CombineSignal,
   CoreRawComponentDefine,
   CoreResolvedComponentDefine,
   CoreResolvedWrapperConfig,
@@ -12,10 +13,7 @@ import {
 import { NgSchemaHandle } from '../schema/ng-schema';
 import { LazyImport } from '@piying/view-angular-core';
 /** 指令配置 */
-export type NgDirectiveConfig = Omit<DirectiveConfig, 'inputs' | 'outputs'> & {
-  inputs?: Signal<Record<string, any>>;
-  outputs?: RawDirectiveOutputs;
-};
+export type NgDirectiveConfig = DirectiveConfig;
 /** 用于全局可选配置 */
 export type PiDefaultRawViewFieldConfig = Pick<
   NgSchemaHandle,
@@ -57,7 +55,7 @@ export type PiResolvedViewFieldConfig = PiResolvedCommonViewFieldConfig<
   () => PiResolvedViewFieldConfig,
   NgResolvedComponentDefine1
 > & {
-  directives?: WritableSignal<NgDirectiveConfig[]>;
+  directives?: CombineSignal<NgDirectiveConfig>;
 };
 
 export type NgResolvedWraaperConfig = Omit<CoreResolvedWrapperConfig, ''>;

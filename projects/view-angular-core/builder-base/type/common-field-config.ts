@@ -152,7 +152,7 @@ export type CoreRawWrapperConfig = string | CoreWrapperConfig1;
 export type CoreResolvedWrapperConfig = {
   type: any | LazyImport<any>;
   inputs: AsyncObjectSignal<CoreRawViewInputs | undefined>;
-  outputs?: CoreRawViewOutputs;
+  outputs?: AsyncObjectSignal<CoreRawViewOutputs>;
   attributes: AsyncObjectSignal<CoreRawViewAttributes | undefined>;
   events: AsyncObjectSignal<Record<string, (event: any) => any> | undefined>;
 };

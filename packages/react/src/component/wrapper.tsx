@@ -16,7 +16,7 @@ export function PiyingWrapper(props: PiyingWrapperProps) {
   const inputs = useSignalToRef(wrapper, () => ({
     ...wrapper?.inputs(),
     ...wrapper?.attributes(),
-    ...wrapper?.outputs,
+    ...wrapper?.outputs?.(),
   }));
   return (
     <>

@@ -1,5 +1,6 @@
-import { Type, Signal, WritableSignal } from '@angular/core';
+import { Type, WritableSignal } from '@angular/core';
 import {
+  AsyncObjectSignal,
   CoreRawViewAttributes,
   CoreRawViewOutputs,
 } from '@piying/view-angular-core';
@@ -7,8 +8,9 @@ import {
 export type DirectiveConfig<T = any> = {
   /** string表示是标签,type<any>是组件或者指令 */
   type: Type<T>;
-  inputs?: Signal<Record<string, any>>;
-  outputs?: CoreRawViewOutputs;
+  inputs?: AsyncObjectSignal<Record<string, any> | undefined>;
+  outputs?: AsyncObjectSignal<CoreRawViewOutputs | undefined>;
+  events?: AsyncObjectSignal<Record<string, (event: any) => void> | undefined>;
   model?: Record<string, WritableSignal<any>>;
-  attributes?: Signal<CoreRawViewAttributes | undefined>;
+  attributes?: AsyncObjectSignal<CoreRawViewAttributes | undefined>;
 };

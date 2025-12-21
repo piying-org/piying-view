@@ -1,14 +1,6 @@
-import {
-  computed,
-  isSignal,
-  linkedSignal,
-  signal,
-  Signal,
-  WritableSignal,
-} from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { Observable } from 'rxjs';
-import { isPromise, isSubscribable } from '../util/is-promise';
 import { rawConfig } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
 import {
@@ -30,7 +22,7 @@ type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 export const WrapperSymbol = Symbol();
 
 export const removeInputsCommonFn =
-  (key: 'inputs' | 'attributes' | 'events' | 'props') =>
+  (key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') =>
   <T>(list: string[]) =>
     rawConfig<T>((rawField, _, ...args) =>
       mergeHooksFn(
@@ -65,7 +57,7 @@ export const removeInputsCommonFn =
       ),
     );
 export const patchAsyncInputsCommonFn =
-  (key: 'inputs' | 'attributes' | 'events' | 'props') =>
+  (key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') =>
   <T>(dataObj: Record<string, AsyncProperty>) =>
     rawConfig<T>((rawField, _, ...args) =>
       mergeHooksFn(

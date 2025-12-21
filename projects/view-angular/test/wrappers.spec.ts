@@ -283,7 +283,7 @@ describe('带异步wrappers', () => {
           wInput1: (filed) => 'div-display',
         },
         outputs: {
-          output1: (event, field) => {
+          output1: (field) => (event) => {
             outputed = true;
             expect(event).toBeTruthy();
             expect(field).toBeTruthy();

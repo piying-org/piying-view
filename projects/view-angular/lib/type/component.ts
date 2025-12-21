@@ -1,6 +1,6 @@
 import { Injector, Signal, Type } from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
-import { PiResolvedViewFieldConfig, NgResolvedComponentDefine1 } from './group';
+import { NgResolvedComponentDefine1 } from './group';
 import {
   CoreRawViewAttributes,
   CoreRawViewInputs,
@@ -10,7 +10,7 @@ import {
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */
 export interface RawDirectiveOutputs {
-  [name: string]: (event: any, field: PiResolvedViewFieldConfig) => void;
+  [name: string]: (event: any) => void;
 }
 
 export interface DynamicComponentConfig {
@@ -25,7 +25,7 @@ export interface DynamicComponentConfig {
   events: Signal<Record<string, (event: any) => any> | undefined>;
   inputs: Signal<CoreRawViewInputs | undefined>;
   directives?: DirectiveConfig[];
-  outputs?: CoreRawViewOutputs;
+  outputs?: Signal<CoreRawViewOutputs>;
   injector?: Injector;
 }
 

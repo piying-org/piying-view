@@ -1,11 +1,12 @@
 import { rawConfig } from './raw-config';
 import {
+  _PiResolvedCommonViewFieldConfig,
   CoreRawWrapperConfig,
   CoreResolvedWrapperConfig,
 } from '../../builder-base';
 import { ObservableSignal, observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
-import { Signal, signal, WritableSignal } from '@angular/core';
+import { Signal, signal } from '@angular/core';
 import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
@@ -40,10 +41,14 @@ export function patchWrappers<T>(
 }
 export type AsyncCoreRawWrapperConfig = Omit<
   Exclude<CoreRawWrapperConfig, string>,
-  'inputs' | 'attributes'
+  'inputs' | 'attributes' | 'outputs'
 > & {
   inputs?: Record<string, AsyncProperty>;
   attributes?: Record<string, AsyncProperty>;
+  outputs?: Record<
+    string,
+    (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
+  >;
 };
 export function patchAsyncWrapper<T>(
   inputWrapper: AsyncCoreRawWrapperConfig,
@@ -97,19 +102,32 @@ export function patchAsyncWrapper<T>(
               events$,
             );
           }
-          const oldOutputs = inputWrapper.outputs;
-          const outputs: Record<string, (...args: any) => any> = {};
-          if (oldOutputs && Object.keys(oldOutputs).length) {
-            for (const key in oldOutputs) {
-              const oldFn = oldOutputs[key];
-              outputs[key] = (...args: any[]) => (oldFn as any)(...args, field);
-            }
+          let outputs$ = asyncObjectSignal<
+            Record<
+              string,
+              (field: _PiResolvedCommonViewFieldConfig) => (...args: any) => any
+            >
+          >({});
+          if (
+            inputWrapper.outputs &&
+            Object.keys(inputWrapper.outputs).length
+          ) {
+            outputs$ = asyncInputMerge(
+              Object.entries(inputWrapper.outputs).reduce(
+                (obj, [key, value]) => {
+                  obj[key] = value(field);
+                  return obj;
+                },
+                {} as Record<string, any>,
+              ),
+              outputs$,
+            );
           }
           const defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
           const newWrapper = signal({
             ...defaultWrapperConfig,
             inputs: inputs$,
-            outputs,
+            outputs: outputs$,
             attributes: attributes$,
             events: events$,
           });
@@ -130,13 +148,11 @@ export function removeWrappers<T>(removeList: string[]) {
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          let list = field.wrappers.items().filter((item) => {
-            let type = (item as ObservableSignal<any, any>).input().type;
+          const list = field.wrappers.items().filter((item) => {
+            const type = (item as ObservableSignal<any, any>).input().type;
             return removeList.every((name) => name !== type);
           });
-          field.wrappers.update(() => {
-            return list;
-          });
+          field.wrappers.update(() => list);
         },
       },
       { position: 'bottom' },
@@ -163,7 +179,7 @@ export function patchAsyncWrapper2<T>(
               attributes: asyncObjectSignal(undefined),
               events: asyncObjectSignal(undefined),
               inputs: asyncObjectSignal({}),
-              outputs: {},
+              outputs: asyncObjectSignal({}),
             } as CoreResolvedWrapperConfig,
             {
               pipe: pipe(
@@ -200,7 +216,7 @@ export function changeAsyncWrapper2<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          let initData = indexFn(
+          const initData = indexFn(
             field.wrappers
               .items()
               .map((item) => (item as ObservableSignal<any, any>).input),

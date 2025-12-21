@@ -17,7 +17,7 @@ import {
 import { EMPTY_ARRAY } from '../const';
 import { BaseComponent } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
-import { FieldControl } from '@piying/view-angular-core';
+import { asyncObjectSignal, FieldControl } from '@piying/view-angular-core';
 import { PI_VIEW_FIELD_TOKEN } from '../type/view-token';
 import { FieldControlDirective } from '../directives/field-control-directive';
 
@@ -61,7 +61,7 @@ export class NgComponentOutlet<T = any>
     return fieldControl
       ? ({
           type: FieldControlDirective,
-          inputs: computed(() => ({ fieldControl: fieldControl })),
+          inputs: asyncObjectSignal({ fieldControl: fieldControl }),
         } as DirectiveConfig)
       : undefined;
   });
@@ -84,20 +84,9 @@ export class NgComponentOutlet<T = any>
     const directives = this.#directiveConfigList$$();
     return {
       ...define!,
-      outputs: define.outputs?.(),
+      outputs: define.outputs,
       inputs: this.#componentInput$$,
-      directives: directives
-        ? directives.map((item) => {
-            const outputs = item.outputs;
-            if (outputs) {
-              return {
-                ...item,
-                outputs: outputs,
-              };
-            }
-            return item;
-          })
-        : undefined,
+      directives: directives,
     } as DynamicComponentConfig;
   });
   #componentList$$ = computed(() => {

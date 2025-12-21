@@ -13,7 +13,7 @@ export function PiyingWrapper(props: PiyingWrapperProps) {
   const inputs = createSignalConvert(() => ({
     ...wrapper()?.inputs(),
     ...wrapper()?.attributes(),
-    ...wrapper()?.outputs,
+    ...wrapper()?.outputs?.(),
   }));
   return (
     <Show

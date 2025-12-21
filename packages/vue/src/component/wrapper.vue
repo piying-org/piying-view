@@ -10,7 +10,7 @@ const dInputs = defineProps<{
 const restWrappers = computed(() => dInputs.wrappers!.slice(1));
 const wrapper = computed(() => dInputs.wrappers[0]);
 const inputs = signalToRef(() => ({ ...wrapper.value?.inputs(), ...wrapper.value?.attributes() }));
-const outputs = computed(() => wrapper.value?.outputs ?? {});
+const outputs = computed(() => wrapper.value?.outputs?.() ?? {});
 </script>
 
 <template>
