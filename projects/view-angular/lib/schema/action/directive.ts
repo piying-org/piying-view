@@ -22,7 +22,7 @@ export function patchDirectives<T>(items: NgDirectiveConfig[]) {
 }
 export function patchAsyncDirective<T>(
   type: Type<any>,
-  actions?: RawConfigAction<'rawConfig', any, any>[],
+  actions?: RawConfigAction<'viewRawConfig', any, any>[],
 ) {
   return rawConfig<T>((rawFiled) => {
     mergeHooksFn(

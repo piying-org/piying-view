@@ -25,7 +25,7 @@ export interface PiViewConfig {
     {
       type: Type<any> | LazyImport<Type<any>>;
       /** 目前设计为field全部初始化后再用,也就是等价为patchAsyncWrapper */
-      actions?: RawConfigAction<'rawConfig', any, any>[];
+      actions?: RawConfigAction<'viewRawConfig', any, any>[];
     }
   >;
 }

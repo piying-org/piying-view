@@ -127,12 +127,12 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       define = this.#findConfig.findComponentConfig(type);
     }
 
-    const inputs = asyncObjectSignal(field.inputs ?? {});
-    const outputs = asyncObjectSignal(field.outputs ?? {});
+    const inputs = field.inputs;
+    const outputs = field.outputs;
 
-    const attributes = asyncObjectSignal(field.attributes ?? {});
+    const attributes = field.attributes;
 
-    const events = asyncObjectSignal(field.events ?? {});
+    const events = field.events;
 
     const wrappers = this.#resolveWrappers(
       field.wrappers ?? [],

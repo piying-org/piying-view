@@ -11,7 +11,7 @@ import { Signal, signal } from '@angular/core';
 import { AsyncProperty, patchAsyncInputs } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
-import { asyncInputMerge, WrapperSymbol } from './input-common';
+import { asyncInputMerge, ConfigAction, WrapperSymbol } from './input-common';
 import { metadataList, RawConfigAction } from '@piying/valibot-visit';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
 import { patchAsyncOutputs } from './output';
@@ -92,7 +92,7 @@ export function setWrapperEmpty<T>() {
 }
 export function patchAsyncWrapper2<T>(
   type: any,
-  actions?: RawConfigAction<'rawConfig', any, any>[],
+  actions?: ConfigAction<any>[],
   options?: { insertIndex?: number },
 ) {
   return rawConfig<T>((rawFiled) => {
@@ -127,7 +127,7 @@ export function patchAsyncWrapper2<T>(
           field.wrappers.add(initData, options?.insertIndex);
 
           let defaultConfig = field.injector.get(PI_VIEW_CONFIG_TOKEN);
-          let defaultActions: RawConfigAction<'rawConfig', any, any>[] = [];
+          let defaultActions: ConfigAction<any>[] = [];
           if (typeof type === 'string') {
             defaultActions = defaultConfig.wrappers?.[type]?.actions ?? [];
           }
@@ -149,7 +149,7 @@ export function patchAsyncWrapper2<T>(
 }
 export function changeAsyncWrapper2<T>(
   indexFn: (list: Signal<CoreResolvedWrapperConfig>[]) => any,
-  actions: RawConfigAction<'rawConfig', any, any>[],
+  actions: ConfigAction<any>[],
 ) {
   return rawConfig<T>((rawFiled) => {
     mergeHooksFn(

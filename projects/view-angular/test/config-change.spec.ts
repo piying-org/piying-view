@@ -167,13 +167,7 @@ describe('配置切换时-angular', () => {
       },
     };
     const define = v.object({
-      v1: v.pipe(
-        v.string(),
-        setComponent('test1'),
-        rawConfig((value) => {
-          value.outputs = outputs;
-        }),
-      ),
+      v1: v.pipe(v.string(), setComponent('test1'), setOutputs(outputs)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -188,13 +182,7 @@ describe('配置切换时-angular', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const define2 = v.object({
-      v1: v.pipe(
-        v.string(),
-        setComponent('test1'),
-        rawConfig((value) => {
-          value.outputs = outputs;
-        }),
-      ),
+      v1: v.pipe(v.string(), setComponent('test1'), setOutputs(outputs)),
     });
     instance.fields$.set(define2);
     await fixture.whenStable();

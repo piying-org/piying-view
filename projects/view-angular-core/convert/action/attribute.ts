@@ -2,24 +2,14 @@ import { rawConfig } from './raw-config';
 import { CoreRawViewAttributes } from '../../builder-base';
 
 import {
+  actions,
   patchAsyncAttributesCommon,
   patchAsyncEventsCommon,
   removeInputsCommonFn,
 } from './input-common';
-export function setAttributes<T>(attributes: CoreRawViewAttributes) {
-  return rawConfig<T>((field) => {
-    field.attributes = attributes;
-  });
-}
-export function patchAttributes<T>(attributes: CoreRawViewAttributes) {
-  return rawConfig<T>((field) => {
-    field.attributes = {
-      ...field.attributes,
-      ...attributes,
-    };
-  });
-}
-export const removeAttributes = removeInputsCommonFn('attributes');
+export const setAttributes = actions.set.attributes;
+export const patchAttributes = actions.patch.attributes;
+export const removeAttributes = actions.remove.attributes;
 export const patchAsyncAttributes = patchAsyncAttributesCommon;
 
 export const patchAsyncEvents = patchAsyncEventsCommon;

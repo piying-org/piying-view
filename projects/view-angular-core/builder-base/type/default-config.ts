@@ -11,7 +11,7 @@ export interface PiCommonConfig {
     string,
     Omit<CoreWrapperConfig1, 'type'> & {
       type: any | LazyImport<any>;
-      actions?: RawConfigAction<'rawConfig', any, any>[];
+      actions?: RawConfigAction<'viewRawConfig', any, any>[];
     }
   >;
 }

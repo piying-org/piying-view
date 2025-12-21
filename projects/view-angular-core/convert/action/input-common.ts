@@ -1,12 +1,13 @@
 import { Signal, WritableSignal } from '@angular/core';
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { Observable } from 'rxjs';
-import { rawConfig, RawConfigAction } from '@piying/valibot-visit';
+import { RawConfigAction } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
 import {
   asyncObjectSignal,
   AsyncObjectSignal,
 } from '../../util/create-async-object-signal';
+import { rawConfig } from './raw-config';
 
 export function asyncInputMerge(
   dataObj: Record<string, any>,
@@ -127,39 +128,29 @@ export const patchAsyncClassCommon = (
 
 function createSetOrPatch(key: ChangeKey, isPatch?: boolean) {
   return <T>(value: Record<string, any>) => {
-    return rawConfig<T>((rawField, _, ...args) =>
-      mergeHooksFn(
-        {
-          allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
-            let data$: WritableSignal<any>;
-            if (
-              args.length > 0 &&
-              typeof args[args.length - 1] === 'object' &&
-              WrapperSymbol in args[args.length - 1]
-            ) {
-              data$ = args[args.length - 1][WrapperSymbol];
-            } else if (key === 'props') {
-              data$ = (() => field) as any;
-            } else {
-              data$ = field.define!;
-            }
-            const content$ = data$()[key] as WritableSignal<any>;
-            if (isPatch) {
-              content$.update((data) => {
-                return {
-                  ...data,
-                  ...value,
-                };
-              });
-            } else {
-              content$.set(value);
-            }
-          },
-        },
-        { position: 'bottom' },
-        rawField,
-      ),
-    );
+    return rawConfig<T>((rawField, _, ...args) => {
+      let data$: WritableSignal<any>;
+      if (
+        args.length > 0 &&
+        typeof args[args.length - 1] === 'object' &&
+        WrapperSymbol in args[args.length - 1]
+      ) {
+        data$ = args[args.length - 1][WrapperSymbol];
+      } else {
+        data$ = (() => rawField) as any;
+      }
+      const content$ = data$()[key] as WritableSignal<any>;
+      if (isPatch) {
+        content$.update((data) => {
+          return {
+            ...data,
+            ...value,
+          };
+        });
+      } else {
+        content$.set(value);
+      }
+    });
   };
 }
 const List: ChangeKey[] = [
@@ -169,45 +160,34 @@ const List: ChangeKey[] = [
   'events',
   'props',
 ];
+export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;
 export const actions = {
   patch: List.reduce(
     (obj, key) => {
       obj[key] = createSetOrPatch(key, true);
       return obj;
     },
-    {} as Record<
-      ChangeKey,
-      <T>(value: Record<string, any>) => RawConfigAction<'rawConfig', T, any>
-    >,
+    {} as Record<ChangeKey, <T>(value: Record<string, any>) => ConfigAction<T>>,
   ),
   set: List.reduce(
     (obj, key) => {
       obj[key] = createSetOrPatch(key);
       return obj;
     },
-    {} as Record<
-      ChangeKey,
-      <T>(value: Record<string, any>) => RawConfigAction<'rawConfig', T, any>
-    >,
+    {} as Record<ChangeKey, <T>(value: Record<string, any>) => ConfigAction<T>>,
   ),
   asyncPatch: List.reduce(
     (obj, key) => {
       obj[key] = patchAsyncInputsCommonFn(key);
       return obj;
     },
-    {} as Record<
-      ChangeKey,
-      <T>(value: any) => RawConfigAction<'rawConfig', T, any>
-    >,
+    {} as Record<ChangeKey, <T>(value: any) => ConfigAction<T>>,
   ),
   remove: List.reduce(
     (obj, key) => {
       obj[key] = removeInputsCommonFn(key);
       return obj;
     },
-    {} as Record<
-      ChangeKey,
-      <T>(value: string[]) => RawConfigAction<'rawConfig', T, any>
-    >,
+    {} as Record<ChangeKey, <T>(value: string[]) => ConfigAction<T>>,
   ),
 };

@@ -32,18 +32,19 @@ import {
   HookConfig,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
-import { KeyPath } from '../../util';
+import { asyncObjectSignal, AsyncObjectSignal, KeyPath } from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
 
 export class CoreSchemaHandle<
   Self extends CoreSchemaHandle<any, any>,
   RESOLVED_FN extends () => any,
 > extends BaseSchemaHandle<Self> {
-  inputs?: CoreRawViewInputs;
-  outputs?: CoreRawViewOutputs;
+  inputs: AsyncObjectSignal<CoreRawViewInputs> = asyncObjectSignal({});
+  outputs: AsyncObjectSignal<CoreRawViewOutputs> = asyncObjectSignal({});
+  attributes: AsyncObjectSignal<Record<string, any>> = asyncObjectSignal({});
+  events: AsyncObjectSignal<Record<string, (event: any) => any>> =
+    asyncObjectSignal({});
   wrappers?: CoreRawWrapperConfig[];
-  attributes?: Record<string, any>;
-  events?: Record<string, (event: any) => any>;
   alias?: string;
   movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;

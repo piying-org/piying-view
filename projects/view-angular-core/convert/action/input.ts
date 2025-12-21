@@ -10,23 +10,10 @@ import {
   patchAsyncInputsCommon,
   removeInputsCommonFn,
 } from './input-common';
-// export const setInputs = actions.set.inputs;
-// export const patchInputs = actions.patch.inputs;
-// export const removeInputs = actions.remove.inputs;
-export function setInputs<T>(inputs: CoreRawViewInputs) {
-  return rawConfig<T>((field) => {
-    field.inputs = inputs;
-  });
-}
-export function patchInputs<T>(inputs: CoreRawViewInputs) {
-  return rawConfig<T>((field) => {
-    field.inputs = {
-      ...field.inputs,
-      ...inputs,
-    };
-  });
-}
-export const removeInputs = removeInputsCommonFn('inputs');
+export const setInputs = actions.set.inputs;
+export const patchInputs = actions.patch.inputs;
+export const removeInputs = actions.remove.inputs;
+
 export type AsyncResult =
   | Promise<any>
   | Observable<any>

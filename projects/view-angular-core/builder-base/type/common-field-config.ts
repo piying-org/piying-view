@@ -87,25 +87,17 @@ export type PiResolvedCommonViewFieldConfig<
   wrappers: CombineSignal<CoreResolvedWrapperConfig>;
 } & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias'>> &
   Readonly<
-    Wrapper$<
-      Required<
-        Pick<
-          AnyCoreSchemaHandle,
-          | 'inputs'
-          | 'outputs'
-          | 'attributes'
-          | 'formConfig'
-          | 'renderConfig'
-          | 'events'
-        >
-      >
+    Required<
+      Pick<AnyCoreSchemaHandle, 'inputs' | 'outputs' | 'attributes' | 'events'>
     >
+  > &
+  Readonly<
+    Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
   >;
 export type _PiResolvedCommonViewFieldConfig = PiResolvedCommonViewFieldConfig<
   () => _PiResolvedCommonViewFieldConfig,
   CoreResolvedComponentDefine
 >;
-
 
 export type PiCommonDefaultConfig = {
   /** @deprecated 使用actions代替 */
