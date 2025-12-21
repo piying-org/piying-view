@@ -11,7 +11,7 @@
 	const inputs = signalToState(() => ({
 		...wrapper?.inputs(),
 		...wrapper?.attributes(),
-		...wrapper?.outputs
+		...wrapper?.outputs?.()
 	}));
 </script>
 
