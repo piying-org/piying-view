@@ -1,9 +1,9 @@
-import { signal, WritableSignal } from '@angular/core';
+import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
-import { getField, hooksConfig, mergeHooks } from './util/action';
+import { getField, mergeHooks } from './util/action';
 import {
   patchAsyncInputs,
   patchAsyncOutputs,
@@ -164,11 +164,9 @@ describe('指令', () => {
 
       patchAsyncDirective(TestNgControlDirective, [
         patchAsyncOutputs({
-          dataChange: (field) => {
-            return (event: any) => {
-              expect(field).toBeTruthy();
-              ngControl$.resolve(event);
-            };
+          dataChange: (field) => (event: any) => {
+            expect(field).toBeTruthy();
+            ngControl$.resolve(event);
           },
         }),
       ]),

@@ -1,5 +1,4 @@
 import { signal } from '@angular/core';
-import { combineSignal } from '../util/create-combine-signal';
 import { asyncObjectSignal } from '../util/create-async-object-signal';
 import { delay } from './util/delay';
 import { Subject } from 'rxjs';
@@ -8,12 +7,10 @@ describe('async-object-signal', () => {
   it('hello', async () => {
     const value$ = asyncObjectSignal<any>({ value: 1 });
     expect(value$()).toEqual({ value: 1 });
-    value$.update((data) => {
-      return {
-        ...data,
-        value2: 2,
-      };
-    });
+    value$.update((data) => ({
+      ...data,
+      value2: 2,
+    }));
     expect(value$()).toEqual({ value: 1, value2: 2 });
     value$.set({ value3: 3 });
     expect(value$()).toEqual({ value3: 3 });
@@ -32,7 +29,7 @@ describe('async-object-signal', () => {
     expect(value$()).toEqual({ value: 1 });
   });
   it('rxjs', async () => {
-    let value1$ = new Subject();
+    const value1$ = new Subject();
     const value$ = asyncObjectSignal<any>({ value: 1 });
     value$.connect('k1', value1$);
     value1$.next(1);
@@ -41,7 +38,7 @@ describe('async-object-signal', () => {
     expect(value$()).toEqual({ value: 1, k1: 2 });
   });
   it('rxjs-remove', async () => {
-    let value1$ = new Subject();
+    const value1$ = new Subject();
     const value$ = asyncObjectSignal<any>({ value: 1 });
     value$.connect('k1', value1$);
     value$.disconnect('k1');
@@ -49,7 +46,7 @@ describe('async-object-signal', () => {
     expect(value$()).toEqual({ value: 1 });
   });
   it('signal', async () => {
-    let value1$ = signal(0);
+    const value1$ = signal(0);
     const value$ = asyncObjectSignal<any>({ value: 1 });
     value$.connect('k1', value1$);
     expect(value$()).toEqual({ value: 1, k1: 0 });
@@ -59,15 +56,15 @@ describe('async-object-signal', () => {
     expect(value$()).toEqual({ value: 1, k1: 2 });
   });
   it('signal-remove', async () => {
-    let value1$ = signal(0);
+    const value1$ = signal(0);
     const value$ = asyncObjectSignal<any>({ value: 1 });
     value$.connect('k1', value1$);
     value$.disconnect('k1');
     expect(value$()).toEqual({ value: 1 });
   });
   it('rxjs-conect2', async () => {
-    let value1$ = new Subject();
-    let value2$ = new Subject();
+    const value1$ = new Subject();
+    const value2$ = new Subject();
     const value$ = asyncObjectSignal<any>({ value: 1 });
     value$.connect('k1', value1$);
     value$.connect('k1', value2$);

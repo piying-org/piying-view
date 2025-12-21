@@ -4,7 +4,6 @@ import {
   Signal,
   signal,
   untracked,
-  WritableSignal,
 } from '@angular/core';
 
 import { computed } from '@angular/core';
@@ -23,20 +22,20 @@ export function asyncObjectSignal<
   Input extends Record<string, any> | undefined,
 >(initialValue: Input, options?: CreateSignalOptions<Input>) {
   const data$ = signal(initialValue);
-  let signalList$ = signal<[string, Signal<any>][]>([]);
-  let value$$ = computed(() => {
-    let signalList = signalList$();
-    let data = data$();
+  const signalList$ = signal<[string, Signal<any>][]>([]);
+  const value$$ = computed(() => {
+    const signalList = signalList$();
+    const data = data$();
     if (!signalList.length) {
       return data;
     }
-    let data2 = { ...data };
+    const data2 = { ...data };
     signalList.forEach(([key, value]) => {
       (data2![key] as Record<string, any>) = value();
     });
     return data2;
   }, options);
-  let disposeMap = new Map<string, () => void>();
+  const disposeMap = new Map<string, () => void>();
   const changed$ = value$$ as any as AsyncObjectSignal<Input>;
   changed$.connect = (key, value) => {
     changed$.disconnect(key);
@@ -55,7 +54,7 @@ export function asyncObjectSignal<
       };
     } else if (isSubscribable(value)) {
       // rxjs
-      let ref = value.subscribe({
+      const ref = value.subscribe({
         next: (value) => {
           data$.update((lastData) => ({ ...lastData, [key]: value }));
         },
@@ -71,7 +70,7 @@ export function asyncObjectSignal<
       });
       dispose = () => {
         signalList$.update((list) => {
-          let index = list.findIndex((item) => value === item[1]);
+          const index = list.findIndex((item) => value === item[1]);
           if (index !== -1) {
             list = list.slice();
             list.splice(index, 1);

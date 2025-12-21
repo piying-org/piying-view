@@ -1,6 +1,6 @@
 import { Injector, Signal, Type } from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
-import { PiResolvedViewFieldConfig, NgResolvedComponentDefine1 } from './group';
+import { NgResolvedComponentDefine1 } from './group';
 import {
   CoreRawViewAttributes,
   CoreRawViewInputs,

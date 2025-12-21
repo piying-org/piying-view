@@ -126,9 +126,7 @@ describe('wrappers-actions', () => {
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [patchAsyncClassCommon(() => 'input1')]),
       changeAsyncWrapper2(
-        (list) => {
-          return list.find((item) => item().type === 'wrapper1');
-        },
+        (list) => list.find((item) => item().type === 'wrapper1'),
         [patchAsyncClassCommon(() => 'input2')],
       ),
     );

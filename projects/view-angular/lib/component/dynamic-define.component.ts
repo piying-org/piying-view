@@ -1,4 +1,4 @@
-import { Type, Signal, WritableSignal } from '@angular/core';
+import { Type, WritableSignal } from '@angular/core';
 import {
   AsyncObjectSignal,
   CoreRawViewAttributes,

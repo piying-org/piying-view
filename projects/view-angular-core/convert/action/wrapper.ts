@@ -6,7 +6,7 @@ import {
 } from '../../builder-base';
 import { ObservableSignal, observableSignal, toArray } from '../../util';
 import { mergeHooksFn } from './hook';
-import { Signal, signal, WritableSignal } from '@angular/core';
+import { Signal, signal } from '@angular/core';
 import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
@@ -148,13 +148,11 @@ export function removeWrappers<T>(removeList: string[]) {
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          let list = field.wrappers.items().filter((item) => {
-            let type = (item as ObservableSignal<any, any>).input().type;
+          const list = field.wrappers.items().filter((item) => {
+            const type = (item as ObservableSignal<any, any>).input().type;
             return removeList.every((name) => name !== type);
           });
-          field.wrappers.update(() => {
-            return list;
-          });
+          field.wrappers.update(() => list);
         },
       },
       { position: 'bottom' },
@@ -218,7 +216,7 @@ export function changeAsyncWrapper2<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          let initData = indexFn(
+          const initData = indexFn(
             field.wrappers
               .items()
               .map((item) => (item as ObservableSignal<any, any>).input),

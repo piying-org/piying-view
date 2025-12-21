@@ -594,7 +594,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     isArray: boolean,
     strategy: ConfigMergeStrategy,
   ) {
-    let result = this.configMergeRaw(list, isArray, strategy) as any[];
+    const result = this.configMergeRaw(list, isArray, strategy) as any[];
     return combineSignal<any>(
       result.map((item) => asyncObjectSignal(item)) as any,
     );

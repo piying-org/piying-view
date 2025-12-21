@@ -1,6 +1,4 @@
 import {
-  _PiResolvedCommonViewFieldConfig,
-  asyncInputMerge,
   asyncObjectSignal,
   combineSignal,
   mergeHooksFn,
@@ -8,8 +6,7 @@ import {
 } from '@piying/view-angular-core';
 import { NgDirectiveConfig } from '../../type';
 import { rawConfig } from './raw-config';
-import { NgSchemaHandle } from '../ng-schema';
-import { linkedSignal, signal, Type } from '@angular/core';
+import { signal, Type } from '@angular/core';
 import { RawConfigAction } from '@piying/valibot-visit';
 
 export function setDirectives<T>(items: NgDirectiveConfig[]) {
