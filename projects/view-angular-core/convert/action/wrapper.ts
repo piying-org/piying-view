@@ -14,6 +14,8 @@ import { map, pipe } from 'rxjs';
 import { asyncInputMerge, WrapperSymbol } from './input-common';
 import { metadataList, RawConfigAction } from '@piying/valibot-visit';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
+import { patchAsyncOutputs } from './output';
+import { patchAsyncAttributes, patchAsyncEvents } from './attribute';
 function objToFnObj(input: any) {
   return Object.keys(input).reduce((obj, item) => {
     obj[item] = () => input[item];
@@ -32,13 +34,13 @@ export function setWrappers<T>(wrappers: (CoreRawWrapperConfig | string)[]) {
         list.push(patchAsyncInputs(objToFnObj(item.inputs)));
       }
       if (item.outputs) {
-        list.push(patchAsyncInputs(objToFnObj(item.outputs)));
+        list.push(patchAsyncOutputs(objToFnObj(item.outputs)));
       }
       if (item.attributes) {
-        list.push(patchAsyncInputs(objToFnObj(item.attributes)));
+        list.push(patchAsyncAttributes(objToFnObj(item.attributes)));
       }
       if (item.events) {
-        list.push(patchAsyncInputs(objToFnObj(item.events)));
+        list.push(patchAsyncEvents(objToFnObj(item.events)));
       }
       return patchAsyncWrapper2(item.type, list);
     }),
