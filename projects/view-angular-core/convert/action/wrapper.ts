@@ -5,7 +5,13 @@ import {
   CoreResolvedWrapperConfig,
   PI_VIEW_CONFIG_TOKEN,
 } from '../../builder-base';
-import { ObservableSignal, observableSignal, toArray } from '../../util';
+import {
+  ObservableSignal,
+  observableSignal,
+  SetUnWrapper$,
+  toArray,
+  UnWrapper$,
+} from '../../util';
 import { mergeHooksFn } from './hook';
 import { Signal, signal } from '@angular/core';
 import { AsyncProperty, patchAsyncInputs } from './input';
@@ -16,35 +22,71 @@ import { metadataList, RawConfigAction } from '@piying/valibot-visit';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
 import { patchAsyncOutputs } from './output';
 import { patchAsyncAttributes, patchAsyncEvents } from './attribute';
-function objToFnObj(input: any) {
-  return Object.keys(input).reduce((obj, item) => {
-    obj[item] = () => input[item];
-    return obj;
-  }, {} as any);
-}
-export function setWrappers<T>(wrappers: (CoreRawWrapperConfig | string)[]) {
-  return metadataList<T>([
-    setWrapperEmpty(),
-    ...wrappers.map((item) => {
+
+export function setWrappers<T>(
+  wrappers: (
+    | SetUnWrapper$<
+        CoreRawWrapperConfig,
+        'inputs' | 'outputs' | 'attributes' | 'events'
+      >
+    | string
+  )[],
+) {
+  return rawConfig<T>((rawField, _) => {
+    let wrapperConfig =
+      rawField.globalConfig.additionalData!['defaultWrapperMetadataGroup'];
+    let injector = rawField.globalConfig.additionalData!['injector'];
+    const OptionDefine = {
+      pipe: pipe(
+        map((item: any) => {
+          if (typeof item.type === 'string') {
+            let type = wrapperConfig[item.type].type;
+            if (!type) {
+              throw new Error(`🈳wrapper:[${type}]❗`);
+            }
+            return { ...item, type: type };
+          }
+
+          return item;
+        }),
+      ),
+      injector: injector,
+    };
+    wrappers.forEach((item) => {
       if (typeof item === 'string') {
-        return patchAsyncWrapper2(item);
+        let defaultActions: any[] = wrapperConfig[item]?.actions ?? [];
+        let define = observableSignal(
+          {
+            type: item,
+            inputs: asyncObjectSignal({}),
+            outputs: asyncObjectSignal({}),
+            attributes: asyncObjectSignal({}),
+            events: asyncObjectSignal({}),
+          },
+          OptionDefine,
+        );
+        rawField.wrappers.add(define);
+        defaultActions.forEach((item) => {
+          item.value(rawField, _, {
+            [WrapperSymbol]: define,
+          });
+        });
+      } else {
+        rawField.wrappers.add(
+          observableSignal(
+            {
+              type: item.type,
+              inputs: asyncObjectSignal(item.inputs ?? {}),
+              outputs: asyncObjectSignal(item.outputs ?? {}),
+              attributes: asyncObjectSignal(item.attributes ?? {}),
+              events: asyncObjectSignal(item.events ?? {}),
+            },
+            OptionDefine,
+          ),
+        );
       }
-      let list = [];
-      if (item.inputs) {
-        list.push(patchAsyncInputs(objToFnObj(item.inputs)));
-      }
-      if (item.outputs) {
-        list.push(patchAsyncOutputs(objToFnObj(item.outputs)));
-      }
-      if (item.attributes) {
-        list.push(patchAsyncAttributes(objToFnObj(item.attributes)));
-      }
-      if (item.events) {
-        list.push(patchAsyncEvents(objToFnObj(item.events)));
-      }
-      return patchAsyncWrapper2(item.type, list);
-    }),
-  ]);
+    });
+  });
 }
 
 export type AsyncCoreRawWrapperConfig = Omit<

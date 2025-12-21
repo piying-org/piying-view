@@ -32,7 +32,12 @@ import {
   HookConfig,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
-import { asyncObjectSignal, AsyncObjectSignal, KeyPath } from '../../util';
+import {
+  asyncObjectSignal,
+  AsyncObjectSignal,
+  combineSignal,
+  KeyPath,
+} from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
 
 export class CoreSchemaHandle<
@@ -44,7 +49,7 @@ export class CoreSchemaHandle<
   attributes: AsyncObjectSignal<Record<string, any>> = asyncObjectSignal({});
   events: AsyncObjectSignal<Record<string, (event: any) => any>> =
     asyncObjectSignal({});
-  wrappers?: CoreRawWrapperConfig[];
+  wrappers = combineSignal<CoreRawWrapperConfig>([]);
   alias?: string;
   movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;

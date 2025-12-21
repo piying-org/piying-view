@@ -20,7 +20,7 @@ describe('wrapper', () => {
     resolved.wrappers().forEach((item, index) => {
       expect(item.type).toBe(`w${index + 1}`);
       expect(item.inputs()).toEqual({});
-      expect(item.attributes()).toEqual(undefined);
+      expect(item.attributes()).toEqual({});
     });
   });
   it('类型测试-type', async () => {

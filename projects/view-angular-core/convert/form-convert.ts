@@ -79,6 +79,10 @@ export function convert<
     {
       ...options,
       handle: options?.handle ?? (CoreSchemaHandle as any),
+      additionalData: {
+        defaultWrapperMetadataGroup: options.fieldGlobalConfig?.wrappers,
+        injector
+      },
       defaultMetadataActionsGroup: Object.keys(
         options.fieldGlobalConfig?.types ?? {},
       ).reduce(

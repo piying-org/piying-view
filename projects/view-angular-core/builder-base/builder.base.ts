@@ -134,10 +134,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
 
     const events = field.events;
 
-    const wrappers = this.#resolveWrappers(
-      field.wrappers ?? [],
-      this.#envInjector,
-    );
     const props = asyncObjectSignal(field.props ?? {});
 
     const formConfig$ = signal(field.formConfig ?? {});
@@ -212,7 +208,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       define: define
         ? signal({ type: define, inputs, outputs, attributes, events })
         : undefined,
-      wrappers,
+      wrappers: field.wrappers,
       injector: this.#envInjector,
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
