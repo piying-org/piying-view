@@ -10,6 +10,7 @@ import {
   patchAsyncClass,
   patchHooks,
   patchInputs,
+  setInputs,
   setOutputs,
   setWrappers,
 } from '@piying/view-angular-core';
@@ -42,15 +43,16 @@ describe('组件', () => {
         types: {
           test2: {
             type: { component: Test2Component, module: Test2Module },
-
-            inputs: {
-              input1: 'test1',
-            },
-            outputs: {
-              output3: () => {
-                fields$.resolve(true);
-              },
-            },
+            actions: [
+              setInputs({
+                input1: 'test1',
+              }),
+              setOutputs({
+                output3: () => {
+                  fields$.resolve(true);
+                },
+              }),
+            ],
           } as any,
         },
       },
