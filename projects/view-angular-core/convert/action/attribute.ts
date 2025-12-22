@@ -1,7 +1,12 @@
 import { actions } from './input-common';
-export const setAttributes = actions.set.attributes;
-export const patchAttributes = actions.patch.attributes;
-export const removeAttributes = actions.remove.attributes;
-export const patchAsyncAttributes = actions.patchAsync.attributes;
+/** @deprecated use actions.attributes.set */
+export const setAttributes = actions.attributes.set;
+/** @deprecated use actions.attributes.patch */
+export const patchAttributes = actions.attributes.patch;
+/** @deprecated use actions.attributes.remove */
+export const removeAttributes = actions.attributes.remove;
+/** @deprecated use actions.attributes.patchAsync */
+export const patchAsyncAttributes = actions.attributes.patchAsync;
 
-export const patchAsyncEvents = actions.patchAsync.events;
+/** @deprecated use actions.events.patchAsync */
+export const patchAsyncEvents = actions.events.patchAsync;

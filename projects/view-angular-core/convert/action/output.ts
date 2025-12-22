@@ -36,14 +36,14 @@ function createOutputListener<T>(
     );
   });
 }
-/** @deprecated use actions.set.outputs */
-export const setOutputs = actions.set.outputs;
-/** @deprecated use actions.patch.outputs */
-export const patchOutputs = actions.patch.outputs;
-/** @deprecated use actions.patchAsync.outputs */
-export const patchAsyncOutputs = actions.patchAsync.outputs;
-/** @deprecated use actions.remove.outputs */
-export const removeOutputs = actions.remove.outputs;
+/** @deprecated use actions.outputs.set */
+export const setOutputs = actions.outputs.set;
+/** @deprecated use actions.outputs.patch */
+export const patchOutputs = actions.outputs.patch;
+/** @deprecated use actions.outputs.patchAsync */
+export const patchAsyncOutputs = actions.outputs.patchAsync;
+/** @deprecated use actions.outputs.remove */
+export const removeOutputs = actions.outputs.remove;
 
 export function mergeOutputFn(
   field: _PiResolvedCommonViewFieldConfig,

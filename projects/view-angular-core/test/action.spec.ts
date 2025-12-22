@@ -344,7 +344,7 @@ describe('action', () => {
     let fn1CallCount = 0;
     const obj = v.pipe(
       v.string(),
-      actions.patchAsync.outputs({
+      actions.outputs.patchAsync({
         v: (field) => (value: any) => {
           expect(typeof value).toEqual('number');
           expect(field).toBeTruthy();

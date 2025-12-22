@@ -1,9 +1,9 @@
 import { actions } from './input-common';
-/** @deprecated actions.set.props */
-export const setProps = actions.set.props;
-/** @deprecated actions.patch.props */
-export const patchProps = actions.patch.props;
-/** @deprecated actions.remove.props */
-export const removeProps = actions.remove.props;
-/** @deprecated actions.patchAsync.props */
-export const patchAsyncProps = actions.patchAsync.props;
+/** @deprecated actions.props.set */
+export const setProps = actions.props.set;
+/** @deprecated actions.props.patch */
+export const patchProps = actions.props.patch;
+/** @deprecated actions.props.remove */
+export const removeProps = actions.props.remove;
+/** @deprecated actions.props.patchAsync */
+export const patchAsyncProps = actions.props.patchAsync;

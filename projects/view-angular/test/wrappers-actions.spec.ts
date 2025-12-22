@@ -29,7 +29,7 @@ describe('wrappers-actions', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [
-        actions.patchAsync.inputs({
+        actions.inputs.patchAsync({
           wInput1: (field) => signal('input1'),
         }),
       ]),
@@ -53,7 +53,7 @@ describe('wrappers-actions', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [
-        actions.patchAsync.attributes({
+        actions.attributes.patchAsync({
           class: (field) => 'input1',
         }),
       ]),
@@ -78,7 +78,7 @@ describe('wrappers-actions', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [
-        actions.patchAsync.events({
+        actions.events.patchAsync({
           click: (field) => () => {
             eventRun = true;
           },

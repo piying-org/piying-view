@@ -52,9 +52,13 @@ export const createRemovePropertyFn =
         rawField,
       ),
     );
-export const createPatchAsyncPropertyFn =
-  (key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') =>
-  <T>(dataObj: Record<string, AsyncProperty>) =>
+export function createPatchAsyncPropertyFn<
+  InputData extends Record<string, AsyncProperty> = Record<
+    string,
+    AsyncProperty
+  >,
+>(key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') {
+  return <T>(dataObj: InputData) =>
     rawConfig<T>((rawField, _, ...args) => {
       let data$: WritableSignal<any>;
       if (
@@ -89,6 +93,7 @@ export const createPatchAsyncPropertyFn =
         rawField,
       );
     });
+}
 
 export const patchAsyncClassCommon = (
   fn: (field: _PiResolvedCommonViewFieldConfig) => any,
@@ -97,8 +102,10 @@ export const patchAsyncClassCommon = (
     class: fn,
   });
 
-export function createSetOrPatchPropertyFn(key: ChangeKey, isPatch?: boolean) {
-  return <T>(value: Record<string, any>) =>
+export function createSetOrPatchPropertyFn<
+  InputData extends Record<string, any> = Record<string, any>,
+>(key: ChangeKey, isPatch?: boolean) {
+  return <T>(value: InputData) =>
     rawConfig<T>((rawField, _, ...args) => {
       let data$: WritableSignal<any>;
       if (
@@ -121,83 +128,66 @@ export function createSetOrPatchPropertyFn(key: ChangeKey, isPatch?: boolean) {
       }
     });
 }
-const List: ChangeKey[] = [
-  'inputs',
-  'outputs',
-  'attributes',
-  'events',
-  'props',
-];
-
-type SetKeyMap = {
-  [K in ChangeKey]: KeyToType<K>;
-};
-
-type KeyToType<K> = K extends 'inputs' | 'attributes' | 'props'
-  ? <T>(value: Record<string, any>) => ConfigAction<T>
-  : K extends 'events'
-    ? <T>(value: Record<string, (event: Event) => any>) => ConfigAction<T>
-    : K extends 'outputs'
-      ? <T>(value: Record<string, (...args: any[]) => any>) => ConfigAction<T>
-      : never;
-type AsyncKeyMap = {
-  [K in ChangeKey]: AsyncKeyToType<K>;
-};
-
-type AsyncKeyToType<K> = K extends 'inputs' | 'attributes' | 'props'
-  ? <T>(
-      value: Record<string, (field: _PiResolvedCommonViewFieldConfig) => any>,
-    ) => ConfigAction<T>
-  : K extends 'events'
-    ? <T>(
-        value: Record<
-          string,
-          (field: _PiResolvedCommonViewFieldConfig) => (event: Event) => any
-        >,
-      ) => ConfigAction<T>
-    : K extends 'outputs'
-      ? <T>(
-          value: Record<
-            string,
-            (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => any
-          >,
-        ) => ConfigAction<T>
-      : never;
 
 export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;
+
 export const actions = {
-  patch: List.reduce(
-    (obj, key) => {
-      obj[key] = createSetOrPatchPropertyFn(key, true);
-      return obj;
-    },
-    {} as any as SetKeyMap,
-  ),
-  set: {
-    ...List.reduce((obj, key) => {
-      obj[key] = createSetOrPatchPropertyFn(key);
-      return obj;
-    }, {} as SetKeyMap),
-    wrappers: setWrappers,
+  inputs: {
+    patch: createSetOrPatchPropertyFn('inputs', true),
+    set: createSetOrPatchPropertyFn('inputs'),
+    patchAsync: createPatchAsyncPropertyFn('inputs'),
+    remove: createRemovePropertyFn('inputs'),
   },
-  patchAsync: {
-    ...List.reduce((obj, key) => {
-      obj[key] = createPatchAsyncPropertyFn(key);
-      return obj;
-    }, {} as AsyncKeyMap),
-    wrappers: patchAsyncWrapper2,
-  },
-  remove: {
-    ...List.reduce(
-      (obj, key) => {
-        obj[key] = createRemovePropertyFn(key);
-        return obj;
-      },
-      {} as Record<ChangeKey, <T>(value: string[]) => ConfigAction<T>>,
+  outputs: {
+    patch: createSetOrPatchPropertyFn<Record<string, (...args: any[]) => any>>(
+      'outputs',
+      true,
     ),
-    wrappers: removeWrappers,
+    set: createSetOrPatchPropertyFn<Record<string, (...args: any[]) => any>>(
+      'outputs',
+    ),
+    patchAsync:
+      createPatchAsyncPropertyFn<
+        Record<
+          string,
+          (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => any
+        >
+      >('outputs'),
+    remove: createRemovePropertyFn('outputs'),
   },
-  changeAsync: {
-    wrappers: changeAsyncWrapper2,
+  attributes: {
+    patch: createSetOrPatchPropertyFn('attributes', true),
+    set: createSetOrPatchPropertyFn('attributes'),
+    patchAsync: createPatchAsyncPropertyFn('attributes'),
+    remove: createRemovePropertyFn('attributes'),
+  },
+  events: {
+    patch: createSetOrPatchPropertyFn<Record<string, (event: Event) => any>>(
+      'events',
+      true,
+    ),
+    set: createSetOrPatchPropertyFn<Record<string, (event: Event) => any>>(
+      'events',
+    ),
+    patchAsync:
+      createPatchAsyncPropertyFn<
+        Record<
+          string,
+          (field: _PiResolvedCommonViewFieldConfig) => (event: Event) => any
+        >
+      >('events'),
+    remove: createRemovePropertyFn('events'),
+  },
+  props: {
+    patch: createSetOrPatchPropertyFn('props', true),
+    set: createSetOrPatchPropertyFn('props'),
+    patchAsync: createPatchAsyncPropertyFn('props'),
+    remove: createRemovePropertyFn('props'),
+  },
+  wrappers: {
+    set: setWrappers,
+    patchAsync: patchAsyncWrapper2,
+    remove: removeWrappers,
+    changeAsync: changeAsyncWrapper2,
   },
 };
