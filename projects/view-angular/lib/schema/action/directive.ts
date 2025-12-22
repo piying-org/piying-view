@@ -10,7 +10,7 @@ import { NgDirectiveConfig } from '../../type';
 import { rawConfig } from './raw-config';
 import { Signal, signal, Type } from '@angular/core';
 import { RawConfigAction } from '@piying/valibot-visit';
-export function createSetOrPatchDirectivePropertyFn(isPatch?: boolean) {
+function createSetOrPatchDirectivePropertyFn(isPatch?: boolean) {
   return <T>(
     items: SetOptional<
       SetUnWrapper$<
@@ -39,9 +39,8 @@ export function createSetOrPatchDirectivePropertyFn(isPatch?: boolean) {
     });
   };
 }
-export const setDirectives = createSetOrPatchDirectivePropertyFn();
-export const patchDirectives = createSetOrPatchDirectivePropertyFn(true);
-export function patchAsyncDirective<T>(
+
+function patchAsyncDirective<T>(
   type: Type<any>,
   actions?: RawConfigAction<'viewRawConfig', any, any>[],
   options?: { insertIndex?: number },
@@ -73,8 +72,7 @@ export function patchAsyncDirective<T>(
     );
   });
 }
-
-export function removeDirectives<T>(
+function removeDirectives<T>(
   removeList: (
     list: Signal<NgDirectiveConfig>[],
   ) => Signal<NgDirectiveConfig>[],
@@ -91,3 +89,9 @@ export function removeDirectives<T>(
     );
   });
 }
+export const directives = {
+  set: createSetOrPatchDirectivePropertyFn(),
+  patch: createSetOrPatchDirectivePropertyFn(true),
+  patchAsync: patchAsyncDirective,
+  remove: removeDirectives,
+};

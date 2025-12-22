@@ -10,11 +10,7 @@ import {
   setComponent,
 } from '@piying/view-angular-core';
 
-import {
-  patchAsyncDirective,
-  patchDirectives,
-  setDirectives,
-} from '../lib/schema/action/directive';
+import { directives } from '../lib/schema/action/directive';
 import { BehaviorSubject } from 'rxjs';
 import { TestNgControlDirective } from './directive/test-ng-control.directive';
 import { Test1Component } from './test1/test1.component';
@@ -27,7 +23,7 @@ describe('指令', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setDirectives([{ type: D1Directive }]),
+        directives.set([{ type: D1Directive }]),
         getField(field$),
       ),
     });
@@ -45,7 +41,7 @@ describe('指令', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        patchDirectives([{ type: D1Directive }]),
+        directives.patch([{ type: D1Directive }]),
         getField(field$),
       ),
     });
@@ -63,7 +59,7 @@ describe('指令', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        patchAsyncDirective(D1Directive, []),
+        directives.patchAsync(D1Directive, []),
         getField(field$),
       ),
     });
@@ -80,7 +76,7 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
+      directives.patchAsync(D1Directive, [
         patchAsyncInputs({ id: () => Promise.resolve('d1') }),
       ]),
       getField(field$),
@@ -98,7 +94,7 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
+      directives.patchAsync(D1Directive, [
         patchAsyncInputs({ id: () => new BehaviorSubject('d1') }),
       ]),
 
@@ -117,7 +113,7 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
+      directives.patchAsync(D1Directive, [
         patchAsyncInputs({ id: () => signal('d1') }),
       ]),
 
@@ -136,7 +132,7 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
+      directives.patchAsync(D1Directive, [
         patchAsyncInputs({ id: () => signal('') }),
       ]),
       mergeHooks({
@@ -162,7 +158,7 @@ describe('指令', () => {
       v.string(),
       setComponent(Test1Component),
 
-      patchAsyncDirective(TestNgControlDirective, [
+      directives.patchAsync(TestNgControlDirective, [
         patchAsyncOutputs({
           dataChange: (field) => (event: any) => {
             expect(field).toBeTruthy();
@@ -199,7 +195,7 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
+      directives.patchAsync(D1Directive, [
         patchAsyncInputs({ id: () => inputs }),
       ]),
     );

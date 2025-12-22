@@ -8,7 +8,7 @@ import { MatInput } from '@angular/material/input';
 import { MatFormFieldWrapper } from './mat-form-field/form-field/component';
 import { htmlInput } from './util/input';
 import { patchAsyncWrapper2 } from '@piying/view-angular-core';
-import { patchAsyncDirective } from '../lib/schema/action';
+import { directives } from '../lib/schema/action';
 describe('mat', () => {
   it('mat input', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -25,7 +25,7 @@ describe('mat', () => {
             type: InputFCC,
             actions: [
               patchAsyncWrapper2('form-field'),
-              patchAsyncDirective(MatInput),
+              directives.patchAsync(MatInput),
             ],
           },
         },
