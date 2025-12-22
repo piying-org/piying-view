@@ -1,9 +1,9 @@
-import type { CoreResolvedWrapperConfig } from '@piying/view-core';
+import type { CoreWrapperConfig } from '@piying/view-core';
 import { createSignalConvert } from '../util/signal-convert';
 import { createMemo, Show } from 'solid-js';
 
 export interface PiyingWrapperProps {
-  wrappers: CoreResolvedWrapperConfig[];
+  wrappers: CoreWrapperConfig[];
   children: any;
 }
 
