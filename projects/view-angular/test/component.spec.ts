@@ -9,7 +9,6 @@ import {
   NFCSchema,
   patchAsyncClass,
   patchHooks,
-
   actions,
   setWrappers,
 } from '@piying/view-angular-core';

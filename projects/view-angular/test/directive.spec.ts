@@ -4,10 +4,7 @@ import { PiResolvedViewFieldConfig } from '../lib/type';
 import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
 import { getField, mergeHooks } from './util/action';
-import {
-  actions,
-  setComponent,
-} from '@piying/view-angular-core';
+import { actions, setComponent } from '@piying/view-angular-core';
 
 import { directives } from '../lib/schema/action/directive';
 import { BehaviorSubject } from 'rxjs';

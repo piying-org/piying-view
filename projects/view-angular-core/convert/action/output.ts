@@ -27,8 +27,8 @@ export function mergeOutputFn(
 
 export const mergeOutputs = <T>(
   outputs: Record<string, (...args: any[]) => void>,
-) => {
-  return rawConfig<T>((field) => {
+) =>
+  rawConfig<T>((field) => {
     field.outputs.update((originOutputs) => {
       originOutputs = { ...originOutputs };
       for (const key in outputs) {
@@ -43,21 +43,20 @@ export const mergeOutputs = <T>(
       return originOutputs;
     });
   });
-};
 export const asyncMergeOutputs = <T>(
   outputs: Record<
     string,
     (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
   >,
-) => {
-  return rawConfig<T>((field) => {
+) =>
+  rawConfig<T>((field) => {
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
           field.outputs.update((originOutputs) => {
             originOutputs = { ...originOutputs };
             for (const key in outputs) {
-              let fn = outputs[key](field);
+              const fn = outputs[key](field);
               const oldFn = (originOutputs as any)[key];
               (originOutputs as any)[key] = (...args: any[]) => {
                 if (oldFn) {
@@ -74,7 +73,6 @@ export const asyncMergeOutputs = <T>(
       field,
     );
   });
-};
 export type EventChangeFn = (
   fn: (
     input: {

@@ -7,7 +7,7 @@ import * as v from 'valibot';
 import { getField } from './util/action';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
-import {  actions } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { assertFieldArray } from '@piying/view-angular-core/test';
 
 describe('默认数组', () => {

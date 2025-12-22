@@ -2,11 +2,7 @@ import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import { Test1Component } from './test1/test1.component';
 import * as v from 'valibot';
-import {
-  setComponent,
-  formConfig,
-actions
-} from '@piying/view-angular-core';
+import { setComponent, formConfig, actions } from '@piying/view-angular-core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { getField } from './util/action';
 describe('组件默认配置', () => {

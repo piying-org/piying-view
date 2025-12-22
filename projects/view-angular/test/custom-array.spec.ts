@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import { Array1Component } from './array/component';
 import * as v from 'valibot';
-import {  actions } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
 

@@ -5,7 +5,7 @@ import { Test1CpComponent } from './test1-cp/component';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import {  actions } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 
 import {
   setComponent,
@@ -167,7 +167,11 @@ describe('配置切换时-angular', () => {
       },
     };
     const define = v.object({
-      v1: v.pipe(v.string(), setComponent('test1'), actions.outputs.set(outputs)),
+      v1: v.pipe(
+        v.string(),
+        setComponent('test1'),
+        actions.outputs.set(outputs),
+      ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -182,7 +186,11 @@ describe('配置切换时-angular', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const define2 = v.object({
-      v1: v.pipe(v.string(), setComponent('test1'), actions.outputs.set(outputs)),
+      v1: v.pipe(
+        v.string(),
+        setComponent('test1'),
+        actions.outputs.set(outputs),
+      ),
     });
     instance.fields$.set(define2);
     await fixture.whenStable();

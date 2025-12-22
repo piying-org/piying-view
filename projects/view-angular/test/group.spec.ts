@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { Test1Component } from './test1/test1.component';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
-import { FieldGroup,  } from '@piying/view-angular-core';
+import { FieldGroup } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { hooksConfig } from './util/action';
 import { createSchemaComponent } from './util/create-component';
