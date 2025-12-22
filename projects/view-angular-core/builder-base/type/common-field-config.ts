@@ -14,23 +14,16 @@ export interface FieldRenderConfig {
 }
 /** 全局定义使用 */
 export type CoreRawComponentDefine = {
-  /** @deprecated 使用actions */
   type: any;
-  /** @deprecated 使用actions */
-  attributes?: Record<string, any>;
-  /** @deprecated 使用actions */
-  events?: Record<string, any>;
-  /** @deprecated 使用actions */
-  inputs?: CoreRawViewInputs;
-  /** @deprecated 使用actions */
-  outputs?: CoreRawViewOutputs;
-  actions?: BaseMetadata<any>[];
+  attributes?: AsyncObjectSignal<Record<string, any>>;
+  events?: AsyncObjectSignal<Record<string, any>>;
+  inputs?: AsyncObjectSignal<CoreRawViewInputs>;
+  outputs?: AsyncObjectSignal<CoreRawViewOutputs>;
 };
 /** 解析后define使用 */
-export type CoreResolvedComponentDefine = SetWrapper$<
-  CoreRawComponentDefine,
-  'attributes' | 'inputs' | 'outputs' | 'events'
->;
+export type CoreResolvedComponentDefine = CoreRawComponentDefine
+export type AA=CoreResolvedComponentDefine
+
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
   fieldResolved?: (field: RESOLVED_FIELD) => void;
