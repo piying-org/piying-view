@@ -5,6 +5,7 @@ import { createSchemaComponent } from './util/create-component';
 import { signal } from '@angular/core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import {
+  actions,
   disableWhen,
   hideWhen,
   mergeOutputs,
@@ -247,15 +248,13 @@ describe('change', () => {
         setComponent('test-emit1'),
         getField(fields$),
         mergeOutputs({
-          output1: (input, field) => {
+          output1: (input) => {
             expect(input).toBe('emit1-output1-data');
-            expect(field).toBeTruthy();
-            expect(field.define).toBeTruthy();
             valueChangeIndex++;
           },
         }),
         mergeOutputs({
-          output1: (input, field) => {
+          output1: (input) => {
             valueChangeIndex++;
           },
         }),
@@ -277,6 +276,35 @@ describe('change', () => {
     const input1btn = element.querySelector('.emit1-output1') as HTMLElement;
     input1btn.click();
     expect(valueChangeIndex).toBe(2);
+  });
+  it('async-output', async () => {
+    let valueChangeIndex = 0;
+    const define = v.pipe(
+      NFCSchema,
+      setComponent('test-emit1'),
+      actions.outputs.mergeAsync({
+        output1: (field) => (input) => {
+          expect(field).toBeTruthy();
+          expect(input).toBe('emit1-output1-data');
+          valueChangeIndex++;
+        },
+      }),
+    );
+
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+      {
+        types: {
+          'test-emit1': { type: Emit1Component },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const input1btn = element.querySelector('.emit1-output1') as HTMLElement;
+    input1btn.click();
+    expect(valueChangeIndex).toBe(1);
   });
   it('多output', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

@@ -2,7 +2,7 @@ import { Signal, signal } from '@angular/core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
-import { NFCSchema, patchOutputs, setOutputs } from '@piying/view-angular-core';
+import { NFCSchema, actions } from '@piying/view-angular-core';
 import { setComponent } from '@piying/view-angular-core';
 import { keyEqual } from '@piying/view-angular-core/test';
 import { InjectTokenComponent } from './input-options/component';
@@ -14,7 +14,7 @@ describe('inject', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setOutputs({
+        actions.outputs.set({
           output3: (value) => {
             field$.resolve(value);
           },
@@ -35,7 +35,7 @@ describe('inject', () => {
     const define = v.pipe(
       NFCSchema,
       setComponent('inject-token'),
-      patchOutputs({
+      actions.outputs.patch({
         output1: (data) => {
           output1$.resolve(data);
         },
@@ -63,7 +63,7 @@ describe('inject', () => {
       a: v.pipe(
         NFCSchema,
         setComponent('inject-token'),
-        patchOutputs({
+        actions.outputs.patch({
           output1: (data) => {
             output1$.resolve(data);
           },

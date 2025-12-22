@@ -4,7 +4,7 @@ import {
   patchAsyncInputs,
   patchInputs,
   removeInputs,
-  removeOutputs,
+  actions,
   setComponent,
 } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
@@ -96,7 +96,7 @@ describe('input/output action', () => {
   it('remove output', async () => {
     const obj = v.pipe(
       v.string(),
-      removeOutputs(['k1']),
+      actions.outputs.remove(['k1']),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);

@@ -4,7 +4,7 @@ import { PiResolvedViewFieldConfig } from '../lib/type';
 import * as v from 'valibot';
 import { getField } from './util/action';
 import { setComponent, setWrappers, topClass } from '@piying/view-angular-core';
-import { setOutputs } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { keyEqual } from '@piying/view-angular-core/test';
 import { Wrapper3Component } from './wrapper3/component';
 import { Wrapper4Component } from './wrapper4/component';
@@ -82,7 +82,7 @@ describe('wrapper测试-v2', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1']),
-        setOutputs({
+        actions.outputs.set({
           output3: (value) => {
             field$.resolve(value);
           },
@@ -114,7 +114,7 @@ describe('wrapper测试-v2', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1']),
-        setOutputs({
+        actions.outputs.set({
           output3: (value) => {
             field$.resolve(value);
           },

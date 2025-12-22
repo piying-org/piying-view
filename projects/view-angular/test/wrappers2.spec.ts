@@ -6,7 +6,7 @@ import { Wrapper2Component } from './wrapper2/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
 import { setComponent, setWrappers, topClass } from '@piying/view-angular-core';
-import { setOutputs } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { keyEqual } from '@piying/view-angular-core/test';
 
 // 用于测试fields和model变动时,数值是否正确
@@ -82,7 +82,7 @@ describe('wrapper测试', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1']),
-        setOutputs({
+        actions.outputs.set({
           output3: (value) => {
             field$.resolve(value);
           },
@@ -114,7 +114,7 @@ describe('wrapper测试', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1']),
-        setOutputs({
+        actions.outputs.set({
           output3: (value) => {
             field$.resolve(value);
           },

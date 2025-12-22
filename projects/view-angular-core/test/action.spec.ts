@@ -18,11 +18,6 @@ import {
   patchInputs,
   setInputs,
 } from '@piying/view-angular-core';
-import {
-  patchOutputs,
-  removeOutputs,
-  setOutputs,
-} from '@piying/view-angular-core';
 import { removeWrappers, setWrappers } from '@piying/view-angular-core';
 import {
   patchAsyncAttributes,
@@ -299,7 +294,7 @@ describe('action', () => {
     const resolved = createBuilder(obj, config);
     expect(resolved.attributes()).toEqual({ v: 1, v2: 2 });
   });
-  it('setOutputs', () => {
+  it('actions.outputs.set', () => {
     let fn1CallCount = 0;
     let fn2CallCount = 0;
     const fn = (value: any) => {
@@ -312,7 +307,7 @@ describe('action', () => {
     };
     const obj = v.pipe(
       v.string(),
-      setOutputs({ v: fn }),
+      actions.outputs.set({ v: fn }),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
@@ -321,8 +316,8 @@ describe('action', () => {
     const obj2 = v.pipe(
       v.string(),
       setComponent('mock-input'),
-      setOutputs({ v: fn }),
-      patchOutputs({ k: fn2 }),
+      actions.outputs.set({ v: fn }),
+      actions.outputs.patch({ k: fn2 }),
     );
     const resolved2 = createBuilder(obj2);
     resolved2.outputs()['v'](2);
@@ -333,14 +328,14 @@ describe('action', () => {
     const obj3 = v.pipe(
       v.string(),
       setComponent('mock-input'),
-      setOutputs({ v: fn }),
-      patchOutputs({ k: fn }),
-      removeOutputs(['v']),
+      actions.outputs.set({ v: fn }),
+      actions.outputs.patch({ k: fn }),
+      actions.outputs.remove(['v']),
     );
     const resolved3 = createBuilder(obj3);
     expect(Object.keys(resolved3.outputs())).toEqual(['k']);
   });
-  it('patchAsyncOutputs', () => {
+  it('actions.outputs.patchAsync', () => {
     let fn1CallCount = 0;
     const obj = v.pipe(
       v.string(),

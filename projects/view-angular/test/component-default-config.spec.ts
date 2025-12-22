@@ -7,7 +7,7 @@ import {
   formConfig,
   patchProps,
   setInputs,
-  setOutputs,
+  actions,
   patchAsyncProps,
 } from '@piying/view-angular-core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
@@ -77,7 +77,7 @@ describe('组件默认配置', () => {
             type: Test1Component,
             actions: [
               setInputs({ input1: 'test1' }),
-              setOutputs({
+              actions.outputs.set({
                 output3: () => {
                   fields$.resolve(true);
                 },

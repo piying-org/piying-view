@@ -8,7 +8,7 @@ import {
   controlStatusList,
   NFCSchema,
   setInputs,
-  setOutputs,
+  actions,
 } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import {
@@ -68,7 +68,7 @@ describe('初始化', () => {
         v.string(),
         setComponent(Test1Component),
 
-        setOutputs({
+        actions.outputs.set({
           output1: (value) => {
             subject1.next(value);
           },

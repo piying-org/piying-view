@@ -11,7 +11,7 @@ import {
   patchHooks,
   patchInputs,
   setInputs,
-  setOutputs,
+  actions,
   setWrappers,
 } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
@@ -47,7 +47,7 @@ describe('组件', () => {
               setInputs({
                 input1: 'test1',
               }),
-              setOutputs({
+              actions.outputs.set({
                 output3: () => {
                   fields$.resolve(true);
                 },
@@ -67,7 +67,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test2'),
-      setOutputs({
+      actions.outputs.set({
         output1: (value) => {
           inited.resolve(value);
         },
@@ -95,7 +95,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      setOutputs({
+      actions.outputs.set({
         ngControlChange: (value) => {
           inited.resolve(value);
         },

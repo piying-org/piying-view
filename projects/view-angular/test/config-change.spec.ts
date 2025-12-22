@@ -5,7 +5,7 @@ import { Test1CpComponent } from './test1-cp/component';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import { setInputs, setOutputs } from '@piying/view-angular-core';
+import { setInputs, actions } from '@piying/view-angular-core';
 
 import {
   setComponent,
@@ -99,7 +99,7 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setOutputs({
+        actions.outputs.set({
           destroyedChange: () => {
             firstDestroy = true;
           },
@@ -132,7 +132,7 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setOutputs({
+        actions.outputs.set({
           destroyedChange: () => {
             firstDestroy = true;
           },
@@ -167,7 +167,7 @@ describe('配置切换时-angular', () => {
       },
     };
     const define = v.object({
-      v1: v.pipe(v.string(), setComponent('test1'), setOutputs(outputs)),
+      v1: v.pipe(v.string(), setComponent('test1'), actions.outputs.set(outputs)),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -182,7 +182,7 @@ describe('配置切换时-angular', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const define2 = v.object({
-      v1: v.pipe(v.string(), setComponent('test1'), setOutputs(outputs)),
+      v1: v.pipe(v.string(), setComponent('test1'), actions.outputs.set(outputs)),
     });
     instance.fields$.set(define2);
     await fixture.whenStable();
@@ -204,7 +204,7 @@ describe('配置切换时-angular', () => {
         setInputs({
           input1: 'value1',
         }),
-        setOutputs(outputs),
+        actions.outputs.set(outputs),
         getField(field$),
       ),
     });
@@ -240,7 +240,7 @@ describe('配置切换时-angular', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      setOutputs(outputs),
+      actions.outputs.set(outputs),
       setWrappers([
         {
           type: 'wrapper1',

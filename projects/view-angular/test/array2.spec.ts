@@ -3,7 +3,7 @@ import { Test1Component } from './test1/test1.component';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import * as v from 'valibot';
-import { setInputs, setOutputs } from '@piying/view-angular-core';
+import { setInputs, actions } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
 
@@ -76,7 +76,7 @@ describe('默认数组-二维', () => {
               v.string(),
               setComponent(Test1Component),
 
-              setOutputs({
+              actions.outputs.set({
                 output1: (value) => {
                   subject1.next(value);
                 },

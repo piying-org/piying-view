@@ -7,43 +7,6 @@ import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
-import { __actions as actions } from './input-common';
-function createOutputListener<T>(
-  outputs: ViewOutputs,
-  options: { setOutputs: boolean; mergeOutput: boolean },
-) {
-  return rawConfig<T>((field) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          field.outputs.update((originOutputs) => {
-            originOutputs = options.setOutputs ? {} : { ...originOutputs };
-            for (const key in outputs) {
-              const oldFn = (originOutputs as any)[key];
-              (originOutputs as any)[key] = (...args: any[]) => {
-                if (options.mergeOutput && oldFn) {
-                  oldFn(...args, field);
-                }
-                return (outputs as any)[key](...args, field);
-              };
-            }
-            return originOutputs;
-          });
-        },
-      },
-      { position: 'bottom' },
-      field,
-    );
-  });
-}
-/** @deprecated use actions.outputs.set */
-export const setOutputs = actions.outputs.set;
-/** @deprecated use actions.outputs.patch */
-export const patchOutputs = actions.outputs.patch;
-/** @deprecated use actions.outputs.patchAsync */
-export const patchAsyncOutputs = actions.outputs.patchAsync;
-/** @deprecated use actions.outputs.remove */
-export const removeOutputs = actions.outputs.remove;
 
 export function mergeOutputFn(
   field: _PiResolvedCommonViewFieldConfig,
@@ -64,12 +27,54 @@ export function mergeOutputFn(
 
 export const mergeOutputs = <T>(
   outputs: Record<string, (...args: any[]) => void>,
-) =>
-  createOutputListener<T>(outputs, {
-    setOutputs: false,
-    mergeOutput: true,
+) => {
+  return rawConfig<T>((field) => {
+    field.outputs.update((originOutputs) => {
+      originOutputs = { ...originOutputs };
+      for (const key in outputs) {
+        const oldFn = (originOutputs as any)[key];
+        (originOutputs as any)[key] = (...args: any[]) => {
+          if (oldFn) {
+            oldFn(...args);
+          }
+          return (outputs as any)[key](...args);
+        };
+      }
+      return originOutputs;
+    });
   });
-
+};
+export const asyncMergeOutputs = <T>(
+  outputs: Record<
+    string,
+    (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
+  >,
+) => {
+  return rawConfig<T>((field) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          field.outputs.update((originOutputs) => {
+            originOutputs = { ...originOutputs };
+            for (const key in outputs) {
+              let fn = outputs[key](field);
+              const oldFn = (originOutputs as any)[key];
+              (originOutputs as any)[key] = (...args: any[]) => {
+                if (oldFn) {
+                  oldFn(...args);
+                }
+                return fn(...args);
+              };
+            }
+            return originOutputs;
+          });
+        },
+      },
+      { position: 'bottom' },
+      field,
+    );
+  });
+};
 export type EventChangeFn = (
   fn: (
     input: {

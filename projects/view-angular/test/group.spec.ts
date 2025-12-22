@@ -8,7 +8,7 @@ import { hooksConfig } from './util/action';
 import { createSchemaComponent } from './util/create-component';
 import { UFCC } from './util/schema';
 import { setComponent } from '@piying/view-angular-core';
-import { setInputs, setOutputs } from '@piying/view-angular-core';
+import { setInputs, actions } from '@piying/view-angular-core';
 import { RestGroupComponent } from './rest-group/component';
 import { SwitchGroupComponent } from './switch-group/component';
 
@@ -67,7 +67,7 @@ describe('group初始化', () => {
           v.string(),
           setComponent(Test1Component),
 
-          setOutputs({
+          actions.outputs.set({
             output1: (value) => {
               subject1.next(value);
             },

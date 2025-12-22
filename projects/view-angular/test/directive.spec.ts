@@ -6,7 +6,7 @@ import * as v from 'valibot';
 import { getField, mergeHooks } from './util/action';
 import {
   patchAsyncInputs,
-  patchAsyncOutputs,
+  actions,
   setComponent,
 } from '@piying/view-angular-core';
 
@@ -159,7 +159,7 @@ describe('指令', () => {
       setComponent(Test1Component),
 
       directives.patchAsync(TestNgControlDirective, [
-        patchAsyncOutputs({
+        actions.outputs.patchAsync({
           dataChange: (field) => (event: any) => {
             expect(field).toBeTruthy();
             ngControl$.resolve(event);

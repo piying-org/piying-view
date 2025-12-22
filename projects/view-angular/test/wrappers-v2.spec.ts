@@ -6,10 +6,9 @@ import {
   NFCSchema,
   patchAsyncAttributes,
   patchAsyncInputs,
-  patchAsyncOutputs,
+  actions,
   patchAsyncWrapper,
   setInputs,
-  setOutputs,
 } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
@@ -117,7 +116,7 @@ describe('带异步wrappers-v2', () => {
         setComponent('test1'),
         setWrappers(['wrapper1', 'wrapper2']),
 
-        setOutputs({
+        actions.outputs.set({
           output1: (value) => {
             subject1.next(value);
           },
@@ -283,7 +282,7 @@ describe('带异步wrappers-v2', () => {
         patchAsyncInputs({
           wInput1: (filed) => 'div-display',
         }),
-        patchAsyncOutputs({
+        actions.outputs.patchAsync({
           output1: (field) => (event: any) => {
             outputed = true;
             expect(event).toBeTruthy();

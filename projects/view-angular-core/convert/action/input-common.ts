@@ -11,6 +11,7 @@ import {
   removeWrappers,
   setWrappers,
 } from './wrapper';
+import { asyncMergeOutputs, mergeOutputs } from './output';
 
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
@@ -147,6 +148,8 @@ export const __actions = {
         >
       >('outputs'),
     remove: createRemovePropertyFn('outputs'),
+    merge: mergeOutputs,
+    mergeAsync: asyncMergeOutputs,
   },
   attributes: {
     patch: createSetOrPatchPropertyFn('attributes', true),
