@@ -49,6 +49,7 @@ export class CoreSchemaHandle<
   attributes = asyncObjectSignal<Record<string, any>>({});
   events = asyncObjectSignal<Record<string, (event: any) => any>>({});
   wrappers = combineSignal<CoreRawWrapperConfig>([]);
+  override props = asyncObjectSignal<Record<string, any>>({});
   alias?: string;
   movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;
@@ -143,8 +144,20 @@ export class CoreSchemaHandle<
     this.formConfig.groupMode = 'reset';
   }
   override enumSchema(schema: EnumSchema): void {
-    this.props ??= {};
-    this.props['options'] ??= schema.options;
+    this.props.update((data) => {
+      return {
+        ...data,
+        options: data['options'] ?? schema.options,
+      };
+    });
+  }
+  override updateProps(key: string, value: any): void {
+    this.props.update((data) => {
+      return {
+        ...data,
+        [key]: value,
+      };
+    });
   }
   override intersectBefore(schema: IntersectSchema): void {
     if (this.childrenAsVirtualGroup) {

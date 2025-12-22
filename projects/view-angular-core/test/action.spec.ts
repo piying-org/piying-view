@@ -22,11 +22,7 @@ import {
   removeOutputs,
   setOutputs,
 } from '@piying/view-angular-core';
-import {
-  
-  removeWrappers,
-  setWrappers,
-} from '@piying/view-angular-core';
+import { removeWrappers, setWrappers } from '@piying/view-angular-core';
 import {
   patchAsyncAttributes,
   patchAttributes,
@@ -68,7 +64,12 @@ describe('action', () => {
         v.string(),
         v.title('title1'),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => {
+            return {
+              ...value,
+              k2: 'value2',
+            };
+          });
           return field;
         }),
       ),
@@ -82,7 +83,12 @@ describe('action', () => {
         v.string(),
         v.description('title1'),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => {
+            return {
+              ...value,
+              k2: 'value2',
+            };
+          });
           return field;
         }),
       ),
@@ -94,7 +100,12 @@ describe('action', () => {
     const obj = v.pipe(
       v.picklist(['1', '2']),
       rawConfig((field) => {
-        field.props = { ...field.props, options: [1] };
+        field.props.update((value) => {
+          return {
+            ...value,
+            options: [1],
+          };
+        });
         return field;
       }),
     );
@@ -107,7 +118,9 @@ describe('action', () => {
         v.string(),
         v.metadata({ v1: 'title1' }),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => {
+            return { ...value, k2: 'value2' };
+          });
           return field;
         }),
       ),
@@ -124,7 +137,12 @@ describe('action', () => {
         v.picklist([]),
         v.title('title1'),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => {
+            return {
+              ...value,
+              k2: 'value2',
+            };
+          });
           return field;
         }),
       ),

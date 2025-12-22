@@ -134,8 +134,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
 
     const events = field.events;
 
-    const props = asyncObjectSignal(field.props ?? {});
-
     const formConfig$ = signal(field.formConfig ?? {});
     const renderConfig = signal(field.renderConfig ?? {});
     let control;
@@ -188,7 +186,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       origin: field,
       renderConfig: renderConfig,
       formConfig: formConfig$,
-      props,
+      props: field.props,
       context: this.#options.context,
       priority: field.priority,
       hooks: field.hooks,

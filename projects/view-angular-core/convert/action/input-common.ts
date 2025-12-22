@@ -52,34 +52,30 @@ export const removeInputsCommonFn =
 export const patchAsyncInputsCommonFn =
   (key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') =>
   <T>(dataObj: Record<string, AsyncProperty>) =>
-    rawConfig<T>((rawField, _, ...args) =>
-      mergeHooksFn(
+    rawConfig<T>((rawField, _, ...args) => {
+      let data$: WritableSignal<any>;
+      if (
+        args.length > 0 &&
+        typeof args[args.length - 1] === 'object' &&
+        WrapperSymbol in args[args.length - 1]
+      ) {
+        data$ = args[args.length - 1][WrapperSymbol];
+      } else {
+        data$ = (() => rawField) as any;
+      }
+      const content$: AsyncObjectSignal<any> = data$()[key];
+      const inputList = Object.keys(dataObj);
+      // 设置初始值
+      content$.update((content) => ({
+        ...content,
+        ...inputList.reduce((obj, item) => {
+          obj[item] = content?.[item] ?? undefined;
+          return obj;
+        }, {} as any),
+      }));
+      return mergeHooksFn(
         {
           allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
-            let data$: WritableSignal<any>;
-            if (
-              args.length > 0 &&
-              typeof args[args.length - 1] === 'object' &&
-              WrapperSymbol in args[args.length - 1]
-            ) {
-              data$ = args[args.length - 1][WrapperSymbol];
-            } else if (key === 'props') {
-              data$ = (() => field) as any;
-            } else {
-              data$ = field.define!;
-            }
-            const content$: AsyncObjectSignal<any> =
-              data$()[key] ?? asyncObjectSignal({});
-            const inputList = Object.keys(dataObj);
-            // 设置初始值
-            content$.update((content) => ({
-              ...content,
-              ...inputList.reduce((obj, item) => {
-                obj[item] = content?.[item] ?? undefined;
-                return obj;
-              }, {} as any),
-            }));
-
             Object.entries(dataObj).forEach(([key, value]) => {
               let result = value(field);
               content$.connect(key, result);
@@ -88,8 +84,8 @@ export const patchAsyncInputsCommonFn =
         },
         { position: 'bottom' },
         rawField,
-      ),
-    );
+      );
+    });
 
 export const patchAsyncInputsCommon = patchAsyncInputsCommonFn('inputs');
 export const patchAsyncAttributesCommon =
