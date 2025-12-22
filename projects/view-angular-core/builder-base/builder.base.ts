@@ -477,29 +477,5 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     parent.fixedChildren!().push(inputField);
   }
   #findConfig = inject(FindConfigToken);
-  #resolveWrappers(wrappers: CoreRawWrapperConfig[], injector: Injector) {
-    const result = (wrappers ?? []).map((wrapper) => {
-      const typeDefine = this.#findConfig.findWrapperComponent(wrapper.type);
-      return observableSignal(
-        {
-          type: typeDefine,
-          inputs: asyncObjectSignal(wrapper.inputs ?? {}),
-          outputs: asyncObjectSignal(wrapper.outputs ?? {}),
-          attributes: asyncObjectSignal(wrapper.attributes ?? {}),
-          events: asyncObjectSignal(wrapper.events ?? {}),
-        },
-        {
-          pipe: pipe(
-            map((item) => {
-              const defaultWrapperConfig =
-                this.#findConfig.findWrapperComponent(item.type);
-              return { ...item, type: defaultWrapperConfig };
-            }),
-          ),
-          injector: injector,
-        },
-      );
-    });
-    return combineSignal(result);
-  }
+
 }
