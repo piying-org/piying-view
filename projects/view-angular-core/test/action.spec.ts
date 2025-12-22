@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import {
+  actions,
   asVirtualGroup,
   condition,
   layout,
@@ -311,14 +312,12 @@ describe('action', () => {
   it('setOutputs', () => {
     let fn1CallCount = 0;
     let fn2CallCount = 0;
-    const fn = (value: any, field: any) => {
+    const fn = (value: any) => {
       expect(typeof value).toEqual('number');
-      expect(field).toBeTruthy();
       fn1CallCount++;
     };
-    const fn2 = (value: any, field: any) => {
+    const fn2 = (value: any) => {
       expect(typeof value).toEqual('number');
-      expect(field).toBeTruthy();
       fn2CallCount++;
     };
     const obj = v.pipe(
@@ -350,6 +349,24 @@ describe('action', () => {
     );
     const resolved3 = createBuilder(obj3);
     expect(Object.keys(resolved3.outputs())).toEqual(['k']);
+  });
+  it('patchAsyncOutputs', () => {
+    let fn1CallCount = 0;
+    const obj = v.pipe(
+      v.string(),
+      actions.patchAsync.outputs({
+        v: (field) => (value: any) => {
+          expect(typeof value).toEqual('number');
+          expect(field).toBeTruthy();
+
+          fn1CallCount++;
+        },
+      }),
+      setComponent('mock-input'),
+    );
+    const resolved = createBuilder(obj);
+    resolved.outputs()['v'](1);
+    expect(fn1CallCount).toEqual(1);
   });
   it('wrappers', () => {
     const options = { wrappers: ['w1', 'w2', 'w3'] };

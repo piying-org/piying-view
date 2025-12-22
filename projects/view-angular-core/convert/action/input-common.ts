@@ -132,34 +132,56 @@ const List: ChangeKey[] = [
   'events',
   'props',
 ];
+
+type SetKeyMap = {
+  [K in ChangeKey]: KeyToType<K>;
+};
+
+type KeyToType<K> = K extends 'inputs' | 'attributes' | 'props'
+  ? <T>(value: Record<string, any>) => ConfigAction<T>
+  : K extends 'events'
+    ? <T>(value: Record<string, (event: Event) => any>) => ConfigAction<T>
+    : K extends 'outputs'
+      ? <T>(value: Record<string, (...args: any[]) => any>) => ConfigAction<T>
+      : never;
+type AsyncKeyMap = {
+  [K in ChangeKey]: AsyncKeyToType<K>;
+};
+
+type AsyncKeyToType<K> = K extends 'inputs' | 'attributes' | 'props'
+  ? <T>(
+      value: Record<string, (field: _PiResolvedCommonViewFieldConfig) => any>,
+    ) => ConfigAction<T>
+  : K extends 'events'
+    ? <T>(
+        value: Record<
+          string,
+          (field: _PiResolvedCommonViewFieldConfig) => (event: Event) => any
+        >,
+      ) => ConfigAction<T>
+    : K extends 'outputs'
+      ? <T>(
+          value: Record<
+            string,
+            (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => any
+          >,
+        ) => ConfigAction<T>
+      : never;
+
 export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;
 export const actions = {
-  patch: List.reduce(
-    (obj, key) => {
-      obj[key] = createSetOrPatch(key, true);
-      return obj;
-    },
-    {} as Record<ChangeKey, <T>(value: Record<string, any>) => ConfigAction<T>>,
-  ),
-  set: List.reduce(
-    (obj, key) => {
-      obj[key] = createSetOrPatch(key);
-      return obj;
-    },
-    {} as Record<ChangeKey, <T>(value: Record<string, any>) => ConfigAction<T>>,
-  ),
-  patchAsync: List.reduce(
-    (obj, key) => {
-      obj[key] = patchAsyncInputsCommonFn(key);
-      return obj;
-    },
-    {} as Record<
-      ChangeKey,
-      <T>(
-        value: Record<string, (field: _PiResolvedCommonViewFieldConfig) => any>,
-      ) => ConfigAction<T>
-    >,
-  ),
+  patch: List.reduce((obj, key) => {
+    obj[key] = createSetOrPatch(key, true);
+    return obj;
+  }, {} as SetKeyMap),
+  set: List.reduce((obj, key) => {
+    obj[key] = createSetOrPatch(key);
+    return obj;
+  }, {} as SetKeyMap),
+  patchAsync: List.reduce((obj, key) => {
+    obj[key] = patchAsyncInputsCommonFn(key);
+    return obj;
+  }, {} as AsyncKeyMap),
   remove: List.reduce(
     (obj, key) => {
       obj[key] = removeInputsCommonFn(key);

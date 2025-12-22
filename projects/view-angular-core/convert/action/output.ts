@@ -7,7 +7,7 @@ import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
-import { patchAsyncInputsCommonFn } from './input-common';
+import { actions, patchAsyncInputsCommonFn } from './input-common';
 function createOutputListener<T>(
   outputs: CoreRawViewOutputs,
   options: { setOutputs: boolean; mergeOutput: boolean },
@@ -36,40 +36,14 @@ function createOutputListener<T>(
     );
   });
 }
-export function setOutputs<T>(outputs: CoreRawViewOutputs) {
-  return createOutputListener<T>(outputs, {
-    setOutputs: true,
-    mergeOutput: false,
-  });
-}
-export function patchOutputs<T>(outputs: CoreRawViewOutputs) {
-  return createOutputListener<T>(outputs, {
-    setOutputs: false,
-    mergeOutput: false,
-  });
-}
-export const patchAsyncOutputs = patchAsyncInputsCommonFn('outputs');
-export function removeOutputs<T>(list: string[]) {
-  return rawConfig<T>((field) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          field.outputs.update((originOutputs) => {
-            originOutputs = { ...originOutputs };
-            list.forEach((key) => {
-              if (key in originOutputs) {
-                delete originOutputs[key];
-              }
-            });
-            return originOutputs;
-          });
-        },
-      },
-      { position: 'bottom' },
-      field,
-    );
-  });
-}
+/** @deprecated use actions.set.outputs */
+export const setOutputs = actions.set.outputs;
+/** @deprecated use actions.patch.outputs */
+export const patchOutputs = actions.patch.outputs;
+/** @deprecated use actions.patchAsync.outputs */
+export const patchAsyncOutputs = actions.patchAsync.outputs;
+/** @deprecated use actions.remove.outputs */
+export const removeOutputs = actions.remove.outputs;
 
 export function mergeOutputFn(
   field: _PiResolvedCommonViewFieldConfig,

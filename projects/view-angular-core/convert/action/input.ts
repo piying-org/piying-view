@@ -10,8 +10,11 @@ import {
   patchAsyncInputsCommon,
   removeInputsCommonFn,
 } from './input-common';
+/** @deprecated use actions.set.inputs */
 export const setInputs = actions.set.inputs;
+/** @deprecated use actions.patch.inputs */
 export const patchInputs = actions.patch.inputs;
+/** @deprecated use actions.remove.inputs */
 export const removeInputs = actions.remove.inputs;
 
 export type AsyncResult =
@@ -22,5 +25,5 @@ export type AsyncResult =
 export type AsyncProperty = (
   field: _PiResolvedCommonViewFieldConfig,
 ) => AsyncResult;
-
-export const patchAsyncInputs = patchAsyncInputsCommon;
+/** @deprecated use actions.patchAsync.inputs */
+export const patchAsyncInputs = actions.patchAsync.inputs;
