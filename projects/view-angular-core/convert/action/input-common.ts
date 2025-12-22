@@ -148,12 +148,17 @@ export const actions = {
     },
     {} as Record<ChangeKey, <T>(value: Record<string, any>) => ConfigAction<T>>,
   ),
-  asyncPatch: List.reduce(
+  patchAsync: List.reduce(
     (obj, key) => {
       obj[key] = patchAsyncInputsCommonFn(key);
       return obj;
     },
-    {} as Record<ChangeKey, <T>(value: any) => ConfigAction<T>>,
+    {} as Record<
+      ChangeKey,
+      <T>(
+        value: Record<string, (field: _PiResolvedCommonViewFieldConfig) => any>,
+      ) => ConfigAction<T>
+    >,
   ),
   remove: List.reduce(
     (obj, key) => {
