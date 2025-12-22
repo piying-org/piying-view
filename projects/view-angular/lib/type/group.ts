@@ -4,39 +4,17 @@ import { NgComponentDefine } from './component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import {
   CombineSignal,
-  CoreRawComponentDefine,
+
   CoreResolvedComponentDefine,
   CoreResolvedWrapperConfig,
   LazyMarkType,
   PiResolvedCommonViewFieldConfig,
 } from '@piying/view-angular-core';
-import { NgSchemaHandle } from '../schema/ng-schema';
 import { LazyImport } from '@piying/view-angular-core';
 /** 指令配置 */
 export type NgDirectiveConfig = DirectiveConfig;
 /** 用于全局可选配置 */
-export type PiDefaultRawViewFieldConfig = Pick<
-  NgSchemaHandle,
-  | 'inputs'
-  | 'outputs'
-  | 'wrappers'
-  | 'formConfig'
-  // | 'hooks'
-  | 'renderConfig'
-  | 'props'
-  | 'directives'
-  | 'attributes'
->;
-export type NgRawComponentDefine = Omit<CoreRawComponentDefine, 'type'> & {
-  type?:
-    | string
-    | Type<any>
-    | LazyImport<Type<any>>
-    | NgComponentDefine
-    | LazyImport<NgComponentDefine>
-    | LazyMarkType<Type<any>>
-    | LazyMarkType<NgComponentDefine>;
-};
+
 /** 解析后但是未加载 */
 export type NgResolvedComponentDefine1 = Omit<
   CoreResolvedComponentDefine,
