@@ -16,4 +16,11 @@ export * from './value-change';
 export * from './disable-when';
 export * from './class';
 export * from './non-field-control';
-export * from './input-common';
+export { CustomDataSymbol } from './input-common';
+export type { ConfigAction } from './input-common';
+import { classAction } from './class';
+import { __actions } from './input-common';
+export const actions = {
+  ...__actions,
+  class: classAction,
+};

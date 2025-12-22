@@ -1,7 +1,7 @@
 import { Signal } from '@angular/core';
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { Observable } from 'rxjs';
-import { actions } from './input-common';
+import { __actions as actions } from './input-common';
 /** @deprecated use actions.inputs.set */
 export const setInputs = actions.inputs.set;
 /** @deprecated use actions.inputs.patch */

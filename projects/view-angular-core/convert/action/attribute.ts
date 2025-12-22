@@ -1,4 +1,4 @@
-import { actions } from './input-common';
+import { __actions as actions } from './input-common';
 /** @deprecated use actions.attributes.set */
 export const setAttributes = actions.attributes.set;
 /** @deprecated use actions.attributes.patch */

@@ -3,8 +3,8 @@ import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
 import {
   actions,
+  bottomClass,
   changeAsyncWrapper2,
-  patchAsyncClassCommon,
   patchAsyncWrapper2,
   setComponent,
 } from '@piying/view-angular-core';
@@ -102,7 +102,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [patchAsyncClassCommon(() => 'input1')]),
+      patchAsyncWrapper2('wrapper1', [bottomClass('input1')]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -122,10 +122,10 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [patchAsyncClassCommon(() => 'input1')]),
+      patchAsyncWrapper2('wrapper1', [bottomClass('input1')]),
       changeAsyncWrapper2(
         (list) => list.find((item) => item().type === 'wrapper1'),
-        [patchAsyncClassCommon(() => 'input2')],
+        [bottomClass('input2')],
       ),
     );
     const { fixture, instance, element, field$$ } = await createSchemaComponent(

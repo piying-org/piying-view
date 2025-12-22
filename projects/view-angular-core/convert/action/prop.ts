@@ -1,4 +1,4 @@
-import { actions } from './input-common';
+import { __actions as actions } from './input-common';
 /** @deprecated actions.props.set */
 export const setProps = actions.props.set;
 /** @deprecated actions.props.patch */

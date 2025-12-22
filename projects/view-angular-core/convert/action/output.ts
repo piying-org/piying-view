@@ -7,7 +7,7 @@ import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
-import { actions } from './input-common';
+import { __actions as actions } from './input-common';
 function createOutputListener<T>(
   outputs: ViewOutputs,
   options: { setOutputs: boolean; mergeOutput: boolean },

@@ -164,7 +164,7 @@ export function patchAsyncWrapper2<T>(
             (item.value as any)(tempField, undefined, {
               [CustomDataSymbol]: initData,
             });
-            (tempField as any).hooks.allFieldsResolved(field);
+            (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
       },
@@ -195,7 +195,7 @@ export function changeAsyncWrapper2<T>(
             (item.value as any)(tempField, undefined, {
               [CustomDataSymbol]: initData,
             });
-            (tempField as any).hooks.allFieldsResolved(field);
+            (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
       },

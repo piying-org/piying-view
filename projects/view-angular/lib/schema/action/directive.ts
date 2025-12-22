@@ -63,7 +63,7 @@ function patchAsyncDirective<T>(
             (item.value as any)(tempField, undefined, {
               [CustomDataSymbol]: initData,
             });
-            (tempField as any).hooks.allFieldsResolved(field);
+            (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
       },

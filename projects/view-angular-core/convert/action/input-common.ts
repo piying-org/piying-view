@@ -95,13 +95,6 @@ export function createPatchAsyncPropertyFn<
     });
 }
 
-export const patchAsyncClassCommon = (
-  fn: (field: _PiResolvedCommonViewFieldConfig) => any,
-) =>
-  createPatchAsyncPropertyFn('attributes')({
-    class: fn,
-  });
-
 export function createSetOrPatchPropertyFn<
   InputData extends Record<string, any> = Record<string, any>,
 >(key: ChangeKey, isPatch?: boolean) {
@@ -131,7 +124,7 @@ export function createSetOrPatchPropertyFn<
 
 export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;
 
-export const actions = {
+export const __actions = {
   inputs: {
     patch: createSetOrPatchPropertyFn('inputs', true),
     set: createSetOrPatchPropertyFn('inputs'),
