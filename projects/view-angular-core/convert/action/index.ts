@@ -4,7 +4,6 @@ export type { RawConfig } from '@piying/valibot-visit';
 export { rawConfig } from './raw-config';
 export * from './component';
 export * from './input';
-export * from './prop';
 export * from './output';
 export * from './wrapper';
 export * from './alias';

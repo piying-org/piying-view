@@ -5,10 +5,7 @@ import * as v from 'valibot';
 import {
   setComponent,
   formConfig,
-  patchProps,
-  
-  actions,
-  patchAsyncProps,
+actions
 } from '@piying/view-angular-core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { getField } from './util/action';
@@ -106,7 +103,7 @@ describe('组件默认配置', () => {
         types: {
           test2: {
             type: Test1Component,
-            actions: [patchAsyncProps({ value: () => 1 })],
+            actions: [actions.props.patchAsync({ value: () => 1 })],
           },
         },
       },
@@ -129,7 +126,7 @@ describe('组件默认配置', () => {
           test2: {
             actions: [
               setComponent(Test1Component),
-              patchProps({
+              actions.props.patch({
                 value: 1,
               }),
             ],
