@@ -26,7 +26,7 @@ import {
 import {
   FieldRenderConfig,
   ViewOutputs,
-  CoreRawWrapperConfig,
+  CoreWrapperConfig,
   ViewInputs,
   _PiResolvedCommonViewFieldConfig,
   HookConfig,
@@ -43,7 +43,7 @@ export class CoreSchemaHandle<
   outputs = asyncObjectSignal<ViewOutputs>({});
   attributes = asyncObjectSignal<Record<string, any>>({});
   events = asyncObjectSignal<Record<string, (event: any) => any>>({});
-  wrappers = combineSignal<CoreRawWrapperConfig>([]);
+  wrappers = combineSignal<CoreWrapperConfig>([]);
   override props = asyncObjectSignal<Record<string, any>>({});
   alias?: string;
   movePath?: KeyPath;

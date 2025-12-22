@@ -1,11 +1,15 @@
 import { rawConfig } from './raw-config';
 import {
   _PiResolvedCommonViewFieldConfig,
-  CoreRawWrapperConfig,
-  CoreResolvedWrapperConfig,
+  CoreWrapperConfig,
   PI_VIEW_CONFIG_TOKEN,
 } from '../../builder-base';
-import { ObservableSignal, observableSignal, SetUnWrapper$ } from '../../util';
+import {
+  ObservableSignal,
+  observableSignal,
+  SetOptional,
+  SetUnWrapper$,
+} from '../../util';
 import { mergeHooksFn } from './hook';
 import { Signal } from '@angular/core';
 import { AsyncProperty } from './input';
@@ -16,8 +20,11 @@ import { asyncObjectSignal } from '../../util/create-async-object-signal';
 
 export function setWrappers<T>(
   wrappers: (
-    | SetUnWrapper$<
-        CoreRawWrapperConfig,
+    | SetOptional<
+        SetUnWrapper$<
+          CoreWrapperConfig,
+          'inputs' | 'outputs' | 'attributes' | 'events'
+        >,
         'inputs' | 'outputs' | 'attributes' | 'events'
       >
     | string
@@ -80,24 +87,12 @@ export function setWrappers<T>(
   });
 }
 
-export type AsyncCoreRawWrapperConfig = Omit<
-  Exclude<CoreRawWrapperConfig, string>,
-  'inputs' | 'attributes' | 'outputs'
-> & {
-  inputs?: Record<string, AsyncProperty>;
-  attributes?: Record<string, AsyncProperty>;
-  outputs?: Record<
-    string,
-    (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
-  >;
-};
-
 export function removeWrappers<T>(
   removeList:
     | string[]
     | ((
-        list: Signal<CoreResolvedWrapperConfig>[],
-      ) => Signal<CoreResolvedWrapperConfig>[]),
+        list: Signal<CoreWrapperConfig>[],
+      ) => Signal<CoreWrapperConfig>[]),
 ) {
   return rawConfig<T>((field) => {
     mergeHooksFn(
@@ -133,16 +128,16 @@ export function patchAsyncWrapper2<T>(
         allFieldsResolved: (field) => {
           const findConfig = field.injector.get(FindConfigToken);
           const initData = observableSignal<
-            CoreResolvedWrapperConfig,
-            CoreResolvedWrapperConfig
+            CoreWrapperConfig,
+            CoreWrapperConfig
           >(
             {
               type,
-              attributes: asyncObjectSignal(undefined),
-              events: asyncObjectSignal(undefined),
+              attributes: asyncObjectSignal({}),
+              events: asyncObjectSignal({}),
               inputs: asyncObjectSignal({}),
               outputs: asyncObjectSignal({}),
-            } as CoreResolvedWrapperConfig,
+            } as CoreWrapperConfig,
             {
               pipe: pipe(
                 map((item) => {
@@ -179,7 +174,7 @@ export function patchAsyncWrapper2<T>(
   });
 }
 export function changeAsyncWrapper2<T>(
-  indexFn: (list: Signal<CoreResolvedWrapperConfig>[]) => any,
+  indexFn: (list: Signal<CoreWrapperConfig>[]) => any,
   actions: ConfigAction<any>[],
 ) {
   return rawConfig<T>((rawFiled) => {

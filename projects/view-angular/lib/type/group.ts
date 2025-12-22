@@ -6,7 +6,7 @@ import {
   CombineSignal,
 
   CoreResolvedComponentDefine,
-  CoreResolvedWrapperConfig,
+  CoreWrapperConfig,
   LazyMarkType,
   PiResolvedCommonViewFieldConfig,
 } from '@piying/view-angular-core';
@@ -36,7 +36,7 @@ export type PiResolvedViewFieldConfig = PiResolvedCommonViewFieldConfig<
   directives?: CombineSignal<NgDirectiveConfig>;
 };
 
-export type NgResolvedWraaperConfig = Omit<CoreResolvedWrapperConfig, ''>;
+export type NgResolvedWraaperConfig = Omit<CoreWrapperConfig, ''>;
 
 export type ComponentRawType =
   | Type<any>
