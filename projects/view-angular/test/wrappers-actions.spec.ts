@@ -2,11 +2,9 @@ import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
 import {
+  actions,
   changeAsyncWrapper2,
-  patchAsyncAttributesCommon,
   patchAsyncClassCommon,
-  patchAsyncEventsCommon,
-  patchAsyncInputsCommon,
   patchAsyncWrapper2,
   setComponent,
 } from '@piying/view-angular-core';
@@ -31,7 +29,7 @@ describe('wrappers-actions', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [
-        patchAsyncInputsCommon({
+        actions.patchAsync.inputs({
           wInput1: (field) => signal('input1'),
         }),
       ]),
@@ -55,7 +53,7 @@ describe('wrappers-actions', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [
-        patchAsyncAttributesCommon({
+        actions.patchAsync.attributes({
           class: (field) => 'input1',
         }),
       ]),
@@ -80,7 +78,7 @@ describe('wrappers-actions', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper2('wrapper1', [
-        patchAsyncEventsCommon({
+        actions.patchAsync.events({
           click: (field) => () => {
             eventRun = true;
           },
