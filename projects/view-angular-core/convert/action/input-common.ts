@@ -15,7 +15,7 @@ import {
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 type ChangeKey = 'inputs' | 'outputs' | 'attributes' | 'events' | 'props';
-export const WrapperSymbol = Symbol();
+export const CustomDataSymbol = Symbol();
 
 export const createRemovePropertyFn =
   (key: ChangeKey) =>
@@ -28,9 +28,9 @@ export const createRemovePropertyFn =
             if (
               args.length > 0 &&
               typeof args[args.length - 1] === 'object' &&
-              WrapperSymbol in args[args.length - 1]
+              CustomDataSymbol in args[args.length - 1]
             ) {
-              data$ = args[args.length - 1][WrapperSymbol];
+              data$ = args[args.length - 1][CustomDataSymbol];
             } else if (key === 'props') {
               data$ = (() => field) as any;
             } else {
@@ -60,9 +60,9 @@ export const createPatchAsyncPropertyFn =
       if (
         args.length > 0 &&
         typeof args[args.length - 1] === 'object' &&
-        WrapperSymbol in args[args.length - 1]
+        CustomDataSymbol in args[args.length - 1]
       ) {
-        data$ = args[args.length - 1][WrapperSymbol];
+        data$ = args[args.length - 1][CustomDataSymbol];
       } else {
         data$ = (() => rawField) as any;
       }
@@ -104,9 +104,9 @@ export function createSetOrPatchPropertyFn(key: ChangeKey, isPatch?: boolean) {
       if (
         args.length > 0 &&
         typeof args[args.length - 1] === 'object' &&
-        WrapperSymbol in args[args.length - 1]
+        CustomDataSymbol in args[args.length - 1]
       ) {
-        data$ = args[args.length - 1][WrapperSymbol];
+        data$ = args[args.length - 1][CustomDataSymbol];
       } else {
         data$ = (() => rawField) as any;
       }

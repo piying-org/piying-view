@@ -15,7 +15,7 @@ import { Signal } from '@angular/core';
 import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
-import { ConfigAction, WrapperSymbol } from './input-common';
+import { ConfigAction, CustomDataSymbol } from './input-common';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
 
 export function setWrappers<T>(
@@ -66,7 +66,7 @@ export function setWrappers<T>(
         rawField.wrappers.add(define);
         defaultActions.forEach((item) => {
           item.value(rawField, _, {
-            [WrapperSymbol]: define,
+            [CustomDataSymbol]: define,
           });
         });
       } else {
@@ -162,7 +162,7 @@ export function patchAsyncWrapper2<T>(
           for (const item of allActions) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {
-              [WrapperSymbol]: initData,
+              [CustomDataSymbol]: initData,
             });
             (tempField as any).hooks.allFieldsResolved(field);
           }
@@ -193,7 +193,7 @@ export function changeAsyncWrapper2<T>(
           for (const item of actions) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {
-              [WrapperSymbol]: initData,
+              [CustomDataSymbol]: initData,
             });
             (tempField as any).hooks.allFieldsResolved(field);
           }

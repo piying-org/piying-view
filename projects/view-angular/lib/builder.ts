@@ -16,10 +16,7 @@ export class AngularFormBuilder extends FormBuilder<NgSchemaHandle> {
   ): PiResolvedViewFieldConfig {
     const field = rawConfig;
 
-    const directives = combineSignal(
-      (field.directives ?? []).map((a) => asyncObjectSignal(a)),
-    );
-    config.directives = directives;
+    config.directives = field.directives;
     return config;
   }
 }
