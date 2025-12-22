@@ -30,6 +30,9 @@ import {
   ViewInputs,
   _PiResolvedCommonViewFieldConfig,
   HookConfig,
+  ViewAttributes,
+  ViewProps,
+  ViewEvents,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
 import { asyncObjectSignal, combineSignal, KeyPath } from '../../util';
@@ -41,10 +44,10 @@ export class CoreSchemaHandle<
 > extends BaseSchemaHandle<Self> {
   inputs = asyncObjectSignal<ViewInputs>({});
   outputs = asyncObjectSignal<ViewOutputs>({});
-  attributes = asyncObjectSignal<Record<string, any>>({});
-  events = asyncObjectSignal<Record<string, (event: any) => any>>({});
+  attributes = asyncObjectSignal<ViewAttributes>({});
+  events = asyncObjectSignal<ViewEvents>({});
   wrappers = combineSignal<CoreWrapperConfig>([]);
-  override props = asyncObjectSignal<Record<string, any>>({});
+  override props = asyncObjectSignal<ViewProps>({});
   alias?: string;
   movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;
