@@ -1,4 +1,3 @@
-import type { SvelteSchemaHandle } from '../svelte-schema';
 import type {
 	CoreResolvedComponentDefine,
 	LazyMarkType,

@@ -4,7 +4,6 @@ import { NgComponentDefine } from './component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import {
   CombineSignal,
-
   CoreResolvedComponentDefine,
   CoreWrapperConfig,
   LazyMarkType,

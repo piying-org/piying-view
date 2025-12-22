@@ -76,9 +76,7 @@ function createAttributesDirective(
   }
   return [];
 }
-function createEventsDirective(
-  events: Signal<ViewAttributes | undefined>,
-) {
+function createEventsDirective(events: Signal<ViewAttributes | undefined>) {
   if (events()) {
     return [
       {

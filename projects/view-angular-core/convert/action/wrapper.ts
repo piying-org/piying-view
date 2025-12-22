@@ -1,9 +1,5 @@
 import { rawConfig } from './raw-config';
-import {
-  _PiResolvedCommonViewFieldConfig,
-  CoreWrapperConfig,
-  PI_VIEW_CONFIG_TOKEN,
-} from '../../builder-base';
+import { CoreWrapperConfig, PI_VIEW_CONFIG_TOKEN } from '../../builder-base';
 import {
   ObservableSignal,
   observableSignal,
@@ -12,7 +8,6 @@ import {
 } from '../../util';
 import { mergeHooksFn } from './hook';
 import { Signal } from '@angular/core';
-import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { ConfigAction, CustomDataSymbol } from './input-common';
@@ -90,9 +85,7 @@ export function setWrappers<T>(
 export function removeWrappers<T>(
   removeList:
     | string[]
-    | ((
-        list: Signal<CoreWrapperConfig>[],
-      ) => Signal<CoreWrapperConfig>[]),
+    | ((list: Signal<CoreWrapperConfig>[]) => Signal<CoreWrapperConfig>[]),
 ) {
   return rawConfig<T>((field) => {
     mergeHooksFn(

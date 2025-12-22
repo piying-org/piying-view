@@ -41,8 +41,8 @@ export function topClass<T>(className: ClassValue, merge?: boolean) {
   });
 }
 /** 仅设置在组件上 */
-export const componentClass = <T>(className: ClassValue, merge?: boolean) => {
-  return rawConfig<T>((rawField, _, ...args) => {
+export const componentClass = <T>(className: ClassValue, merge?: boolean) =>
+  rawConfig<T>((rawField, _, ...args) => {
     let data$: WritableSignal<any>;
     if (
       args.length > 0 &&
@@ -59,7 +59,6 @@ export const componentClass = <T>(className: ClassValue, merge?: boolean) => {
       class: merge ? clsx(data?.['class'], className) : clsx(className),
     }));
   });
-};
 
 export const bottomClass = componentClass;
 export function patchAsyncClass<T>(

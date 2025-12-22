@@ -11,7 +11,7 @@ import {
 import { rawConfig } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { assertFieldControl } from './util/is-field';
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 describe('自定义handle', () => {
   it('默认条件', () => {

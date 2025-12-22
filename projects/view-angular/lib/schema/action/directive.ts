@@ -1,6 +1,5 @@
 import {
   asyncObjectSignal,
-  combineSignal,
   mergeHooksFn,
   SetOptional,
   SetUnWrapper$,
@@ -19,8 +18,8 @@ function createSetOrPatchDirectivePropertyFn(isPatch?: boolean) {
       >,
       'inputs' | 'outputs' | 'attributes' | 'events' | 'model'
     >[],
-  ) => {
-    return rawConfig<T>((field) => {
+  ) =>
+    rawConfig<T>((field) => {
       if (!isPatch) {
         field.directives.clean();
       }
@@ -37,7 +36,6 @@ function createSetOrPatchDirectivePropertyFn(isPatch?: boolean) {
         );
       });
     });
-  };
 }
 
 function patchAsyncDirective<T>(
