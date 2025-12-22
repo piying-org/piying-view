@@ -9,15 +9,6 @@ import {
 } from '../../util/create-async-object-signal';
 import { rawConfig } from './raw-config';
 
-export function asyncInputMerge(
-  dataObj: Record<string, any>,
-  data$: AsyncObjectSignal<any>,
-) {
-  Object.keys(dataObj).forEach((key) => {
-    data$.connect(key, dataObj[key]);
-  });
-  return data$;
-}
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 type ChangeKey = 'inputs' | 'outputs' | 'attributes' | 'events' | 'props';
@@ -90,24 +81,10 @@ export const patchAsyncInputsCommonFn =
               }, {} as any),
             }));
 
-            const result$ = asyncInputMerge(
-              Object.entries(dataObj).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              content$,
-            );
-
-            if (needInited || result$ !== content$) {
-              if (key === 'props') {
-                (field as any).props = result$;
-              } else {
-                data$.update((data) => ({ ...data, [key]: result$ }));
-              }
-            }
+            Object.entries(dataObj).forEach(([key, value]) => {
+              let result = value(field);
+              content$.connect(key, result);
+            });
           },
         },
         { position: 'bottom' },

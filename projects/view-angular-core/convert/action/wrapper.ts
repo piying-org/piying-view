@@ -17,7 +17,7 @@ import { Signal, signal } from '@angular/core';
 import { AsyncProperty, patchAsyncInputs } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
-import { asyncInputMerge, ConfigAction, WrapperSymbol } from './input-common';
+import { ConfigAction, WrapperSymbol } from './input-common';
 import { metadataList, RawConfigAction } from '@piying/valibot-visit';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
 import { patchAsyncOutputs } from './output';
