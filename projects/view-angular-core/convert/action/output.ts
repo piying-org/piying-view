@@ -1,7 +1,7 @@
 import { rawConfig } from './raw-config';
 import {
   _PiResolvedCommonViewFieldConfig,
-  CoreRawViewOutputs,
+  ViewOutputs,
 } from '../../builder-base';
 import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
@@ -9,7 +9,7 @@ import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
 import { actions } from './input-common';
 function createOutputListener<T>(
-  outputs: CoreRawViewOutputs,
+  outputs: ViewOutputs,
   options: { setOutputs: boolean; mergeOutput: boolean },
 ) {
   return rawConfig<T>((field) => {
@@ -47,7 +47,7 @@ export const removeOutputs = actions.remove.outputs;
 
 export function mergeOutputFn(
   field: _PiResolvedCommonViewFieldConfig,
-  outputs: CoreRawViewOutputs,
+  outputs: ViewOutputs,
 ) {
   field.outputs.update((originOutputs) => {
     originOutputs = { ...originOutputs };

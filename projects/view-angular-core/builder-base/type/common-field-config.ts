@@ -12,17 +12,15 @@ import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
-/** 全局定义使用 */
-export type CoreRawComponentDefine = {
-  type: any;
-  attributes?: AsyncObjectSignal<Record<string, any>>;
-  events?: AsyncObjectSignal<Record<string, any>>;
-  inputs?: AsyncObjectSignal<CoreRawViewInputs>;
-  outputs?: AsyncObjectSignal<CoreRawViewOutputs>;
-};
+
 /** 解析后define使用 */
-export type CoreResolvedComponentDefine = CoreRawComponentDefine
-export type AA=CoreResolvedComponentDefine
+export type CoreResolvedComponentDefine = {
+  type: any;
+  inputs?: AsyncObjectSignal<ViewInputs>;
+  outputs?: AsyncObjectSignal<ViewOutputs>;
+  attributes?: AsyncObjectSignal<ViewAttributes>;
+  events?: AsyncObjectSignal<ViewEvents>;
+};
 
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
@@ -98,25 +96,23 @@ export interface FormBuilderOptions<T> {
   context: any;
 }
 
-export type CoreRawViewInputs = Record<string, any>;
-export type CoreRawViewAttributes = Record<string, any>;
-export type CoreRawProps = Record<string, any>;
-export interface CoreRawViewOutputs {
-  [name: string]: (...args: any[]) => void;
-}
+export type ViewInputs = Record<string, any>;
+export type ViewOutputs = Record<string, (...args: any[]) => any>;
+export type ViewAttributes = Record<string, any>;
+export type ViewEvents = Record<string, (event: Event) => any>;
+export type ViewProps = Record<string, any>;
 
-export type CoreWrapperConfig1 = {
+export type CoreRawWrapperConfig = {
   type: string | any | LazyImport<any>;
-  attributes?: AsyncObjectSignal<CoreRawViewAttributes>;
-  inputs?: AsyncObjectSignal<CoreRawViewInputs>;
-  outputs?: AsyncObjectSignal<CoreRawViewOutputs>;
-  events?: AsyncObjectSignal<Record<string, (event: any) => any>>;
+  attributes?: AsyncObjectSignal<ViewAttributes>;
+  inputs?: AsyncObjectSignal<ViewInputs>;
+  outputs?: AsyncObjectSignal<ViewOutputs>;
+  events?: AsyncObjectSignal<ViewEvents>;
 };
-export type CoreRawWrapperConfig = CoreWrapperConfig1;
 export type CoreResolvedWrapperConfig = {
   type: any | LazyImport<any>;
-  inputs: AsyncObjectSignal<CoreRawViewInputs | undefined>;
-  outputs?: AsyncObjectSignal<CoreRawViewOutputs>;
-  attributes: AsyncObjectSignal<CoreRawViewAttributes | undefined>;
+  inputs: AsyncObjectSignal<ViewInputs | undefined>;
+  outputs?: AsyncObjectSignal<ViewOutputs>;
+  attributes: AsyncObjectSignal<ViewAttributes | undefined>;
   events: AsyncObjectSignal<Record<string, (event: any) => any> | undefined>;
 };

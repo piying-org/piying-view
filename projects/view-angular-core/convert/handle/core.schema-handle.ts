@@ -25,9 +25,9 @@ import {
 } from '@piying/valibot-visit';
 import {
   FieldRenderConfig,
-  CoreRawViewOutputs,
+  ViewOutputs,
   CoreRawWrapperConfig,
-  CoreRawViewInputs,
+  ViewInputs,
   _PiResolvedCommonViewFieldConfig,
   HookConfig,
 } from '../../builder-base';
@@ -39,8 +39,8 @@ export class CoreSchemaHandle<
   Self extends CoreSchemaHandle<any, any>,
   RESOLVED_FN extends () => any,
 > extends BaseSchemaHandle<Self> {
-  inputs = asyncObjectSignal<CoreRawViewInputs>({});
-  outputs = asyncObjectSignal<CoreRawViewOutputs>({});
+  inputs = asyncObjectSignal<ViewInputs>({});
+  outputs = asyncObjectSignal<ViewOutputs>({});
   attributes = asyncObjectSignal<Record<string, any>>({});
   events = asyncObjectSignal<Record<string, (event: any) => any>>({});
   wrappers = combineSignal<CoreRawWrapperConfig>([]);
