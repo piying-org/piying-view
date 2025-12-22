@@ -109,7 +109,7 @@ export function removeWrappers<T>(
   });
 }
 
-export function patchAsyncWrapper2<T>(
+export function patchAsyncWrapper<T>(
   type: any,
   actions?: ConfigAction<any>[],
   options?: { insertIndex?: number },
@@ -166,7 +166,7 @@ export function patchAsyncWrapper2<T>(
     );
   });
 }
-export function changeAsyncWrapper2<T>(
+export function changeAsyncWrapper<T>(
   indexFn: (list: Signal<CoreWrapperConfig>[]) => any,
   actions: ConfigAction<any>[],
 ) {

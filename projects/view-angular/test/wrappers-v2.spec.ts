@@ -7,7 +7,7 @@ import {
   patchAsyncAttributes,
   patchAsyncInputs,
   patchAsyncOutputs,
-  patchAsyncWrapper2,
+  patchAsyncWrapper,
   setInputs,
   setOutputs,
 } from '@piying/view-angular-core';
@@ -276,7 +276,7 @@ describe('带异步wrappers-v2', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [
+      patchAsyncWrapper('wrapper1', [
         patchAsyncAttributes({
           class: () => 'test1',
         }),
@@ -325,7 +325,7 @@ describe('带异步wrappers-v2', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [
+      patchAsyncWrapper('wrapper1', [
         patchAsyncInputs({
           wInput1: (filed) => data$,
         }),

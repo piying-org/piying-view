@@ -3,7 +3,7 @@ import { createBuilder } from './util/create-builder';
 import { getField } from './util/action';
 import {
   _PiResolvedCommonViewFieldConfig,
-  patchAsyncWrapper2,
+  patchAsyncWrapper,
   removeWrappers,
   setWrappers,
 } from '@piying/view-angular-core';
@@ -47,8 +47,8 @@ describe('wrapper', () => {
   it('patch', async () => {
     const k1Schema = v.pipe(
       v.string(),
-      patchAsyncWrapper2('w2'),
-      patchAsyncWrapper2('w1', undefined, { insertIndex: 0 }),
+      patchAsyncWrapper('w2'),
+      patchAsyncWrapper('w1', undefined, { insertIndex: 0 }),
     );
     const result = createBuilder(k1Schema, { wrappers: ['w1', 'w2'] });
 

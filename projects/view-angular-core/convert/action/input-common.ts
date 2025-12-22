@@ -6,8 +6,8 @@ import { mergeHooksFn } from './hook';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 import { rawConfig } from './raw-config';
 import {
-  changeAsyncWrapper2,
-  patchAsyncWrapper2,
+  changeAsyncWrapper,
+  patchAsyncWrapper,
   removeWrappers,
   setWrappers,
 } from './wrapper';
@@ -179,8 +179,8 @@ export const __actions = {
   },
   wrappers: {
     set: setWrappers,
-    patchAsync: patchAsyncWrapper2,
+    patchAsync: patchAsyncWrapper,
     remove: removeWrappers,
-    changeAsync: changeAsyncWrapper2,
+    changeAsync: changeAsyncWrapper,
   },
 };

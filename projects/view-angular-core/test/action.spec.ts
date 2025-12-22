@@ -5,7 +5,7 @@ import {
   condition,
   layout,
   mergeHooks,
-  patchAsyncWrapper2,
+  patchAsyncWrapper,
   patchHooks,
   removeHooks,
   setComponent,
@@ -373,7 +373,7 @@ describe('action', () => {
     const obj2 = v.pipe(
       v.string(),
       setWrappers(['w1', 'w2']),
-      patchAsyncWrapper2('w3'),
+      patchAsyncWrapper('w3'),
     );
     const resolved2 = createBuilder(obj2, options);
     expect(resolved2.wrappers().map((item) => item.type)).toEqual([
@@ -390,7 +390,7 @@ describe('action', () => {
     const obj3 = v.pipe(
       v.string(),
       setWrappers(['w1', 'w2']),
-      patchAsyncWrapper2('w3'),
+      patchAsyncWrapper('w3'),
       removeWrappers(['w1']),
     );
     const resolved3 = createBuilder(obj3, options);

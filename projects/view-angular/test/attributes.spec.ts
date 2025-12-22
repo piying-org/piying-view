@@ -4,7 +4,7 @@ import * as v from 'valibot';
 import {
   componentClass,
   patchAsyncInputs,
-  patchAsyncWrapper2,
+  patchAsyncWrapper,
   topClass,
 } from '@piying/view-angular-core';
 
@@ -242,7 +242,7 @@ describe('attributes', () => {
               import('./test1/test1.component').then(
                 (a) => a.Test1Component,
               ) as any,
-            actions: [patchAsyncWrapper2('wrapper1')],
+            actions: [patchAsyncWrapper('wrapper1')],
           },
         },
         wrappers: {

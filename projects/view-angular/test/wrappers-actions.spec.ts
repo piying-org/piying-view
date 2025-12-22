@@ -4,8 +4,8 @@ import * as v from 'valibot';
 import {
   actions,
   bottomClass,
-  changeAsyncWrapper2,
-  patchAsyncWrapper2,
+  changeAsyncWrapper,
+  patchAsyncWrapper,
   setComponent,
 } from '@piying/view-angular-core';
 import { Wrapper3Component } from './wrapper3/component';
@@ -28,7 +28,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [
+      patchAsyncWrapper('wrapper1', [
         actions.inputs.patchAsync({
           wInput1: (field) => signal('input1'),
         }),
@@ -52,7 +52,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [
+      patchAsyncWrapper('wrapper1', [
         actions.attributes.patchAsync({
           class: (field) => 'input1',
         }),
@@ -77,7 +77,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [
+      patchAsyncWrapper('wrapper1', [
         actions.events.patchAsync({
           click: (field) => () => {
             eventRun = true;
@@ -102,7 +102,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [bottomClass('input1')]),
+      patchAsyncWrapper('wrapper1', [bottomClass('input1')]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -122,8 +122,8 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper2('wrapper1', [bottomClass('input1')]),
-      changeAsyncWrapper2(
+      patchAsyncWrapper('wrapper1', [bottomClass('input1')]),
+      changeAsyncWrapper(
         (list) => list.find((item) => item().type === 'wrapper1'),
         [bottomClass('input2')],
       ),
