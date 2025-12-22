@@ -8,7 +8,7 @@ import {
 } from '@piying/view-angular-core';
 import { NgDirectiveConfig } from '../../type';
 import { rawConfig } from './raw-config';
-import { signal, Type } from '@angular/core';
+import { Signal, signal, Type } from '@angular/core';
 import { RawConfigAction } from '@piying/valibot-visit';
 export function createSetOrPatchDirectivePropertyFn(isPatch?: boolean) {
   return <T>(
@@ -50,7 +50,6 @@ export function patchAsyncDirective<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          field.directives ??= combineSignal([]);
           const initData = signal({
             type,
             attributes: asyncObjectSignal({}),
@@ -59,7 +58,7 @@ export function patchAsyncDirective<T>(
             outputs: asyncObjectSignal({}),
             model: asyncObjectSignal({}),
           } as NgDirectiveConfig);
-          field.directives.add(initData, options?.insertIndex);
+          field.directives!.add(initData, options?.insertIndex);
           for (const item of actions ?? []) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {
@@ -71,6 +70,24 @@ export function patchAsyncDirective<T>(
       },
       { position: 'bottom' },
       rawFiled,
+    );
+  });
+}
+
+export function removeDirectives<T>(
+  removeList: (
+    list: Signal<NgDirectiveConfig>[],
+  ) => Signal<NgDirectiveConfig>[],
+) {
+  return rawConfig<T>((field) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          field.directives!.update(removeList);
+        },
+      },
+      { position: 'bottom' },
+      field,
     );
   });
 }
