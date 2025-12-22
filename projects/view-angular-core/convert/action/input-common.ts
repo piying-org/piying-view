@@ -5,6 +5,12 @@ import { RawConfigAction } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 import { rawConfig } from './raw-config';
+import {
+  changeAsyncWrapper2,
+  patchAsyncWrapper2,
+  removeWrappers,
+  setWrappers,
+} from './wrapper';
 
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
@@ -164,23 +170,38 @@ type AsyncKeyToType<K> = K extends 'inputs' | 'attributes' | 'props'
 
 export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;
 export const actions = {
-  patch: List.reduce((obj, key) => {
-    obj[key] = createSetOrPatch(key, true);
-    return obj;
-  }, {} as SetKeyMap),
-  set: List.reduce((obj, key) => {
-    obj[key] = createSetOrPatch(key);
-    return obj;
-  }, {} as SetKeyMap),
-  patchAsync: List.reduce((obj, key) => {
-    obj[key] = patchAsyncInputsCommonFn(key);
-    return obj;
-  }, {} as AsyncKeyMap),
-  remove: List.reduce(
+  patch: List.reduce(
     (obj, key) => {
-      obj[key] = removeInputsCommonFn(key);
+      obj[key] = createSetOrPatch(key, true);
       return obj;
     },
-    {} as Record<ChangeKey, <T>(value: string[]) => ConfigAction<T>>,
+    {} as any as SetKeyMap,
   ),
+  set: {
+    ...List.reduce((obj, key) => {
+      obj[key] = createSetOrPatch(key);
+      return obj;
+    }, {} as SetKeyMap),
+    wrappers: setWrappers,
+  },
+  patchAsync: {
+    ...List.reduce((obj, key) => {
+      obj[key] = patchAsyncInputsCommonFn(key);
+      return obj;
+    }, {} as AsyncKeyMap),
+    wrappers: patchAsyncWrapper2,
+  },
+  remove: {
+    ...List.reduce(
+      (obj, key) => {
+        obj[key] = removeInputsCommonFn(key);
+        return obj;
+      },
+      {} as Record<ChangeKey, <T>(value: string[]) => ConfigAction<T>>,
+    ),
+    wrappers: removeWrappers,
+  },
+  changeAsync: {
+    wrappers: changeAsyncWrapper2,
+  },
 };
