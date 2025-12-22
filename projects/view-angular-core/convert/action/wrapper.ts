@@ -101,15 +101,26 @@ export type AsyncCoreRawWrapperConfig = Omit<
   >;
 };
 
-export function removeWrappers<T>(removeList: string[]) {
+export function removeWrappers<T>(
+  removeList:
+    | string[]
+    | ((
+        list: Signal<CoreResolvedWrapperConfig>[],
+      ) => Signal<CoreResolvedWrapperConfig>[]),
+) {
   return rawConfig<T>((field) => {
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          const list = field.wrappers.items().filter((item) => {
-            const type = (item as ObservableSignal<any, any>).input().type;
-            return removeList.every((name) => name !== type);
-          });
+          let list;
+          if (typeof removeList === 'function') {
+            list = removeList(field.wrappers.items());
+          } else {
+            list = field.wrappers.items().filter((item) => {
+              const type = (item as ObservableSignal<any, any>).input().type;
+              return removeList.every((name) => name !== type);
+            });
+          }
           field.wrappers.update(() => list);
         },
       },
@@ -119,19 +130,6 @@ export function removeWrappers<T>(removeList: string[]) {
   });
 }
 
-export function setWrapperEmpty<T>() {
-  return rawConfig<T>((rawFiled) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          field.wrappers.clean();
-        },
-      },
-      { position: 'bottom' },
-      rawFiled,
-    );
-  });
-}
 export function patchAsyncWrapper2<T>(
   type: any,
   actions?: ConfigAction<any>[],

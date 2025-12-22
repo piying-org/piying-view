@@ -44,11 +44,10 @@ export class CoreSchemaHandle<
   Self extends CoreSchemaHandle<any, any>,
   RESOLVED_FN extends () => any,
 > extends BaseSchemaHandle<Self> {
-  inputs: AsyncObjectSignal<CoreRawViewInputs> = asyncObjectSignal({});
-  outputs: AsyncObjectSignal<CoreRawViewOutputs> = asyncObjectSignal({});
-  attributes: AsyncObjectSignal<Record<string, any>> = asyncObjectSignal({});
-  events: AsyncObjectSignal<Record<string, (event: any) => any>> =
-    asyncObjectSignal({});
+  inputs = asyncObjectSignal<CoreRawViewInputs>({});
+  outputs = asyncObjectSignal<CoreRawViewOutputs>({});
+  attributes = asyncObjectSignal<Record<string, any>>({});
+  events = asyncObjectSignal<Record<string, (event: any) => any>>({});
   wrappers = combineSignal<CoreRawWrapperConfig>([]);
   alias?: string;
   movePath?: KeyPath;
