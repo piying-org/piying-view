@@ -68,7 +68,6 @@ export const patchAsyncInputsCommonFn =
             } else {
               data$ = field.define!;
             }
-            const needInited = !data$()[key];
             const content$: AsyncObjectSignal<any> =
               data$()[key] ?? asyncObjectSignal({});
             const inputList = Object.keys(dataObj);
