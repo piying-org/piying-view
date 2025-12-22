@@ -5,7 +5,6 @@ import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
 import { getField, mergeHooks } from './util/action';
 import {
-  patchAsyncInputs,
   actions,
   setComponent,
 } from '@piying/view-angular-core';
@@ -77,7 +76,7 @@ describe('指令', () => {
       v.string(),
       setComponent('test1'),
       directives.patchAsync(D1Directive, [
-        patchAsyncInputs({ id: () => Promise.resolve('d1') }),
+        actions.inputs.patchAsync({ id: () => Promise.resolve('d1') }),
       ]),
       getField(field$),
     );
@@ -95,7 +94,7 @@ describe('指令', () => {
       v.string(),
       setComponent('test1'),
       directives.patchAsync(D1Directive, [
-        patchAsyncInputs({ id: () => new BehaviorSubject('d1') }),
+        actions.inputs.patchAsync({ id: () => new BehaviorSubject('d1') }),
       ]),
 
       getField(field$),
@@ -114,7 +113,7 @@ describe('指令', () => {
       v.string(),
       setComponent('test1'),
       directives.patchAsync(D1Directive, [
-        patchAsyncInputs({ id: () => signal('d1') }),
+        actions.inputs.patchAsync({ id: () => signal('d1') }),
       ]),
 
       getField(field$),
@@ -133,7 +132,7 @@ describe('指令', () => {
       v.string(),
       setComponent('test1'),
       directives.patchAsync(D1Directive, [
-        patchAsyncInputs({ id: () => signal('') }),
+        actions.inputs.patchAsync({ id: () => signal('') }),
       ]),
       mergeHooks({
         allFieldsResolved(field) {
@@ -196,7 +195,7 @@ describe('指令', () => {
       v.string(),
       setComponent('test1'),
       directives.patchAsync(D1Directive, [
-        patchAsyncInputs({ id: () => inputs }),
+        actions.inputs.patchAsync({ id: () => inputs }),
       ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(

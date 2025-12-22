@@ -7,7 +7,6 @@ import {
   componentClass,
   controlStatusList,
   NFCSchema,
-  setInputs,
   actions,
 } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
@@ -26,7 +25,7 @@ describe('初始化', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -46,7 +45,7 @@ describe('初始化', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),

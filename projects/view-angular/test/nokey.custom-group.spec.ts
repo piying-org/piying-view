@@ -3,7 +3,7 @@ import { Test1Component } from './test1/test1.component';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import * as v from 'valibot';
-import { setInputs, actions } from '@piying/view-angular-core';
+import {  actions } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
 
@@ -13,7 +13,7 @@ describe('nokey-custom自定义group', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -34,7 +34,7 @@ describe('nokey-custom自定义group', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),

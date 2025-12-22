@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import { Group1Component } from './group1/component';
 import * as v from 'valibot';
-import { setInputs, actions } from '@piying/view-angular-core';
+import {  actions } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
 
@@ -16,7 +16,7 @@ describe('自定义group', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
+            actions.inputs.set({
               input1: 'div-display',
             }),
           ),
@@ -43,7 +43,7 @@ describe('自定义group', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
+            actions.inputs.set({
               input1: 'div-display',
             }),
           ),

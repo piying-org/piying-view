@@ -3,7 +3,7 @@ import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import {
   componentClass,
-  patchAsyncInputs,
+  actions,
   patchAsyncWrapper,
   topClass,
 } from '@piying/view-angular-core';
@@ -131,7 +131,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -170,7 +170,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -211,7 +211,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -248,7 +248,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
         },
       },

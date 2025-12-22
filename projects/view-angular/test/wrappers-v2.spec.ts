@@ -4,10 +4,8 @@ import { htmlInput } from './util/input';
 import * as v from 'valibot';
 import {
   NFCSchema,
-  patchAsyncInputs,
   actions,
   patchAsyncWrapper,
-  setInputs,
 } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
@@ -25,7 +23,7 @@ describe('带异步wrappers-v2', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1', 'wrapper2']),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -46,7 +44,7 @@ describe('带异步wrappers-v2', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper3Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -73,7 +71,7 @@ describe('带异步wrappers-v2', () => {
         v.string(),
         setComponent('test1'),
         setWrappers(['wrapper1', 'wrapper2']),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -94,7 +92,7 @@ describe('带异步wrappers-v2', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper3Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: { type: Wrapper4Component },
         },
@@ -141,7 +139,7 @@ describe('带异步wrappers-v2', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper3Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -189,7 +187,7 @@ describe('带异步wrappers-v2', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper3Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -237,7 +235,7 @@ describe('带异步wrappers-v2', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper3Component,
-            actions: [patchAsyncInputs({ wInput1: () => 'wInput1' })],
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: Wrapper4Component,
@@ -278,7 +276,7 @@ describe('带异步wrappers-v2', () => {
         actions.attributes.patchAsync({
           class: () => 'test1',
         }),
-        patchAsyncInputs({
+        actions.inputs.patchAsync({
           wInput1: (filed) => 'div-display',
         }),
         actions.outputs.patchAsync({
@@ -324,7 +322,7 @@ describe('带异步wrappers-v2', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper('wrapper1', [
-        patchAsyncInputs({
+        actions.inputs.patchAsync({
           wInput1: (filed) => data$,
         }),
       ]),
@@ -370,7 +368,7 @@ describe('带异步wrappers-v2', () => {
           type: ChangeInputWrapper,
         },
       ]),
-      patchAsyncInputs({
+      actions.inputs.patchAsync({
         input2: () => computed(() => input2$()),
       }),
     );

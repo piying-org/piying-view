@@ -1,11 +1,6 @@
 import * as v from 'valibot';
 
-import {
-  patchInputs,
-  setComponent,
-  setInputs,
-  setWrappers,
-} from '@piying/view-angular-core';
+import { setComponent, actions, setWrappers } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 
 // 用于测试fields和model变动时,数值是否正确
@@ -13,12 +8,12 @@ describe('fieldGlobalConfig', () => {
   it('config replace', async () => {
     const obj = v.pipe(
       v.string(),
-      patchInputs({ k1: 1 }),
+      actions.inputs.patch({ k1: 1 }),
       setComponent('test1'),
     );
     const result = createBuilder(obj, {
       types: {
-        test1: { type: 'test1', actions: [setInputs({ k2: 2 })] },
+        test1: { type: 'test1', actions: [actions.inputs.set({ k2: 2 })] },
       },
     });
     expect(result.inputs()).toEqual({ k1: 1, k2: 2 });
@@ -27,7 +22,7 @@ describe('fieldGlobalConfig', () => {
     const wrapperType = Symbol();
     const obj = v.pipe(
       v.string(),
-      setInputs({ k1: 1 }),
+      actions.inputs.set({ k1: 1 }),
       setWrappers([{ type: wrapperType }]),
     );
     const result = createBuilder(obj, {});

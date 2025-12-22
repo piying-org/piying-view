@@ -9,8 +9,7 @@ import {
   NFCSchema,
   patchAsyncClass,
   patchHooks,
-  patchInputs,
-  setInputs,
+
   actions,
   setWrappers,
 } from '@piying/view-angular-core';
@@ -44,7 +43,7 @@ describe('组件', () => {
           test2: {
             type: { component: Test2Component, module: Test2Module },
             actions: [
-              setInputs({
+              actions.inputs.set({
                 input1: 'test1',
               }),
               actions.outputs.set({
@@ -208,7 +207,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('update1'),
-      patchInputs({
+      actions.inputs.patch({
         input1: 'a1',
       }),
       setWrappers(['wrapper1']),
@@ -240,7 +239,7 @@ describe('组件', () => {
       v.pipe(
         v.string(),
         setComponent('update2'),
-        patchInputs({
+        actions.inputs.patch({
           input2: 'a2',
         }),
         setWrappers(['wrapper1']),

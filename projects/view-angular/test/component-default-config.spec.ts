@@ -6,7 +6,7 @@ import {
   setComponent,
   formConfig,
   patchProps,
-  setInputs,
+  
   actions,
   patchAsyncProps,
 } from '@piying/view-angular-core';
@@ -76,7 +76,7 @@ describe('组件默认配置', () => {
           test2: {
             type: Test1Component,
             actions: [
-              setInputs({ input1: 'test1' }),
+              actions.inputs.set({ input1: 'test1' }),
               actions.outputs.set({
                 output3: () => {
                   fields$.resolve(true);

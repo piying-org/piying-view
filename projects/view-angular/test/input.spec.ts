@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import * as v from 'valibot';
-import { patchAsyncInputs, setInputs } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
@@ -13,7 +13,7 @@ describe('input', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        patchAsyncInputs({
+        actions.inputs.patchAsync({
           input1: (field) => {
             expect(field.form).toBeTruthy();
             return a;
@@ -49,8 +49,8 @@ describe('input', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setInputs({ input2: 'test2' }),
-        patchAsyncInputs({ input1: () => a }),
+        actions.inputs.set({ input2: 'test2' }),
+        actions.inputs.patchAsync({ input1: () => a }),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(

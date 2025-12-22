@@ -1,12 +1,6 @@
 import * as v from 'valibot';
 
-import {
-  patchAsyncInputs,
-  patchInputs,
-  removeInputs,
-  actions,
-  setComponent,
-} from '@piying/view-angular-core';
+import { actions, setComponent } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { BehaviorSubject } from 'rxjs';
 
@@ -16,7 +10,7 @@ describe('input/output action', () => {
     const wait$ = Promise.withResolvers<void>();
     const obj = v.pipe(
       v.string(),
-      patchAsyncInputs({
+      actions.inputs.patchAsync({
         value1: async () => {
           wait$.resolve();
           return 1;
@@ -36,8 +30,8 @@ describe('input/output action', () => {
     const wait$ = Promise.withResolvers<void>();
     const obj = v.pipe(
       v.string(),
-      patchInputs({ value1: 2 }),
-      patchAsyncInputs({
+      actions.inputs.patch({ value1: 2 }),
+      actions.inputs.patchAsync({
         value1: async () => {
           wait$.resolve();
           return 1;
@@ -55,7 +49,7 @@ describe('input/output action', () => {
   it('subscribe input', async () => {
     const obj = v.pipe(
       v.string(),
-      patchAsyncInputs({
+      actions.inputs.patchAsync({
         value1: () => {
           const subject = new BehaviorSubject(1);
           return subject;
@@ -72,7 +66,7 @@ describe('input/output action', () => {
   it('sync input', async () => {
     const obj = v.pipe(
       v.string(),
-      patchAsyncInputs({
+      actions.inputs.patchAsync({
         value1: () => 1,
       }),
       setComponent('mock-input'),
@@ -86,7 +80,7 @@ describe('input/output action', () => {
   it('remove input', async () => {
     const obj = v.pipe(
       v.string(),
-      removeInputs(['k1']),
+      actions.inputs.remove(['k1']),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);

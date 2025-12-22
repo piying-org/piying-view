@@ -5,7 +5,7 @@ import { htmlInput } from './util/input';
 
 import * as v from 'valibot';
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, setInputs, actions } from '@piying/view-angular-core';
+import { setComponent, actions } from '@piying/view-angular-core';
 
 describe('仅控件数组', () => {
   it('存在', async () => {
@@ -14,7 +14,7 @@ describe('仅控件数组', () => {
         v.pipe(
           v.string(),
           setComponent(Test1Component),
-          setInputs({
+          actions.inputs.set({
             input1: 'div-display',
           }),
         ),
@@ -37,7 +37,7 @@ describe('仅控件数组', () => {
         v.pipe(
           v.string(),
           setComponent(Test1Component),
-          setInputs({
+          actions.inputs.set({
             input1: 'div-display',
           }),
         ),

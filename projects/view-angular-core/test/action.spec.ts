@@ -13,11 +13,6 @@ import {
 import { rawConfig } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { assertFieldControl } from './util/is-field';
-import {
-  removeInputs,
-  patchInputs,
-  setInputs,
-} from '@piying/view-angular-core';
 import { removeWrappers, setWrappers } from '@piying/view-angular-core';
 import { isEmpty } from './util/is-empty';
 import { keyEqual } from './util/key-equal';
@@ -229,28 +224,28 @@ describe('action', () => {
     // expect(result[0].type).toBe('3');
     expect(index).toBe(3);
   });
-  it('setInputs', () => {
+  it('actions.inputs.set', () => {
     const index = 0;
     const obj = v.pipe(
       v.string(),
-      setInputs({ v: 1 }),
+      actions.inputs.set({ v: 1 }),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     expect(resolved.inputs()).toEqual({ v: 1 });
     const obj2 = v.pipe(
       v.string(),
-      setInputs({ v: 1 }),
-      patchInputs({ k: 2 }),
+      actions.inputs.set({ v: 1 }),
+      actions.inputs.patch({ k: 2 }),
       setComponent('mock-input'),
     );
     const resolved2 = createBuilder(obj2);
     expect(resolved2.inputs()).toEqual({ v: 1, k: 2 });
     const obj3 = v.pipe(
       v.string(),
-      setInputs({ v: 1 }),
-      patchInputs({ k: 2 }),
-      removeInputs(['v']),
+      actions.inputs.set({ v: 1 }),
+      actions.inputs.patch({ k: 2 }),
+      actions.inputs.remove(['v']),
       setComponent('mock-input'),
     );
     const resolved3 = createBuilder(obj3);

@@ -3,7 +3,7 @@ import { Test1Component } from './test1/test1.component';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import * as v from 'valibot';
-import { setInputs, actions } from '@piying/view-angular-core';
+import {  actions } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import { asVirtualGroup } from '@piying/valibot-visit';
 import { setComponent } from '@piying/view-angular-core';
@@ -16,7 +16,7 @@ describe('无key-group初始化', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
+            actions.inputs.set({
               input1: 'div-display',
             }),
           ),
@@ -42,7 +42,7 @@ describe('无key-group初始化', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
+            actions.inputs.set({
               input1: 'div-display',
             }),
           ),

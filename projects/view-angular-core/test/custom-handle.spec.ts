@@ -5,7 +5,7 @@ import {
   _PiResolvedCommonViewFieldConfig,
   CoreSchemaHandle,
   FormBuilder,
-  patchInputs,
+  actions,
   setComponent,
 } from '@piying/view-angular-core';
 import { rawConfig } from '@piying/view-angular-core';
@@ -105,7 +105,7 @@ describe('自定义handle', () => {
 
     const obj = v.pipe(
       v.string(),
-      patchInputs({
+      actions.inputs.patch({
         input1: '1',
       }),
       setComponent('mock-input'),

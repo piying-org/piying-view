@@ -5,7 +5,7 @@ import { Test1CpComponent } from './test1-cp/component';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import { setInputs, actions } from '@piying/view-angular-core';
+import {  actions } from '@piying/view-angular-core';
 
 import {
   setComponent,
@@ -201,7 +201,7 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setInputs({
+        actions.inputs.set({
           input1: 'value1',
         }),
         actions.outputs.set(outputs),
