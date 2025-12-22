@@ -17,7 +17,7 @@ type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
 type ChangeKey = 'inputs' | 'outputs' | 'attributes' | 'events' | 'props';
 export const WrapperSymbol = Symbol();
 
-export const removeInputsCommonFn =
+export const createRemovePropertyFn =
   (key: ChangeKey) =>
   <T>(list: string[]) =>
     rawConfig<T>((rawField, _, ...args) =>
@@ -52,7 +52,7 @@ export const removeInputsCommonFn =
         rawField,
       ),
     );
-export const patchAsyncInputsCommonFn =
+export const createPatchAsyncPropertyFn =
   (key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') =>
   <T>(dataObj: Record<string, AsyncProperty>) =>
     rawConfig<T>((rawField, _, ...args) => {
@@ -93,11 +93,11 @@ export const patchAsyncInputsCommonFn =
 export const patchAsyncClassCommon = (
   fn: (field: _PiResolvedCommonViewFieldConfig) => any,
 ) =>
-  patchAsyncInputsCommonFn('attributes')({
+  createPatchAsyncPropertyFn('attributes')({
     class: fn,
   });
 
-function createSetOrPatch(key: ChangeKey, isPatch?: boolean) {
+export function createSetOrPatchPropertyFn(key: ChangeKey, isPatch?: boolean) {
   return <T>(value: Record<string, any>) =>
     rawConfig<T>((rawField, _, ...args) => {
       let data$: WritableSignal<any>;
@@ -168,21 +168,21 @@ export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;
 export const actions = {
   patch: List.reduce(
     (obj, key) => {
-      obj[key] = createSetOrPatch(key, true);
+      obj[key] = createSetOrPatchPropertyFn(key, true);
       return obj;
     },
     {} as any as SetKeyMap,
   ),
   set: {
     ...List.reduce((obj, key) => {
-      obj[key] = createSetOrPatch(key);
+      obj[key] = createSetOrPatchPropertyFn(key);
       return obj;
     }, {} as SetKeyMap),
     wrappers: setWrappers,
   },
   patchAsync: {
     ...List.reduce((obj, key) => {
-      obj[key] = patchAsyncInputsCommonFn(key);
+      obj[key] = createPatchAsyncPropertyFn(key);
       return obj;
     }, {} as AsyncKeyMap),
     wrappers: patchAsyncWrapper2,
@@ -190,7 +190,7 @@ export const actions = {
   remove: {
     ...List.reduce(
       (obj, key) => {
-        obj[key] = removeInputsCommonFn(key);
+        obj[key] = createRemovePropertyFn(key);
         return obj;
       },
       {} as Record<ChangeKey, <T>(value: string[]) => ConfigAction<T>>,
