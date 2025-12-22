@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 
-import { NFCSchema, setAttributes, setComponent } from '@piying/view-core';
+import { NFCSchema, actions, setComponent } from '@piying/view-core';
 import { delay } from './util/delay';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../src/type';
@@ -12,7 +12,7 @@ describe('attribute', () => {
   it('通用属性', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
 
-    const schema = v.pipe(NFCSchema, getField(field$), setComponent('inputTest'), setAttributes({ class: 'hello' }));
+    const schema = v.pipe(NFCSchema, getField(field$), setComponent('inputTest'), actions.attributes.set({ class: 'hello' }));
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
       defaultConfig: {

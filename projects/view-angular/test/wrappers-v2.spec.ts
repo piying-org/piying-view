@@ -4,7 +4,6 @@ import { htmlInput } from './util/input';
 import * as v from 'valibot';
 import {
   NFCSchema,
-  patchAsyncAttributes,
   patchAsyncInputs,
   actions,
   patchAsyncWrapper,
@@ -276,7 +275,7 @@ describe('带异步wrappers-v2', () => {
       v.string(),
       setComponent('test1'),
       patchAsyncWrapper('wrapper1', [
-        patchAsyncAttributes({
+        actions.attributes.patchAsync({
           class: () => 'test1',
         }),
         patchAsyncInputs({

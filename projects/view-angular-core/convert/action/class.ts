@@ -2,11 +2,10 @@ import clsx from 'clsx';
 import { ClassValue } from 'clsx';
 import { rawConfig } from './raw-config';
 import { mergeHooksFn } from './hook';
-import { patchAsyncAttributes } from './attribute';
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base/type/common-field-config';
 import { AsyncResult } from './input';
 import { AsyncCallback } from './type/async-callback';
-import { CustomDataSymbol } from './input-common';
+import { CustomDataSymbol, __actions as actions } from './input-common';
 import { WritableSignal } from '@angular/core';
 /** 必须防止到所有wrappers操作后面,防止设置错误
  * 设置到顶层,可能是wrapper,也可能是component
@@ -64,7 +63,7 @@ export const bottomClass = componentClass;
 export function patchAsyncClass<T>(
   fn: (field: _PiResolvedCommonViewFieldConfig) => AsyncResult,
 ) {
-  return patchAsyncAttributes<T>({ class: fn });
+  return actions.attributes.patchAsync<T>({ class: fn });
 }
 
 export function asyncTopClass<T>(classNameFn: AsyncCallback<ClassValue>) {

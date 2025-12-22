@@ -5,7 +5,7 @@ import { createComponent } from './util/create-component';
 import { nextTick, shallowRef } from 'vue';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
-import { NFCSchema, setAttributes, setComponent, setInputs } from '@piying/view-core';
+import { NFCSchema, actions, setComponent, setInputs } from '@piying/view-core';
 import EmptyCmp from './component/empty-cmp.vue';
 import { delay } from './util/delay';
 describe('attribute', () => {
@@ -16,7 +16,7 @@ describe('attribute', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setAttributes({ class: 'hello' }),
+      actions.attributes.set({ class: 'hello' }),
     );
     const value = shallowRef();
     const { instance } = await createComponent(schema, value, {
@@ -50,7 +50,7 @@ describe('attribute', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setAttributes({ class: 'hello' }),
+      actions.attributes.set({ class: 'hello' }),
       setInputs({ input1: 'input1-input' }),
     );
     const value = shallowRef();

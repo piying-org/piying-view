@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import * as v from 'valibot';
-import { NFCSchema, patchAsyncEvents } from '@piying/view-angular-core';
+import { NFCSchema, actions } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
@@ -13,7 +13,7 @@ describe('events', () => {
     const define = v.pipe(
       NFCSchema,
       setComponent('test1'),
-      patchAsyncEvents({
+      actions.events.patchAsync({
         click: (field) => (event: Event) => {
           expect(event).toBeTruthy();
           expect(field).toBeTruthy();
@@ -44,7 +44,7 @@ describe('events', () => {
     const define = v.pipe(
       NFCSchema,
       setComponent('test1'),
-      patchAsyncEvents({
+      actions.events.patchAsync({
         click: (field) => (event: Event) => {
           expect(event).toBeTruthy();
           expect(field).toBeTruthy();

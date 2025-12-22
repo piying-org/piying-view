@@ -19,12 +19,6 @@ import {
   setInputs,
 } from '@piying/view-angular-core';
 import { removeWrappers, setWrappers } from '@piying/view-angular-core';
-import {
-  patchAsyncAttributes,
-  patchAttributes,
-  removeAttributes,
-  setAttributes,
-} from '@piying/view-angular-core';
 import { isEmpty } from './util/is-empty';
 import { keyEqual } from './util/key-equal';
 import { nonFieldControl } from '@piying/view-angular-core';
@@ -264,22 +258,22 @@ describe('action', () => {
   });
   it('attributes', () => {
     const config = { types: ['string'] };
-    const obj = v.pipe(v.string(), setAttributes({ v: 1 }));
+    const obj = v.pipe(v.string(), actions.attributes.set({ v: 1 }));
     const resolved = createBuilder(obj, config);
     expect(resolved.attributes()).toEqual({ v: 1 });
     expect(resolved.define!()?.attributes?.()).toEqual({ v: 1 });
     const obj2 = v.pipe(
       v.string(),
-      setAttributes({ v: 1 }),
-      patchAttributes({ k: 2 }),
+      actions.attributes.set({ v: 1 }),
+      actions.attributes.patch({ k: 2 }),
     );
     const resolved2 = createBuilder(obj2, config);
     expect(resolved2.attributes()).toEqual({ v: 1, k: 2 });
     const obj3 = v.pipe(
       v.string(),
-      setAttributes({ v: 1 }),
-      patchAttributes({ k: 2 }),
-      removeAttributes(['v']),
+      actions.attributes.set({ v: 1 }),
+      actions.attributes.patch({ k: 2 }),
+      actions.attributes.remove(['v']),
     );
     const resolved3 = createBuilder(obj3, config);
     expect(resolved3.attributes()).toEqual({ k: 2 });
@@ -288,7 +282,7 @@ describe('action', () => {
     const config = { types: ['string'] };
     const obj = v.pipe(
       v.string(),
-      patchAsyncAttributes({ v: () => 1, v2: () => signal(2) }),
+      actions.attributes.patchAsync({ v: () => 1, v2: () => signal(2) }),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj, config);

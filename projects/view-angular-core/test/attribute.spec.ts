@@ -2,13 +2,13 @@ import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
 
-import { removeAttributes, setComponent } from '../convert';
+import { actions, setComponent } from '../convert';
 
 describe('attribute', () => {
   it('remove', async () => {
     const obj = v.pipe(
       v.string(),
-      removeAttributes(['k1']),
+      actions.attributes.remove(['k1']),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
