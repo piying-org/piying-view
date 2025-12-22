@@ -59,5 +59,4 @@ export interface PiViewConfig {
       inputs?: Record<string, any>;
     }
   >;
-
 }

@@ -1,9 +1,4 @@
-import {
-  CreateSignalOptions,
-  Signal,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { CreateSignalOptions, Signal, signal } from '@angular/core';
 
 import { computed } from '@angular/core';
 export type CombineSignal<Input> = Signal<Input[]> & {

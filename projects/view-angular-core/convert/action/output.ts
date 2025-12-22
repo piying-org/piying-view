@@ -7,7 +7,7 @@ import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
-import { actions, patchAsyncInputsCommonFn } from './input-common';
+import { actions } from './input-common';
 function createOutputListener<T>(
   outputs: CoreRawViewOutputs,
   options: { setOutputs: boolean; mergeOutput: boolean },

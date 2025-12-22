@@ -3,10 +3,7 @@ import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { Observable } from 'rxjs';
 import { RawConfigAction } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
-import {
-  asyncObjectSignal,
-  AsyncObjectSignal,
-} from '../../util/create-async-object-signal';
+import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 import { rawConfig } from './raw-config';
 
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
@@ -77,7 +74,7 @@ export const patchAsyncInputsCommonFn =
         {
           allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
             Object.entries(dataObj).forEach(([key, value]) => {
-              let result = value(field);
+              const result = value(field);
               content$.connect(key, result);
             });
           },
@@ -99,8 +96,8 @@ export const patchAsyncClassCommon = (
   });
 
 function createSetOrPatch(key: ChangeKey, isPatch?: boolean) {
-  return <T>(value: Record<string, any>) => {
-    return rawConfig<T>((rawField, _, ...args) => {
+  return <T>(value: Record<string, any>) =>
+    rawConfig<T>((rawField, _, ...args) => {
       let data$: WritableSignal<any>;
       if (
         args.length > 0 &&
@@ -113,17 +110,14 @@ function createSetOrPatch(key: ChangeKey, isPatch?: boolean) {
       }
       const content$ = data$()[key] as WritableSignal<any>;
       if (isPatch) {
-        content$.update((data) => {
-          return {
-            ...data,
-            ...value,
-          };
-        });
+        content$.update((data) => ({
+          ...data,
+          ...value,
+        }));
       } else {
         content$.set(value);
       }
     });
-  };
 }
 const List: ChangeKey[] = [
   'inputs',

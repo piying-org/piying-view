@@ -26,7 +26,7 @@ export function createBuilder(
       },
     ],
   });
-  const MockType={ type: Symbol() }as any
+  const MockType = { type: Symbol() } as any;
   const result = convert(obj, {
     injector,
     builder: options?.builder ?? TestFormBuilder,

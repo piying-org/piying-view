@@ -5,7 +5,7 @@ import { Test1CpComponent } from './test1-cp/component';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import { rawConfig, setInputs, setOutputs } from '@piying/view-angular-core';
+import { setInputs, setOutputs } from '@piying/view-angular-core';
 
 import {
   setComponent,

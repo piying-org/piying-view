@@ -16,7 +16,7 @@ describe('fieldGlobalConfig', () => {
       patchInputs({ k1: 1 }),
       setComponent('test1'),
     );
-    let result = createBuilder(obj, {
+    const result = createBuilder(obj, {
       types: {
         test1: { type: 'test1', actions: [setInputs({ k2: 2 })] },
       },

@@ -1,14 +1,7 @@
 import { Type } from '@angular/core';
-import {
-  PiDefaultRawViewFieldConfig,
-  NgDirectiveConfig,
-  NgRawComponentDefine,
-} from './group';
+import { NgDirectiveConfig, NgRawComponentDefine } from './group';
 import { LazyImport } from '@piying/view-angular-core';
-import {
-  CoreRawWrapperConfig,
-  CoreWrapperConfig1,
-} from '@piying/view-angular-core';
+import { CoreRawWrapperConfig } from '@piying/view-angular-core';
 import { RawConfigAction } from '@piying/valibot-visit';
 // 全局配置相关
 export type PiComponentDefaultConfig = NgRawComponentDefine & {

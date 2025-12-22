@@ -1,4 +1,3 @@
-import { BaseMetadata } from 'valibot';
 import { LazyImport } from '../../util';
 import {
   CoreWrapperConfig1,

@@ -60,5 +60,4 @@ export interface PiViewConfig {
     }
   >;
   defaultConfig?: PiDefaultRawViewFieldConfig;
-
 }

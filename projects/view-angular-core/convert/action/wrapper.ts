@@ -5,23 +5,14 @@ import {
   CoreResolvedWrapperConfig,
   PI_VIEW_CONFIG_TOKEN,
 } from '../../builder-base';
-import {
-  ObservableSignal,
-  observableSignal,
-  SetUnWrapper$,
-  toArray,
-  UnWrapper$,
-} from '../../util';
+import { ObservableSignal, observableSignal, SetUnWrapper$ } from '../../util';
 import { mergeHooksFn } from './hook';
-import { Signal, signal } from '@angular/core';
-import { AsyncProperty, patchAsyncInputs } from './input';
+import { Signal } from '@angular/core';
+import { AsyncProperty } from './input';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { ConfigAction, WrapperSymbol } from './input-common';
-import { metadataList, RawConfigAction } from '@piying/valibot-visit';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
-import { patchAsyncOutputs } from './output';
-import { patchAsyncAttributes, patchAsyncEvents } from './attribute';
 
 export function setWrappers<T>(
   wrappers: (
@@ -33,14 +24,14 @@ export function setWrappers<T>(
   )[],
 ) {
   return rawConfig<T>((rawField, _) => {
-    let wrapperConfig =
+    const wrapperConfig =
       rawField.globalConfig.additionalData!['defaultWrapperMetadataGroup'];
-    let injector = rawField.globalConfig.additionalData!['injector'];
+    const injector = rawField.globalConfig.additionalData!['injector'];
     const OptionDefine = {
       pipe: pipe(
         map((item: any) => {
           if (typeof item.type === 'string') {
-            let type = wrapperConfig[item.type].type;
+            const type = wrapperConfig[item.type].type;
             if (!type) {
               throw new Error(`🈳wrapper:[${type}]❗`);
             }
@@ -54,8 +45,8 @@ export function setWrappers<T>(
     };
     wrappers.forEach((item) => {
       if (typeof item === 'string') {
-        let defaultActions: any[] = wrapperConfig[item]?.actions ?? [];
-        let define = observableSignal(
+        const defaultActions: any[] = wrapperConfig[item]?.actions ?? [];
+        const define = observableSignal(
           {
             type: item,
             inputs: asyncObjectSignal({}),
@@ -166,12 +157,12 @@ export function patchAsyncWrapper2<T>(
           );
           field.wrappers.add(initData, options?.insertIndex);
 
-          let defaultConfig = field.injector.get(PI_VIEW_CONFIG_TOKEN);
+          const defaultConfig = field.injector.get(PI_VIEW_CONFIG_TOKEN);
           let defaultActions: ConfigAction<any>[] = [];
           if (typeof type === 'string') {
             defaultActions = defaultConfig.wrappers?.[type]?.actions ?? [];
           }
-          let allActions = [...defaultActions, ...(actions ?? [])];
+          const allActions = [...defaultActions, ...(actions ?? [])];
 
           for (const item of allActions) {
             const tempField = {};

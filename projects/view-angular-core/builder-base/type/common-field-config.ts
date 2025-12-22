@@ -134,7 +134,7 @@ export interface CoreRawViewOutputs {
 
 export type CoreWrapperConfig1 = {
   type: string | any | LazyImport<any>;
-  attributes?:AsyncObjectSignal< CoreRawViewAttributes>;
+  attributes?: AsyncObjectSignal<CoreRawViewAttributes>;
   inputs?: AsyncObjectSignal<CoreRawViewInputs>;
   outputs?: AsyncObjectSignal<CoreRawViewOutputs>;
   events?: AsyncObjectSignal<Record<string, (event: any) => any>>;

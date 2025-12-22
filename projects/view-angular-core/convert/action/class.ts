@@ -40,14 +40,10 @@ export function topClass<T>(className: ClassValue, merge?: boolean) {
 /** 仅设置在组件上 */
 export function componentClass<T>(className: ClassValue, merge?: boolean) {
   return rawConfig<T>((field) => {
-    field.attributes.update((data) => {
-      return {
-        ...data,
-        class: merge
-          ? clsx(data?.['class'], className)
-          : clsx(className),
-      };
-    });
+    field.attributes.update((data) => ({
+      ...data,
+      class: merge ? clsx(data?.['class'], className) : clsx(className),
+    }));
   });
 }
 export const bottomClass = componentClass;

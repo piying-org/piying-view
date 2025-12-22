@@ -32,12 +32,7 @@ import {
   HookConfig,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
-import {
-  asyncObjectSignal,
-  AsyncObjectSignal,
-  combineSignal,
-  KeyPath,
-} from '../../util';
+import { asyncObjectSignal, combineSignal, KeyPath } from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
 
 export class CoreSchemaHandle<
@@ -144,20 +139,16 @@ export class CoreSchemaHandle<
     this.formConfig.groupMode = 'reset';
   }
   override enumSchema(schema: EnumSchema): void {
-    this.props.update((data) => {
-      return {
-        ...data,
-        options: data['options'] ?? schema.options,
-      };
-    });
+    this.props.update((data) => ({
+      ...data,
+      options: data['options'] ?? schema.options,
+    }));
   }
   override updateProps(key: string, value: any): void {
-    this.props.update((data) => {
-      return {
-        ...data,
-        [key]: value,
-      };
-    });
+    this.props.update((data) => ({
+      ...data,
+      [key]: value,
+    }));
   }
   override intersectBefore(schema: IntersectSchema): void {
     if (this.childrenAsVirtualGroup) {
