@@ -1,24 +1,17 @@
 import { Type } from '@angular/core';
-import { NgDirectiveConfig, NgRawComponentDefine } from './group';
-import { LazyImport } from '@piying/view-angular-core';
-import { CoreRawWrapperConfig } from '@piying/view-angular-core';
-import { RawConfigAction } from '@piying/valibot-visit';
-// 全局配置相关
-export type PiComponentDefaultConfig = NgRawComponentDefine & {
-  /** @deprecated */
-  directives?: NgDirectiveConfig[];
-  /** @deprecated */
-  wrappers?: CoreRawWrapperConfig[];
-};
+import {
+  LazyImport,
+  LazyMarkType,
+  PiCommonConfig,
+} from '@piying/view-angular-core';
+import { NgComponentDefine } from './component';
 
-export interface PiViewConfig {
-  types?: Record<string, Pick<PiComponentDefaultConfig, 'type' | 'actions'>>;
-  wrappers?: Record<
-    string,
-    {
-      type: Type<any> | LazyImport<Type<any>>;
-      /** 目前设计为field全部初始化后再用,也就是等价为patchAsyncWrapper */
-      actions?: RawConfigAction<'viewRawConfig', any, any>[];
-    }
-  >;
-}
+export type PiViewConfig = PiCommonConfig<
+  | Type<any>
+  | LazyImport<Type<any>>
+  | NgComponentDefine
+  | LazyImport<NgComponentDefine>
+  | LazyMarkType<Type<any>>
+  | LazyMarkType<NgComponentDefine>,
+  Type<any> | LazyImport<Type<any>>
+>;

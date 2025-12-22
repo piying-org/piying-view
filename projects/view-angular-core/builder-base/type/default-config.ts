@@ -1,21 +1,18 @@
-import { LazyImport } from '../../util';
-import {
-  CoreWrapperConfig1,
-  PiCommonDefaultConfig,
-} from './common-field-config';
+import { BaseMetadata } from 'valibot';
 import { RawConfigAction } from '@piying/valibot-visit';
-export interface PiCommonConfig {
-  types?: Record<string, PiCommonDefaultConfig>;
+export interface PiCommonConfig<C = any, W = any> {
+  types?: Record<
+    string,
+    {
+      type?: C;
+      actions?: BaseMetadata<any>[];
+    }
+  >;
   wrappers?: Record<
     string,
-    Omit<CoreWrapperConfig1, 'type'> & {
-      type: any | LazyImport<any>;
+    {
+      type: W;
       actions?: RawConfigAction<'viewRawConfig', any, any>[];
     }
   >;
 }
-
-export type DefaultConfigKey = Exclude<
-  keyof PiCommonDefaultConfig,
-  'type' | 'actions'
->;

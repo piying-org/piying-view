@@ -4,7 +4,7 @@ import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
-import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
+import { AnyCoreSchemaHandle } from '../../convert';
 import { KeyPath, SetWrapper$, Wrapper$, LazyImport } from '../../util';
 import { BaseMetadata } from 'valibot';
 import { CombineSignal } from '../../util/create-combine-signal';
@@ -98,26 +98,6 @@ export type _PiResolvedCommonViewFieldConfig = PiResolvedCommonViewFieldConfig<
   () => _PiResolvedCommonViewFieldConfig,
   CoreResolvedComponentDefine
 >;
-
-export type PiCommonDefaultConfig = {
-  /** @deprecated 使用actions代替 */
-  formConfig?: CoreSchemaHandle<any, any>['formConfig'];
-  /** @deprecated 使用actions代替 */
-  props?: CoreSchemaHandle<any, any>['props'];
-  /** @deprecated 使用actions代替 */
-  renderConfig?: CoreSchemaHandle<any, any>['renderConfig'];
-  /** @deprecated 使用actions代替 */
-  inputs?: CoreSchemaHandle<any, any>['inputs'];
-  /** @deprecated 使用actions代替 */
-  outputs?: CoreSchemaHandle<any, any>['outputs'];
-  /** @deprecated 使用actions代替 */
-  wrappers?: CoreSchemaHandle<any, any>['wrappers'];
-  /** @deprecated 使用actions代替*/
-  attributes?: CoreSchemaHandle<any, any>['attributes'];
-  /** @deprecated 使用actions代替*/
-  type?: any;
-  actions?: BaseMetadata<any>[];
-};
 
 export interface FormBuilderOptions<T> {
   form$$: Signal<FieldGroup>;

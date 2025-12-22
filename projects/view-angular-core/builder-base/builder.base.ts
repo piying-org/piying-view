@@ -19,7 +19,6 @@ import { fieldQuery } from './field-query';
 
 import {
   _PiResolvedCommonViewFieldConfig,
-  CoreRawWrapperConfig,
   PiResolvedCommonViewFieldConfig,
 } from './type/common-field-config';
 import {
@@ -33,18 +32,9 @@ import { FieldGroup } from '../field/field-group';
 import { isFieldLogicGroup, isFieldArray } from '../field/is-field';
 import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../convert';
 import { isArray, isGroup } from './util/is-group';
-import {
-  RawKeyPath,
-  SortedArray,
-  toArray,
-  KeyPath,
-  observableSignal,
-} from '../util';
+import { RawKeyPath, SortedArray, toArray, KeyPath } from '../util';
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
-import { combineSignal } from '../util/create-combine-signal';
-import { asyncObjectSignal } from '../util/create-async-object-signal';
-import { map, pipe } from 'rxjs';
 
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
@@ -477,5 +467,4 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     parent.fixedChildren!().push(inputField);
   }
   #findConfig = inject(FindConfigToken);
-
 }
