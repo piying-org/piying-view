@@ -13,7 +13,7 @@ import { map, pipe } from 'rxjs';
 import { ConfigAction, CustomDataSymbol } from './input-common';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
 
-export function setWrappers<T>(
+function setWrappers<T>(
   wrappers: (
     | SetOptional<
         SetUnWrapper$<
@@ -82,7 +82,7 @@ export function setWrappers<T>(
   });
 }
 
-export function removeWrappers<T>(
+function removeWrappers<T>(
   removeList:
     | string[]
     | ((list: Signal<CoreWrapperConfig>[]) => Signal<CoreWrapperConfig>[]),
@@ -109,7 +109,7 @@ export function removeWrappers<T>(
   });
 }
 
-export function patchAsyncWrapper<T>(
+function patchAsyncWrapper<T>(
   type: any,
   actions?: ConfigAction<any>[],
   options?: { insertIndex?: number },
@@ -166,7 +166,8 @@ export function patchAsyncWrapper<T>(
     );
   });
 }
-export function changeAsyncWrapper<T>(
+
+function changeAsyncWrapper<T>(
   indexFn: (list: Signal<CoreWrapperConfig>[]) => any,
   actions: ConfigAction<any>[],
 ) {
@@ -197,3 +198,9 @@ export function changeAsyncWrapper<T>(
     );
   });
 }
+export const wrappers = {
+  set: setWrappers,
+  patchAsync: patchAsyncWrapper,
+  remove: removeWrappers,
+  changeAsync: changeAsyncWrapper,
+};

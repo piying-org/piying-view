@@ -2,7 +2,6 @@ import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import {
-  componentClass,
   FieldArray,
   isFieldArray,
   isFieldGroup,
@@ -12,6 +11,7 @@ import { getField, hooksConfig } from './util/action';
 import { keyEqual } from '@piying/view-angular-core/test';
 import { setComponent, formConfig } from '@piying/view-angular-core';
 import { Array1Component } from './array/component';
+import { actions } from '@piying/view-core';
 // 用于测试fields和model变动时,数值是否正确
 describe('数组配置切换', () => {
   it('数量相等', async () => {
@@ -192,7 +192,7 @@ describe('数组配置切换', () => {
   it('array使用class', async () => {
     const define = v.pipe(
       v.array(v.pipe(v.string(), setComponent('test1'))),
-      componentClass('hello'),
+      actions.class.component('hello'),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -215,7 +215,11 @@ describe('数组配置切换', () => {
     const define = v.object({
       a1: v.pipe(
         v.array(
-          v.pipe(v.string(), setComponent('test1'), componentClass('hello')),
+          v.pipe(
+            v.string(),
+            setComponent('test1'),
+            actions.class.component('hello'),
+          ),
         ),
       ),
     });

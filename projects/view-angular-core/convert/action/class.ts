@@ -3,7 +3,7 @@ import { ClassValue } from 'clsx';
 import { rawConfig } from './raw-config';
 import { mergeHooksFn } from './hook';
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base/type/common-field-config';
-import { AsyncResult } from './input';
+
 import { AsyncCallback } from './type/async-callback';
 import { CustomDataSymbol, __actions as actions } from './input-common';
 import { WritableSignal } from '@angular/core';
@@ -11,7 +11,7 @@ import { WritableSignal } from '@angular/core';
  * 设置到顶层,可能是wrapper,也可能是component
  *
  */
-export function topClass<T>(className: ClassValue, merge?: boolean) {
+function topClass<T>(className: ClassValue, merge?: boolean) {
   return rawConfig<T>((rawField) => {
     mergeHooksFn(
       {
@@ -40,7 +40,7 @@ export function topClass<T>(className: ClassValue, merge?: boolean) {
   });
 }
 /** 仅设置在组件上 */
-export const componentClass = <T>(className: ClassValue, merge?: boolean) =>
+const componentClass = <T>(className: ClassValue, merge?: boolean) =>
   rawConfig<T>((rawField, _, ...args) => {
     let data$: WritableSignal<any>;
     if (
@@ -59,14 +59,12 @@ export const componentClass = <T>(className: ClassValue, merge?: boolean) =>
     }));
   });
 
-export const bottomClass = componentClass;
-export function patchAsyncClass<T>(
-  fn: (field: _PiResolvedCommonViewFieldConfig) => AsyncResult,
-) {
+const bottomClass = componentClass;
+function patchAsyncClass<T>(fn: AsyncCallback<string>) {
   return actions.attributes.patchAsync<T>({ class: fn });
 }
 
-export function asyncTopClass<T>(classNameFn: AsyncCallback<ClassValue>) {
+function asyncTopClass<T>(classNameFn: AsyncCallback<ClassValue>) {
   return rawConfig<T>((rawField) => {
     mergeHooksFn(
       {

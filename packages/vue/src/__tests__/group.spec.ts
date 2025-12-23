@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 import { shallowRef } from 'vue';
-import { componentClass, actions, setComponent } from '@piying/view-core';
+import { actions, setComponent } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { signal } from 'static-injector';
 import GroupSwap from './component/group-swap.vue';
@@ -47,7 +47,7 @@ describe('group', () => {
         k1: v.string(),
       }),
       setComponent('group1'),
-      componentClass('test1'),
+      actions.class.component('test1'),
     );
 
     const value = shallowRef({ k1: '' });

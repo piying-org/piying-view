@@ -7,12 +7,6 @@ import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 import { rawConfig } from './raw-config';
 
 import { asyncMergeOutputs, mergeOutputs } from './output';
-import {
-  setWrappers,
-  patchAsyncWrapper,
-  removeWrappers,
-  changeAsyncWrapper,
-} from './wrapper';
 
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
@@ -178,11 +172,5 @@ export const __actions = {
     set: createSetOrPatchPropertyFn('props'),
     patchAsync: createPatchAsyncPropertyFn('props'),
     remove: createRemovePropertyFn('props'),
-  },
-  wrappers: {
-    set: setWrappers,
-    patchAsync: patchAsyncWrapper,
-    remove: removeWrappers,
-    changeAsync: changeAsyncWrapper,
   },
 };

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 
-import { componentClass, setComponent } from '@piying/view-core';
+import { actions, setComponent } from '@piying/view-core';
 
 import GroupAttr from './component/group-attributes.svelte';
 import RestGroup from './component/group/rest-group.svelte';
@@ -15,7 +15,7 @@ describe('group', () => {
 				k1: v.string()
 			}),
 			setComponent('group1'),
-			componentClass('test1')
+			actions.class.component('test1')
 		);
 		const value = { k1: '' };
 		const { instance } = await createComponent(schema, value, {

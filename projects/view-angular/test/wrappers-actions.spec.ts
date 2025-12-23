@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
-import { actions, bottomClass, setComponent } from '@piying/view-angular-core';
+import { actions, setComponent } from '@piying/view-angular-core';
 import { Wrapper3Component } from './wrapper3/component';
 import { Test1Component } from './test1/test1.component';
 
@@ -96,7 +96,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      actions.wrappers.patchAsync('wrapper1', [bottomClass('input1')]),
+      actions.wrappers.patchAsync('wrapper1', [actions.class.bottom('input1')]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -116,10 +116,10 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      actions.wrappers.patchAsync('wrapper1', [bottomClass('input1')]),
+      actions.wrappers.patchAsync('wrapper1', [actions.class.bottom('input1')]),
       actions.wrappers.changeAsync(
         (list) => list.find((item) => item().type === 'wrapper1'),
-        [bottomClass('input2')],
+        [actions.class.bottom('input2')],
       ),
     );
     const { fixture, instance, element, field$$ } = await createSchemaComponent(

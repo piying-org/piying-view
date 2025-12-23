@@ -7,7 +7,6 @@ import * as v from 'valibot';
 import {
   findComponent,
   NFCSchema,
-  patchAsyncClass,
   patchHooks,
   actions,
 } from '@piying/view-angular-core';
@@ -120,7 +119,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncClass((field) => testClass$),
+      actions.class.asyncComponent((field) => testClass$),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

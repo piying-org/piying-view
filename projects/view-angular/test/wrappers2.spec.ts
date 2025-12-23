@@ -5,7 +5,7 @@ import { Wrapper1Component } from './wrapper1/component';
 import { Wrapper2Component } from './wrapper2/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import { setComponent, topClass } from '@piying/view-angular-core';
+import { setComponent } from '@piying/view-angular-core';
 import { actions } from '@piying/view-angular-core';
 import { keyEqual } from '@piying/view-angular-core/test';
 
@@ -121,7 +121,7 @@ describe('wrapper测试', () => {
             field$.resolve(value);
           },
         }),
-        topClass('hello'),
+        actions.class.top('hello'),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -146,7 +146,7 @@ describe('wrapper测试', () => {
       v.string(),
       setComponent('test1'),
       actions.wrappers.set([{ type: 'wrapper1' }]),
-      topClass('data1'),
+      actions.class.top('data1'),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

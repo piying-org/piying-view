@@ -4,7 +4,6 @@ import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import * as v from 'valibot';
 import {
-  componentClass,
   controlStatusList,
   NFCSchema,
   actions,
@@ -250,7 +249,7 @@ describe('初始化', () => {
     const define2 = v.object({
       key2: v.pipe(
         v.string(),
-        componentClass('test1'),
+        actions.class.component('test1'),
         formConfig({
           disabled: true,
         }),
@@ -264,7 +263,7 @@ describe('初始化', () => {
     const define3 = v.object({
       key2: v.pipe(
         v.string(),
-        componentClass('test2'),
+        actions.class.component('test2'),
         formConfig({
           disabled: true,
         }),
@@ -279,7 +278,7 @@ describe('初始化', () => {
     const define4 = v.object({
       key2: v.pipe(
         v.string(),
-        componentClass('test3'),
+        actions.class.component('test3'),
         formConfig({
           disabled: true,
         }),
