@@ -1,13 +1,7 @@
 import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
-import {
-  actions,
-  bottomClass,
-  changeAsyncWrapper,
-  patchAsyncWrapper,
-  setComponent,
-} from '@piying/view-angular-core';
+import { actions, bottomClass, setComponent } from '@piying/view-angular-core';
 import { Wrapper3Component } from './wrapper3/component';
 import { Test1Component } from './test1/test1.component';
 
@@ -28,7 +22,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper('wrapper1', [
+      actions.wrappers.patchAsync('wrapper1', [
         actions.inputs.patchAsync({
           wInput1: (field) => signal('input1'),
         }),
@@ -52,7 +46,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper('wrapper1', [
+      actions.wrappers.patchAsync('wrapper1', [
         actions.attributes.patchAsync({
           class: (field) => 'input1',
         }),
@@ -77,7 +71,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper('wrapper1', [
+      actions.wrappers.patchAsync('wrapper1', [
         actions.events.patchAsync({
           click: (field) => () => {
             eventRun = true;
@@ -102,7 +96,7 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper('wrapper1', [bottomClass('input1')]),
+      actions.wrappers.patchAsync('wrapper1', [bottomClass('input1')]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -122,8 +116,8 @@ describe('wrappers-actions', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper('wrapper1', [bottomClass('input1')]),
-      changeAsyncWrapper(
+      actions.wrappers.patchAsync('wrapper1', [bottomClass('input1')]),
+      actions.wrappers.changeAsync(
         (list) => list.find((item) => item().type === 'wrapper1'),
         [bottomClass('input2')],
       ),

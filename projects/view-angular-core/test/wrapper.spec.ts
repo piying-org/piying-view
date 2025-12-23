@@ -3,16 +3,18 @@ import { createBuilder } from './util/create-builder';
 import { getField } from './util/action';
 import {
   _PiResolvedCommonViewFieldConfig,
-  patchAsyncWrapper,
-  removeWrappers,
-  setWrappers,
+  actions,
 } from '@piying/view-angular-core';
 import { isEmpty } from './util/is-empty';
 
 describe('wrapper', () => {
   it('类型测试-str', async () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
-    const k1Schema = v.pipe(v.string(), getField(field$), setWrappers(['w1']));
+    const k1Schema = v.pipe(
+      v.string(),
+      getField(field$),
+      actions.wrappers.set(['w1']),
+    );
     const resolved = createBuilder(k1Schema, { wrappers: ['w1'] });
     const field = await field$.promise;
 
@@ -23,12 +25,25 @@ describe('wrapper', () => {
       expect(item.attributes()).toEqual({});
     });
   });
+  it('remove wrapper', async () => {
+    const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+    const k1Schema = v.pipe(
+      v.string(),
+      getField(field$),
+      actions.wrappers.set(['w1']),
+      actions.wrappers.remove(['w1']),
+    );
+    const resolved = createBuilder(k1Schema, { wrappers: ['w1'] });
+    const field = await field$.promise;
+
+    expect(field.wrappers().map((item) => item.type)).toEqual([]);
+  });
   it('类型测试-type', async () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
     const k1Schema = v.pipe(
       v.string(),
       getField(field$),
-      setWrappers([{ type: 'w1', inputs: { i1: '1' } }]),
+      actions.wrappers.set([{ type: 'w1', inputs: { i1: '1' } }]),
     );
     const resolved = createBuilder(k1Schema, { wrappers: ['w1'] });
     const field = await field$.promise;
@@ -47,8 +62,8 @@ describe('wrapper', () => {
   it('patch', async () => {
     const k1Schema = v.pipe(
       v.string(),
-      patchAsyncWrapper('w2'),
-      patchAsyncWrapper('w1', undefined, { insertIndex: 0 }),
+      actions.wrappers.patchAsync('w2'),
+      actions.wrappers.patchAsync('w1', undefined, { insertIndex: 0 }),
     );
     const result = createBuilder(k1Schema, { wrappers: ['w1', 'w2'] });
 
@@ -58,7 +73,7 @@ describe('wrapper', () => {
     ]);
   });
   it('remove', async () => {
-    const k1Schema = v.pipe(v.string(), removeWrappers(['w1']));
+    const k1Schema = v.pipe(v.string(), actions.wrappers.remove(['w1']));
     const result = createBuilder(k1Schema);
     expect(result.wrappers().map((item) => ({ type: item.type }))).toEqual([]);
   });

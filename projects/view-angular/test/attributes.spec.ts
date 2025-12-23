@@ -1,15 +1,10 @@
 import { signal } from '@angular/core';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
-import {
-  componentClass,
-  actions,
-  patchAsyncWrapper,
-  topClass,
-} from '@piying/view-angular-core';
+import { componentClass, topClass } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, setWrappers } from '@piying/view-angular-core';
+import { setComponent, actions } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 
 describe('attributes', () => {
@@ -110,7 +105,7 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
         topClass('abcd'),
         // topClass('abcd2', true),
       ),
@@ -149,7 +144,7 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
         topClass('abcd'),
         topClass('abcd2'),
       ),
@@ -190,7 +185,7 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
         topClass('abcd'),
         topClass('abcd2', true),
       ),
@@ -242,7 +237,7 @@ describe('attributes', () => {
               import('./test1/test1.component').then(
                 (a) => a.Test1Component,
               ) as any,
-            actions: [patchAsyncWrapper('wrapper1')],
+            actions: [actions.wrappers.patchAsync('wrapper1')],
           },
         },
         wrappers: {

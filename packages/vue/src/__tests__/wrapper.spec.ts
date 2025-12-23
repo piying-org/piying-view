@@ -6,7 +6,7 @@ import { nextTick, shallowRef, type ComputedRef } from 'vue';
 import InputsTest from './component/inputs-test.vue';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
-import { NFCSchema, setComponent, setWrappers } from '@piying/view-core';
+import { NFCSchema, setComponent, actions } from '@piying/view-core';
 import Wrapper1 from './component/wrapper1.vue';
 import Wrapper2 from './component/wrapper2.vue';
 import WrapperField from './component/wrapper-field.vue';
@@ -31,7 +31,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers(['wrapper1']),
+      actions.wrappers.set(['wrapper1']),
     );
     const value = shallowRef();
     const { instance } = await createComponent(schema, value, {
@@ -56,7 +56,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers(['wrapper1', 'wrapper2']),
+      actions.wrappers.set(['wrapper1', 'wrapper2']),
     );
     const value = shallowRef();
     const { instance } = await createComponent(schema, value, {
@@ -85,7 +85,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([{ type: 'wrapper1', inputs: { input1: 'input1-value' } }]),
+      actions.wrappers.set([{ type: 'wrapper1', inputs: { input1: 'input1-value' } }]),
     );
     const value = shallowRef();
     const { instance } = await createComponent(schema, value, {
@@ -117,7 +117,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([
+      actions.wrappers.set([
         { type: 'wrapper1', inputs: { input1: 'input1-value' }, attributes: { class: 'hello' } },
       ]),
     );
@@ -147,7 +147,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([
+      actions.wrappers.set([
         {
           type: 'wrapper1',
           outputs: {
@@ -186,7 +186,7 @@ describe('wrapper', () => {
     let isEmit = false;
     const schema = v.pipe(
       v.string(),
-      setWrappers([
+      actions.wrappers.set([
         {
           type: 'wrapper-field',
           outputs: {

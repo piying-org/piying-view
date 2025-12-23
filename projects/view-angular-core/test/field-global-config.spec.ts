@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 
-import { setComponent, actions, setWrappers } from '@piying/view-angular-core';
+import { setComponent, actions } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 
 // 用于测试fields和model变动时,数值是否正确
@@ -23,7 +23,7 @@ describe('fieldGlobalConfig', () => {
     const obj = v.pipe(
       v.string(),
       actions.inputs.set({ k1: 1 }),
-      setWrappers([{ type: wrapperType }]),
+      actions.wrappers.set([{ type: wrapperType }]),
     );
     const result = createBuilder(obj, {});
 

@@ -5,13 +5,14 @@ import { RawConfigAction } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 import { rawConfig } from './raw-config';
+
+import { asyncMergeOutputs, mergeOutputs } from './output';
 import {
-  changeAsyncWrapper,
+  setWrappers,
   patchAsyncWrapper,
   removeWrappers,
-  setWrappers,
+  changeAsyncWrapper,
 } from './wrapper';
-import { asyncMergeOutputs, mergeOutputs } from './output';
 
 type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
 type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
@@ -32,10 +33,8 @@ export const createRemovePropertyFn =
               CustomDataSymbol in args[args.length - 1]
             ) {
               data$ = args[args.length - 1][CustomDataSymbol];
-            } else if (key === 'props') {
-              data$ = (() => field) as any;
             } else {
-              data$ = field.define!;
+              data$ = (() => field) as any;
             }
             const obj$ = data$()[key] as AsyncObjectSignal<any>;
 

@@ -5,7 +5,7 @@ import { Wrapper1Component } from './wrapper1/component';
 import { Wrapper2Component } from './wrapper2/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import { setComponent, setWrappers, topClass } from '@piying/view-angular-core';
+import { setComponent, topClass } from '@piying/view-angular-core';
 import { actions } from '@piying/view-angular-core';
 import { keyEqual } from '@piying/view-angular-core/test';
 
@@ -17,7 +17,9 @@ describe('wrapper测试', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers([{ type: 'wrapper1', inputs: { wInput1: 'v2test' } }]),
+        actions.wrappers.set([
+          { type: 'wrapper1', inputs: { wInput1: 'v2test' } },
+        ]),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -45,7 +47,7 @@ describe('wrapper测试', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
         getField(field$),
       ),
     });
@@ -81,7 +83,7 @@ describe('wrapper测试', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1']),
+        actions.wrappers.set(['wrapper1']),
         actions.outputs.set({
           output3: (value) => {
             field$.resolve(value);
@@ -113,7 +115,7 @@ describe('wrapper测试', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1']),
+        actions.wrappers.set(['wrapper1']),
         actions.outputs.set({
           output3: (value) => {
             field$.resolve(value);
@@ -143,7 +145,7 @@ describe('wrapper测试', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      setWrappers([{ type: 'wrapper1' }]),
+      actions.wrappers.set([{ type: 'wrapper1' }]),
       topClass('data1'),
     );
     const { fixture, instance, element } = await createSchemaComponent(

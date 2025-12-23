@@ -5,7 +5,6 @@ export { rawConfig } from './raw-config';
 export * from './component';
 export * from './input';
 export * from './output';
-export * from './wrapper';
 export * from './alias';
 export * from './config';
 export * from './hook';

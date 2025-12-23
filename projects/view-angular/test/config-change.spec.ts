@@ -7,11 +7,7 @@ import * as v from 'valibot';
 import { getField } from './util/action';
 import { actions } from '@piying/view-angular-core';
 
-import {
-  setComponent,
-  formConfig,
-  setWrappers,
-} from '@piying/view-angular-core';
+import { setComponent, formConfig } from '@piying/view-angular-core';
 
 describe('配置切换时-angular', () => {
   it('field,model同时变更时的值', async () => {
@@ -249,7 +245,7 @@ describe('配置切换时-angular', () => {
       v.string(),
       setComponent('test1'),
       actions.outputs.set(outputs),
-      setWrappers([
+      actions.wrappers.set([
         {
           type: 'wrapper1',
           inputs: {

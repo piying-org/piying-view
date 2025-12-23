@@ -5,7 +5,6 @@ import {
   condition,
   layout,
   mergeHooks,
-  patchAsyncWrapper,
   patchHooks,
   removeHooks,
   setComponent,
@@ -13,7 +12,6 @@ import {
 import { rawConfig } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { assertFieldControl } from './util/is-field';
-import { removeWrappers, setWrappers } from '@piying/view-angular-core';
 import { isEmpty } from './util/is-empty';
 import { keyEqual } from './util/key-equal';
 import { nonFieldControl } from '@piying/view-angular-core';
@@ -344,7 +342,7 @@ describe('action', () => {
   });
   it('wrappers', () => {
     const options = { wrappers: ['w1', 'w2', 'w3'] };
-    const obj = v.pipe(v.string(), setWrappers(['w1', 'w2']));
+    const obj = v.pipe(v.string(), actions.wrappers.set(['w1', 'w2']));
     const resolved = createBuilder(obj, options);
     expect(resolved.wrappers().map((item) => item.type)).toEqual(['w1', 'w2']);
 
@@ -356,8 +354,8 @@ describe('action', () => {
 
     const obj2 = v.pipe(
       v.string(),
-      setWrappers(['w1', 'w2']),
-      patchAsyncWrapper('w3'),
+      actions.wrappers.set(['w1', 'w2']),
+      actions.wrappers.patchAsync('w3'),
     );
     const resolved2 = createBuilder(obj2, options);
     expect(resolved2.wrappers().map((item) => item.type)).toEqual([
@@ -373,9 +371,9 @@ describe('action', () => {
     });
     const obj3 = v.pipe(
       v.string(),
-      setWrappers(['w1', 'w2']),
-      patchAsyncWrapper('w3'),
-      removeWrappers(['w1']),
+      actions.wrappers.set(['w1', 'w2']),
+      actions.wrappers.patchAsync('w3'),
+      actions.wrappers.remove(['w1']),
     );
     const resolved3 = createBuilder(obj3, options);
     expect(resolved3.wrappers().map((item) => item.type)).toEqual(['w2', 'w3']);

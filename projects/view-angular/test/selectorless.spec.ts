@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import * as v from 'valibot';
 
 import { createSchemaComponent } from './util/create-component';
-import { actions, setComponent, setWrappers } from '@piying/view-angular-core';
+import { actions, setComponent } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { SelectorLessW } from './wrapper-unless/component';
 import { Test1SelectorlessComponent } from './test1-selectorless/component';
@@ -37,7 +37,7 @@ describe('selectorless', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      setWrappers(['selectorless-wrapper']),
+      actions.wrappers.set(['selectorless-wrapper']),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

@@ -10,7 +10,6 @@ import {
   patchAsyncClass,
   patchHooks,
   actions,
-  setWrappers,
 } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
@@ -209,7 +208,7 @@ describe('组件', () => {
       actions.inputs.patch({
         input1: 'a1',
       }),
-      setWrappers(['wrapper1']),
+      actions.wrappers.set(['wrapper1']),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -241,7 +240,7 @@ describe('组件', () => {
         actions.inputs.patch({
           input2: 'a2',
         }),
-        setWrappers(['wrapper1']),
+        actions.wrappers.set(['wrapper1']),
       ),
     );
     await fixture.whenStable();

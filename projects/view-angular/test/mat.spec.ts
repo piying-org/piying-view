@@ -7,7 +7,7 @@ import { InputFCC } from './mat-form-field/input/component';
 import { MatInput } from '@angular/material/input';
 import { MatFormFieldWrapper } from './mat-form-field/form-field/component';
 import { htmlInput } from './util/input';
-import { patchAsyncWrapper } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { directives } from '../lib/schema/action';
 describe('mat', () => {
   it('mat input', async () => {
@@ -24,7 +24,7 @@ describe('mat', () => {
           string: {
             type: InputFCC,
             actions: [
-              patchAsyncWrapper('form-field'),
+              actions.wrappers.patchAsync('form-field'),
               directives.patchAsync(MatInput),
             ],
           },
