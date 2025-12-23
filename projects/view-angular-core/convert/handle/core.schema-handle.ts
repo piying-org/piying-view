@@ -155,10 +155,6 @@ export class CoreSchemaHandle<
   }
   override intersectBefore(schema: IntersectSchema): void {
     if (this.childrenAsVirtualGroup) {
-      // 临时修复,需要把action分为前后两个部分
-      if (this.type === 'intersect') {
-        this.type = 'intersect-group';
-      }
     } else {
       this.isLogicAnd = true;
     }
