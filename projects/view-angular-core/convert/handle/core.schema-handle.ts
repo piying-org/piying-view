@@ -25,25 +25,29 @@ import {
 } from '@piying/valibot-visit';
 import {
   FieldRenderConfig,
-  CoreRawViewOutputs,
-  CoreRawWrapperConfig,
-  CoreRawViewInputs,
+  ViewOutputs,
+  CoreWrapperConfig,
+  ViewInputs,
   _PiResolvedCommonViewFieldConfig,
   HookConfig,
+  ViewAttributes,
+  ViewProps,
+  ViewEvents,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
-import { KeyPath } from '../../util';
+import { asyncObjectSignal, combineSignal, KeyPath } from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
 
 export class CoreSchemaHandle<
   Self extends CoreSchemaHandle<any, any>,
   RESOLVED_FN extends () => any,
 > extends BaseSchemaHandle<Self> {
-  inputs?: CoreRawViewInputs;
-  outputs?: CoreRawViewOutputs;
-  wrappers?: CoreRawWrapperConfig[];
-  attributes?: Record<string, any>;
-  events?: Record<string, (event: any) => any>;
+  inputs = asyncObjectSignal<ViewInputs>({});
+  outputs = asyncObjectSignal<ViewOutputs>({});
+  attributes = asyncObjectSignal<ViewAttributes>({});
+  events = asyncObjectSignal<ViewEvents>({});
+  wrappers = combineSignal<CoreWrapperConfig>([]);
+  override props = asyncObjectSignal<ViewProps>({});
   alias?: string;
   movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;
@@ -138,8 +142,16 @@ export class CoreSchemaHandle<
     this.formConfig.groupMode = 'reset';
   }
   override enumSchema(schema: EnumSchema): void {
-    this.props ??= {};
-    this.props['options'] ??= schema.options;
+    this.props.update((data) => ({
+      ...data,
+      options: data['options'] ?? schema.options,
+    }));
+  }
+  override updateProps(key: string, value: any): void {
+    this.props.update((data) => ({
+      ...data,
+      [key]: value,
+    }));
   }
   override intersectBefore(schema: IntersectSchema): void {
     if (this.childrenAsVirtualGroup) {

@@ -1,157 +1,105 @@
 import { rawConfig } from './raw-config';
+import { CoreWrapperConfig, PI_VIEW_CONFIG_TOKEN } from '../../builder-base';
 import {
-  _PiResolvedCommonViewFieldConfig,
-  CoreRawWrapperConfig,
-  CoreResolvedWrapperConfig,
-} from '../../builder-base';
-import { ObservableSignal, observableSignal, toArray } from '../../util';
+  ObservableSignal,
+  observableSignal,
+  SetOptional,
+  SetUnWrapper$,
+} from '../../util';
 import { mergeHooksFn } from './hook';
-import { Signal, signal } from '@angular/core';
-import { AsyncProperty } from './input';
+import { Signal } from '@angular/core';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
-import { asyncInputMerge, WrapperSymbol } from './input-common';
-import { RawConfigAction } from '@piying/valibot-visit';
+import { ConfigAction, CustomDataSymbol } from './input-common';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
 
-export function setWrappers<T>(wrappers: CoreRawWrapperConfig[]) {
-  return rawConfig<T>((field) => {
-    field.wrappers = wrappers;
-  });
-}
-type PatchWrappersOptions = {
-  position: 'head' | 'tail';
-};
-const defaultValue: PatchWrappersOptions = {
-  position: 'tail',
-};
-export function patchWrappers<T>(
-  wrappers: CoreRawWrapperConfig | CoreRawWrapperConfig[],
-  options: PatchWrappersOptions = defaultValue,
+function setWrappers<T>(
+  wrappers: (
+    | SetOptional<
+        SetUnWrapper$<
+          CoreWrapperConfig,
+          'inputs' | 'outputs' | 'attributes' | 'events'
+        >,
+        'inputs' | 'outputs' | 'attributes' | 'events'
+      >
+    | string
+  )[],
 ) {
-  return rawConfig<T>((field) => {
-    const list = toArray(wrappers)!;
-    field.wrappers ??= [];
-    if (options.position === 'tail') {
-      field.wrappers.push(...list);
-    } else {
-      field.wrappers.unshift(...list);
-    }
-  });
-}
-export type AsyncCoreRawWrapperConfig = Omit<
-  Exclude<CoreRawWrapperConfig, string>,
-  'inputs' | 'attributes' | 'outputs'
-> & {
-  inputs?: Record<string, AsyncProperty>;
-  attributes?: Record<string, AsyncProperty>;
-  outputs?: Record<
-    string,
-    (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
-  >;
-};
-export function patchAsyncWrapper<T>(
-  inputWrapper: AsyncCoreRawWrapperConfig,
-  options: PatchWrappersOptions = defaultValue,
-) {
-  return rawConfig<T>((field) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          const findConfig = field.injector.get(FindConfigToken);
-          let inputs$ = asyncObjectSignal({});
-          if (inputWrapper.inputs && Object.keys(inputWrapper.inputs).length) {
-            inputs$ = asyncInputMerge(
-              Object.entries(inputWrapper.inputs).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              inputs$,
-            );
+  return rawConfig<T>((rawField, _) => {
+    const wrapperConfig =
+      rawField.globalConfig.additionalData!['defaultWrapperMetadataGroup'];
+    const injector = rawField.globalConfig.additionalData!['injector'];
+    const OptionDefine = {
+      pipe: pipe(
+        map((item: any) => {
+          if (typeof item.type === 'string') {
+            const type = wrapperConfig[item.type].type;
+            if (!type) {
+              throw new Error(`🈳wrapper:[${type}]❗`);
+            }
+            return { ...item, type: type };
           }
-          let attributes$ = asyncObjectSignal({});
-          if (
-            inputWrapper.attributes &&
-            Object.keys(inputWrapper.attributes).length
-          ) {
-            attributes$ = asyncInputMerge(
-              Object.entries(inputWrapper.attributes).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              attributes$,
-            );
-          }
-          let events$ = asyncObjectSignal({});
 
-          if (inputWrapper.events && Object.keys(inputWrapper.events).length) {
-            events$ = asyncInputMerge(
-              Object.entries(inputWrapper.events).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              events$,
-            );
-          }
-          let outputs$ = asyncObjectSignal<
-            Record<
-              string,
-              (field: _PiResolvedCommonViewFieldConfig) => (...args: any) => any
-            >
-          >({});
-          if (
-            inputWrapper.outputs &&
-            Object.keys(inputWrapper.outputs).length
-          ) {
-            outputs$ = asyncInputMerge(
-              Object.entries(inputWrapper.outputs).reduce(
-                (obj, [key, value]) => {
-                  obj[key] = value(field);
-                  return obj;
-                },
-                {} as Record<string, any>,
-              ),
-              outputs$,
-            );
-          }
-          const defaultWrapperConfig = findConfig.findWrapper(inputWrapper);
-          const newWrapper = signal({
-            ...defaultWrapperConfig,
-            inputs: inputs$,
-            outputs: outputs$,
-            attributes: attributes$,
-            events: events$,
+          return item;
+        }),
+      ),
+      injector: injector,
+    };
+    wrappers.forEach((item) => {
+      if (typeof item === 'string') {
+        const defaultActions: any[] = wrapperConfig[item]?.actions ?? [];
+        const define = observableSignal(
+          {
+            type: item,
+            inputs: asyncObjectSignal({}),
+            outputs: asyncObjectSignal({}),
+            attributes: asyncObjectSignal({}),
+            events: asyncObjectSignal({}),
+          },
+          OptionDefine,
+        );
+        rawField.wrappers.add(define);
+        defaultActions.forEach((item) => {
+          item.value(rawField, _, {
+            [CustomDataSymbol]: define,
           });
-          field.wrappers.update((wrappers) =>
-            options.position === 'tail'
-              ? [...wrappers, newWrapper]
-              : [newWrapper, ...wrappers],
-          );
-        },
-      },
-      { position: 'bottom' },
-      field,
-    );
+        });
+      } else {
+        rawField.wrappers.add(
+          observableSignal(
+            {
+              type: item.type,
+              inputs: asyncObjectSignal(item.inputs ?? {}),
+              outputs: asyncObjectSignal(item.outputs ?? {}),
+              attributes: asyncObjectSignal(item.attributes ?? {}),
+              events: asyncObjectSignal(item.events ?? {}),
+            },
+            OptionDefine,
+          ),
+        );
+      }
+    });
   });
 }
-export function removeWrappers<T>(removeList: string[]) {
+
+function removeWrappers<T>(
+  removeList:
+    | string[]
+    | ((list: Signal<CoreWrapperConfig>[]) => Signal<CoreWrapperConfig>[]),
+) {
   return rawConfig<T>((field) => {
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          const list = field.wrappers.items().filter((item) => {
-            const type = (item as ObservableSignal<any, any>).input().type;
-            return removeList.every((name) => name !== type);
-          });
+          let list;
+          if (typeof removeList === 'function') {
+            list = removeList(field.wrappers.items());
+          } else {
+            list = field.wrappers.items().filter((item) => {
+              const type = (item as ObservableSignal<any, any>).input().type;
+              return removeList.every((name) => name !== type);
+            });
+          }
           field.wrappers.update(() => list);
         },
       },
@@ -161,26 +109,28 @@ export function removeWrappers<T>(removeList: string[]) {
   });
 }
 
-export function patchAsyncWrapper2<T>(
+function patchAsyncWrapper<T>(
   type: any,
-  actions: RawConfigAction<'rawConfig', any, any>[],
+  actions?: ConfigAction<any>[],
+  options?: { insertIndex?: number },
 ) {
   return rawConfig<T>((rawFiled) => {
+    // 在这里增加要处理的wrapper类型
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
           const findConfig = field.injector.get(FindConfigToken);
           const initData = observableSignal<
-            CoreResolvedWrapperConfig,
-            CoreResolvedWrapperConfig
+            CoreWrapperConfig,
+            CoreWrapperConfig
           >(
             {
               type,
-              attributes: asyncObjectSignal(undefined),
-              events: asyncObjectSignal(undefined),
+              attributes: asyncObjectSignal({}),
+              events: asyncObjectSignal({}),
               inputs: asyncObjectSignal({}),
               outputs: asyncObjectSignal({}),
-            } as CoreResolvedWrapperConfig,
+            } as CoreWrapperConfig,
             {
               pipe: pipe(
                 map((item) => {
@@ -193,13 +143,21 @@ export function patchAsyncWrapper2<T>(
               injector: field.injector,
             },
           );
-          field.wrappers.add(initData);
-          for (const item of actions) {
+          field.wrappers.add(initData, options?.insertIndex);
+
+          const defaultConfig = field.injector.get(PI_VIEW_CONFIG_TOKEN);
+          let defaultActions: ConfigAction<any>[] = [];
+          if (typeof type === 'string') {
+            defaultActions = defaultConfig.wrappers?.[type]?.actions ?? [];
+          }
+          const allActions = [...defaultActions, ...(actions ?? [])];
+
+          for (const item of allActions) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {
-              [WrapperSymbol]: initData,
+              [CustomDataSymbol]: initData,
             });
-            (tempField as any).hooks.allFieldsResolved(field);
+            (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
       },
@@ -208,9 +166,10 @@ export function patchAsyncWrapper2<T>(
     );
   });
 }
-export function changeAsyncWrapper2<T>(
-  indexFn: (list: Signal<CoreResolvedWrapperConfig>[]) => any,
-  actions: RawConfigAction<'rawConfig', any, any>[],
+
+function changeAsyncWrapper<T>(
+  indexFn: (list: Signal<CoreWrapperConfig>[]) => any,
+  actions: ConfigAction<any>[],
 ) {
   return rawConfig<T>((rawFiled) => {
     mergeHooksFn(
@@ -228,9 +187,9 @@ export function changeAsyncWrapper2<T>(
           for (const item of actions) {
             const tempField = {};
             (item.value as any)(tempField, undefined, {
-              [WrapperSymbol]: initData,
+              [CustomDataSymbol]: initData,
             });
-            (tempField as any).hooks.allFieldsResolved(field);
+            (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
       },
@@ -239,3 +198,9 @@ export function changeAsyncWrapper2<T>(
     );
   });
 }
+export const wrappers = {
+  set: setWrappers,
+  patchAsync: patchAsyncWrapper,
+  remove: removeWrappers,
+  changeAsync: changeAsyncWrapper,
+};

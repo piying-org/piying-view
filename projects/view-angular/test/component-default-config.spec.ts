@@ -2,11 +2,7 @@ import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import { Test1Component } from './test1/test1.component';
 import * as v from 'valibot';
-import {
-  setComponent,
-  formConfig,
-  patchProps,
-} from '@piying/view-angular-core';
+import { setComponent, formConfig, actions } from '@piying/view-angular-core';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import { getField } from './util/action';
 describe('组件默认配置', () => {
@@ -72,14 +68,14 @@ describe('组件默认配置', () => {
         types: {
           test2: {
             type: Test1Component,
-            inputs: {
-              input1: 'test1',
-            },
-            outputs: {
-              output3: () => {
-                fields$.resolve(true);
-              },
-            },
+            actions: [
+              actions.inputs.set({ input1: 'test1' }),
+              actions.outputs.set({
+                output3: () => {
+                  fields$.resolve(true);
+                },
+              }),
+            ],
           },
         },
       },
@@ -103,9 +99,7 @@ describe('组件默认配置', () => {
         types: {
           test2: {
             type: Test1Component,
-            props: {
-              value: 1,
-            },
+            actions: [actions.props.patchAsync({ value: () => 1 })],
           },
         },
       },
@@ -128,7 +122,7 @@ describe('组件默认配置', () => {
           test2: {
             actions: [
               setComponent(Test1Component),
-              patchProps({
+              actions.props.patch({
                 value: 1,
               }),
             ],

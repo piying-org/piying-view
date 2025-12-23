@@ -7,7 +7,7 @@ import * as v from 'valibot';
 import { getField } from './util/action';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
-import { setInputs, setOutputs } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { assertFieldArray } from '@piying/view-angular-core/test';
 
 describe('默认数组', () => {
@@ -18,7 +18,7 @@ describe('默认数组', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
+            actions.inputs.set({
               input1: 'div-display',
             }),
           ),
@@ -44,7 +44,7 @@ describe('默认数组', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setInputs({
+            actions.inputs.set({
               input1: 'div-display',
             }),
           ),
@@ -73,7 +73,7 @@ describe('默认数组', () => {
           key1: v.pipe(
             v.string(),
             setComponent(Test1Component),
-            setOutputs({
+            actions.outputs.set({
               output1: (value) => {
                 subject1.next(value);
               },

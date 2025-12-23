@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 
-import { NFCSchema, setComponent, setWrappers } from '@piying/view-core';
+import { actions, NFCSchema, setComponent,  } from '@piying/view-core';
 
 import { delay } from './util/delay';
 import { Wrapper1 } from './component/wrapper1';
@@ -33,7 +33,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers(['wrapper1']),
+      actions.wrappers.set(['wrapper1']),
     );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
@@ -58,7 +58,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers(['wrapper1', 'wrapper2']),
+      actions.wrappers.set(['wrapper1', 'wrapper2']),
     );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
@@ -89,7 +89,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([{ type: 'wrapper1', inputs: { input1: 'input1-value' } }]),
+      actions.wrappers.set([{ type: 'wrapper1', inputs: { input1: 'input1-value' } }]),
     );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
@@ -125,7 +125,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([
+      actions.wrappers.set([
         {
           type: 'wrapper1',
           inputs: { input1: 'input1-value' },
@@ -159,7 +159,7 @@ describe('wrapper', () => {
       NFCSchema,
       getField(field$),
       setComponent('inputTest'),
-      setWrappers([
+      actions.wrappers.set([
         {
           type: 'wrapper1',
           outputs: {
@@ -199,7 +199,7 @@ describe('wrapper', () => {
     let isEmit = false;
     const schema = v.pipe(
       v.string(),
-      setWrappers([
+      actions.wrappers.set([
         {
           type: 'wrapper-field',
           outputs: {

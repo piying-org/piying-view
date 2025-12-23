@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import { Array1Component } from './array/component';
 import * as v from 'valibot';
-import { setInputs, setOutputs } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
 
@@ -17,7 +17,7 @@ describe('自定义数组', () => {
             key1: v.pipe(
               v.string(),
               setComponent(Test1Component),
-              setInputs({
+              actions.inputs.set({
                 input1: 'div-display',
               }),
             ),
@@ -47,7 +47,7 @@ describe('自定义数组', () => {
             key1: v.pipe(
               v.string(),
               setComponent(Test1Component),
-              setInputs({
+              actions.inputs.set({
                 input1: 'div-display',
               }),
             ),
@@ -79,7 +79,7 @@ describe('自定义数组', () => {
               v.string(),
               setComponent(Test1Component),
 
-              setOutputs({
+              actions.outputs.set({
                 output1: (value) => {
                   subject1.next(value);
                 },

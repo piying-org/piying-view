@@ -4,11 +4,9 @@ import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import * as v from 'valibot';
 import {
-  componentClass,
   controlStatusList,
   NFCSchema,
-  setInputs,
-  setOutputs,
+  actions,
 } from '@piying/view-angular-core';
 import { createSchemaComponent } from './util/create-component';
 import {
@@ -26,7 +24,7 @@ describe('初始化', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -46,7 +44,7 @@ describe('初始化', () => {
       key1: v.pipe(
         v.string(),
         setComponent(Test1Component),
-        setInputs({
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -68,7 +66,7 @@ describe('初始化', () => {
         v.string(),
         setComponent(Test1Component),
 
-        setOutputs({
+        actions.outputs.set({
           output1: (value) => {
             subject1.next(value);
           },
@@ -251,7 +249,7 @@ describe('初始化', () => {
     const define2 = v.object({
       key2: v.pipe(
         v.string(),
-        componentClass('test1'),
+        actions.class.component('test1'),
         formConfig({
           disabled: true,
         }),
@@ -265,7 +263,7 @@ describe('初始化', () => {
     const define3 = v.object({
       key2: v.pipe(
         v.string(),
-        componentClass('test2'),
+        actions.class.component('test2'),
         formConfig({
           disabled: true,
         }),
@@ -280,7 +278,7 @@ describe('初始化', () => {
     const define4 = v.object({
       key2: v.pipe(
         v.string(),
-        componentClass('test3'),
+        actions.class.component('test3'),
         formConfig({
           disabled: true,
         }),

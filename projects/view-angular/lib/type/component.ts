@@ -2,9 +2,9 @@ import { Injector, Signal, Type } from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { NgResolvedComponentDefine1 } from './group';
 import {
-  CoreRawViewAttributes,
-  CoreRawViewInputs,
-  CoreRawViewOutputs,
+  ViewAttributes,
+  ViewInputs,
+  ViewOutputs,
   LazyImport,
   LazyMarkType,
 } from '@piying/view-angular-core';
@@ -21,11 +21,11 @@ export interface DynamicComponentConfig {
     | LazyImport<NgComponentDefine>
     | LazyMarkType<Type<any>>
     | LazyMarkType<NgComponentDefine>;
-  attributes: Signal<CoreRawViewAttributes | undefined>;
+  attributes: Signal<ViewAttributes | undefined>;
   events: Signal<Record<string, (event: any) => any> | undefined>;
-  inputs: Signal<CoreRawViewInputs | undefined>;
+  inputs: Signal<ViewInputs | undefined>;
   directives?: DirectiveConfig[];
-  outputs?: Signal<CoreRawViewOutputs>;
+  outputs?: Signal<ViewOutputs>;
   injector?: Injector;
 }
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import SelfComponent from './wrapper.vue';
-import type { CoreResolvedWrapperConfig } from '@piying/view-core';
+import type { CoreWrapperConfig } from '@piying/view-core';
 import { signalToRef } from '../util/signal-convert';
 
 const dInputs = defineProps<{
-  wrappers: CoreResolvedWrapperConfig[];
+  wrappers: CoreWrapperConfig[];
 }>();
 const restWrappers = computed(() => dInputs.wrappers!.slice(1));
 const wrapper = computed(() => dInputs.wrappers[0]);

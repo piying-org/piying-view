@@ -5,13 +5,9 @@ import { Test1CpComponent } from './test1-cp/component';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import { rawConfig, setInputs, setOutputs } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 
-import {
-  setComponent,
-  formConfig,
-  setWrappers,
-} from '@piying/view-angular-core';
+import { setComponent, formConfig } from '@piying/view-angular-core';
 
 describe('配置切换时-angular', () => {
   it('field,model同时变更时的值', async () => {
@@ -99,7 +95,7 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setOutputs({
+        actions.outputs.set({
           destroyedChange: () => {
             firstDestroy = true;
           },
@@ -132,7 +128,7 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setOutputs({
+        actions.outputs.set({
           destroyedChange: () => {
             firstDestroy = true;
           },
@@ -170,9 +166,7 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        rawConfig((value) => {
-          value.outputs = outputs;
-        }),
+        actions.outputs.set(outputs),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -191,9 +185,7 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        rawConfig((value) => {
-          value.outputs = outputs;
-        }),
+        actions.outputs.set(outputs),
       ),
     });
     instance.fields$.set(define2);
@@ -213,10 +205,10 @@ describe('配置切换时-angular', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setInputs({
+        actions.inputs.set({
           input1: 'value1',
         }),
-        setOutputs(outputs),
+        actions.outputs.set(outputs),
         getField(field$),
       ),
     });
@@ -252,8 +244,8 @@ describe('配置切换时-angular', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      setOutputs(outputs),
-      setWrappers([
+      actions.outputs.set(outputs),
+      actions.wrappers.set([
         {
           type: 'wrapper1',
           inputs: {

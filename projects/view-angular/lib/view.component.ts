@@ -37,11 +37,11 @@ import {
 import { AngularFormBuilder } from './builder';
 import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
-import type { SetOptional } from '@piying/view-angular-core';
+import type { FormBuilder, SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { PurePipe } from './pipe/pure.pipe';
 const DefaultConvertOptions = {
-  builder: AngularFormBuilder,
+  builder: AngularFormBuilder as unknown as typeof FormBuilder<any>,
   handle: NgSchemaHandle as any,
 };
 @Component({

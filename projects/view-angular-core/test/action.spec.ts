@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import {
+  actions,
   asVirtualGroup,
   condition,
   layout,
@@ -11,27 +12,6 @@ import {
 import { rawConfig } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { assertFieldControl } from './util/is-field';
-import {
-  removeInputs,
-  patchInputs,
-  setInputs,
-} from '@piying/view-angular-core';
-import {
-  patchOutputs,
-  removeOutputs,
-  setOutputs,
-} from '@piying/view-angular-core';
-import {
-  patchWrappers,
-  removeWrappers,
-  setWrappers,
-} from '@piying/view-angular-core';
-import {
-  patchAsyncAttributes,
-  patchAttributes,
-  removeAttributes,
-  setAttributes,
-} from '@piying/view-angular-core';
 import { isEmpty } from './util/is-empty';
 import { keyEqual } from './util/key-equal';
 import { nonFieldControl } from '@piying/view-angular-core';
@@ -67,7 +47,10 @@ describe('action', () => {
         v.string(),
         v.title('title1'),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => ({
+            ...value,
+            k2: 'value2',
+          }));
           return field;
         }),
       ),
@@ -81,7 +64,10 @@ describe('action', () => {
         v.string(),
         v.description('title1'),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => ({
+            ...value,
+            k2: 'value2',
+          }));
           return field;
         }),
       ),
@@ -93,7 +79,10 @@ describe('action', () => {
     const obj = v.pipe(
       v.picklist(['1', '2']),
       rawConfig((field) => {
-        field.props = { ...field.props, options: [1] };
+        field.props.update((value) => ({
+          ...value,
+          options: [1],
+        }));
         return field;
       }),
     );
@@ -106,7 +95,7 @@ describe('action', () => {
         v.string(),
         v.metadata({ v1: 'title1' }),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => ({ ...value, k2: 'value2' }));
           return field;
         }),
       ),
@@ -123,7 +112,10 @@ describe('action', () => {
         v.picklist([]),
         v.title('title1'),
         rawConfig((field) => {
-          field.props = { ...field.props, k2: 'value2' };
+          field.props.update((value) => ({
+            ...value,
+            k2: 'value2',
+          }));
           return field;
         }),
       ),
@@ -230,28 +222,28 @@ describe('action', () => {
     // expect(result[0].type).toBe('3');
     expect(index).toBe(3);
   });
-  it('setInputs', () => {
+  it('actions.inputs.set', () => {
     const index = 0;
     const obj = v.pipe(
       v.string(),
-      setInputs({ v: 1 }),
+      actions.inputs.set({ v: 1 }),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     expect(resolved.inputs()).toEqual({ v: 1 });
     const obj2 = v.pipe(
       v.string(),
-      setInputs({ v: 1 }),
-      patchInputs({ k: 2 }),
+      actions.inputs.set({ v: 1 }),
+      actions.inputs.patch({ k: 2 }),
       setComponent('mock-input'),
     );
     const resolved2 = createBuilder(obj2);
     expect(resolved2.inputs()).toEqual({ v: 1, k: 2 });
     const obj3 = v.pipe(
       v.string(),
-      setInputs({ v: 1 }),
-      patchInputs({ k: 2 }),
-      removeInputs(['v']),
+      actions.inputs.set({ v: 1 }),
+      actions.inputs.patch({ k: 2 }),
+      actions.inputs.remove(['v']),
       setComponent('mock-input'),
     );
     const resolved3 = createBuilder(obj3);
@@ -259,22 +251,22 @@ describe('action', () => {
   });
   it('attributes', () => {
     const config = { types: ['string'] };
-    const obj = v.pipe(v.string(), setAttributes({ v: 1 }));
+    const obj = v.pipe(v.string(), actions.attributes.set({ v: 1 }));
     const resolved = createBuilder(obj, config);
     expect(resolved.attributes()).toEqual({ v: 1 });
     expect(resolved.define!()?.attributes?.()).toEqual({ v: 1 });
     const obj2 = v.pipe(
       v.string(),
-      setAttributes({ v: 1 }),
-      patchAttributes({ k: 2 }),
+      actions.attributes.set({ v: 1 }),
+      actions.attributes.patch({ k: 2 }),
     );
     const resolved2 = createBuilder(obj2, config);
     expect(resolved2.attributes()).toEqual({ v: 1, k: 2 });
     const obj3 = v.pipe(
       v.string(),
-      setAttributes({ v: 1 }),
-      patchAttributes({ k: 2 }),
-      removeAttributes(['v']),
+      actions.attributes.set({ v: 1 }),
+      actions.attributes.patch({ k: 2 }),
+      actions.attributes.remove(['v']),
     );
     const resolved3 = createBuilder(obj3, config);
     expect(resolved3.attributes()).toEqual({ k: 2 });
@@ -283,28 +275,26 @@ describe('action', () => {
     const config = { types: ['string'] };
     const obj = v.pipe(
       v.string(),
-      patchAsyncAttributes({ v: () => 1, v2: () => signal(2) }),
+      actions.attributes.patchAsync({ v: () => 1, v2: () => signal(2) }),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj, config);
     expect(resolved.attributes()).toEqual({ v: 1, v2: 2 });
   });
-  it('setOutputs', () => {
+  it('actions.outputs.set', () => {
     let fn1CallCount = 0;
     let fn2CallCount = 0;
-    const fn = (value: any, field: any) => {
+    const fn = (value: any) => {
       expect(typeof value).toEqual('number');
-      expect(field).toBeTruthy();
       fn1CallCount++;
     };
-    const fn2 = (value: any, field: any) => {
+    const fn2 = (value: any) => {
       expect(typeof value).toEqual('number');
-      expect(field).toBeTruthy();
       fn2CallCount++;
     };
     const obj = v.pipe(
       v.string(),
-      setOutputs({ v: fn }),
+      actions.outputs.set({ v: fn }),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
@@ -313,8 +303,8 @@ describe('action', () => {
     const obj2 = v.pipe(
       v.string(),
       setComponent('mock-input'),
-      setOutputs({ v: fn }),
-      patchOutputs({ k: fn2 }),
+      actions.outputs.set({ v: fn }),
+      actions.outputs.patch({ k: fn2 }),
     );
     const resolved2 = createBuilder(obj2);
     resolved2.outputs()['v'](2);
@@ -325,16 +315,34 @@ describe('action', () => {
     const obj3 = v.pipe(
       v.string(),
       setComponent('mock-input'),
-      setOutputs({ v: fn }),
-      patchOutputs({ k: fn }),
-      removeOutputs(['v']),
+      actions.outputs.set({ v: fn }),
+      actions.outputs.patch({ k: fn }),
+      actions.outputs.remove(['v']),
     );
     const resolved3 = createBuilder(obj3);
     expect(Object.keys(resolved3.outputs())).toEqual(['k']);
   });
+  it('actions.outputs.patchAsync', () => {
+    let fn1CallCount = 0;
+    const obj = v.pipe(
+      v.string(),
+      actions.outputs.patchAsync({
+        v: (field) => (value: any) => {
+          expect(typeof value).toEqual('number');
+          expect(field).toBeTruthy();
+
+          fn1CallCount++;
+        },
+      }),
+      setComponent('mock-input'),
+    );
+    const resolved = createBuilder(obj);
+    resolved.outputs()['v'](1);
+    expect(fn1CallCount).toEqual(1);
+  });
   it('wrappers', () => {
     const options = { wrappers: ['w1', 'w2', 'w3'] };
-    const obj = v.pipe(v.string(), setWrappers(['w1', 'w2']));
+    const obj = v.pipe(v.string(), actions.wrappers.set(['w1', 'w2']));
     const resolved = createBuilder(obj, options);
     expect(resolved.wrappers().map((item) => item.type)).toEqual(['w1', 'w2']);
 
@@ -346,8 +354,8 @@ describe('action', () => {
 
     const obj2 = v.pipe(
       v.string(),
-      setWrappers(['w1', 'w2']),
-      patchWrappers(['w3']),
+      actions.wrappers.set(['w1', 'w2']),
+      actions.wrappers.patchAsync('w3'),
     );
     const resolved2 = createBuilder(obj2, options);
     expect(resolved2.wrappers().map((item) => item.type)).toEqual([
@@ -363,9 +371,9 @@ describe('action', () => {
     });
     const obj3 = v.pipe(
       v.string(),
-      setWrappers(['w1', 'w2']),
-      patchWrappers(['w3']),
-      removeWrappers(['w1']),
+      actions.wrappers.set(['w1', 'w2']),
+      actions.wrappers.patchAsync('w3'),
+      actions.wrappers.remove(['w1']),
     );
     const resolved3 = createBuilder(obj3, options);
     expect(resolved3.wrappers().map((item) => item.type)).toEqual(['w2', 'w3']);

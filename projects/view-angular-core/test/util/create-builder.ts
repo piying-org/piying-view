@@ -1,8 +1,6 @@
 import { EnvironmentInjector, Injectable, Injector } from '@angular/core';
 import {
   _PiResolvedCommonViewFieldConfig,
-  ConfigMergeStrategy,
-  DefaultConfigKey,
   FormBuilder,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
@@ -17,7 +15,6 @@ export function createBuilder(
     environments?: string[];
     types?: string[] | Record<string, any>;
     wrappers?: string[] | Record<string, any>;
-    defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
     builder?: any;
   },
 ) {
@@ -29,6 +26,7 @@ export function createBuilder(
       },
     ],
   });
+  const MockType = { type: Symbol() } as any;
   const result = convert(obj, {
     injector,
     builder: options?.builder ?? TestFormBuilder,
@@ -37,26 +35,26 @@ export function createBuilder(
     environments: options?.environments,
     fieldGlobalConfig: {
       types: {
-        'mock-input': { type: Symbol() } as any,
-        object: {} as any,
-        strict_object: {} as any,
-        array: {} as any,
-        string: {} as any,
-        boolean: {} as any,
-        number: {} as any,
-        intersect: {} as any,
-        'intersect-group': {} as any,
-        void: {} as any,
-        null: {} as any,
-        never: {} as any,
-        picklist: {} as any,
-        literal: {} as any,
-        tuple: {} as any,
-        enum: {} as any,
-        record: {} as any,
-        any: {} as any,
-        custom: {} as any,
-        union: {} as any,
+        'mock-input': MockType as any,
+        object: MockType as any,
+        strict_object: MockType as any,
+        array: MockType as any,
+        string: MockType as any,
+        boolean: MockType as any,
+        number: MockType as any,
+        intersect: MockType as any,
+        'intersect-group': MockType as any,
+        void: MockType as any,
+        null: MockType as any,
+        never: MockType as any,
+        picklist: MockType as any,
+        literal: MockType as any,
+        tuple: MockType as any,
+        enum: MockType as any,
+        record: MockType as any,
+        any: MockType as any,
+        custom: MockType as any,
+        union: MockType as any,
         ...(Array.isArray(options?.types)
           ? options?.types?.reduce((obj, name) => {
               obj[name] = { type: name };
@@ -72,7 +70,6 @@ export function createBuilder(
             }, {} as any)
           : (options?.wrappers ?? {})),
       },
-      defaultConfigMergeStrategy: options?.defaultConfigMergeStrategy,
     },
   });
   return result as _PiResolvedCommonViewFieldConfig;

@@ -1,26 +1,18 @@
 import { BaseMetadata } from 'valibot';
-import { LazyImport } from '../../util';
-import {
-  ConfigMergeStrategy,
-  CoreWrapperConfig1,
-  PiCommonDefaultConfig,
-} from './common-field-config';
-export interface PiCommonConfig {
-  types?: Record<string, PiCommonDefaultConfig>;
-  /** @deprecated 使用defaultConfig中的actions代替 */
-  defaultConfig?: Omit<PiCommonDefaultConfig, 'type'>;
-  /** @deprecated 使用defaultConfig中的actions代替 */
-  defaultConfigMergeStrategy?: Record<DefaultConfigKey, ConfigMergeStrategy>;
-  wrappers?: Record<
+import { RawConfigAction } from '@piying/valibot-visit';
+export interface PiCommonConfig<C = any, W = any> {
+  types?: Record<
     string,
-    Omit<CoreWrapperConfig1, 'type'> & {
-      type: any | LazyImport<any>;
+    {
+      type?: C;
       actions?: BaseMetadata<any>[];
     }
   >;
+  wrappers?: Record<
+    string,
+    {
+      type: W;
+      actions?: RawConfigAction<'viewRawConfig', any, any>[];
+    }
+  >;
 }
-
-export type DefaultConfigKey = Exclude<
-  keyof PiCommonDefaultConfig,
-  'type' | 'actions'
->;

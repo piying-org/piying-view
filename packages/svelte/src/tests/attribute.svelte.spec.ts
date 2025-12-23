@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 
-import { NFCSchema, setAttributes, setComponent } from '@piying/view-core';
+import { NFCSchema, actions, setComponent } from '@piying/view-core';
 import { delay } from './util/delay';
 import { getField } from '@piying/view-core/test';
 import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
@@ -16,7 +16,7 @@ describe('attribute', () => {
 			NFCSchema,
 			getField(field$),
 			setComponent('inputTest'),
-			setAttributes({ class: 'hello' })
+			actions.attributes.set({ class: 'hello' })
 		);
 		const value = undefined;
 		const { instance } = await createComponent(schema, value, {

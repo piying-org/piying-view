@@ -4,17 +4,9 @@ import { PiResolvedViewFieldConfig } from '../lib/type';
 import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
 import { getField, mergeHooks } from './util/action';
-import {
-  patchAsyncInputs,
-  patchAsyncOutputs,
-  setComponent,
-} from '@piying/view-angular-core';
+import { actions, setComponent } from '@piying/view-angular-core';
 
-import {
-  patchAsyncDirective,
-  patchDirectives,
-  setDirectives,
-} from '../lib/schema/action/directive';
+import { directives } from '../lib/schema/action/directive';
 import { BehaviorSubject } from 'rxjs';
 import { TestNgControlDirective } from './directive/test-ng-control.directive';
 import { Test1Component } from './test1/test1.component';
@@ -27,7 +19,7 @@ describe('指令', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setDirectives([{ type: D1Directive }]),
+        directives.set([{ type: D1Directive }]),
         getField(field$),
       ),
     });
@@ -45,7 +37,7 @@ describe('指令', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        patchDirectives([{ type: D1Directive }]),
+        directives.patch([{ type: D1Directive }]),
         getField(field$),
       ),
     });
@@ -63,7 +55,7 @@ describe('指令', () => {
       v1: v.pipe(
         v.string(),
         setComponent('test1'),
-        patchAsyncDirective(D1Directive, []),
+        directives.patchAsync(D1Directive, []),
         getField(field$),
       ),
     });
@@ -80,8 +72,8 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
-        patchAsyncInputs({ id: () => Promise.resolve('d1') }),
+      directives.patchAsync(D1Directive, [
+        actions.inputs.patchAsync({ id: () => Promise.resolve('d1') }),
       ]),
       getField(field$),
     );
@@ -98,8 +90,8 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
-        patchAsyncInputs({ id: () => new BehaviorSubject('d1') }),
+      directives.patchAsync(D1Directive, [
+        actions.inputs.patchAsync({ id: () => new BehaviorSubject('d1') }),
       ]),
 
       getField(field$),
@@ -117,8 +109,8 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
-        patchAsyncInputs({ id: () => signal('d1') }),
+      directives.patchAsync(D1Directive, [
+        actions.inputs.patchAsync({ id: () => signal('d1') }),
       ]),
 
       getField(field$),
@@ -136,8 +128,8 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
-        patchAsyncInputs({ id: () => signal('') }),
+      directives.patchAsync(D1Directive, [
+        actions.inputs.patchAsync({ id: () => signal('') }),
       ]),
       mergeHooks({
         allFieldsResolved(field) {
@@ -162,8 +154,8 @@ describe('指令', () => {
       v.string(),
       setComponent(Test1Component),
 
-      patchAsyncDirective(TestNgControlDirective, [
-        patchAsyncOutputs({
+      directives.patchAsync(TestNgControlDirective, [
+        actions.outputs.patchAsync({
           dataChange: (field) => (event: any) => {
             expect(field).toBeTruthy();
             ngControl$.resolve(event);
@@ -199,8 +191,8 @@ describe('指令', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncDirective(D1Directive, [
-        patchAsyncInputs({ id: () => inputs }),
+      directives.patchAsync(D1Directive, [
+        actions.inputs.patchAsync({ id: () => inputs }),
       ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(

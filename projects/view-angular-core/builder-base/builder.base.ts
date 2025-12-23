@@ -1,7 +1,6 @@
 import {
   PI_FORM_BUILDER_OPTIONS_TOKEN,
   PI_FORM_BUILDER_ALIAS_MAP,
-  PI_VIEW_CONFIG_TOKEN,
 } from './type/token';
 import {
   computed,
@@ -11,20 +10,15 @@ import {
   Injector,
   signal,
   untracked,
-  WritableSignal,
 } from '@angular/core';
 
 import { createField } from './create-field';
-import { DCONFIG_EFAULT_MERGE_STRAGEGY } from './const';
 import { ParentMap } from './class/parent-map';
 
 import { fieldQuery } from './field-query';
 
 import {
   _PiResolvedCommonViewFieldConfig,
-  ConfigMergeStrategy,
-  CoreRawWrapperConfig,
-  PiCommonDefaultConfig,
   PiResolvedCommonViewFieldConfig,
 } from './type/common-field-config';
 import {
@@ -38,23 +32,9 @@ import { FieldGroup } from '../field/field-group';
 import { isFieldLogicGroup, isFieldArray } from '../field/is-field';
 import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../convert';
 import { isArray, isGroup } from './util/is-group';
-import {
-  RawKeyPath,
-  SortedArray,
-  SignalInputValue,
-  UnWrapSignal,
-  toArray,
-  KeyPath,
-  observableSignal,
-} from '../util';
+import { RawKeyPath, SortedArray, toArray, KeyPath } from '../util';
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
-import { combineSignal } from '../util/create-combine-signal';
-import {
-  AsyncObjectSignal,
-  asyncObjectSignal,
-} from '../util/create-async-object-signal';
-import { map, pipe } from 'rxjs';
 
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
@@ -63,7 +43,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #options = inject(PI_FORM_BUILDER_OPTIONS_TOKEN);
   #injector = inject(Injector);
   #envInjector = inject(EnvironmentInjector);
-  #globalConfig = inject(PI_VIEW_CONFIG_TOKEN);
   #allFieldInitHookList: (() => void)[] = [];
 
   buildRoot(item: BuildRootInputItem<SchemaHandle>) {
@@ -124,88 +103,21 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     index: number,
   ): PiResolvedCommonViewFieldConfig<any, any> {
     // 利用类型查引用,
-    let viewDefaultConfig: PiCommonDefaultConfig | undefined;
     const type = field.type;
     let define;
     if (type) {
-      const result = this.#findConfig.findComponentConfig(type);
-      viewDefaultConfig = result.defaultConfig;
-      define = result.define;
+      define = this.#findConfig.findComponentConfig(type);
     }
-    const mergeStrategy = this.#globalConfig?.defaultConfigMergeStrategy;
 
-    const inputs = this.configMerge(
-      [
-        this.#globalConfig?.defaultConfig?.inputs,
-        viewDefaultConfig?.inputs,
-        field.inputs,
-      ],
-      false,
-      mergeStrategy?.inputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.inputs,
-      true,
-    );
-    const outputs = this.configMerge(
-      [
-        this.#globalConfig?.defaultConfig?.outputs,
-        viewDefaultConfig?.outputs,
-        field.outputs,
-      ],
-      false,
-      mergeStrategy?.outputs ?? DCONFIG_EFAULT_MERGE_STRAGEGY.outputs,
-      true,
-    );
-    const attributes = this.configMerge(
-      [
-        this.#globalConfig?.defaultConfig?.attributes,
-        viewDefaultConfig?.attributes,
-        field.attributes,
-      ],
-      false,
-      mergeStrategy?.attributes ?? DCONFIG_EFAULT_MERGE_STRAGEGY.attributes,
-      true,
-    );
-    const events = asyncObjectSignal(field.events);
-    const wrappers1 = this.configMergeRaw(
-      [
-        this.#globalConfig?.defaultConfig?.wrappers,
-        viewDefaultConfig?.wrappers,
-        field.wrappers,
-      ],
-      true,
-      mergeStrategy?.wrappers ?? DCONFIG_EFAULT_MERGE_STRAGEGY.wrappers,
-    );
-    const wrappers = this.#resolveWrappers(wrappers1, this.#envInjector);
-    const props = this.configMerge(
-      [
-        this.#globalConfig?.defaultConfig?.props,
-        viewDefaultConfig?.props,
-        field.props,
-      ],
-      false,
-      mergeStrategy?.props ?? DCONFIG_EFAULT_MERGE_STRAGEGY.props,
-      true,
-    );
+    const inputs = field.inputs;
+    const outputs = field.outputs;
 
-    const formConfig$ = this.configMerge(
-      [
-        this.#globalConfig?.defaultConfig?.formConfig,
-        viewDefaultConfig?.formConfig,
-        field.formConfig,
-      ],
-      false,
-      mergeStrategy?.formConfig ?? DCONFIG_EFAULT_MERGE_STRAGEGY.formConfig,
-      false,
-    );
-    const renderConfig = this.configMerge(
-      [
-        this.#globalConfig?.defaultConfig?.renderConfig,
-        viewDefaultConfig?.renderConfig,
-        field.renderConfig,
-      ],
-      false,
-      mergeStrategy?.renderConfig ?? DCONFIG_EFAULT_MERGE_STRAGEGY.renderConfig,
-      false,
-    );
+    const attributes = field.attributes;
+
+    const events = field.events;
+
+    const formConfig$ = signal(field.formConfig ?? {});
+    const renderConfig = signal(field.renderConfig ?? {});
     let control;
     let keyPath: RawKeyPath | undefined = field.key;
 
@@ -256,7 +168,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       origin: field,
       renderConfig: renderConfig,
       formConfig: formConfig$,
-      props,
+      props: field.props,
       context: this.#options.context,
       priority: field.priority,
       hooks: field.hooks,
@@ -274,9 +186,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         return resolvedConfig.define!().attributes;
       },
       define: define
-        ? signal({ ...define, inputs, outputs, attributes, events })
+        ? signal({ type: define, inputs, outputs, attributes, events })
         : undefined,
-      wrappers,
+      wrappers: field.wrappers,
       injector: this.#envInjector,
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
@@ -538,67 +450,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return result;
   }
 
-  protected configMergeRaw<T extends SignalInputValue<Record<string, any>>>(
-    list: T[],
-    isArray: boolean,
-    strategy: ConfigMergeStrategy,
-  ): UnWrapSignal<NonNullable<T>> {
-    let value;
-    if (isArray) {
-      if (strategy === 'merge') {
-        value = list
-          .filter(Boolean)
-          .flat()
-          .map((item) => item) as any;
-      } else {
-        value = list.reduce((data, item: any) => item ?? data, []) as any;
-      }
-    } else {
-      if (strategy === 'merge') {
-        value = list.reduce(
-          (obj, item: any) => ({
-            ...obj,
-            ...item,
-          }),
-          {},
-        ) as any;
-      } else {
-        value = list.reduce((data, item: any) => item ?? data, {}) as any;
-      }
-    }
-    return value;
-  }
-  /**
-   * 后面覆盖前面
-   * */
-  protected configMerge<
-    T extends SignalInputValue<Record<string, any>>,
-    IsInput extends boolean,
-  >(
-    list: T[],
-    isArray: boolean,
-    strategy: ConfigMergeStrategy,
-    isInput: IsInput,
-  ): IsInput extends true
-    ? AsyncObjectSignal<UnWrapSignal<NonNullable<T>>>
-    : WritableSignal<UnWrapSignal<NonNullable<T>>> {
-    return isInput
-      ? (asyncObjectSignal(
-          this.configMergeRaw(list, isArray, strategy) as any,
-        ) as any)
-      : (signal(this.configMergeRaw(list, isArray, strategy)) as any);
-  }
-  /** 临时增加,之后要删除 */
-  protected configMergeD<T extends SignalInputValue<Record<string, any>>>(
-    list: T[],
-    isArray: boolean,
-    strategy: ConfigMergeStrategy,
-  ) {
-    const result = this.configMergeRaw(list, isArray, strategy) as any[];
-    return combineSignal<any>(
-      result.map((item) => asyncObjectSignal(item)) as any,
-    );
-  }
   #moveViewField(key: KeyPath, inputField: _PiResolvedCommonViewFieldConfig) {
     const parent = fieldQuery(
       key,
@@ -616,29 +467,4 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     parent.fixedChildren!().push(inputField);
   }
   #findConfig = inject(FindConfigToken);
-  #resolveWrappers(wrappers: CoreRawWrapperConfig[], injector: Injector) {
-    const result = (wrappers ?? []).map((wrapper) => {
-      const config = this.#findConfig.findWrapper(wrapper);
-      return observableSignal(
-        {
-          inputs: asyncObjectSignal(config.inputs),
-          outputs: asyncObjectSignal(config.outputs),
-          attributes: asyncObjectSignal(config.attributes),
-          events: asyncObjectSignal(config.events),
-          type: config.type,
-        },
-        {
-          pipe: pipe(
-            map((item) => {
-              const defaultWrapperConfig =
-                this.#findConfig.findWrapperComponent(item.type);
-              return { ...item, type: defaultWrapperConfig };
-            }),
-          ),
-          injector: injector,
-        },
-      );
-    });
-    return combineSignal(result);
-  }
 }

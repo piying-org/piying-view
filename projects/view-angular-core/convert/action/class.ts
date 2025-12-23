@@ -2,18 +2,20 @@ import clsx from 'clsx';
 import { ClassValue } from 'clsx';
 import { rawConfig } from './raw-config';
 import { mergeHooksFn } from './hook';
-import { patchAsyncAttributes } from './attribute';
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base/type/common-field-config';
-import { AsyncResult } from './input';
+
+import { AsyncCallback } from './type/async-callback';
+import { CustomDataSymbol, __actions as actions } from './input-common';
+import { WritableSignal } from '@angular/core';
 /** 必须防止到所有wrappers操作后面,防止设置错误
  * 设置到顶层,可能是wrapper,也可能是component
  *
  */
-export function topClass<T>(className: ClassValue, merge?: boolean) {
+function topClass<T>(className: ClassValue, merge?: boolean) {
   return rawConfig<T>((rawField) => {
     mergeHooksFn(
       {
-        fieldResolved: (field) => {
+        allFieldsResolved: (field) => {
           const wrappers = field.wrappers();
           if (wrappers?.length) {
             wrappers[0].attributes.update((attributes) => ({
@@ -38,19 +40,53 @@ export function topClass<T>(className: ClassValue, merge?: boolean) {
   });
 }
 /** 仅设置在组件上 */
-export function componentClass<T>(className: ClassValue, merge?: boolean) {
-  return rawConfig<T>((field) => {
-    field.attributes = {
-      ...field.attributes,
-      class: merge
-        ? clsx(field.attributes?.['class'], className)
-        : clsx(className),
-    };
+const componentClass = <T>(className: ClassValue, merge?: boolean) =>
+  rawConfig<T>((rawField, _, ...args) => {
+    let data$: WritableSignal<any>;
+    if (
+      args.length > 0 &&
+      typeof args[args.length - 1] === 'object' &&
+      CustomDataSymbol in args[args.length - 1]
+    ) {
+      data$ = args[args.length - 1][CustomDataSymbol];
+    } else {
+      data$ = (() => rawField) as any;
+    }
+    const content$ = data$()['attributes'] as WritableSignal<any>;
+    content$.update((data) => ({
+      ...data,
+      class: merge ? clsx(data?.['class'], className) : clsx(className),
+    }));
+  });
+
+const bottomClass = componentClass;
+function patchAsyncClass<T>(fn: AsyncCallback<string>) {
+  return actions.attributes.patchAsync<T>({ class: fn });
+}
+
+function asyncTopClass<T>(classNameFn: AsyncCallback<ClassValue>) {
+  return rawConfig<T>((rawField) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          const wrappers = field.wrappers();
+          if (wrappers?.length) {
+            wrappers[0].attributes.connect('class', classNameFn(field));
+          } else {
+            field.attributes.connect('class', classNameFn(field));
+          }
+        },
+      },
+      { position: 'bottom' },
+      rawField,
+    );
   });
 }
-export const bottomClass = componentClass;
-export function patchAsyncClass<T>(
-  fn: (field: _PiResolvedCommonViewFieldConfig) => AsyncResult,
-) {
-  return patchAsyncAttributes<T>({ class: fn });
-}
+export const classAction = {
+  top: topClass,
+  bottom: bottomClass,
+  component: componentClass,
+  asyncTop: asyncTopClass,
+  asyncBottom: patchAsyncClass,
+  asyncComponent: patchAsyncClass,
+};

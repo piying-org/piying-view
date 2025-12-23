@@ -32,16 +32,16 @@ import {
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
 import {
-  CoreRawViewAttributes,
-  CoreRawViewInputs,
-  CoreRawViewOutputs,
+  ViewAttributes,
+  ViewInputs,
+  ViewOutputs,
   getLazyImport,
   isLazyMark,
 } from '@piying/view-angular-core';
 import { AttributesDirective } from '../directives/attributes.directive';
 import { isComponentType } from '../util/async-cache';
 import { EventsDirective } from '../directives/events.directive';
-function createInputsBind(inputs?: Signal<CoreRawViewInputs | undefined>) {
+function createInputsBind(inputs?: Signal<ViewInputs | undefined>) {
   if (!inputs || !inputs()) {
     return [];
   }
@@ -53,7 +53,7 @@ function createInputsBind(inputs?: Signal<CoreRawViewInputs | undefined>) {
   );
 }
 function createOutputsBind(
-  outputs?: () => CoreRawViewOutputs | undefined,
+  outputs?: () => ViewOutputs | undefined,
   config?: Signal<PiResolvedViewFieldConfig>,
 ) {
   if (!outputs?.()) {
@@ -64,7 +64,7 @@ function createOutputsBind(
   );
 }
 function createAttributesDirective(
-  attributes: Signal<CoreRawViewAttributes | undefined>,
+  attributes: Signal<ViewAttributes | undefined>,
 ) {
   if (attributes()) {
     return [
@@ -76,9 +76,7 @@ function createAttributesDirective(
   }
   return [];
 }
-function createEventsDirective(
-  events: Signal<CoreRawViewAttributes | undefined>,
-) {
+function createEventsDirective(events: Signal<ViewAttributes | undefined>) {
   if (events()) {
     return [
       {

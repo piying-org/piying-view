@@ -3,16 +3,10 @@ import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
-import {
-  NFCSchema,
-  patchAsyncInputs,
-  patchAsyncWrapper,
-  setInputs,
-  setOutputs,
-} from '@piying/view-angular-core';
+import { NFCSchema, actions } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, setWrappers } from '@piying/view-angular-core';
+import { setComponent } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { Wrapper2Component } from './wrapper2/component';
 import { WrapperChange } from './wrapper-change/component';
@@ -24,8 +18,8 @@ describe('带异步wrappers', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
-        setInputs({
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -46,7 +40,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -72,8 +66,8 @@ describe('带异步wrappers', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
-        setInputs({
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
+        actions.inputs.set({
           input1: 'div-display',
         }),
       ),
@@ -94,7 +88,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: { type: Wrapper2Component },
         },
@@ -113,9 +107,9 @@ describe('带异步wrappers', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
 
-        setOutputs({
+        actions.outputs.set({
           output1: (value) => {
             subject1.next(value);
           },
@@ -141,7 +135,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -170,7 +164,7 @@ describe('带异步wrappers', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -189,7 +183,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -220,7 +214,7 @@ describe('带异步wrappers', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
       ),
     });
 
@@ -237,7 +231,7 @@ describe('带异步wrappers', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: Wrapper2Component,
@@ -254,7 +248,7 @@ describe('带异步wrappers', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper2', 'wrapper1']),
+        actions.wrappers.set(['wrapper2', 'wrapper1']),
       ),
     });
 
@@ -269,27 +263,26 @@ describe('带异步wrappers', () => {
       element.querySelector('.wrapper1-div-label')?.innerHTML,
     ).toBeTruthy();
   });
-  it('patchAsyncWrapper', async () => {
+  it('actions.wrappers.patchAsync', async () => {
     let outputed = false;
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper({
-        type: 'wrapper1',
-        attributes: {
+      actions.wrappers.patchAsync('wrapper1', [
+        actions.attributes.patchAsync({
           class: () => 'test1',
-        },
-        inputs: {
+        }),
+        actions.inputs.patchAsync({
           wInput1: (filed) => 'div-display',
-        },
-        outputs: {
-          output1: (field) => (event) => {
+        }),
+        actions.outputs.patchAsync({
+          output1: (field) => (event: any) => {
             outputed = true;
             expect(event).toBeTruthy();
             expect(field).toBeTruthy();
           },
-        },
-      }),
+        }),
+      ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -319,17 +312,16 @@ describe('带异步wrappers', () => {
     input1Div.click();
     expect(outputed).toEqual(true);
   });
-  it('patchAsyncWrapper dynamic change input', async () => {
+  it('actions.wrappers.patchAsync dynamic change input', async () => {
     const data$ = signal('div-display1');
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncWrapper({
-        type: 'wrapper1',
-        inputs: {
+      actions.wrappers.patchAsync('wrapper1', [
+        actions.inputs.patchAsync({
           wInput1: (filed) => data$,
-        },
-      }),
+        }),
+      ]),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -367,12 +359,12 @@ describe('带异步wrappers', () => {
     const define = v.pipe(
       NFCSchema,
       setComponent(WrapperChange),
-      setWrappers([
+      actions.wrappers.set([
         {
           type: ChangeInputWrapper,
         },
       ]),
-      patchAsyncInputs({
+      actions.inputs.patchAsync({
         input2: () => computed(() => input2$()),
       }),
     );

@@ -22,6 +22,5 @@ export function findComponent<T>(
   field: _PiResolvedCommonViewFieldConfig,
   type: any,
 ) {
-  return field.injector.get(FindConfigToken).findComponentConfig(type).define!
-    .type;
+  return field.injector.get(FindConfigToken).findComponentConfig(type);
 }

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
-import { NFCSchema, setComponent, setOutputs } from '@piying/view-core';
+import { NFCSchema, setComponent, actions } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../src/type';
 import { getField } from './util/actions';
 import { OutputTest } from './component/output-test';
@@ -14,7 +14,7 @@ describe('output', () => {
     const schema = v.pipe(
       NFCSchema,
       setComponent('outputTest'),
-      setOutputs({
+      actions.outputs.set({
         emit1: (value) => {
           expect(value).eq('value1');
           emitIndex++;

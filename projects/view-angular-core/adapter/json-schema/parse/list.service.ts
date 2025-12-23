@@ -1,8 +1,4 @@
-import {
-  asControl,
-  patchInputs,
-  setComponent,
-} from '@piying/view-angular-core';
+import { asControl, actions, setComponent } from '@piying/view-angular-core';
 import { BaseAction, ListType, ResolvedSchema } from '../type';
 import { BaseTypeService } from './base.service';
 import * as v from 'valibot';
@@ -16,7 +12,7 @@ export class ListTypeService extends BaseTypeService {
     if (context.multi) {
       return v.pipe(
         v.array(define),
-        patchInputs({ options: options }),
+        actions.inputs.patch({ options: options }),
         asControl(),
         setComponent(
           context.uniqueItems ? 'multiselect' : 'multiselect-repeat',
@@ -24,7 +20,11 @@ export class ListTypeService extends BaseTypeService {
         ...actionList,
       );
     } else {
-      return v.pipe(define, patchInputs({ options: options }), ...actionList);
+      return v.pipe(
+        define,
+        actions.inputs.patch({ options: options }),
+        ...actionList,
+      );
     }
   }
 }

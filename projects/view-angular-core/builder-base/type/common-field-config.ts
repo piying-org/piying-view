@@ -4,33 +4,23 @@ import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
-import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
-import { KeyPath, SetWrapper$, Wrapper$, LazyImport } from '../../util';
-import { BaseMetadata } from 'valibot';
+import { AnyCoreSchemaHandle } from '../../convert';
+import { KeyPath, Wrapper$, LazyImport } from '../../util';
 import { CombineSignal } from '../../util/create-combine-signal';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
-/** 全局定义使用 */
-export type CoreRawComponentDefine = {
-  /** @deprecated 使用actions */
-  type: any;
-  /** @deprecated 使用actions */
-  attributes?: Record<string, any>;
-  /** @deprecated 使用actions */
-  events?: Record<string, any>;
-  /** @deprecated 使用actions */
-  inputs?: CoreRawViewInputs;
-  /** @deprecated 使用actions */
-  outputs?: CoreRawViewOutputs;
-  actions?: BaseMetadata<any>[];
-};
+
 /** 解析后define使用 */
-export type CoreResolvedComponentDefine = SetWrapper$<
-  CoreRawComponentDefine,
-  'attributes' | 'inputs' | 'outputs' | 'events'
->;
+export type CoreResolvedComponentDefine = {
+  type: any;
+  inputs?: AsyncObjectSignal<ViewInputs>;
+  outputs?: AsyncObjectSignal<ViewOutputs>;
+  attributes?: AsyncObjectSignal<ViewAttributes>;
+  events?: AsyncObjectSignal<ViewEvents>;
+};
+
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
   fieldResolved?: (field: RESOLVED_FIELD) => void;
@@ -84,49 +74,20 @@ export type PiResolvedCommonViewFieldConfig<
   };
   readonly define?: WritableSignal<Define>;
 
-  wrappers: CombineSignal<CoreResolvedWrapperConfig>;
+  wrappers: CombineSignal<CoreWrapperConfig>;
 } & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias'>> &
   Readonly<
-    Wrapper$<
-      Required<
-        Pick<
-          AnyCoreSchemaHandle,
-          | 'inputs'
-          | 'outputs'
-          | 'attributes'
-          | 'formConfig'
-          | 'renderConfig'
-          | 'events'
-        >
-      >
+    Required<
+      Pick<AnyCoreSchemaHandle, 'inputs' | 'outputs' | 'attributes' | 'events'>
     >
+  > &
+  Readonly<
+    Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
   >;
 export type _PiResolvedCommonViewFieldConfig = PiResolvedCommonViewFieldConfig<
   () => _PiResolvedCommonViewFieldConfig,
   CoreResolvedComponentDefine
 >;
-
-export type ConfigMergeStrategy = 'merge' | 'replace';
-
-export type PiCommonDefaultConfig = {
-  /** @deprecated 使用actions代替 */
-  formConfig?: CoreSchemaHandle<any, any>['formConfig'];
-  /** @deprecated 使用actions代替 */
-  props?: CoreSchemaHandle<any, any>['props'];
-  /** @deprecated 使用actions代替 */
-  renderConfig?: CoreSchemaHandle<any, any>['renderConfig'];
-  /** @deprecated 使用actions代替 */
-  inputs?: CoreSchemaHandle<any, any>['inputs'];
-  /** @deprecated 使用actions代替 */
-  outputs?: CoreSchemaHandle<any, any>['outputs'];
-  /** @deprecated 使用actions代替 */
-  wrappers?: CoreSchemaHandle<any, any>['wrappers'];
-  /** @deprecated 使用actions代替*/
-  attributes?: CoreSchemaHandle<any, any>['attributes'];
-  /** @deprecated 使用actions代替*/
-  type?: any;
-  actions?: BaseMetadata<any>[];
-};
 
 export interface FormBuilderOptions<T> {
   form$$: Signal<FieldGroup>;
@@ -134,25 +95,16 @@ export interface FormBuilderOptions<T> {
   context: any;
 }
 
-export type CoreRawViewInputs = Record<string, any>;
-export type CoreRawViewAttributes = Record<string, any>;
-export type CoreRawProps = Record<string, any>;
-export interface CoreRawViewOutputs {
-  [name: string]: (...args: any[]) => void;
-}
+export type ViewInputs = Record<string, any>;
+export type ViewOutputs = Record<string, (...args: any[]) => any>;
+export type ViewAttributes = Record<string, any>;
+export type ViewEvents = Record<string, (event: Event) => any>;
+export type ViewProps = Record<string, any>;
 
-export type CoreWrapperConfig1 = {
+export type CoreWrapperConfig = {
   type: string | any | LazyImport<any>;
-  attributes?: CoreRawViewAttributes;
-  inputs?: CoreRawViewInputs;
-  outputs?: CoreRawViewOutputs;
-  events?: Record<string, (event: any) => any>;
-};
-export type CoreRawWrapperConfig = string | CoreWrapperConfig1;
-export type CoreResolvedWrapperConfig = {
-  type: any | LazyImport<any>;
-  inputs: AsyncObjectSignal<CoreRawViewInputs | undefined>;
-  outputs?: AsyncObjectSignal<CoreRawViewOutputs>;
-  attributes: AsyncObjectSignal<CoreRawViewAttributes | undefined>;
-  events: AsyncObjectSignal<Record<string, (event: any) => any> | undefined>;
+  attributes: AsyncObjectSignal<ViewAttributes>;
+  inputs: AsyncObjectSignal<ViewInputs>;
+  outputs: AsyncObjectSignal<ViewOutputs>;
+  events: AsyncObjectSignal<ViewEvents>;
 };

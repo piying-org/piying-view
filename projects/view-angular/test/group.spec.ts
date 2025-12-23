@@ -2,13 +2,13 @@ import { signal } from '@angular/core';
 import { Test1Component } from './test1/test1.component';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
-import { FieldGroup, patchAsyncInputs } from '@piying/view-angular-core';
+import { FieldGroup } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { hooksConfig } from './util/action';
 import { createSchemaComponent } from './util/create-component';
 import { UFCC } from './util/schema';
 import { setComponent } from '@piying/view-angular-core';
-import { setInputs, setOutputs } from '@piying/view-angular-core';
+import { actions } from '@piying/view-angular-core';
 import { RestGroupComponent } from './rest-group/component';
 import { SwitchGroupComponent } from './switch-group/component';
 
@@ -19,7 +19,7 @@ describe('group初始化', () => {
         key1: v.pipe(
           v.string(),
           setComponent(Test1Component),
-          setInputs({
+          actions.inputs.set({
             input1: 'div-display',
           }),
         ),
@@ -42,7 +42,7 @@ describe('group初始化', () => {
         key1: v.pipe(
           v.string(),
           setComponent(Test1Component),
-          setInputs({
+          actions.inputs.set({
             input1: 'div-display',
           }),
         ),
@@ -67,7 +67,7 @@ describe('group初始化', () => {
           v.string(),
           setComponent(Test1Component),
 
-          setOutputs({
+          actions.outputs.set({
             output1: (value) => {
               subject1.next(value);
             },
@@ -223,7 +223,7 @@ describe('group初始化', () => {
         }),
       }),
       setComponent('switch-group'),
-      patchAsyncInputs({
+      actions.inputs.patchAsync({
         activate: () => activate$,
       }),
     );

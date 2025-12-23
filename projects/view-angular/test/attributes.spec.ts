@@ -1,16 +1,19 @@
 import { signal } from '@angular/core';
 import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
-import { componentClass, topClass } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, setWrappers } from '@piying/view-angular-core';
+import { setComponent, actions } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 
 describe('attributes', () => {
   it('classonly-default', async () => {
     const define = v.object({
-      key1: v.pipe(v.string(), setComponent('test1'), componentClass('abcd')),
+      key1: v.pipe(
+        v.string(),
+        setComponent('test1'),
+        actions.class.component('abcd'),
+      ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -30,7 +33,11 @@ describe('attributes', () => {
   });
   it('class-default', async () => {
     const define = v.object({
-      key1: v.pipe(v.string(), setComponent('test1'), topClass('abcd')),
+      key1: v.pipe(
+        v.string(),
+        setComponent('test1'),
+        actions.class.top('abcd'),
+      ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -53,8 +60,8 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        topClass('abcd'),
-        topClass('abcd2'),
+        actions.class.top('abcd'),
+        actions.class.top('abcd2'),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -79,8 +86,8 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        topClass('abcd'),
-        topClass('abcd2', true),
+        actions.class.top('abcd'),
+        actions.class.top('abcd2', true),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -105,9 +112,9 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
-        topClass('abcd'),
-        // topClass('abcd2', true),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
+        actions.class.top('abcd'),
+        // actions.class.top('abcd2', true),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -126,7 +133,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -144,9 +151,9 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
-        topClass('abcd'),
-        topClass('abcd2'),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
+        actions.class.top('abcd'),
+        actions.class.top('abcd2'),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -165,7 +172,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -185,9 +192,9 @@ describe('attributes', () => {
       key1: v.pipe(
         v.string(),
         setComponent('test1'),
-        setWrappers(['wrapper1', 'wrapper2']),
-        topClass('abcd'),
-        topClass('abcd2', true),
+        actions.wrappers.set(['wrapper1', 'wrapper2']),
+        actions.class.top('abcd'),
+        actions.class.top('abcd2', true),
       ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
@@ -206,7 +213,7 @@ describe('attributes', () => {
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
           wrapper2: {
             type: () =>
@@ -224,7 +231,11 @@ describe('attributes', () => {
 
   it('class-wrapper定义自带', async () => {
     const define = v.object({
-      key1: v.pipe(v.string(), setComponent('test1'), topClass('abcd')),
+      key1: v.pipe(
+        v.string(),
+        setComponent('test1'),
+        actions.class.top('abcd'),
+      ),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -237,13 +248,13 @@ describe('attributes', () => {
               import('./test1/test1.component').then(
                 (a) => a.Test1Component,
               ) as any,
-            wrappers: ['wrapper1'],
+            actions: [actions.wrappers.patchAsync('wrapper1')],
           },
         },
         wrappers: {
           wrapper1: {
             type: Wrapper1Component,
-            inputs: { wInput1: 'wInput1' },
+            actions: [actions.inputs.patchAsync({ wInput1: () => 'wInput1' })],
           },
         },
       },

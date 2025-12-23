@@ -5,13 +5,13 @@ import {
   _PiResolvedCommonViewFieldConfig,
   CoreSchemaHandle,
   FormBuilder,
-  patchInputs,
+  actions,
   setComponent,
 } from '@piying/view-angular-core';
 import { rawConfig } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { assertFieldControl } from './util/is-field';
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 describe('自定义handle', () => {
   it('默认条件', () => {
@@ -98,17 +98,14 @@ describe('自定义handle', () => {
         rawConfig: any,
         config: _PiResolvedCommonViewFieldConfig,
       ): _PiResolvedCommonViewFieldConfig | undefined {
-        config.define!.update((data) => ({
-          ...data,
-          inputs: signal({ input1: '2' }),
-        }));
+        config.inputs.set({ input1: '2' });
         return config;
       }
     }
 
     const obj = v.pipe(
       v.string(),
-      patchInputs({
+      actions.inputs.patch({
         input1: '1',
       }),
       setComponent('mock-input'),

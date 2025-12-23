@@ -1,25 +1,18 @@
-import {
-  CreateSignalOptions,
-  Signal,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { CreateSignalOptions, Signal, signal } from '@angular/core';
 
 import { computed } from '@angular/core';
 export type CombineSignal<Input> = Signal<Input[]> & {
-  add: (item: WritableSignal<Input>, index?: number) => void;
-  remove: (item: WritableSignal<Input>) => void;
-  items: () => WritableSignal<Input>[];
+  add: (item: Signal<Input>, index?: number) => void;
+  remove: (item: Signal<Input>) => void;
+  items: () => Signal<Input>[];
   clean: () => void;
-  update: (
-    fn: (list: WritableSignal<Input>[]) => WritableSignal<Input>[],
-  ) => void;
+  update: (fn: (list: Signal<Input>[]) => Signal<Input>[]) => void;
 };
 export function combineSignal<Input>(
-  initialValue: WritableSignal<Input>[] = [],
+  initialValue: Signal<Input>[] = [],
   options?: CreateSignalOptions<Input[]>,
 ) {
-  const list$ = signal<WritableSignal<Input>[]>(initialValue);
+  const list$ = signal<Signal<Input>[]>(initialValue);
   const input$$ = computed(() => list$().map((item) => item()), options);
   const changed$ = input$$ as any as CombineSignal<Input>;
   changed$.add = (item, index) => {
@@ -31,7 +24,6 @@ export function combineSignal<Input>(
       }
       return [...list, item];
     });
-    list$.set([item]);
   };
   changed$.remove = (item) => {
     list$.update((list) => {

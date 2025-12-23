@@ -7,11 +7,8 @@ import * as v from 'valibot';
 import {
   findComponent,
   NFCSchema,
-  patchAsyncClass,
   patchHooks,
-  patchInputs,
-  setOutputs,
-  setWrappers,
+  actions,
 } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
@@ -42,15 +39,16 @@ describe('组件', () => {
         types: {
           test2: {
             type: { component: Test2Component, module: Test2Module },
-
-            inputs: {
-              input1: 'test1',
-            },
-            outputs: {
-              output3: () => {
-                fields$.resolve(true);
-              },
-            },
+            actions: [
+              actions.inputs.set({
+                input1: 'test1',
+              }),
+              actions.outputs.set({
+                output3: () => {
+                  fields$.resolve(true);
+                },
+              }),
+            ],
           } as any,
         },
       },
@@ -65,7 +63,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test2'),
-      setOutputs({
+      actions.outputs.set({
         output1: (value) => {
           inited.resolve(value);
         },
@@ -93,7 +91,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      setOutputs({
+      actions.outputs.set({
         ngControlChange: (value) => {
           inited.resolve(value);
         },
@@ -121,7 +119,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchAsyncClass((field) => testClass$),
+      actions.class.asyncComponent((field) => testClass$),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -206,10 +204,10 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('update1'),
-      patchInputs({
+      actions.inputs.patch({
         input1: 'a1',
       }),
-      setWrappers(['wrapper1']),
+      actions.wrappers.set(['wrapper1']),
     );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
@@ -238,10 +236,10 @@ describe('组件', () => {
       v.pipe(
         v.string(),
         setComponent('update2'),
-        patchInputs({
+        actions.inputs.patch({
           input2: 'a2',
         }),
-        setWrappers(['wrapper1']),
+        actions.wrappers.set(['wrapper1']),
       ),
     );
     await fixture.whenStable();

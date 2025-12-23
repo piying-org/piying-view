@@ -1,9 +1,9 @@
-import type { CoreResolvedWrapperConfig } from '@piying/view-core';
+import type { CoreWrapperConfig } from '@piying/view-core';
 import { useMemo } from 'react';
 import { useSignalToRef } from '../util/signal-convert';
 
 export interface PiyingWrapperProps {
-  wrappers: CoreResolvedWrapperConfig[];
+  wrappers: CoreWrapperConfig[];
   children: any;
 }
 

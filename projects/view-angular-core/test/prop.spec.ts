@@ -1,21 +1,16 @@
 import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
-import {
-  patchAsyncProps,
-  patchProps,
-  removeProps,
-  setProps,
-} from '../convert/action/prop';
 import { setComponent } from '../convert';
+import { actions } from '@piying/view-angular-core';
 
 // 用于测试fields和model变动时,数值是否正确
 describe('prop', () => {
   it('set', async () => {
     const obj = v.pipe(
       v.string(),
-      setProps({ value1: 1 }),
-      setProps({ value2: 2 }),
+      actions.props.set({ value1: 1 }),
+      actions.props.set({ value2: 2 }),
     );
     const resolved = createBuilder(obj);
     const inputs = resolved.props();
@@ -25,8 +20,8 @@ describe('prop', () => {
   it('patch', () => {
     const obj = v.pipe(
       v.string(),
-      setProps({ value1: 1 }),
-      patchProps({ value2: 2 }),
+      actions.props.set({ value1: 1 }),
+      actions.props.patch({ value2: 2 }),
     );
     const resolved = createBuilder(obj);
     const inputs = resolved.props();
@@ -38,7 +33,7 @@ describe('prop', () => {
 
     const obj = v.pipe(
       v.string(),
-      patchAsyncProps({
+      actions.props.patchAsync({
         value1: async () => {
           wait$.resolve();
           return 1;
@@ -54,11 +49,15 @@ describe('prop', () => {
     expect(inputs['value1']).toBe(1);
   });
   it('remove', async () => {
-    const obj = v.pipe(v.string(), removeProps(['k1']));
+    const obj = v.pipe(v.string(), actions.props.remove(['k1']));
     let resolved = createBuilder(obj);
     let inputs = resolved.props();
     expect(Object.keys(inputs).length).toEqual(0);
-    const obj2 = v.pipe(v.string(), setProps({ k1: '1' }), removeProps(['k1']));
+    const obj2 = v.pipe(
+      v.string(),
+      actions.props.set({ k1: '1' }),
+      actions.props.remove(['k1']),
+    );
     resolved = createBuilder(obj2);
     inputs = resolved.props();
     expect(Object.keys(inputs).length).toEqual(0);

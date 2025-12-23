@@ -1,79 +1,16 @@
 import { rawConfig } from './raw-config';
 import {
   _PiResolvedCommonViewFieldConfig,
-  CoreRawViewOutputs,
+  ViewOutputs,
 } from '../../builder-base';
 import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
 import { KeyPath } from '../../util';
-import { patchAsyncInputsCommonFn } from './input-common';
-function createOutputListener<T>(
-  outputs: CoreRawViewOutputs,
-  options: { setOutputs: boolean; mergeOutput: boolean },
-) {
-  return rawConfig<T>((field) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          field.outputs.update((originOutputs) => {
-            originOutputs = options.setOutputs ? {} : { ...originOutputs };
-            for (const key in outputs) {
-              const oldFn = (originOutputs as any)[key];
-              (originOutputs as any)[key] = (...args: any[]) => {
-                if (options.mergeOutput && oldFn) {
-                  oldFn(...args, field);
-                }
-                return (outputs as any)[key](...args, field);
-              };
-            }
-            return originOutputs;
-          });
-        },
-      },
-      { position: 'bottom' },
-      field,
-    );
-  });
-}
-export function setOutputs<T>(outputs: CoreRawViewOutputs) {
-  return createOutputListener<T>(outputs, {
-    setOutputs: true,
-    mergeOutput: false,
-  });
-}
-export function patchOutputs<T>(outputs: CoreRawViewOutputs) {
-  return createOutputListener<T>(outputs, {
-    setOutputs: false,
-    mergeOutput: false,
-  });
-}
-export const patchAsyncOutputs = patchAsyncInputsCommonFn('outputs');
-export function removeOutputs<T>(list: string[]) {
-  return rawConfig<T>((field) => {
-    mergeHooksFn(
-      {
-        allFieldsResolved: (field) => {
-          field.outputs.update((originOutputs) => {
-            originOutputs = { ...originOutputs };
-            list.forEach((key) => {
-              if (key in originOutputs) {
-                delete originOutputs[key];
-              }
-            });
-            return originOutputs;
-          });
-        },
-      },
-      { position: 'bottom' },
-      field,
-    );
-  });
-}
 
 export function mergeOutputFn(
   field: _PiResolvedCommonViewFieldConfig,
-  outputs: CoreRawViewOutputs,
+  outputs: ViewOutputs,
 ) {
   field.outputs.update((originOutputs) => {
     originOutputs = { ...originOutputs };
@@ -91,11 +28,51 @@ export function mergeOutputFn(
 export const mergeOutputs = <T>(
   outputs: Record<string, (...args: any[]) => void>,
 ) =>
-  createOutputListener<T>(outputs, {
-    setOutputs: false,
-    mergeOutput: true,
+  rawConfig<T>((field) => {
+    field.outputs.update((originOutputs) => {
+      originOutputs = { ...originOutputs };
+      for (const key in outputs) {
+        const oldFn = (originOutputs as any)[key];
+        (originOutputs as any)[key] = (...args: any[]) => {
+          if (oldFn) {
+            oldFn(...args);
+          }
+          return (outputs as any)[key](...args);
+        };
+      }
+      return originOutputs;
+    });
   });
-
+export const asyncMergeOutputs = <T>(
+  outputs: Record<
+    string,
+    (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => void
+  >,
+) =>
+  rawConfig<T>((field) => {
+    mergeHooksFn(
+      {
+        allFieldsResolved: (field) => {
+          field.outputs.update((originOutputs) => {
+            originOutputs = { ...originOutputs };
+            for (const key in outputs) {
+              const fn = outputs[key](field);
+              const oldFn = (originOutputs as any)[key];
+              (originOutputs as any)[key] = (...args: any[]) => {
+                if (oldFn) {
+                  oldFn(...args);
+                }
+                return fn(...args);
+              };
+            }
+            return originOutputs;
+          });
+        },
+      },
+      { position: 'bottom' },
+      field,
+    );
+  });
 export type EventChangeFn = (
   fn: (
     input: {

@@ -1,4 +1,4 @@
-import { CoreSchemaHandle } from '@piying/view-angular-core';
+import { combineSignal, CoreSchemaHandle } from '@piying/view-angular-core';
 import { PiResolvedViewFieldConfig, NgDirectiveConfig } from '../type';
 
 export class NgSchemaHandle extends CoreSchemaHandle<
@@ -6,5 +6,5 @@ export class NgSchemaHandle extends CoreSchemaHandle<
   () => PiResolvedViewFieldConfig
 > {
   declare type?: any;
-  directives?: NgDirectiveConfig[];
+  directives = combineSignal<NgDirectiveConfig>([]);
 }
