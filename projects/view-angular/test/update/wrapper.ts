@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { PiyingViewWrapperBase } from '@piying/view-angular';
+import { InsertFieldDirective } from '@piying/view-angular';
 
 @Component({
   selector: 'app-wrapper',
-  template: '<ng-container #fieldComponent></ng-container>',
-  providers: [],
+  template: '<ng-container insertField></ng-container>',
+  providers: [InsertFieldDirective],
+  imports: [InsertFieldDirective],
 })
-export class UpdateW extends PiyingViewWrapperBase {}
+export class UpdateW {}

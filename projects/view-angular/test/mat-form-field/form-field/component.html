@@ -8,7 +8,12 @@
   #formField
   class="w-full"
 >
-  <ng-container #fieldComponent></ng-container>
+  <ng-container
+    insertField
+    #insertField="insertField"
+    [matFormControlBind]="insertField"
+    [matFormFiled]="formField"
+  ></ng-container>
   @if (props['title'] && props['hideLabel'] !== true) {
     <mat-label>
       {{ props['title'] }}

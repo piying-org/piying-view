@@ -1,38 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, ElementRef, viewChild } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
-import { PiyingViewWrapperBase } from '@piying/view-angular';
 import { summarize } from 'valibot';
 import { PurePipe } from '../../../lib/pipe/pure.pipe';
+import { InsertFieldDirective } from '../../../lib/component/insert-field.directive';
+import { PI_VIEW_FIELD_TOKEN } from '../../../lib/type';
+import { MatFormControlBindDirective } from './mat-bind.directive';
 @Component({
   selector: 'mat-form-field-wrapper',
   templateUrl: './component.html',
   standalone: true,
   providers: [],
-  imports: [MatFormFieldModule, CommonModule, PurePipe],
+  imports: [
+    MatFormFieldModule,
+    CommonModule,
+    PurePipe,
+    InsertFieldDirective,
+    MatFormControlBindDirective,
+  ],
 })
-export class MatFormFieldWrapper extends PiyingViewWrapperBase {
-  formField = viewChild('formField', { read: MatFormField });
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-    if (
-      this.fieldComponentInstance &&
-      '__isElement' in this.fieldComponentInstance &&
-      this.fieldComponentInstance.__isElement
-    ) {
-      this.formField()!._control = this.fieldDirectiveRefList![0]!;
-    } else if (
-      this.fieldComponentInstance instanceof ElementRef ||
-      this.fieldDirectiveRefList?.[0].controlType === 'auto'
-    ) {
-      // 判断是否是元素,如果是那么就用指令
-      this.formField()!._control = this.fieldDirectiveRefList![0]!;
-    } else {
-      this.formField()!._control = this.fieldComponentInstance;
-    }
-  }
+export class MatFormFieldWrapper {
+  field$$ = inject(PI_VIEW_FIELD_TOKEN);
+  props$$ = computed(() => this.field$$().props());
 
   showError$$ = computed(
     () =>
