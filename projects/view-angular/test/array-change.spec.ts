@@ -11,7 +11,7 @@ import { getField, hooksConfig } from './util/action';
 import { keyEqual } from '@piying/view-angular-core/test';
 import { setComponent, formConfig } from '@piying/view-angular-core';
 import { Array1Component } from './array/component';
-import { actions } from '@piying/view-core';
+import { actions } from '@piying/view-angular-core';
 // 用于测试fields和model变动时,数值是否正确
 describe('数组配置切换', () => {
   it('数量相等', async () => {

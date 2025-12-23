@@ -1,19 +1,14 @@
-import { Component, inject, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { PiyingViewWrapperBase } from '@piying/view-angular';
-import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
+import { Component, input, output } from '@angular/core';
+import { InsertFieldDirective } from '../../lib/component/insert-field.directive';
 
 @Component({
   selector: 'app-wrapper1',
   templateUrl: './component.html',
   standalone: true,
   providers: [],
-  imports: [FormsModule],
+  imports: [InsertFieldDirective],
 })
-export class Wrapper1Component extends PiyingViewWrapperBase {
-  field = inject(PI_VIEW_FIELD_TOKEN);
-
+export class Wrapper1Component {
   wInput1 = input('1');
   output1 = output<any>();
-  ngOnDestroy(): void {}
 }

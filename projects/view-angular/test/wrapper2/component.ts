@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { PiyingViewWrapperBase } from '@piying/view-angular';
+import { InsertFieldDirective } from '../../lib/component/insert-field.directive';
 
 @Component({
   selector: 'app-wrapper2',
   templateUrl: './component.html',
   standalone: true,
   providers: [],
-  imports: [FormsModule],
+  imports: [InsertFieldDirective],
 })
-export class Wrapper2Component extends PiyingViewWrapperBase {}
+export class Wrapper2Component {}

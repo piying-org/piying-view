@@ -1,16 +1,17 @@
-import { Component } from '@angular/core';
-import { PiyingViewWrapperBase } from '@piying/view-angular';
+import { Component, computed, inject } from '@angular/core';
+import { InsertFieldDirective, PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
 
 @Component({
   selector: 'selectorless-wrapper',
-  template: `<ng-container #fieldComponent></ng-container>`,
+  template: `<ng-container insertField></ng-container>`,
   standalone: true,
   providers: [],
-  imports: [],
+  imports: [InsertFieldDirective],
 })
-export class ChangeInputWrapper extends PiyingViewWrapperBase {
+export class ChangeInputWrapper {
+  field$$ = inject(PI_VIEW_FIELD_TOKEN);
+  props$$ = computed(() => this.field$$().props());
   constructor() {
-    super();
     this.field$$().inputs.update((data) => ({
       ...data,
       input1: '123',

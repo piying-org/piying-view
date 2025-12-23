@@ -5,6 +5,7 @@ import { BaseComponent } from './base.component';
 
 @Directive({
   selector: '[insertField]',
+  exportAs: 'insertField',
 })
 export class InsertFieldDirective extends BaseComponent {
   #viewContainerRef = inject(ViewContainerRef);

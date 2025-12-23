@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
 import { actions, setComponent } from '@piying/view-angular-core';
-import { Wrapper3Component } from './wrapper3/component';
+import { Wrapper1Component } from './wrapper1/component';
 import { Test1Component } from './test1/test1.component';
 
 describe('wrappers-actions', () => {
@@ -14,7 +14,7 @@ describe('wrappers-actions', () => {
     },
     wrappers: {
       wrapper1: {
-        type: Wrapper3Component,
+        type: Wrapper1Component,
       },
     },
   };
@@ -61,7 +61,7 @@ describe('wrappers-actions', () => {
     fixture.detectChanges();
     expect(element).toBeTruthy();
     const input1Div = element.querySelector(
-      'app-wrapper3.input1',
+      'app-wrapper1.input1',
     ) as HTMLElement;
 
     expect(input1Div).toBeTruthy();
@@ -87,7 +87,7 @@ describe('wrappers-actions', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element).toBeTruthy();
-    const input1Div = element.querySelector('app-wrapper3') as HTMLElement;
+    const input1Div = element.querySelector('app-wrapper1') as HTMLElement;
     input1Div.click();
 
     expect(eventRun).toBe(true);
@@ -107,7 +107,7 @@ describe('wrappers-actions', () => {
     fixture.detectChanges();
     expect(element).toBeTruthy();
     const input1Div = element.querySelector(
-      'app-wrapper3.input1',
+      'app-wrapper1.input1',
     ) as HTMLElement;
 
     expect(input1Div).toBeTruthy();
@@ -132,7 +132,7 @@ describe('wrappers-actions', () => {
     expect(element).toBeTruthy();
     expect(field$$()?.wrappers().length).toEqual(1);
     const input1Div = element.querySelector(
-      'app-wrapper3.input2',
+      'app-wrapper1.input2',
     ) as HTMLElement;
 
     expect(input1Div).toBeTruthy();
