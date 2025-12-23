@@ -42,7 +42,7 @@ export type PiResolvedCommonViewFieldConfig<
   /** 查询时使用 */
   readonly keyPath?: KeyPath | undefined;
   readonly fullPath: KeyPath;
-  readonly props: WritableSignal<Record<string, any>>;
+  readonly props: AsyncObjectSignal<Record<string, any>>;
   children?: Signal<ReturnType<SelfResolvedFn>[]>;
   fixedChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   restChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
