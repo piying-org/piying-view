@@ -6,6 +6,7 @@ import {
   ResolvedSchema,
 } from '../type';
 import { isBoolean, isString, uniq } from 'es-toolkit';
+import { get } from 'es-toolkit/compat';
 import * as v from 'valibot';
 import { isNumber } from '../../util/is-number';
 import * as jsonActions from '@piying/view-angular-core';
@@ -167,7 +168,7 @@ export class BaseTypeService {
     if (schema.actions) {
       for (const rawAction of schema.actions!) {
         const inlineActions =
-          (jsonActions as any)[rawAction.name] ??
+          get(jsonActions, rawAction.name) ??
           this.instance.options?.customActions?.[rawAction.name];
         if (!inlineActions) {
           throw new Error(`action:[${rawAction.name}]❗`);
