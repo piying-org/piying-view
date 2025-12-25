@@ -5,6 +5,6 @@ export class NgSchemaHandle extends CoreSchemaHandle<
   NgSchemaHandle,
   () => PiResolvedViewFieldConfig
 > {
-  declare type?: any;
+  declare type: any;
   directives = combineSignal<NgDirectiveConfig>([]);
 }

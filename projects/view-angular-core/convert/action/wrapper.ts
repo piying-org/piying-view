@@ -45,6 +45,7 @@ function setWrappers<T>(
       ),
       injector: injector,
     };
+    rawField.wrappers.clean()
     wrappers.forEach((item) => {
       if (typeof item === 'string') {
         const defaultActions: any[] = wrapperConfig[item]?.actions ?? [];

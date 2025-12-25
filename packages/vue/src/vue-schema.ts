@@ -5,5 +5,5 @@ export class VueSchemaHandle extends CoreSchemaHandle<
   VueSchemaHandle,
   () => PiResolvedViewFieldConfig
 > {
-  declare type?: any;
+  declare type: any;
 }

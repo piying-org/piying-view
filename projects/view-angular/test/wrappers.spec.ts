@@ -11,6 +11,7 @@ import { Test1Component } from './test1/test1.component';
 import { Wrapper2Component } from './wrapper2/component';
 import { WrapperChange } from './wrapper-change/component';
 import { ChangeInputWrapper } from './wrapper-change/change-input/component';
+import { WrapperSwitchComponent } from './wrapper-switch/component';
 
 describe('带异步wrappers', () => {
   it('存在', async () => {
@@ -381,5 +382,37 @@ describe('带异步wrappers', () => {
     expect(element).toBeTruthy();
     expect(field$$()?.inputs()['input1']).toEqual('123');
     expect(field$$()?.inputs()['input2']).toEqual('22');
+  });
+  it('wrapper switch', async () => {
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      actions.wrappers.set([
+        {
+          type: WrapperSwitchComponent,
+        },
+      ]),
+      actions.wrappers.set([
+        {
+          type: WrapperSwitchComponent,
+        },
+      ]),
+    );
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal(''),
+      {
+        types: {
+          test1: {
+            type: Test1Component,
+          },
+        },
+      },
+    );
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelectorAll('.open1').length).toEqual(1);
   });
 });

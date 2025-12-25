@@ -115,6 +115,51 @@ export function createSetOrPatchPropertyFn<
       }
     });
 }
+export function createMapPropertyFn(key: ChangeKey) {
+  return <T>(fn: (value: any) => any) =>
+    rawConfig<T>((rawField, _, ...args) => {
+      let data$: WritableSignal<any>;
+      if (
+        args.length > 0 &&
+        typeof args[args.length - 1] === 'object' &&
+        CustomDataSymbol in args[args.length - 1]
+      ) {
+        data$ = args[args.length - 1][CustomDataSymbol];
+      } else {
+        data$ = (() => rawField) as any;
+      }
+      const content$ = data$()[key] as AsyncObjectSignal<any>;
+      content$.map(fn);
+    });
+}
+export function createMapAsyncPropertyFn(key: ChangeKey) {
+  return <T>(
+    fn: (field: _PiResolvedCommonViewFieldConfig) => (value: any) => any,
+  ) =>
+    rawConfig<T>((rawField, _, ...args) => {
+      return mergeHooksFn(
+        {
+          allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
+            let data$: WritableSignal<any>;
+            if (
+              args.length > 0 &&
+              typeof args[args.length - 1] === 'object' &&
+              CustomDataSymbol in args[args.length - 1]
+            ) {
+              data$ = args[args.length - 1][CustomDataSymbol];
+            } else {
+              data$ = (() => field) as any;
+            }
+
+            const content$ = data$()[key] as AsyncObjectSignal<any>;
+            content$.map(fn(field));
+          },
+        },
+        { position: 'bottom' },
+        rawField,
+      );
+    });
+}
 
 export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;
 
@@ -124,6 +169,8 @@ export const __actions = {
     set: createSetOrPatchPropertyFn('inputs'),
     patchAsync: createPatchAsyncPropertyFn('inputs'),
     remove: createRemovePropertyFn('inputs'),
+    map: createMapPropertyFn('inputs'),
+    mapAsync: createMapAsyncPropertyFn('inputs'),
   },
   outputs: {
     patch: createSetOrPatchPropertyFn<Record<string, (...args: any[]) => any>>(
@@ -143,12 +190,16 @@ export const __actions = {
     remove: createRemovePropertyFn('outputs'),
     merge: mergeOutputs,
     mergeAsync: asyncMergeOutputs,
+    map: createMapPropertyFn('outputs'),
+    mapAsync: createMapAsyncPropertyFn('outputs'),
   },
   attributes: {
     patch: createSetOrPatchPropertyFn('attributes', true),
     set: createSetOrPatchPropertyFn('attributes'),
     patchAsync: createPatchAsyncPropertyFn('attributes'),
     remove: createRemovePropertyFn('attributes'),
+    map: createMapPropertyFn('attributes'),
+    mapAsync: createMapAsyncPropertyFn('attributes'),
   },
   events: {
     patch: createSetOrPatchPropertyFn<Record<string, (event: Event) => any>>(
@@ -166,11 +217,15 @@ export const __actions = {
         >
       >('events'),
     remove: createRemovePropertyFn('events'),
+    map: createMapPropertyFn('events'),
+    mapAsync: createMapAsyncPropertyFn('events'),
   },
   props: {
     patch: createSetOrPatchPropertyFn('props', true),
     set: createSetOrPatchPropertyFn('props'),
     patchAsync: createPatchAsyncPropertyFn('props'),
     remove: createRemovePropertyFn('props'),
+    map: createMapPropertyFn('props'),
+    mapAsync: createMapAsyncPropertyFn('props'),
   },
 };

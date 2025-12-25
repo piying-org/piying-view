@@ -17,23 +17,26 @@ export type AsyncObjectSignal<Input> = Signal<Input> & {
   disconnect: (key: string) => void;
   set(value: Input): void;
   update(updateFn: (value: Input) => Input): void;
+  map(fn: (input: Input) => any): void;
 };
 export function asyncObjectSignal<
   Input extends Record<string, any> | undefined,
 >(initialValue: Input, options?: CreateSignalOptions<Input>) {
   const data$ = signal(initialValue);
+  let mapFn$ = signal<((value: any) => any) | undefined>(undefined);
   const signalList$ = signal<[string, Signal<any>][]>([]);
   const value$$ = computed(() => {
     const signalList = signalList$();
     const data = data$();
+    let mapFn = mapFn$();
     if (!signalList.length) {
-      return data;
+      return mapFn ? mapFn(data) : data;
     }
     const data2 = { ...data };
     signalList.forEach(([key, value]) => {
       (data2![key] as Record<string, any>) = value();
     });
-    return data2;
+    return mapFn ? mapFn(data2) : data2;
   }, options);
   const disposeMap = new Map<string, () => void>();
   const changed$ = value$$ as any as AsyncObjectSignal<Input>;
@@ -98,6 +101,9 @@ export function asyncObjectSignal<
   changed$.update = (fn: any) => {
     const result = fn(changed$());
     data$.set(result);
+  };
+  changed$.map = (input) => {
+    mapFn$.set(input);
   };
   return changed$;
 }

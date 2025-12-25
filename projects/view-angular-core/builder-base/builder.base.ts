@@ -102,13 +102,11 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     field: SchemaHandle,
     index: number,
   ): PiResolvedCommonViewFieldConfig<any, any> {
-    // 利用类型查引用,
-    const type = field.type;
-    let define;
-    if (type) {
-      define = this.#findConfig.findComponentConfig(type);
-    }
-
+    let define = !field.type
+      ? undefined
+      : typeof field.type !== 'string'
+        ? field.type
+        : this.#findConfig.findComponentConfig(field.type);
     const inputs = field.inputs;
     const outputs = field.outputs;
 
