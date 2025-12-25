@@ -12,75 +12,78 @@ import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { ConfigAction, CustomDataSymbol } from './input-common';
 import { asyncObjectSignal } from '../../util/create-async-object-signal';
-
-function setWrappers<T>(
-  wrappers: (
-    | SetOptional<
-        SetUnWrapper$<
-          CoreWrapperConfig,
+function createSetOrPatchWrappersFn(isPatch?: boolean) {
+  return <T>(
+    wrappers: (
+      | SetOptional<
+          SetUnWrapper$<
+            CoreWrapperConfig,
+            'inputs' | 'outputs' | 'attributes' | 'events'
+          >,
           'inputs' | 'outputs' | 'attributes' | 'events'
-        >,
-        'inputs' | 'outputs' | 'attributes' | 'events'
-      >
-    | string
-  )[],
-) {
-  return rawConfig<T>((rawField, _) => {
-    const wrapperConfig =
-      rawField.globalConfig.additionalData!['defaultWrapperMetadataGroup'];
-    const injector = rawField.globalConfig.additionalData!['injector'];
-    const OptionDefine = {
-      pipe: pipe(
-        map((item: any) => {
-          if (typeof item.type === 'string') {
-            const type = wrapperConfig[item.type].type;
-            if (!type) {
-              throw new Error(`🈳wrapper:[${type}]❗`);
+        >
+      | string
+    )[],
+  ) => {
+    return rawConfig<T>((rawField, _) => {
+      const wrapperConfig =
+        rawField.globalConfig.additionalData!['defaultWrapperMetadataGroup'];
+      const injector = rawField.globalConfig.additionalData!['injector'];
+      const OptionDefine = {
+        pipe: pipe(
+          map((item: any) => {
+            if (typeof item.type === 'string') {
+              const type = wrapperConfig[item.type].type;
+              if (!type) {
+                throw new Error(`🈳wrapper:[${type}]❗`);
+              }
+              return { ...item, type: type };
             }
-            return { ...item, type: type };
-          }
 
-          return item;
-        }),
-      ),
-      injector: injector,
-    };
-    rawField.wrappers.clean()
-    wrappers.forEach((item) => {
-      if (typeof item === 'string') {
-        const defaultActions: any[] = wrapperConfig[item]?.actions ?? [];
-        const define = observableSignal(
-          {
-            type: item,
-            inputs: asyncObjectSignal({}),
-            outputs: asyncObjectSignal({}),
-            attributes: asyncObjectSignal({}),
-            events: asyncObjectSignal({}),
-          },
-          OptionDefine,
-        );
-        rawField.wrappers.add(define);
-        defaultActions.forEach((item) => {
-          item.value(rawField, _, {
-            [CustomDataSymbol]: define,
-          });
-        });
-      } else {
-        rawField.wrappers.add(
-          observableSignal(
+            return item;
+          }),
+        ),
+        injector: injector,
+      };
+      if (!isPatch) {
+        rawField.wrappers.clean();
+      }
+      wrappers.forEach((item) => {
+        if (typeof item === 'string') {
+          const defaultActions: any[] = wrapperConfig[item]?.actions ?? [];
+          const define = observableSignal(
             {
-              type: item.type,
-              inputs: asyncObjectSignal(item.inputs ?? {}),
-              outputs: asyncObjectSignal(item.outputs ?? {}),
-              attributes: asyncObjectSignal(item.attributes ?? {}),
-              events: asyncObjectSignal(item.events ?? {}),
+              type: item,
+              inputs: asyncObjectSignal({}),
+              outputs: asyncObjectSignal({}),
+              attributes: asyncObjectSignal({}),
+              events: asyncObjectSignal({}),
             },
             OptionDefine,
-          ),
-        );
-      }
+          );
+          rawField.wrappers.add(define);
+          defaultActions.forEach((item) => {
+            item.value(rawField, _, {
+              [CustomDataSymbol]: define,
+            });
+          });
+        } else {
+          rawField.wrappers.add(
+            observableSignal(
+              {
+                type: item.type,
+                inputs: asyncObjectSignal(item.inputs ?? {}),
+                outputs: asyncObjectSignal(item.outputs ?? {}),
+                attributes: asyncObjectSignal(item.attributes ?? {}),
+                events: asyncObjectSignal(item.events ?? {}),
+              },
+              OptionDefine,
+            ),
+          );
+        }
+      });
     });
-  });
+  };
 }
 
 function removeWrappers<T>(
@@ -200,7 +203,8 @@ function changeAsyncWrapper<T>(
   });
 }
 export const wrappers = {
-  set: setWrappers,
+  set: createSetOrPatchWrappersFn(),
+  patch: createSetOrPatchWrappersFn(true),
   patchAsync: patchAsyncWrapper,
   remove: removeWrappers,
   changeAsync: changeAsyncWrapper,
