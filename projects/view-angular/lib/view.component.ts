@@ -41,8 +41,8 @@ import type { FormBuilder, SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { PurePipe } from './pipe/pure.pipe';
 const DefaultConvertOptions = {
-  builder: AngularFormBuilder as unknown as typeof FormBuilder<any>,
-  handle: NgSchemaHandle as any,
+  builder: AngularFormBuilder,
+  handle: NgSchemaHandle,
 };
 @Component({
   selector: 'piying-view',
@@ -54,9 +54,7 @@ const DefaultConvertOptions = {
 export class PiyingView implements OnChanges {
   templateRef = viewChild.required('templateRef');
   readonly selectorless = input<boolean>(false);
-  schema = input.required<
-    v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>
-  >();
+  schema = input.required<v.BaseSchema<any, any, any>>();
   model = input<any>(undefined);
   modelChange = output<any>();
   options = input<

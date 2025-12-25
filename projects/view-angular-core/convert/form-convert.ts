@@ -29,9 +29,12 @@ export function convert<
   RESULT extends Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>,
 >(
   obj: SchemaOrPipe,
-  options: SetOptional<ConvertOptions, 'handle'> & {
+  options: SetOptional<
+    ConvertOptions<typeof CoreSchemaHandle<any, any>>,
+    'handle'
+  > & {
     injector: Injector;
-    builder: typeof FormBuilder;
+    builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
     fieldGlobalConfig?: PiCommonConfig;
     registerOnDestroy?: (fn: any) => void;
   },
