@@ -1,3 +1,12 @@
+## 2.0.4 (2025-12-25)
+
+
+### Bug Fixes
+
+* jsonschema actions ([8ca54e9](https://github.com/piying-org/piying-view/commit/8ca54e9f2e764d2e2f010fb3b2319dee7000a61a))
+
+
+
 ## 2.0.3 (2025-12-25)
 
 
