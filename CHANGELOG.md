@@ -1,3 +1,12 @@
+## 2.0.6 (2025-12-25)
+
+
+### Features
+
+* change type ([d31c4fa](https://github.com/piying-org/piying-view/commit/d31c4faf777537eeb31fcdc306e46ced12b35e67))
+
+
+
 ## 2.0.5 (2025-12-25)
 
 
