@@ -1,3 +1,12 @@
+## 2.0.8 (2026-01-01)
+
+
+### Features
+
+* control method valueAndTouchedChange ([8d53a47](https://github.com/piying-org/piying-view/commit/8d53a4779043e96dcb77cc2b78a927b1af5d3aae))
+
+
+
 ## 2.0.7 (2025-12-25)
 
 
