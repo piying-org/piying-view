@@ -162,4 +162,24 @@ describe('wrapper测试', () => {
     const el = element.querySelector('.data1');
     expect(el).toBeTruthy();
   });
+  it('重复', async () => {
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      actions.wrappers.set([{ type: 'wrapper1' }, { type: 'wrapper1' }]),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal('v1'),
+      {
+        wrappers: {
+          wrapper1: { type: Wrapper1Component },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const el = element.querySelectorAll('.wrapper1-div-label');
+    expect(el.length).toEqual(2);
+  });
 });

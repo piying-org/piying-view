@@ -25,8 +25,7 @@ export class InsertFieldDirective extends BaseComponent {
     return result;
   }
 
-  constructor() {
-    super();
+  ngOnInit(): void {
     this.createComponent();
   }
 }
