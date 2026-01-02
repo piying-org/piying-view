@@ -1,3 +1,12 @@
+## 2.0.9 (2026-01-02)
+
+
+### Bug Fixes
+
+* wrapper ([75c5ff9](https://github.com/piying-org/piying-view/commit/75c5ff915850bf0802bd1eca665a37bfdf0357ed))
+
+
+
 ## 2.0.8 (2026-01-01)
 
 
