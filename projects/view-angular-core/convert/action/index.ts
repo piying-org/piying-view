@@ -18,9 +18,16 @@ export type { ConfigAction } from './input-common';
 import { classAction } from './class';
 export { classAction as ɵclassAction } from './class';
 import { __actions } from './input-common';
+import { mergeHooks, patchHooks, removeHooks, setHooks } from './hook';
 export * from './type/async-callback';
 export const actions = {
   ...__actions,
   class: classAction,
   wrappers,
+  hooks: {
+    merge: mergeHooks,
+    remove: removeHooks,
+    set: setHooks,
+    patch: patchHooks,
+  },
 };
