@@ -9,3 +9,4 @@ export * from './lib/schema/ng-schema';
 export * from './lib/builder';
 export * from './lib/component/form/control.base.component';
 export * from './lib/directives/attributes.directive';
+export * from './lib/directives/events.directive';
