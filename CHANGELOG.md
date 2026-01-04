@@ -1,3 +1,12 @@
+# 2.1.0 (2026-01-04)
+
+
+### Features
+
+* actions.hooks ([aa19584](https://github.com/piying-org/piying-view/commit/aa19584dfeebec46301bf637e9951f2cef3518ea))
+
+
+
 ## 2.0.9 (2026-01-02)
 
 
