@@ -1,3 +1,12 @@
+## 2.1.1 (2026-01-04)
+
+
+### Bug Fixes
+
+* export events.directive ([91893d4](https://github.com/piying-org/piying-view/commit/91893d45133da848b5bee0b8dd140d8dccef4be6))
+
+
+
 # 2.1.0 (2026-01-04)
 
 
