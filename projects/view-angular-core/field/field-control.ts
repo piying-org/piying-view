@@ -46,6 +46,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     this.markAsPristine();
     this.markAsUntouched();
     this.updateValue(formState);
+    this.pendingStatus.set(InitPendingValue)
   }
 
   #viewSubject$$ = computed(() => {

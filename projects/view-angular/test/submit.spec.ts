@@ -147,4 +147,25 @@ describe('submit', () => {
     fixture.detectChanges();
     expect(instance.model$()).toEqual({ k1: '1234' });
   });
+  it('submit reset', async () => {
+    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const define = v.pipe(
+      v.string(),
+      formConfig({ updateOn: 'submit' }),
+      setComponent('test1'),
+    );
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+    let field = field$$()!;
+    let el = element.querySelector('input')!;
+    htmlInput(el, '123');
+    field.form.control!.reset();
+    field.form.control!.emitSubmit();
+    expect(field.form.control?.value).toEqual(undefined);
+  });
 });
