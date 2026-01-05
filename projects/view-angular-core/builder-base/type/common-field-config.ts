@@ -54,9 +54,7 @@ export type PiResolvedCommonViewFieldConfig<
   };
   /** 仅用来开发时debug使用 */
   readonly origin: any;
-  /**
-   * @internal
-   */
+ 
   injector: EnvironmentInjector;
   /** 外部传入引用 */
   readonly context?: any;
