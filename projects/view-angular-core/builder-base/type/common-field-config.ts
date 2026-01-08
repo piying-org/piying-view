@@ -41,6 +41,7 @@ export type PiResolvedCommonViewFieldConfig<
   readonly id?: string;
   /** 查询时使用 */
   readonly keyPath?: KeyPath | undefined;
+  readonly key: string | undefined;
   readonly fullPath: KeyPath;
   readonly props: AsyncObjectSignal<Record<string, any>>;
   children?: Signal<ReturnType<SelfResolvedFn>[]>;

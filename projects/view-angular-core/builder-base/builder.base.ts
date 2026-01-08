@@ -140,6 +140,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     let resolvedConfig = {
       id: field.id,
       keyPath: toArray(keyPath),
+      key: field.key,
       get fullPath() {
         return [
           ...resolvedConfig.parent.fullPath,
