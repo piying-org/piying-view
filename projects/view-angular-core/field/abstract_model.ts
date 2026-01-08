@@ -49,8 +49,14 @@ export type FormHooks = 'change' | 'blur' | 'submit';
 export type AbstractControlParams = ConstructorParameters<
   typeof AbstractControl<any>
 >;
-
+export const InitPendingValue = {
+  touched: false,
+  change: false,
+  value: undefined,
+};
 export abstract class AbstractControl<TValue = any> {
+  pendingStatus = signal(InitPendingValue);
+
   protected readonly emptyValue$$ = computed(() =>
     clone(this.config$().emptyValue),
   );
@@ -298,7 +304,9 @@ export abstract class AbstractControl<TValue = any> {
     this.selfDirty$.set(false);
   }
 
-  reset(value?: any) {}
+  reset(value?: any) {
+    this.pendingStatus.set(InitPendingValue);
+  }
 
   getRawValue(): any {
     return this.value;
@@ -430,6 +438,12 @@ export abstract class AbstractControl<TValue = any> {
         child.emitSubmit();
       });
     }
+    const pendingStatus = this.pendingStatus();
+    if (pendingStatus.touched) {
+      this.markAsTouched();
+    }
+
+    this.pendingStatus.set(InitPendingValue);
   }
   protected isUnChanged() {
     return this.pristine && this.untouched;

@@ -9,14 +9,8 @@ import {
 import { AbstractControl } from './abstract_model';
 import { deepEqual } from 'fast-equals';
 import { Subject } from 'rxjs';
-const InitPendingValue = {
-  touched: false,
-  change: false,
-  value: undefined,
-};
-export class FieldControl<TValue = any> extends AbstractControl<TValue> {
-  pendingStatus = signal(InitPendingValue);
 
+export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   #viewIndex = 0;
   /** 视图变化时model值不变也要更新view */
   private viewIndex$ = signal(0);
@@ -46,7 +40,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     this.markAsPristine();
     this.markAsUntouched();
     this.updateValue(formState);
-    this.pendingStatus.set(InitPendingValue)
+    super.reset(formState);
   }
 
   #viewSubject$$ = computed(() => {
@@ -112,13 +106,11 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
 
   override emitSubmit(): void {
     const pendingStatus = this.pendingStatus();
-    if (pendingStatus.touched) {
-      this.markAsTouched();
-    }
+
     if (pendingStatus.change) {
       this.viewValueChange(pendingStatus.value);
     }
-    this.pendingStatus.set(InitPendingValue);
+    super.emitSubmit();
   }
   override updateInitValue(value: any): void {
     const initValue = this.getInitValue(value);

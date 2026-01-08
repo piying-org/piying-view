@@ -1,6 +1,6 @@
 import { AbstractControl } from './abstract_model';
 import { FieldArray } from './field-array';
-import { computed, signal } from '@angular/core';
+import { computed, signal, untracked } from '@angular/core';
 import { LogicType, UpdateType } from './type';
 import { deepEqual } from 'fast-equals';
 // 切换索引后,理论上应该触发下值变更,否则不知道值是什么
@@ -8,9 +8,18 @@ export class FieldLogicGroup extends FieldArray {
   activateIndex$ = signal(0);
   type = signal<LogicType>('and');
   activateControls$ = signal<AbstractControl[] | undefined>(undefined);
-  override value$$ = computed<any>(() => {
+  #childUpdate() {
     const returnResult = this.getValue(false);
     return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
+  }
+  override value$$ = computed<any>(() => {
+    if (this.updateOn$$() === 'submit') {
+      this.submitIndex$();
+      return untracked(() => {
+        return this.#childUpdate();
+      });
+    }
+    return this.#childUpdate();
   });
 
   #getActivateControls() {

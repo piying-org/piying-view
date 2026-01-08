@@ -168,4 +168,34 @@ describe('submit', () => {
     field.form.control!.emitSubmit();
     expect(field.form.control?.value).toEqual(undefined);
   });
+  it('submit not change', async () => {
+    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const define = v.pipe(
+      v.tuple([
+        v.pipe(
+          v.string(),
+          formConfig({ updateOn: 'change' }),
+          setComponent('test1'),
+        ),
+      ]),
+      formConfig({ updateOn: 'submit' }),
+      getField(field$),
+    );
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const inputEl = element.querySelector('input');
+    htmlInput(inputEl as any, '1234');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    let field = field$$();
+
+    expect(field?.form.root.value).toEqual(undefined);
+    field?.form.root.emitSubmit();
+    expect(field?.form.root.value).toEqual(['1234']);
+  });
 });

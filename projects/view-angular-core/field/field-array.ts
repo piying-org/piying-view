@@ -1,4 +1,4 @@
-import { computed, signal } from '@angular/core';
+import { computed, signal, untracked } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
@@ -7,7 +7,7 @@ export class FieldArray<
   TControl extends AbstractControl<any> = any,
 > extends FieldGroupbase {
   #deletionMode$$ = computed(() => this.config$().deletionMode ?? 'shrink');
-  override value$$ = computed<any>(() => {
+  #childUpdate() {
     let list: any[] = [];
     this._reduceChildren(list, (acc, control, name) => {
       if (control && control.shouldInclude$$()) {
@@ -24,6 +24,15 @@ export class FieldArray<
     list = [...list, ...(this.resetValue$() ?? [])];
     const returnResult = list.length === 0 ? this.emptyValue$$() : list;
     return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
+  }
+  override value$$ = computed<any>(() => {
+    if (this.updateOn$$() === 'submit') {
+      this.submitIndex$();
+      return untracked(() => {
+        return this.#childUpdate();
+      });
+    }
+    return this.#childUpdate();
   });
   override children$$ = computed(() => [
     ...this.fixedControls$(),

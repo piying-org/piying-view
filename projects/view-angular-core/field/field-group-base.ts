@@ -11,6 +11,9 @@ export class FieldGroupbase extends AbstractControl {
   beforeUpdateList: ((value: any, initValue: boolean) => void)[] = [];
   resetValue$ = signal<any>(undefined);
   /** @internal */
+  protected submitIndex$ = signal(0);
+
+  /** @internal */
   protected _updateValue(value: any, type: UpdateType) {
     const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
     if (type === UpdateType.init) {
@@ -72,5 +75,10 @@ export class FieldGroupbase extends AbstractControl {
       res = fn(res, control, name);
     });
     return res;
+  }
+
+  override emitSubmit(): void {
+    super.emitSubmit();
+    this.submitIndex$.update((a) => ++a);
   }
 }

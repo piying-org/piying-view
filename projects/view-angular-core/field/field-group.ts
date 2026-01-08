@@ -1,4 +1,4 @@
-import { computed, signal } from '@angular/core';
+import { computed, signal, untracked } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
@@ -6,7 +6,7 @@ import { FieldGroupbase } from './field-group-base';
 export class FieldGroup<
   TControl extends { [K in keyof TControl]: AbstractControl<any> } = any,
 > extends FieldGroupbase {
-  override value$$ = computed<any>(() => {
+  #childUpdate() {
     const result = this._reduceChildren(
       { ...this.resetValue$() },
       (acc, control, name) => {
@@ -21,6 +21,15 @@ export class FieldGroup<
       : this.emptyValue$$();
 
     return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
+  }
+  override value$$ = computed<any>(() => {
+    if (this.updateOn$$() === 'submit') {
+      this.submitIndex$();
+      return untracked(() => {
+        return this.#childUpdate();
+      });
+    }
+    return this.#childUpdate();
   });
   #controls$$ = computed(() => ({
     ...this.fixedControls$(),
