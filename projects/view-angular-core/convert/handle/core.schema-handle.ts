@@ -129,6 +129,7 @@ export class CoreSchemaHandle<
     this.isGroup = true;
     // equal {[name:string]:v.InferOutput< typeof value>}
     this.formConfig.groupKeySchema = key;
+    this.formConfig.groupValueSchema = value;
     this.restSchema(value);
   }
   override restSchema(
