@@ -2,8 +2,12 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue2';
 const outDir = '../../dist/view-vue';
+
+console.log('xxx');
+
 export default defineConfig({
   plugins: [vue()],
+  root: process.cwd(),
   build: {
     emptyOutDir: false,
     lib: {
@@ -27,7 +31,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // vue: resolve(__dirname, 'node_modules/vue/dist/vue.esm.js'),
+      vue: import.meta.resolve('vue'),
     },
   },
 });
