@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
+import { shallowRef } from 'vue';
 import InputsTest from './component/inputs-test.vue';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { NFCSchema, setComponent } from '@piying/view-core';
-import { shallowRef } from './util/stub-ref';
 
 describe('no-form-control', () => {
   it('赋值', async () => {

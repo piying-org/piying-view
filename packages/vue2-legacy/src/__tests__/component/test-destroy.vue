@@ -1,11 +1,16 @@
-<script lang="ts">
+<script setup lang="ts">
 import { markRaw, watchEffect } from 'vue';
 import * as v from 'valibot';
-import CInput from './input.vue';
+import CInput from './custom-input.vue';
 import { PiyingView } from '@piying/view-vue2-legacy';
 import { getField } from '../util/actions';
 import type { PiResolvedViewFieldConfig } from '@piying/view-vue2-legacy';
 const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+
+const props = defineProps<{
+  open: boolean;
+}>();
+const emit = defineEmits(['getField']);
 
 const schema = v.pipe(v.string(), getField(field$));
 const options = {
@@ -16,20 +21,13 @@ const options = {
   },
 };
 
-export default {
-  props: {
-    open: { type: Boolean },
-  },
-  watch: {
-    open: function (value: any) {
-      if (value) {
-        field$.promise.then((field) => {
-          this.$emit('getField', field);
-        });
-      }
-    },
-  },
-};
+watchEffect(() => {
+  if (props.open) {
+    field$.promise.then((field) => {
+      emit('getField', field);
+    });
+  }
+});
 </script>
 
 <template>
@@ -39,3 +37,5 @@ export default {
     </div>
   </template>
 </template>
+
+<style scoped></style>

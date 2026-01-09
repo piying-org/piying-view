@@ -2,11 +2,12 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
+import { shallowRef } from 'vue';
 import { nextTick } from 'vue';
 import { delay } from './util/delay';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
-import { shallowRef } from './util/stub-ref';
+import { clone } from '@piying/view-core';
 
 describe('输入参数变化', () => {
   it('string变number', async () => {
@@ -20,7 +21,7 @@ describe('输入参数变化', () => {
     await nextTick();
     await delay();
     instance.setProps({
-      ...instance.props(),
+      ...clone(instance.props()),
       schema: v.pipe(v.number(), getField(field$)),
       modelValue: 1234,
     });
@@ -29,6 +30,8 @@ describe('输入参数变化', () => {
     const inputEl2 = instance.find('input');
     expect(inputEl2.element.value).eq('1234');
     inputEl2.setValue('456');
+    await nextTick();
+    await delay();
     expect(inputEl2.element.value).eq('456');
     await nextTick();
     await delay();

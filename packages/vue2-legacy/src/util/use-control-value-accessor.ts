@@ -1,7 +1,7 @@
 import type { ControlValueAccessor } from '@piying/view-core';
-import { ref } from 'vue';
+import { Ref, ref, watch } from 'vue';
 
-export function useControlValueAccessor() {
+export function useControlValueAccessor(autoChange = true) {
   const value = ref();
   const disabled = ref(false);
   let onChange: (input: any) => void;
@@ -20,6 +20,12 @@ export function useControlValueAccessor() {
       disabled.value = value;
     },
   };
+  if (autoChange) {
+    watch(value, (value) => {
+      onChange(value);
+    });
+  }
+
   return {
     cva: instance,
     cvaa: {

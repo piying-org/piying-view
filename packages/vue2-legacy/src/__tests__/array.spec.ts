@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
+import { shallowRef } from 'vue';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { delay } from './util/delay';
 import { getField } from '@piying/view-core/test';
-import { shallowRef } from './util/stub-ref';
 describe('array', () => {
   it('set/remove', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

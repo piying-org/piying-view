@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
+import { shallowRef } from 'vue';
 import { NFCSchema, setComponent, actions } from '@piying/view-core';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import OutputTest from './component/output-test.vue';
-import { shallowRef } from './util/stub-ref';
 describe('output', () => {
   it('赋值', async () => {
     let emitIndex = 0;

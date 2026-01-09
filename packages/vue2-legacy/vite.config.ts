@@ -3,8 +3,6 @@ import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue2';
 const outDir = '../../dist/view-vue';
 
-console.log('xxx');
-
 export default defineConfig({
   plugins: [vue()],
   root: process.cwd(),
@@ -28,10 +26,5 @@ export default defineConfig({
     },
     minify: false,
     sourcemap: true,
-  },
-  resolve: {
-    alias: {
-      vue: import.meta.resolve('vue'),
-    },
   },
 });

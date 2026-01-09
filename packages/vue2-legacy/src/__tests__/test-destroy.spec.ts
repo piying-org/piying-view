@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 describe('销毁测试', () => {
   it('组件销毁', async () => {
-    const instance = mount(TestDestroy as any, { propsData: { open: true } });
+    const instance = mount(TestDestroy, { props: { open: true } });
     const el1 = instance.find('.wrapper');
     expect(el1.exists()).ok;
     await nextTick();

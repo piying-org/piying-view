@@ -1,14 +1,13 @@
-<script lang="ts">
+<script setup lang="ts">
 import * as v from 'valibot';
-import { convert, type _PiResolvedCommonViewFieldConfig } from '@piying/view-core';
+import { convert } from '@piying/view-core';
+import { computed, onUnmounted, provide, watch } from 'vue';
 import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
   createInjector,
   createRootInjector,
   DestroyRef,
-  Injector,
-  R3Injector,
   untracked,
   type EffectRef,
 } from 'static-injector';
@@ -16,117 +15,75 @@ import { VueSchemaHandle } from '../vue-schema';
 import { VueFormBuilder } from '../builder';
 import { InjectorToken } from '../token';
 import FieldTemplate from './field-template.vue';
+import type { Injector } from 'static-injector';
 import { initListen } from '@piying/view-core';
-import type { Prop } from 'vue/types/options';
-interface That {
-  schema: v.BaseSchema<any, any, any>;
+const dProps = defineProps<{
+  schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
   modelValue?: any;
   options: any;
-}
-export default {
-  name: 'PiyingView',
-  components: {
-    FieldTemplate,
-  },
-  props: {
-    schema: {
-      type: Object as Prop<v.BaseSchema<any, any, any>>,
-      required: true,
+}>();
+
+const emit = defineEmits(['update:modelValue']);
+const rootInjector = createRootInjector({
+  providers: [
+    {
+      provide: ChangeDetectionScheduler,
+      useClass: ChangeDetectionSchedulerImpl,
     },
-    modelValue: {
-      type: null,
-    },
-    options: {
-      type: null,
-    },
-  },
-  data() {
-    return {
-      subInjector: null,
-      injectorDispose: null,
-      effectRef: null,
-      rootInjector: createRootInjector({
-        providers: [
-          {
-            provide: ChangeDetectionScheduler,
-            useClass: ChangeDetectionSchedulerImpl,
-          },
-        ],
-      }),
-    };
-  },
-  computed: {
-    initResult: function () {
-      (this as any)['##injectorDispose']?.();
-      // injectorDispose?.();
-      const subInjector = createInjector({ providers: [], parent: this.rootInjector });
-      (this as any)['##injectorDispose'] = () => {
-        subInjector.destroy();
-        (this as any)['##injectorDispose'] = undefined;
-      };
-      const field = convert(this.schema as any, {
-        handle: VueSchemaHandle as any,
-        builder: VueFormBuilder,
-        injector: subInjector,
-        registerOnDestroy: (fn) => {
-          subInjector!.get(DestroyRef).onDestroy(() => {
-            fn();
-          });
-        },
-        ...this.options,
+  ],
+});
+provide(InjectorToken, rootInjector);
+
+let injectorDispose: (() => any) | undefined;
+const initResult = computed(() => {
+  injectorDispose?.();
+  const subInjector = createInjector({ providers: [], parent: rootInjector });
+  injectorDispose = () => {
+    subInjector.destroy();
+    injectorDispose = undefined;
+  };
+  const field = convert(dProps.schema as any, {
+    handle: VueSchemaHandle as any,
+    builder: VueFormBuilder,
+    injector: subInjector,
+    registerOnDestroy: (fn) => {
+      subInjector!.get(DestroyRef).onDestroy(() => {
+        fn();
       });
-      return [field, subInjector] as const;
     },
-    field: function () {
-      return this.initResult[0];
-    },
-    listenInit: function () {
-      return [this.initResult, this.modelValue];
-    },
-  },
-  watch: {
-    listenInit: {
-      handler: function (value) {
-        let field = value[0][0] as _PiResolvedCommonViewFieldConfig;
-        let subInjector = value[0][1] as R3Injector;
-        let modelValue = value[1];
-        (this as any)['##listenInitDispose']?.();
+    ...dProps.options,
+  });
+  return [field, subInjector] as const;
+});
+onUnmounted(() => {
+  injectorDispose?.();
+});
+const field = computed(() => initResult.value[0]);
 
-        if (field.form.control) {
-          (this as any)['##listenInitDispose'] = initListen(
-            modelValue,
-            field!.form.control!,
-            subInjector as Injector,
-            (value) => {
-              untracked(() => {
-                if (field!.form.control?.valueNoError$$()) {
-                  this.$emit('update:modelValue', value);
-                }
-              });
-            },
-          ).destroy;
-          field!.form.control!.updateValue(this.modelValue);
-        }
-      },
-    },
+watch(
+  () => [initResult.value, dProps.modelValue],
+  ([[field, subInjector], modelValue], _1, onWatcherCleanup) => {
+    let ref: EffectRef | undefined;
+    if (field.form.control) {
+      ref = initListen(modelValue, field!.form.control!, subInjector as Injector, (value) => {
+        untracked(() => {
+          if (field!.form.control?.valueNoError$$()) {
+            emit('update:modelValue', value);
+          }
+        });
+      });
+      field!.form.control!.updateValue(dProps.modelValue);
+    }
+    onWatcherCleanup(() => {
+      ref?.destroy();
+    });
   },
-  provide() {
-    return {
-      [InjectorToken]: () => {
-        return this.rootInjector;
-      },
-    };
-  },
-
-  beforeDestroy() {
-    (this as any)['##injectorDispose']?.();
-    (this as any)['##listenInitDispose']?.();
-  },
-};
+  { immediate: true },
+);
 </script>
 
 <template>
-  <FieldTemplate :field="field" />
+  <field-template :field="field"></field-template>
 </template>
 
 <style scoped></style>

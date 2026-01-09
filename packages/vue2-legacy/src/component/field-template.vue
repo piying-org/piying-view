@@ -1,5 +1,15 @@
-<script lang="ts">
-import { SignalToDataFactory } from '../util/signal-convert';
+<script setup lang="ts">
+import {
+  computed,
+  defineAsyncComponent,
+  onUnmounted,
+  provide,
+  ref,
+  inject as vInject,
+  watch,
+} from 'vue';
+import type { PiResolvedViewFieldConfig } from '../type/group';
+import { signalToRef } from '../util/signal-convert';
 import { PI_VIEW_FIELD_TOKEN, InjectorToken } from '../token';
 import PiWrapper from './wrapper.vue';
 import {
@@ -7,125 +17,79 @@ import {
   getLazyImport,
   isFieldControl,
   isLazyMark,
-  type _PiResolvedCommonViewFieldConfig,
 } from '@piying/view-core';
-import type { Prop } from 'vue/types/options';
+import { Fragment } from "vue-fragment";
 
-interface That {
-  field: _PiResolvedCommonViewFieldConfig;
-}
-let sd = new SignalToDataFactory();
-let instance = sd
-  .toData('inputs', (that: That) => {
-    return that.field.inputs();
-  })
-  .toData('outputs', (that: That) => {
-    return that.field.outputs();
-  })
-  .toData('renderConfig', (that: That) => {
-    return that.field.renderConfig();
-  })
-  .toData('attributes', (that: That) => {
-    return that.field.attributes();
-  })
-  .toData('fieldChildren', (that: That) => {
-    return that.field.children?.();
-  })
-  .toData('wrappers', (that: That) => {
-    return that.field.wrappers();
-  })
-  .toData('define', (that: That) => {
-    return that.field.define?.();
-  });
-let data = instance.getData();
+const props = defineProps<{
+  field: PiResolvedViewFieldConfig;
+}>();
+const injector = vInject(InjectorToken)!;
 
-export default {
-  name: 'FieldTemplate',
-  components: { PiWrapper },
-  props: { field: { type: Object as Prop<_PiResolvedCommonViewFieldConfig>, required: true } },
-  inject: { injector: InjectorToken },
-  provide() {
-    return {
-      [PI_VIEW_FIELD_TOKEN]: () => {
-        return this.field;
-      },
-    };
-  },
-  data() {
-    return {
-      ...data,
-    };
-  },
-  computed: {
-    fieldInput() {
-      return {
-        ...this.attributes,
-        ...this.inputs,
-      };
-    },
-    componentType() {
-      // todo需要异步测试
-      return typeof this.define.type === 'function' || isLazyMark(this.define.type)
-        ? getLazyImport<any>(this.define?.type)
-        : this.define?.type;
-    },
-  },
-  watch: {
-    childRef: () => {
-      console.log('有两??');
-    },
-  },
-  created: function () {
-    instance.create(this);
-  },
+const inputs = signalToRef(() => props.field.inputs());
+const outputs = signalToRef(() => props.field.outputs());
+const renderConfig = signalToRef(() => props.field.renderConfig());
 
-  mounted: function () {
-    // todo 需要测试
-    (this as any)['_dispose']?.();
-    let a = this.$refs['childRef']!;
-    console.log('引用?', a);
+const attributes = signalToRef(() => props.field.attributes());
+const fieldInput = computed(() => ({ ...attributes.value, ...inputs.value }));
+const fieldChildren = signalToRef(() => props.field.children?.());
 
-    if (isFieldControl(this.field.form.control)) {
-      (this as any)['_dispose'] = createViewControlLink(
-        (() => this.field.form.control) as any,
-        (this.$refs['childRef'] as any)['cva'] as any,
-        (this as any).injector,
-      );
+const wrappers = signalToRef(() => props.field.wrappers());
+const define = signalToRef(() => props.field.define?.());
+const componentType = computed(() =>
+  typeof define.value?.type === 'function' || isLazyMark(define.value?.type)
+    ? defineAsyncComponent(getLazyImport<any>(define.value?.type))
+    : define.value?.type,
+);
+const field = computed(() => props.field);
+provide(PI_VIEW_FIELD_TOKEN, field);
+// 使用cva
+const childRef = ref<any>(null);
+const isControl = isFieldControl(field.value.form.control);
+let dispose: ((destroy?: boolean) => void) | undefined;
+
+watch(
+  [childRef, field],
+  ([childRef, field]) => {
+    dispose?.();
+    if (isControl && childRef) {
+      dispose = createViewControlLink((() => field.form.control) as any, childRef['cva'], injector);
     }
   },
-  beforeDestroy() {
-    (this as any)['_dispose']?.(true);
-    (this as any)['_dispose'] = undefined;
-    instance.destroy(this);
-  },
-};
+  { immediate: true },
+);
+onUnmounted(() => {
+  dispose?.(true);
+  dispose = undefined;
+});
 </script>
 
 <template>
-  <template v-if="!renderConfig.hidden">
-    <template v-if="define && define.type">
-      <pi-wrapper :wrappers="wrappers">
-        <!-- group -->
-        <template v-if="fieldChildren">
-          <component :is="componentType" v-bind="fieldInput" v-on="outputs"></component>
-        </template>
-        <!-- control -->
-        <template v-else>
-          <template v-if="field.form.control">
-            <component
-              :is="componentType"
-              v-bind="fieldInput"
-              v-on="outputs"
-              ref="childRef"
-            ></component>
-          </template>
-          <template v-else>
+  <Fragment>
+    <template v-if="!renderConfig.hidden">
+      <template v-if="define?.type">
+        <pi-wrapper v-bind:wrappers="wrappers">
+          <!-- group -->
+          <template v-if="fieldChildren">
             <component :is="componentType" v-bind="fieldInput" v-on="outputs"></component>
           </template>
-        </template>
-      </pi-wrapper>
+          <!-- control -->
+          <template v-else>
+            <template v-if="field.form.control">
+              <component
+                :is="componentType"
+                v-bind="fieldInput"
+                v-on="outputs"
+                ref="childRef"
+              ></component>
+            </template>
+            <template v-else>
+              <component :is="componentType" v-bind="fieldInput" v-on="outputs"></component>
+            </template>
+          </template>
+        </pi-wrapper>
+      </template>
     </template>
-  </template>
+  </Fragment>
 </template>
 
 <style scoped></style>

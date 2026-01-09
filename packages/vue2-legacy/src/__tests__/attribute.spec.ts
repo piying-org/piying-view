@@ -2,13 +2,12 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
-import { nextTick } from 'vue';
+import { nextTick, shallowRef } from 'vue';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { NFCSchema, actions, setComponent } from '@piying/view-core';
 import EmptyCmp from './component/empty-cmp.vue';
 import { delay } from './util/delay';
-import { shallowRef } from './util/stub-ref';
 describe('attribute', () => {
   it('通用属性', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

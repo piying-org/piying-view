@@ -19,11 +19,14 @@ describe('输入参数变化', () => {
     expect(inputEl.element.value).eq('123');
     await nextTick();
     await delay();
+    console.log('准备设置');
     instance.setProps({
       ...instance.props(),
       schema: v.pipe(v.number(), getField(field$)),
       modelValue: 1234,
     });
+    console.log('设置完成');
+    
     await nextTick();
     await delay();
     const inputEl2 = instance.find('input');

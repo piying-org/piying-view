@@ -1,9 +1,7 @@
-<script lang="ts">
-export default {
-  props: { input1: { type: String } },
-};
+<script setup lang="ts">
+const props = defineProps<{ input1?: string }>();
 </script>
 
 <template>
-  <div class="empty-cmp">{{ input1 ?? '' }}</div>
+  <div class="empty-cmp">{{ props.input1 ?? '' }}</div>
 </template>

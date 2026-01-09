@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
+import { shallowRef } from 'vue';
 import { nextTick } from 'vue';
 import { modelValueEqual } from './util/model-value-equal';
 import { delay } from './util/delay';
 import { setComponent } from '@piying/view-core';
-import { shallowRef } from './util/stub-ref';
 
 describe('hello', () => {
   it('string', async () => {

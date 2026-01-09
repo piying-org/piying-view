@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
-import { nextTick, type ComputedRef } from 'vue';
+import { nextTick, shallowRef, type ComputedRef } from 'vue';
 import InputsTest from './component/inputs-test.vue';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
@@ -12,7 +12,6 @@ import Wrapper2 from './component/wrapper2.vue';
 import WrapperField from './component/wrapper-field.vue';
 import { delay } from './util/delay';
 import WrapperOutput from './component/wrapper-output.vue';
-import { shallowRef } from './util/stub-ref';
 const WrapperObj = {
   'wrapper-field': {
     type: WrapperField,

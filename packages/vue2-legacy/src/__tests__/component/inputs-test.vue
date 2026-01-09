@@ -1,12 +1,10 @@
-<script lang="ts">
-export default {
-  process: {
-    value1: { type: null },
-    value2: { type: null },
-  },
-};
+<script setup lang="ts">
+const inputs = defineProps<{
+  value1?: any;
+  value2?: any;
+}>();
 </script>
 
 <template>
-  <div class="inputs-test">{{ value1 }}{{ value2 }}</div>
+  <div class="inputs-test">{{ inputs.value1 }}{{ inputs.value2 }}</div>
 </template>

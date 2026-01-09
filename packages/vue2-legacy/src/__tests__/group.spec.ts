@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
+import { shallowRef } from 'vue';
 import { actions, setComponent } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { signal } from 'static-injector';
@@ -9,7 +10,6 @@ import GroupSwap from './component/group-swap.vue';
 import { delay } from './util/delay';
 import GroupAttr from './component/group-attributes.vue';
 import RestGroup from './component/group/rest-group.vue';
-import { shallowRef } from './util/stub-ref';
 describe('group', () => {
   it('切换', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

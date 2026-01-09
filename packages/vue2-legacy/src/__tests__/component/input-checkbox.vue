@@ -1,24 +1,17 @@
-<script lang="ts">
-// import { useControlValueAccessor } from '@piying/view-vue2-legacy';
-// const {
-//   cva,
-//   cvaa: { value, valueChange, disabled, touchedChange },
-// } = useControlValueAccessor();
-// defineExpose({ cva });
-export default {
-  data: () => {
-    return {
-      cva: null,
-    };
-  },
-};
+<script setup lang="ts">
+import { useControlValueAccessor } from '@piying/view-vue2-legacy';
+// import { vModelCheckbox } from 'vue';
+const {
+  cva,
+  cvaa: { value, valueChange, disabled, touchedChange },
+} = useControlValueAccessor();
+defineExpose({ cva });
 </script>
 
 <template>
   <input
     type="checkbox"
-    v-model-checkbox="value"
-    :onUpdate:modelValue="valueChange"
+    v-model="value"
     v-bind:disabled="disabled"
     @blur="touchedChange"
   />
