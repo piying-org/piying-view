@@ -1,7 +1,7 @@
 {
   "name": "@piying/view-vue2-legacy",
   "version": "0.0.0-PLACEHOLDER",
-  "description": "Piying view For Vue;Valibot to Component",
+  "description": "Piying view For Vue2;Valibot to Component",
   "type": "module",
   "homepage": "https://piying-org.github.io/website/docs/client/intro",
   "repository": {
@@ -19,7 +19,8 @@
   },
   "keywords": [
     "Vue",
-    "Vue 3",
+    "Vue 2",
+    "Vue2",
     "VueJs",
     "form",
     "valibot",
@@ -37,11 +38,12 @@
   "license": "MIT",
   "dependencies": {
     "@piying/view-core": "^0.6.31",
-    "static-injector": "^6.1.2"
+    "static-injector": "^6.1.2",
+    "vue-fragment": "1.6.0"
   },
   "sideEffects": false,
   "peerDependencies": {
-    "vue": "^3.4.21",
+    "vue": "2.7.16",
     "valibot": "^1.1.0"
   },
   "module": "index.js",

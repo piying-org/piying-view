@@ -1,9 +1,9 @@
 import { effect } from 'static-injector';
-import { shallowRef, watchEffect, inject as vInject } from 'vue';
+import { shallowRef, watchEffect, inject as vInject, type ShallowRef } from 'vue';
 import { InjectorToken } from '../token';
 
 // signal=>ref
-export function signalToRef<T>(value: () => T | undefined) {
+export function signalToRef<T>(value: () => T | undefined): ShallowRef<T> {
   const injector = vInject(InjectorToken)!;
 
   const dataRef = shallowRef<T>(undefined as any);

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue2';
-const outDir = '../../dist/view-vue';
+const outDir = '../../dist/view-vue2-legacy';
 
 export default defineConfig({
   plugins: [vue()],

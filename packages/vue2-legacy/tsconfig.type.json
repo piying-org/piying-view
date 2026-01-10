@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "../../dist/view-vue",
+    "outDir": "../../dist/view-vue2-legacy",
     "noEmit": false
   },
   "files": [
