@@ -1,0 +1,60 @@
+{
+  "name": "@piying/view-vue2-legacy",
+  "version": "0.0.0-PLACEHOLDER",
+  "description": "Piying view For Vue2;Valibot to Component",
+  "type": "module",
+  "homepage": "https://piying-org.github.io/website/docs/client/intro",
+  "repository": {
+    "url": "git+https://github.com/piying-org/piying-view.git",
+    "directory": "packages/vue",
+    "type": "git"
+  },
+  "bugs": {
+    "url": "https://github.com/piying-org/piying-view/issues"
+  },
+  "author": {
+    "name": "wszgrcy",
+    "url": "https://github.com/wszgrcy",
+    "email": "wszgrcy@gmail.com"
+  },
+  "keywords": [
+    "Vue",
+    "Vue 2",
+    "Vue2",
+    "VueJs",
+    "form",
+    "valibot",
+    "validation",
+    "validator",
+    "layout",
+    "listen",
+    "field",
+    "control",
+    "group",
+    "array",
+    "control",
+    "metadata"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@piying/view-core": "^0.6.31",
+    "static-injector": "^6.1.2",
+    "vue-fragment": "1.6.0"
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "vue": "2.7.16",
+    "valibot": "^1.1.0"
+  },
+  "module": "index.js",
+  "typings": "index.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  }
+}

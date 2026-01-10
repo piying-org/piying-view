@@ -7,6 +7,7 @@ import { nextTick } from 'vue';
 import { delay } from './util/delay';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
+import { clone } from '@piying/view-core';
 
 describe('输入参数变化', () => {
   it('string变number', async () => {
@@ -19,19 +20,18 @@ describe('输入参数变化', () => {
     expect(inputEl.element.value).eq('123');
     await nextTick();
     await delay();
-    console.log('准备设置');
     instance.setProps({
-      ...instance.props(),
+      ...clone(instance.props()),
       schema: v.pipe(v.number(), getField(field$)),
       modelValue: 1234,
     });
-    console.log('设置完成');
-    
     await nextTick();
     await delay();
     const inputEl2 = instance.find('input');
     expect(inputEl2.element.value).eq('1234');
-    inputEl2.setValue('456');
+    await inputEl2.setValue('456');
+    await nextTick();
+    await delay();
     expect(inputEl2.element.value).eq('456');
     await nextTick();
     await delay();
