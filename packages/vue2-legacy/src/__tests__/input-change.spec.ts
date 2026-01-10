@@ -29,7 +29,7 @@ describe('输入参数变化', () => {
     await delay();
     const inputEl2 = instance.find('input');
     expect(inputEl2.element.value).eq('1234');
-    inputEl2.setValue('456');
+    await inputEl2.setValue('456');
     await nextTick();
     await delay();
     expect(inputEl2.element.value).eq('456');

@@ -61,7 +61,7 @@ onUnmounted(() => {
 const field = computed(() => initResult.value[0]);
 
 watch(
-  () => [initResult.value, dProps.modelValue],
+  () => [initResult.value, dProps.modelValue] as const,
   ([[field, subInjector], modelValue], _1, onWatcherCleanup) => {
     let ref: EffectRef | undefined;
     if (field.form.control) {

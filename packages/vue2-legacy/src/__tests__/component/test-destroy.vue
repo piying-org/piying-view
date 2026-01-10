@@ -31,11 +31,13 @@ watchEffect(() => {
 </script>
 
 <template>
-  <template v-if="props.open">
-    <div class="wrapper">
-      <piying-view :schema="schema" :options="options"></piying-view>
-    </div>
-  </template>
+  <div>
+    <template v-if="props.open">
+      <div class="wrapper">
+        <piying-view :schema="schema" :options="options"></piying-view>
+      </div>
+    </template>
+  </div>
 </template>
 
 <style scoped></style>

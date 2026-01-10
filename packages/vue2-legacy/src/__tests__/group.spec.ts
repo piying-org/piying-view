@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 import { shallowRef } from 'vue';
-import { actions, setComponent } from '@piying/view-core';
+import { actions, clone, setComponent } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { signal } from 'static-injector';
 import GroupSwap from './component/group-swap.vue';
@@ -73,7 +73,7 @@ describe('group', () => {
     expect(instance.find('.fields input').exists()).true;
     expect(instance.find('.rest-fields input').exists()).true;
     instance.setProps({
-      ...instance.props(),
+      ...clone(instance.props()),
       modelValue: { k1: 'value1' },
     });
     await delay(10);

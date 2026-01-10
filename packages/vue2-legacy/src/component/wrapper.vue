@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import SelfComponent from './wrapper.vue';
 import type { CoreWrapperConfig } from '@piying/view-core';
 import { signalToRef } from '../util/signal-convert';
+import { Fragment } from 'vue-fragment';
 
 const dInputs = defineProps<{
   wrappers: CoreWrapperConfig[];
@@ -14,7 +15,7 @@ const outputs = computed(() => wrapper.value?.outputs?.() ?? {});
 </script>
 
 <template>
-  <fragment>
+  <Fragment>
     <template v-if="wrapper">
       <component :is="wrapper.type" v-bind="inputs" v-on="outputs">
         <self-component v-bind="{ wrappers: restWrappers }">
@@ -25,7 +26,7 @@ const outputs = computed(() => wrapper.value?.outputs?.() ?? {});
     <template v-else>
       <slot></slot>
     </template>
-  </fragment>
+  </Fragment>
 </template>
 
 <style scoped></style>

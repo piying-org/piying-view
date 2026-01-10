@@ -7,9 +7,6 @@
   "exclude": [],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
-    "lib": [
-      "ES2024.Promise"
-    ],
     "types": [
       "node",
     ],

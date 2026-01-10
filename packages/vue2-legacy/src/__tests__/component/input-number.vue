@@ -4,10 +4,19 @@ import { useControlValueAccessor } from '@piying/view-vue2-legacy';
 const {
   cva,
   cvaa: { value, valueChange, disabled, touchedChange },
-} = useControlValueAccessor();
+} = useControlValueAccessor(false);
 defineExpose({ cva });
+let valueChange2 = (event: Event) => {
+  valueChange((event.target as HTMLInputElement).valueAsNumber);
+};
 </script>
 
 <template>
-  <input type="number" v-model="value" v-bind:disabled="disabled" @blur="touchedChange" />
+  <input
+    type="number"
+    v-model="value"
+    @input="valueChange2"
+    v-bind:disabled="disabled"
+    @blur="touchedChange"
+  />
 </template>
