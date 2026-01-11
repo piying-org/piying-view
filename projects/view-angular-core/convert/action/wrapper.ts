@@ -33,9 +33,9 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
         pipe: pipe(
           map((item: any) => {
             if (typeof item.type === 'string') {
-              const type = wrapperConfig[item.type].type;
+              const type = wrapperConfig[item.type]?.type;
               if (!type) {
-                throw new Error(`🈳wrapper:[${type}]❗`);
+                throw new Error(`🈳wrapper:[${item.type}]❗`);
               }
               return { ...item, type: type };
             }
