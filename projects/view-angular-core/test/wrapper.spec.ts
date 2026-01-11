@@ -77,4 +77,13 @@ describe('wrapper', () => {
     const result = createBuilder(k1Schema);
     expect(result.wrappers().map((item) => ({ type: item.type }))).toEqual([]);
   });
+  it('wrapper+class', async () => {
+    const k1Schema = v.pipe(
+      v.string(),
+      actions.wrappers.set(['w1']),
+      actions.class.top('testa'),
+    );
+    const result = createBuilder(k1Schema, { wrappers: ['w1'] });
+    expect(result.wrappers()[0].attributes()['class']).toEqual('testa');
+  });
 });
