@@ -94,6 +94,7 @@ export class CoreSchemaHandle<
       this.arrayChild = sh;
       convertSchema(schema.item as SchemaOrPipe, sh);
       this.formConfig.groupMode = 'reset';
+      this.formConfig.groupValueSchema = schema.item;
     }
   }
 

@@ -220,4 +220,10 @@ describe('array', () => {
     result.form.control.updateValue(undefined);
     expect(result.form.control.value).toEqual(undefined);
   });
+  it('array groupValueSchema', async () => {
+    const obj = v.array(v.number());
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    expect(result.form.root.config$().groupValueSchema).toBeTruthy();
+  });
 });
