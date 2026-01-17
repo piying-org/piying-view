@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   createEnvironmentInjector,
+  DestroyableInjector,
   DestroyRef,
   EnvironmentInjector,
   inject,
@@ -40,6 +41,7 @@ import { NgConvertOptions } from './type/builder-type';
 import type { FormBuilder, SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { PurePipe } from './pipe/pure.pipe';
+import { Nest1Service } from '../test/nest/nest1.service';
 const DefaultConvertOptions = {
   builder: AngularFormBuilder,
   handle: NgSchemaHandle,
@@ -86,11 +88,12 @@ export class PiyingView implements OnChanges {
 
   #injector = inject(Injector);
   #envInjector = inject(EnvironmentInjector);
-  #builderEnvInjector?: EnvironmentInjector;
+  #builderInjector?: DestroyableInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
   #listenDispose?: () => void;
-  envInjector2$$ = createEnvironmentInjector(
-    [
+  envInjector2$$ = this.#envInjector;
+  injector2 = Injector.create({
+    providers: [
       {
         provide: PI_INPUT_OPTIONS_TOKEN,
         useValue: this.options,
@@ -104,13 +107,16 @@ export class PiyingView implements OnChanges {
         useValue: this.model,
       },
     ],
-    this.#envInjector,
-  );
+    parent: this.#injector,
+  });
   #updateField() {
     this.#clean();
     // 临时销毁
-    const envInjector = createEnvironmentInjector([], this.envInjector2$$);
-    this.#builderEnvInjector = envInjector;
+    const envInjector = Injector.create({
+      providers: [],
+      parent: this.injector2,
+    });
+    this.#builderInjector = envInjector;
     const result = convert<PiResolvedViewFieldConfig>(this.schema() as any, {
       ...DefaultConvertOptions,
       ...this.options(),
@@ -125,9 +131,9 @@ export class PiyingView implements OnChanges {
     return result;
   }
   #clean() {
-    if (this.#builderEnvInjector) {
-      this.#builderEnvInjector.destroy();
-      this.#builderEnvInjector = undefined;
+    if (this.#builderInjector) {
+      this.#builderInjector.destroy();
+      this.#builderInjector = undefined;
     }
   }
 

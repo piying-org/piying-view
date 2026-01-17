@@ -1,4 +1,9 @@
-<ng-template #dynamicComponent let-field let-envInjector="envInjector">
+<ng-template
+  #dynamicComponent
+  let-field
+  let-envInjector="envInjector"
+  let-injector="injector"
+>
   @let renderConfig = field.renderConfig();
   @if (!renderConfig?.hidden) {
     @if (field.fixedChildren || field.restChildren) {
@@ -12,6 +17,7 @@
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
         [ngComponentOutletEnvInjector]="envInjector ?? envInjector2$$"
+        [ngComponentOutletInjector]="injector ?? injector2"
       ></ng-container>
     } @else {
       <ng-container
@@ -21,6 +27,7 @@
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
         [ngComponentOutletEnvInjector]="envInjector ?? envInjector2$$"
+        [ngComponentOutletInjector]="injector ?? injector2"
       ></ng-container>
     }
   }
@@ -30,7 +37,11 @@
     <ng-container
       *ngTemplateOutlet="
         dynamicComponent;
-        context: { $implicit: field, envInjector: envInjector2$$ }
+        context: {
+          $implicit: field,
+          envInjector: envInjector2$$,
+          injector: injector2,
+        }
       "
     ></ng-container>
   }

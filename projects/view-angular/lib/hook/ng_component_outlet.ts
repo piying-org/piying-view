@@ -43,6 +43,7 @@ export class NgComponentOutlet<T = any>
   #viewContainerRef = inject(ViewContainerRef);
   // 这里感觉会在非发射时出现多次输入?
   ngComponentOutletEnvInjector = input<EnvironmentInjector | undefined>();
+  ngComponentOutletInjector = input.required<Injector>();
 
   #injector$$ = computed(() =>
     Injector.create({
@@ -52,10 +53,9 @@ export class NgComponentOutlet<T = any>
           useValue: this.ngComponentOutletField,
         },
       ],
-      parent: this.#injector,
+      parent: this.ngComponentOutletInjector(),
     }).get(Injector),
   );
-  #injector = inject(Injector);
   #formControlDirectiveConfig$$ = computed(() => {
     const fieldControl = this.ngComponentOutletFormControl();
     return fieldControl
