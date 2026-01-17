@@ -59,6 +59,7 @@
     "@angular/build": "^20.1.5",
     "@angular/cli": "20.0.2",
     "@angular/compiler-cli": "20.0.3",
+    "@cyia/ngx-common": "^20.0.3",
     "@eslint/js": "^9.32.0",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^22.15.30",
