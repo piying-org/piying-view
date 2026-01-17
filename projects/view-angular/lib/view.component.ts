@@ -87,11 +87,9 @@ export class PiyingView implements OnChanges {
   });
 
   #injector = inject(Injector);
-  #envInjector = inject(EnvironmentInjector);
   #builderInjector?: DestroyableInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
   #listenDispose?: () => void;
-  envInjector2$$ = this.#envInjector;
   injector2 = Injector.create({
     providers: [
       {

@@ -150,7 +150,6 @@ export class BaseComponent {
   createComponent(
     list: DynamicComponentConfig[],
     viewContainerRef: ViewContainerRef,
-    envInjector?: EnvironmentInjector,
   ) {
     // 销毁
     this.destroyComponentFn?.();
@@ -197,7 +196,7 @@ export class BaseComponent {
         : componentInjector;
       const componentRef = createComponent(componentDefine.component, {
         elementInjector: injector,
-        environmentInjector: envInjector ?? injector.get(EnvironmentInjector),
+        environmentInjector: injector.get(EnvironmentInjector),
         bindings: [
           ...createInputsBind(this.#inputCache.inputs),
           ...createOutputsBind(componentConfig.outputs),
@@ -251,7 +250,7 @@ export class BaseComponent {
     });
   }
 
-  update(list: DynamicComponentConfig[], envInjector?: EnvironmentInjector) {
+  update(list: DynamicComponentConfig[]) {
     const item = list[this.#index];
     const currentCheckConfig = getComponentCheckConfig(item);
     const isEqual = deepEqual(
@@ -265,7 +264,7 @@ export class BaseComponent {
       // 相等不处理
       this.#eventEmitter.next(list);
     } else {
-      this.createComponent(list, this.#viewContainerRef!, envInjector);
+      this.createComponent(list, this.#viewContainerRef!);
     }
   }
 }
