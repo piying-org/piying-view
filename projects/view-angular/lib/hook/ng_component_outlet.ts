@@ -1,7 +1,6 @@
 import {
   computed,
   Directive,
-  EnvironmentInjector,
   inject,
   Injector,
   input,
@@ -113,9 +112,9 @@ export class NgComponentOutlet<T = any>
       const field = this.ngComponentOutletField();
       field.hooks?.beforeCreateComponent?.(field);
       this.setFieldData(this.ngComponentOutletField, 0);
-      this.createComponent(list, this.#viewContainerRef, );
+      this.createComponent(list, this.#viewContainerRef);
     } else if (this.#lastList !== list) {
-      this.update(list,);
+      this.update(list);
     }
     // 监听输入/输出变更,重新进行赋值
 

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 
-import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { summarize } from 'valibot';
 import { PurePipe } from '../../../lib/pipe/pure.pipe';
 import { InsertFieldDirective } from '../../../lib/component/insert-field.directive';

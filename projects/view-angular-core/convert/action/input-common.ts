@@ -136,8 +136,8 @@ export function createMapAsyncPropertyFn(key: ChangeKey) {
   return <T>(
     fn: (field: _PiResolvedCommonViewFieldConfig) => (value: any) => any,
   ) =>
-    rawConfig<T>((rawField, _, ...args) => {
-      return mergeHooksFn(
+    rawConfig<T>((rawField, _, ...args) =>
+      mergeHooksFn(
         {
           allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
             let data$: WritableSignal<any>;
@@ -157,8 +157,8 @@ export function createMapAsyncPropertyFn(key: ChangeKey) {
         },
         { position: 'bottom' },
         rawField,
-      );
-    });
+      ),
+    );
 }
 
 export type ConfigAction<T> = RawConfigAction<'viewRawConfig', T, any>;

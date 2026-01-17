@@ -1,5 +1,5 @@
 import type { ControlValueAccessor } from '@piying/view-core';
-import { Ref, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 export function useControlValueAccessor(autoChange = true) {
   const value = ref();

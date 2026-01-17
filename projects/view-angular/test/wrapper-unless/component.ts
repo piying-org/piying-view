@@ -7,9 +7,9 @@ import { InsertFieldDirective } from '@piying/view-angular';
   templateUrl: './component.html',
   standalone: true,
   providers: [],
-  imports: [FormsModule,InsertFieldDirective],
+  imports: [FormsModule, InsertFieldDirective],
 })
-export class SelectorLessW  {
+export class SelectorLessW {
   static readonly __version = 2;
   public templateRef = viewChild.required('templateRef');
   wInput1 = input();

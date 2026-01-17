@@ -8,7 +8,7 @@ describe('action', () => {
       actions: [{ name: 'actions.inputs.patch', params: [{ value: 1 }] }],
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
-    let result = createBuilder(Define as any);
+    const result = createBuilder(Define as any);
     expect(result.inputs()).toEqual({ value: 1 });
   });
 });

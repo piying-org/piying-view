@@ -18,7 +18,7 @@ import {
   isFieldControl,
   isLazyMark,
 } from '@piying/view-core';
-import { Fragment } from "vue-fragment";
+import { Fragment } from 'vue-fragment';
 
 const props = defineProps<{
   field: PiResolvedViewFieldConfig;

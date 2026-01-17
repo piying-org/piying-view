@@ -9,10 +9,5 @@ defineExpose({ cva });
 </script>
 
 <template>
-  <input
-    type="checkbox"
-    v-model="value"
-    v-bind:disabled="disabled"
-    @blur="touchedChange"
-  />
+  <input type="checkbox" v-model="value" v-bind:disabled="disabled" @blur="touchedChange" />
 </template>

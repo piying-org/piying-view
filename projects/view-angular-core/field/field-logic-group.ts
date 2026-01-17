@@ -15,9 +15,7 @@ export class FieldLogicGroup extends FieldArray {
   override value$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();
-      return untracked(() => {
-        return this.#childUpdate();
-      });
+      return untracked(() => this.#childUpdate());
     }
     return this.#childUpdate();
   });

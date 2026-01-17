@@ -69,7 +69,7 @@ export async function createComponent(
   //     },
   //   },
   // });
-  let TestContainer = Vue.component('TestContainer', {
+  const TestContainer = Vue.component('TestContainer', {
     props: {
       schema: { type: undefined },
       options: { type: undefined },

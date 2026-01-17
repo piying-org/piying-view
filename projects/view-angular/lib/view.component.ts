@@ -2,10 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  createEnvironmentInjector,
   DestroyableInjector,
   DestroyRef,
-  EnvironmentInjector,
   inject,
   Injector,
   input,
@@ -38,10 +36,9 @@ import {
 import { AngularFormBuilder } from './builder';
 import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
-import type { FormBuilder, SetOptional } from '@piying/view-angular-core';
+import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { PurePipe } from './pipe/pure.pipe';
-import { Nest1Service } from '../test/nest/nest1.service';
 const DefaultConvertOptions = {
   builder: AngularFormBuilder,
   handle: NgSchemaHandle,

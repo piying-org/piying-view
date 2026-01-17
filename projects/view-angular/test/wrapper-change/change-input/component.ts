@@ -1,5 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
-import { InsertFieldDirective, PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
+import {
+  InsertFieldDirective,
+  PI_VIEW_FIELD_TOKEN,
+} from '@piying/view-angular';
 
 @Component({
   selector: 'selectorless-wrapper',

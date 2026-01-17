@@ -2,7 +2,6 @@ import clsx from 'clsx';
 import { ClassValue } from 'clsx';
 import { rawConfig } from './raw-config';
 import { mergeHooksFn } from './hook';
-import { _PiResolvedCommonViewFieldConfig } from '../../builder-base/type/common-field-config';
 
 import { AsyncCallback } from './type/async-callback';
 import { CustomDataSymbol, __actions as actions } from './input-common';

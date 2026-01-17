@@ -20,7 +20,7 @@ describe('nest piying view', () => {
           setComponent('test1'),
           actions.hooks.merge({
             allFieldsResolved(field) {
-              let service = field.injector.get(Nest1Service);
+              const service = field.injector.get(Nest1Service);
               expect(service).toBeTruthy();
               checked = true;
             },
@@ -35,7 +35,7 @@ describe('nest piying view', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element).toBeTruthy();
-    let el = element.querySelector('app-nest1');
+    const el = element.querySelector('app-nest1');
     expect(el).toBeTruthy();
     expect(checked).toBeTrue();
   });
@@ -50,7 +50,7 @@ describe('nest piying view', () => {
           setComponent('test1'),
           actions.hooks.merge({
             allFieldsResolved(field) {
-              let service = field.injector.get(Nest1Service);
+              const service = field.injector.get(Nest1Service);
               expect(service).toBeTruthy();
               checked = true;
             },
@@ -65,7 +65,7 @@ describe('nest piying view', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element).toBeTruthy();
-    let el = element.querySelector('app-nest2');
+    const el = element.querySelector('app-nest2');
     expect(el).toBeTruthy();
     expect(checked).toBeTrue();
   });

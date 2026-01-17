@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,11 +23,9 @@ export class Nest2Component {
 
   parentPyOptions = inject(PI_INPUT_OPTIONS_TOKEN);
   schema = input<any>();
-  schemaOptions$$ = computed(() => {
-    return {
-      schema: this.schema(),
-      options: this.parentPyOptions!(),
-      selectorless: true,
-    };
-  });
+  schemaOptions$$ = computed(() => ({
+    schema: this.schema(),
+    options: this.parentPyOptions!(),
+    selectorless: true,
+  }));
 }

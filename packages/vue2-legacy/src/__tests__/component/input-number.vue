@@ -6,7 +6,7 @@ const {
   cvaa: { value, valueChange, disabled, touchedChange },
 } = useControlValueAccessor(false);
 defineExpose({ cva });
-let valueChange2 = (event: Event) => {
+const valueChange2 = (event: Event) => {
   valueChange((event.target as HTMLInputElement).valueAsNumber);
 };
 </script>

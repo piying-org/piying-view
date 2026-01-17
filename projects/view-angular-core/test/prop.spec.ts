@@ -64,56 +64,48 @@ describe('prop', () => {
     expect(Object.keys(inputs).length).toEqual(0);
   });
   it('map', async () => {
-    let value1 = signal(1);
+    const value1 = signal(1);
     const obj = v.pipe(
       v.string(),
       actions.props.patchAsync({
-        value1: () => {
-          return value1;
-        },
+        value1: () => value1,
       }),
-      actions.props.map((value) => {
-        return {
-          ...value,
-          value2: value['value1'] * 2,
-        };
-      }),
+      actions.props.map((value) => ({
+        ...value,
+        value2: value['value1'] * 2,
+      })),
       setComponent('mock-input'),
     );
     const resolved = createBuilder(obj);
     expect(resolved.props()).toEqual({ value1: 1, value2: 2 });
-    value1.set(2)
+    value1.set(2);
     expect(resolved.props()).toEqual({ value1: 2, value2: 4 });
   });
   it('mapAsync', async () => {
-    let value1 = signal(1);
+    const value1 = signal(1);
     const obj = v.pipe(
       v.object({
         k1: v.pipe(
           v.string(),
           actions.props.patchAsync({
-            value1: () => {
-              return value1;
-            },
+            value1: () => value1,
           }),
         ),
         k2: v.pipe(
           v.string(),
 
           actions.props.mapAsync((field) => {
-            let field2 = field.get(['#', 'k1']);
-            return (value) => {
-              return {
-                value2: field2?.props()['value1'] * 2,
-              };
-            };
+            const field2 = field.get(['#', 'k1']);
+            return (value) => ({
+              value2: field2?.props()['value1'] * 2,
+            });
           }),
           setComponent('mock-input'),
         ),
       }),
     );
     const resolved = createBuilder(obj);
-    let field2 = resolved.get(['#', 'k2'])!;
+    const field2 = resolved.get(['#', 'k2'])!;
     expect(field2.props()).toEqual({ value2: 2 });
     value1.set(2);
     expect(field2.props()).toEqual({ value2: 4 });

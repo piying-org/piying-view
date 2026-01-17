@@ -1,7 +1,8 @@
 import type { BaseMetadata } from 'valibot';
 
-export interface NonFieldControlAction<TInput = unknown>
-  extends BaseMetadata<TInput> {
+export interface NonFieldControlAction<
+  TInput = unknown,
+> extends BaseMetadata<TInput> {
   readonly type: 'nonFieldControl';
   readonly reference: typeof nonFieldControl;
   readonly value: boolean;

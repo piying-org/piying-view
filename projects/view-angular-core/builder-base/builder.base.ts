@@ -102,7 +102,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     field: SchemaHandle,
     index: number,
   ): PiResolvedCommonViewFieldConfig<any, any> {
-    let define = !field.type
+    const define = !field.type
       ? undefined
       : typeof field.type !== 'string'
         ? field.type

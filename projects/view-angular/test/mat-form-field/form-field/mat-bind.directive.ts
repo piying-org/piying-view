@@ -7,15 +7,15 @@ import { InsertFieldDirective } from '@piying/view-angular';
 })
 export class MatFormControlBindDirective {
   matFormControlBind = input<InsertFieldDirective>();
-  fieldComponentInstance = computed(() => {
-    return this.matFormControlBind()?.fieldComponentInstance;
-  });
+  fieldComponentInstance = computed(
+    () => this.matFormControlBind()?.fieldComponentInstance,
+  );
   matFormFiled = input<MatFormField>();
-  fieldDirectiveRefList = computed(() => {
-    return this.matFormControlBind()?.fieldDirectiveRefList;
-  });
+  fieldDirectiveRefList = computed(
+    () => this.matFormControlBind()?.fieldDirectiveRefList,
+  );
   ngOnChanges(): void {
-    let fieldComponentInstance = this.fieldComponentInstance();
+    const fieldComponentInstance = this.fieldComponentInstance();
     if (
       fieldComponentInstance &&
       '__isElement' in fieldComponentInstance &&

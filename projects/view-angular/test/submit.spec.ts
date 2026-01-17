@@ -161,8 +161,8 @@ describe('submit', () => {
 
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = field$$()!;
-    let el = element.querySelector('input')!;
+    const field = field$$()!;
+    const el = element.querySelector('input')!;
     htmlInput(el, '123');
     field.form.control!.reset();
     field.form.control!.emitSubmit();
@@ -192,7 +192,7 @@ describe('submit', () => {
     htmlInput(inputEl as any, '1234');
     await fixture.whenStable();
     fixture.detectChanges();
-    let field = field$$();
+    const field = field$$();
 
     expect(field?.form.root.value).toEqual(undefined);
     field?.form.root.emitSubmit();

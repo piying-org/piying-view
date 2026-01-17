@@ -11,7 +11,8 @@ const children = signalToRef(() => field?.value.children!());
 <template>
   <Fragment>
     <template v-for="(field, index) in children">
-      <field-template :field="field"></field-template>
+      <!-- eslint-disable-next-line vue/no-v-for-template-key-on-child -->
+      <field-template :field="field" :key="index"></field-template>
     </template>
   </Fragment>
 </template>

@@ -13,7 +13,9 @@ describe('lazy-import', () => {
     const schema = v.pipe(v.string(), setComponent('lazy-string'));
     const value = shallowRef('init');
     const { instance } = await createComponent(schema, value, {
-      defaultConfig: { types: { 'lazy-string': { type: () => import('./component/custom-input.vue') } } },
+      defaultConfig: {
+        types: { 'lazy-string': { type: () => import('./component/custom-input.vue') } },
+      },
     });
     await nextTick();
     // 懒加载组件需要时间

@@ -11,12 +11,14 @@ const restChildren = signalToRef(() => field?.value.restChildren!());
 <template>
   <div>
     <div class="fields">
-      <template v-for="(field, index) in fixedChildren" >
+      <template v-for="(field, index) in fixedChildren">
+        <!-- eslint-disable-next-line vue/no-v-for-template-key-on-child -->
         <PiyingFieldTemplate :field="field" :key="index"></PiyingFieldTemplate>
       </template>
     </div>
     <div class="rest-fields">
-      <template v-for="(field, index) in restChildren" >
+      <template v-for="(field, index) in restChildren">
+        <!-- eslint-disable-next-line vue/no-v-for-template-key-on-child -->
         <PiyingFieldTemplate :field="field" :key="index"></PiyingFieldTemplate>
       </template>
     </div>

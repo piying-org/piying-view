@@ -26,7 +26,7 @@ describe('输入参数变化', () => {
       modelValue: 1234,
     });
     console.log('设置完成');
-    
+
     await nextTick();
     await delay();
     const inputEl2 = instance.find('input');

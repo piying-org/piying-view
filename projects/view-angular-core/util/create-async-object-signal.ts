@@ -23,12 +23,12 @@ export function asyncObjectSignal<
   Input extends Record<string, any> | undefined,
 >(initialValue: Input, options?: CreateSignalOptions<Input>) {
   const data$ = signal(initialValue);
-  let mapFn$ = signal<((value: any) => any) | undefined>(undefined);
+  const mapFn$ = signal<((value: any) => any) | undefined>(undefined);
   const signalList$ = signal<[string, Signal<any>][]>([]);
   const value$$ = computed(() => {
     const signalList = signalList$();
     const data = data$();
-    let mapFn = mapFn$();
+    const mapFn = mapFn$();
     if (!signalList.length) {
       return mapFn ? mapFn(data) : data;
     }

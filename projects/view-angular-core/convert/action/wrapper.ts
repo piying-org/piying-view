@@ -24,8 +24,8 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
         >
       | string
     )[],
-  ) => {
-    return rawConfig<T>((rawField, _) => {
+  ) =>
+    rawConfig<T>((rawField, _) => {
       const wrapperConfig =
         rawField.globalConfig.additionalData!['defaultWrapperMetadataGroup'];
       const injector = rawField.globalConfig.additionalData!['injector'];
@@ -83,7 +83,6 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
         }
       });
     });
-  };
 }
 
 function removeWrappers<T>(
