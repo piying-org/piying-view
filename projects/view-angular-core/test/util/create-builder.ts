@@ -1,4 +1,4 @@
-import { EnvironmentInjector, Injectable, Injector } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import {
   _PiResolvedCommonViewFieldConfig,
   FormBuilder,
@@ -19,12 +19,7 @@ export function createBuilder(
   },
 ) {
   const injector = Injector.create({
-    providers: [
-      {
-        provide: EnvironmentInjector,
-        useFactory: () => injector,
-      },
-    ],
+    providers: [],
   });
   const MockType = { type: Symbol() } as any;
   const result = convert(obj, {

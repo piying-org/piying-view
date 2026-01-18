@@ -113,7 +113,6 @@ describe('表单控件配置', () => {
     expect(instance.model$()).toEqual({ v1: 'd2' });
   });
   it('a.b / a 销毁测试', async () => {
-    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({
       a: v.object({
         b: v.pipe(v.string(), setComponent('test1')),

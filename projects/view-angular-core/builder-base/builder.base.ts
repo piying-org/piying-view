@@ -4,8 +4,7 @@ import {
 } from './type/token';
 import {
   computed,
-  DestroyRef,
-  EnvironmentInjector,
+  DestroyableInjector,
   inject,
   Injector,
   signal,
@@ -42,9 +41,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     new ParentMap<string, PiResolvedCommonViewFieldConfig<any, any>>();
   #options = inject(PI_FORM_BUILDER_OPTIONS_TOKEN);
   #injector = inject(Injector);
-  #envInjector = inject(EnvironmentInjector);
-  #allFieldInitHookList: (() => void)[] = [];
 
+  #allFieldInitHookList: (() => void)[] = [];
   buildRoot(item: BuildRootInputItem<SchemaHandle>) {
     const field = this.#buildControl(
       {
@@ -188,7 +186,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         ? signal({ type: define, inputs, outputs, attributes, events })
         : undefined,
       wrappers: field.wrappers,
-      injector: this.#envInjector,
+      injector: this.#injector,
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
       this.afterResolveConfig(field, resolvedConfig) ?? resolvedConfig;
@@ -364,8 +362,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         const [deletedItem] = list!.splice(index, 1);
         form.removeRestControl(index);
         if (deletedItem) {
-          deletedItem.injector!.destroy();
-          (deletedItem.injector as any) = undefined;
+          (deletedItem.injector as DestroyableInjector).destroy();
         }
       }
       form.beforeUpdateList.push((resetValue = [], initUpdate) => {
@@ -431,13 +428,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             PiResolvedCommonViewFieldConfig<any, any>
           >(this.#scopeMap),
         },
-        { provide: EnvironmentInjector, useFactory: () => injector },
       ],
-      parent: this.#envInjector,
+      parent: this.#injector,
     });
-    this.#envInjector.get(DestroyRef).onDestroy(() => {
-      result.injector?.destroy();
-    });
+
     const instance = injector.get(Builder);
     const result = instance.#buildControl(
       { ...parent, skipAppend: true },
@@ -445,7 +439,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       index,
     );
     this.#allFieldInitHookList.push(() => instance.allFieldInitHookCall());
-    result.injector = injector.get(EnvironmentInjector);
+    result.injector = injector;
     return result;
   }
 

@@ -8,7 +8,7 @@ import {
   ConvertOptions,
   SchemaOrPipe,
 } from '@piying/valibot-visit';
-import { computed, EnvironmentInjector, Injector, signal } from '@angular/core';
+import { computed, Injector, signal } from '@angular/core';
 import {
   PI_FORM_BUILDER_OPTIONS_TOKEN,
   PI_VIEW_CONFIG_TOKEN,
@@ -62,12 +62,11 @@ export function convert<
       },
       { provide: FindConfigToken, useFactory: FindConfigFactory },
       options.builder,
-      { provide: EnvironmentInjector, useFactory: () => injector },
     ],
     parent: options.injector,
   });
   options.registerOnDestroy?.(() => {
-    injector.get(EnvironmentInjector).destroy();
+    injector.destroy();
   });
   return convertCore(
     obj,

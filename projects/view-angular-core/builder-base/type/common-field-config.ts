@@ -1,4 +1,4 @@
-import { EnvironmentInjector, Signal, WritableSignal } from '@angular/core';
+import { Injector, Signal, WritableSignal } from '@angular/core';
 
 import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
@@ -56,7 +56,7 @@ export type PiResolvedCommonViewFieldConfig<
   /** 仅用来开发时debug使用 */
   readonly origin: any;
 
-  injector: EnvironmentInjector;
+  injector: Injector;
   /** 外部传入引用 */
   readonly context?: any;
 
