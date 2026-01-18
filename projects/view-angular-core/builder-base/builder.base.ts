@@ -5,6 +5,7 @@ import {
 import {
   computed,
   DestroyableInjector,
+  DestroyRef,
   inject,
   Injector,
   signal,
@@ -47,7 +48,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const field = this.#buildControl(
       {
         type: 'root',
-        field: { fullPath: [] },
+        field: { fullPath: [], injector: this.#injector },
         form: undefined,
         resolvedField$: item.resolvedField$,
         append: () => {},
@@ -123,6 +124,15 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       keyPath ??= index;
     }
     const isRoot = parent.type === 'root';
+    let injector = Injector.create({
+      providers: parent.field.providers ?? [],
+      parent: parent.field.injector,
+    });
+    parent.field.injector.get(DestroyRef).onDestroy(() => {
+      if (resolvedConfig.injector) {
+        (resolvedConfig.injector as DestroyableInjector).destroy();
+      }
+    });
     if (!field.nonFieldControl && (keyPath !== undefined || isRoot)) {
       control = createField(
         parent.form as any,
@@ -131,7 +141,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         // 这里也是fullPath
         formConfig$,
         isRoot,
-        this.#injector,
+        injector,
       );
     }
     const rootForm = this.#options.form$$;
@@ -186,7 +196,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         ? signal({ type: define, inputs, outputs, attributes, events })
         : undefined,
       wrappers: field.wrappers,
-      injector: this.#injector,
+      injector: injector,
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
       this.afterResolveConfig(field, resolvedConfig) ?? resolvedConfig;
@@ -363,6 +373,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         form.removeRestControl(index);
         if (deletedItem) {
           (deletedItem.injector as DestroyableInjector).destroy();
+          deletedItem.injector = undefined as any;
         }
       }
       form.beforeUpdateList.push((resetValue = [], initUpdate) => {
@@ -429,9 +440,11 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
           >(this.#scopeMap),
         },
       ],
-      parent: this.#injector,
+      parent: parent.field.injector,
     });
-
+    parent.field.injector.get(DestroyRef).onDestroy(() => {
+      injector.destroy();
+    });
     const instance = injector.get(Builder);
     const result = instance.#buildControl(
       { ...parent, skipAppend: true },
@@ -439,7 +452,6 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       index,
     );
     this.#allFieldInitHookList.push(() => instance.allFieldInitHookCall());
-    result.injector = injector;
     return result;
   }
 

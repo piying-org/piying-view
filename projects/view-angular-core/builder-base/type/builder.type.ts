@@ -1,9 +1,9 @@
-import { WritableSignal } from '@angular/core';
+import { Injector, WritableSignal } from '@angular/core';
 
 import { _PiResolvedCommonViewFieldConfig } from './common-field-config';
 import { FieldGroup } from '../../field/field-group';
 import { FieldArray } from '../../field/field-array';
-import { CoreSchemaHandle } from '../../convert';
+import { CoreSchemaHandle, InjectorProvider } from '../../convert';
 
 export interface BuildRootInputItem<
   SchemaHandle extends CoreSchemaHandle<any, any>,
@@ -16,6 +16,8 @@ export interface BuildRootItem {
   field: {
     fieldGroup?: undefined;
     fullPath: [];
+    injector: Injector;
+    providers?: InjectorProvider[];
   };
   form?: undefined;
   resolvedField$: WritableSignal<_PiResolvedCommonViewFieldConfig | undefined>;

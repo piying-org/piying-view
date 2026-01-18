@@ -37,7 +37,8 @@ import {
 import { FieldFormConfig } from '../../field/type';
 import { asyncObjectSignal, combineSignal, KeyPath } from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
-
+import { Provider, StaticProvider } from '@angular/core';
+export type InjectorProvider = Provider | StaticProvider;
 export class CoreSchemaHandle<
   Self extends CoreSchemaHandle<any, any>,
   RESOLVED_FN extends () => any,
@@ -60,6 +61,7 @@ export class CoreSchemaHandle<
   isTuple = false;
   nonFieldControl = false;
   hooks?: HookConfig<ReturnType<RESOLVED_FN>>;
+  providers?: InjectorProvider[];
   override lazySchema(schema: LazySchema): void {
     super.lazySchema(schema);
     if (this.parent) {

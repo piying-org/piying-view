@@ -74,7 +74,7 @@ export type PiResolvedCommonViewFieldConfig<
   readonly define?: WritableSignal<Define>;
 
   wrappers: CombineSignal<CoreWrapperConfig>;
-} & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias'>> &
+} & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias' | 'providers'>> &
   Readonly<
     Required<
       Pick<AnyCoreSchemaHandle, 'inputs' | 'outputs' | 'attributes' | 'events'>
