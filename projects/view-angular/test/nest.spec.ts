@@ -7,6 +7,8 @@ import { NFCSchema } from '@piying/view-core';
 import { Nest1Service } from './nest/nest1.service';
 import { Nest1Component } from './nest/component';
 import { Nest2Component } from './nest/nest2/component';
+import { Nest3WC } from './nest/wrapper/nest3/component';
+import { Nest4Component } from './nest/nest4/component';
 
 describe('nest piying view', () => {
   it('hello', async () => {
@@ -66,6 +68,41 @@ describe('nest piying view', () => {
     fixture.detectChanges();
     expect(element).toBeTruthy();
     const el = element.querySelector('app-nest2');
+    expect(el).toBeTruthy();
+    expect(checked).toBeTrue();
+  });
+  it('group', async () => {
+    let checked = false;
+    const define = v.pipe(
+      v.object({
+        test1: v.pipe(
+          NFCSchema,
+          setComponent(Nest4Component),
+          actions.inputs.patch({
+            schema: v.pipe(
+              v.string(),
+              setComponent('test1'),
+              actions.hooks.merge({
+                allFieldsResolved(field) {
+                  const service = field.injector.get(Nest1Service);
+                  expect(service).toBeTruthy();
+                  checked = true;
+                },
+              }),
+            ),
+          }),
+        ),
+      }),
+      actions.wrappers.set([{ type: Nest3WC }]),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    const el = element.querySelector('app-nest4');
     expect(el).toBeTruthy();
     expect(checked).toBeTrue();
   });
