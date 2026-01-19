@@ -20,6 +20,11 @@ export { classAction as ɵclassAction } from './class';
 import { __actions } from './input-common';
 import { mergeHooks, patchHooks, removeHooks, setHooks } from './hook';
 import { changeProviders, patchProviders, setProviders } from './provider';
+export {
+  changeProviders as ɵchangeProviders,
+  patchProviders as ɵpatchProviders,
+  setProviders as ɵsetProviders,
+};
 export * from './type/async-callback';
 export const actions = {
   ...__actions,
