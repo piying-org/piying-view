@@ -6,7 +6,6 @@
 		ChangeDetectionSchedulerImpl,
 		createInjector,
 		createRootInjector,
-		DestroyRef,
 		untracked,
 		type EffectRef
 	} from 'static-injector';
