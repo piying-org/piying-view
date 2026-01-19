@@ -106,4 +106,39 @@ describe('nest piying view', () => {
     expect(el).toBeTruthy();
     expect(checked).toBeTrue();
   });
+  it('provider', async () => {
+    let checked = false;
+    const define = v.pipe(
+      v.object({
+        test1: v.pipe(
+          NFCSchema,
+          setComponent(Nest4Component),
+          actions.inputs.patch({
+            schema: v.pipe(
+              v.string(),
+              setComponent('test1'),
+              actions.hooks.merge({
+                allFieldsResolved(field) {
+                  const service = field.injector.get(Nest1Service);
+                  expect(service).toBeTruthy();
+                  checked = true;
+                },
+              }),
+            ),
+          }),
+        ),
+      }),
+      actions.providers.set([Nest1Service]),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element).toBeTruthy();
+    const el = element.querySelector('app-nest4');
+    expect(el).toBeTruthy();
+    expect(checked).toBeTrue();
+  });
 });

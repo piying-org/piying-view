@@ -11,7 +11,7 @@
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletInjector]="injector ?? injector2"
+        [ngComponentOutletInjector]="injector ?? injector3$$()"
       ></ng-container>
     } @else {
       <ng-container
@@ -20,7 +20,7 @@
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletInjector]="injector ?? injector2"
+        [ngComponentOutletInjector]="injector ?? injector3$$()"
       ></ng-container>
     }
   }
@@ -32,7 +32,7 @@
         dynamicComponent;
         context: {
           $implicit: field,
-          injector: injector2,
+          injector: injector3$$(),
         }
       "
     ></ng-container>

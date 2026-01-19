@@ -87,7 +87,8 @@ export class PiyingView implements OnChanges {
   #builderInjector?: DestroyableInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
   #listenDispose?: () => void;
-  injector2 = Injector.create({
+  injector3$$ = computed(() => this.resolvedField$()!.injector);
+  #fieldRoot = Injector.create({
     providers: [
       {
         provide: PI_INPUT_OPTIONS_TOKEN,
@@ -109,7 +110,7 @@ export class PiyingView implements OnChanges {
     // 临时销毁
     const envInjector = Injector.create({
       providers: [],
-      parent: this.injector2,
+      parent: this.#fieldRoot,
     });
     this.#builderInjector = envInjector;
     const result = convert<PiResolvedViewFieldConfig>(this.schema() as any, {

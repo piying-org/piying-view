@@ -124,8 +124,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       keyPath ??= index;
     }
     const isRoot = parent.type === 'root';
-    let injector = Injector.create({
-      providers: parent.field.providers ?? [],
+    const injector = Injector.create({
+      providers: field.providers ?? [],
       parent: parent.field.injector,
     });
     parent.field.injector.get(DestroyRef).onDestroy(() => {

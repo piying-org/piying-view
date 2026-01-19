@@ -191,7 +191,7 @@ describe('配置切换时-angular', () => {
     instance.fields$.set(define2);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(firstDestroy).toBe(false);
+    expect(firstDestroy).toBe(true);
   });
   it('配置变化,但是组件输入不变', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

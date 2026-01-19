@@ -19,6 +19,7 @@ import { DirectiveConfig } from '../component/dynamic-define.component';
 import { asyncObjectSignal, FieldControl } from '@piying/view-angular-core';
 import { PI_VIEW_FIELD_TOKEN } from '../type/view-token';
 import { FieldControlDirective } from '../directives/field-control-directive';
+import { ChainedInjector } from './chained_injector';
 
 @Directive({
   selector: '[ngComponentOutlet]',
@@ -44,17 +45,21 @@ export class NgComponentOutlet<T = any>
 
   ngComponentOutletInjector = input.required<Injector>();
 
-  #injector$$ = computed(() =>
-    Injector.create({
+  #injector$$ = computed(() => {
+    const chainedInjector = new ChainedInjector(
+      this.ngComponentOutletField().injector,
+      this.ngComponentOutletInjector(),
+    );
+    return Injector.create({
       providers: [
         {
           provide: PI_VIEW_FIELD_TOKEN,
           useValue: this.ngComponentOutletField,
         },
       ],
-      parent: this.ngComponentOutletInjector(),
-    }).get(Injector),
-  );
+      parent: chainedInjector,
+    }).get(Injector);
+  });
   #formControlDirectiveConfig$$ = computed(() => {
     const fieldControl = this.ngComponentOutletFormControl();
     return fieldControl

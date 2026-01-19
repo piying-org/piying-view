@@ -19,6 +19,7 @@ import { classAction } from './class';
 export { classAction as ɵclassAction } from './class';
 import { __actions } from './input-common';
 import { mergeHooks, patchHooks, removeHooks, setHooks } from './hook';
+import { changeProviders, patchProviders, setProviders } from './provider';
 export * from './type/async-callback';
 export const actions = {
   ...__actions,
@@ -29,5 +30,10 @@ export const actions = {
     remove: removeHooks,
     set: setHooks,
     patch: patchHooks,
+  },
+  providers: {
+    set: setProviders,
+    patch: patchProviders,
+    change: changeProviders,
   },
 };
