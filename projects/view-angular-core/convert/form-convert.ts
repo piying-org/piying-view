@@ -8,7 +8,13 @@ import {
   ConvertOptions,
   SchemaOrPipe,
 } from '@piying/valibot-visit';
-import { computed, Injector, signal } from '@angular/core';
+import {
+  computed,
+  DestroyableInjector,
+  DestroyRef,
+  Injector,
+  signal,
+} from '@angular/core';
 import {
   PI_FORM_BUILDER_OPTIONS_TOKEN,
   PI_VIEW_CONFIG_TOKEN,
@@ -33,10 +39,9 @@ export function convert<
     ConvertOptions<typeof CoreSchemaHandle<any, any>>,
     'handle'
   > & {
-    injector: Injector;
+    injector: DestroyableInjector;
     builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
     fieldGlobalConfig?: PiCommonConfig;
-    registerOnDestroy?: (fn: any) => void;
   },
 ) {
   const buildOptions: FormBuilderOptions<RESULT> = {
@@ -65,7 +70,7 @@ export function convert<
     ],
     parent: options.injector,
   });
-  options.registerOnDestroy?.(() => {
+  options.injector.get(DestroyRef).onDestroy(() => {
     injector.destroy();
   });
   return convertCore(

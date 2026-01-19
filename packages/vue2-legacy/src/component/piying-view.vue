@@ -46,11 +46,6 @@ const initResult = computed(() => {
     handle: VueSchemaHandle as any,
     builder: VueFormBuilder,
     injector: subInjector,
-    registerOnDestroy: (fn) => {
-      subInjector!.get(DestroyRef).onDestroy(() => {
-        fn();
-      });
-    },
     ...dProps.options,
   });
   return [field, subInjector] as const;

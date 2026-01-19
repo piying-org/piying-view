@@ -117,11 +117,6 @@ export class PiyingView implements OnChanges {
       ...DefaultConvertOptions,
       ...this.options(),
       injector: envInjector,
-      registerOnDestroy: (fn) => {
-        envInjector.get(DestroyRef).onDestroy(() => {
-          fn();
-        });
-      },
     });
     this.resolvedField$.set(result);
     return result;

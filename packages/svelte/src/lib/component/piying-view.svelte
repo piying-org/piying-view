@@ -46,11 +46,6 @@
 			handle: SvelteSchemaHandle as any,
 			builder: SvelteFormBuilder,
 			injector: subInjector,
-			registerOnDestroy: (fn) => {
-				subInjector!.get(DestroyRef).onDestroy(() => {
-					fn();
-				});
-			},
 			...props.options
 		});
 		return [field, subInjector];

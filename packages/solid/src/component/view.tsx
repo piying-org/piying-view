@@ -43,9 +43,6 @@ export function PiyingView(props: PiyingViewProps) {
       handle: SolidSchemaHandle as any,
       builder: SolidFormBuilder,
       injector: subInjector,
-      registerOnDestroy: (fn) => {
-        subInjector!.get(DestroyRef).onDestroy(fn);
-      },
       ...props.options,
     });
     return [field, subInjector] as const;

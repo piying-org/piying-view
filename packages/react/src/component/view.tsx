@@ -46,9 +46,6 @@ export function PiyingView(props: PiyingViewProps) {
       handle: ReactSchemaHandle as any,
       builder: ReactFormBuilder,
       injector: subInjector,
-      registerOnDestroy: (fn) => {
-        subInjector!.get(DestroyRef).onDestroy(fn);
-      },
       ...props.options,
     });
     return [field, subInjector];
