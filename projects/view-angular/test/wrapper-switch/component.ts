@@ -9,7 +9,4 @@ import { PI_VIEW_FIELD_TOKEN } from '../../lib/type';
   providers: [],
   imports: [InsertFieldDirective],
 })
-export class WrapperSwitchComponent {
-  field$$ = inject(PI_VIEW_FIELD_TOKEN);
-  props$$ = computed(() => this.field$$().props());
-}
+export class WrapperSwitchComponent {}

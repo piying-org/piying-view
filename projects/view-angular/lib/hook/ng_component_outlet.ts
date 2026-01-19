@@ -46,19 +46,10 @@ export class NgComponentOutlet<T = any>
   ngComponentOutletInjector = input.required<Injector>();
 
   #injector$$ = computed(() => {
-    const chainedInjector = new ChainedInjector(
+    return new ChainedInjector(
       this.ngComponentOutletField().injector,
       this.ngComponentOutletInjector(),
     );
-    return Injector.create({
-      providers: [
-        {
-          provide: PI_VIEW_FIELD_TOKEN,
-          useValue: this.ngComponentOutletField,
-        },
-      ],
-      parent: chainedInjector,
-    }).get(Injector);
   });
   #formControlDirectiveConfig$$ = computed(() => {
     const fieldControl = this.ngComponentOutletFormControl();

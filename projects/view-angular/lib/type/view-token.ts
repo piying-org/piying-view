@@ -7,6 +7,7 @@ import { SetOptional } from '@piying/view-angular-core';
 import { NgConvertOptions } from './builder-type';
 import { PiViewConfig } from './view-config';
 import * as v from 'valibot';
+import { PI_VIEW_FIELD_TOKEN as PVFT } from '@piying/view-angular-core';
 export const PI_INPUT_OPTIONS_TOKEN = new InjectionToken<
   Signal<
     Omit<
@@ -22,9 +23,7 @@ export const PI_INPUT_MODEL_TOKEN = new InjectionToken<Signal<any>>(
   'PI_INPUT_MODEL',
 );
 /** wrapper中可以使用,已解析的配置 */
-export const PI_VIEW_FIELD_TOKEN = new InjectionToken<
-  Signal<PiResolvedViewFieldConfig>
->('PI_VIEW_FIELD_TOKEN');
+export const PI_VIEW_FIELD_TOKEN = PVFT;
 
 /**
  * @internal

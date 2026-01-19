@@ -71,7 +71,9 @@ describe('组件默认配置', () => {
             actions: [
               actions.inputs.set({ input1: 'test1' }),
               actions.outputs.set({
-                output3: () => {
+                output3: (value) => {
+                  expect(value()).toBeTruthy();
+                  expect(value().origin).toBeTruthy();
                   fields$.resolve(true);
                 },
               }),

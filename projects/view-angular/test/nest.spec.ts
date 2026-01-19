@@ -121,6 +121,8 @@ describe('nest piying view', () => {
                 allFieldsResolved(field) {
                   const service = field.injector.get(Nest1Service);
                   expect(service).toBeTruthy();
+                  expect(service.field()).toBeTruthy();
+                  expect(service.field().origin).toBeTruthy();
                   checked = true;
                 },
               }),

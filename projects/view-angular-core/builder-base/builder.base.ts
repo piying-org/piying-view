@@ -1,6 +1,7 @@
 import {
   PI_FORM_BUILDER_OPTIONS_TOKEN,
   PI_FORM_BUILDER_ALIAS_MAP,
+  PI_VIEW_FIELD_TOKEN,
 } from './type/token';
 import {
   computed,
@@ -125,7 +126,13 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     }
     const isRoot = parent.type === 'root';
     const injector = Injector.create({
-      providers: field.providers ?? [],
+      providers: [
+        ...(field.providers ?? []),
+        {
+          provide: PI_VIEW_FIELD_TOKEN,
+          useValue: () => resolvedConfig,
+        },
+      ],
       parent: parent.field.injector,
     });
     parent.field.injector.get(DestroyRef).onDestroy(() => {
