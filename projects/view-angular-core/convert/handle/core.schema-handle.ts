@@ -221,7 +221,8 @@ export class CoreSchemaHandle<
   }
   override end(schema: SchemaOrPipe): void {
     super.end(schema);
-    this.formConfig.defaultValue = this.defaultValue;
+    this.formConfig.defaultValue =
+      this.defaultValue ?? (this.nullable ? null : undefined);
   }
 }
 export type AnyCoreSchemaHandle = CoreSchemaHandle<
