@@ -72,15 +72,13 @@ export type PiResolvedCommonViewFieldConfig<
     remove: (index: any) => void;
   };
   readonly define?: WritableSignal<Define>;
-
-  wrappers: CombineSignal<CoreWrapperConfig>;
-} & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias' | 'providers'>> &
-  Readonly<
-    Required<
-      Pick<AnyCoreSchemaHandle, 'inputs' | 'outputs' | 'attributes' | 'events'>
-    >
-  > &
-  Readonly<
+} & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias' | 'providers'>> & {
+    readonly inputs: AsyncObjectSignal<ViewInputs>;
+    readonly outputs: AsyncObjectSignal<ViewOutputs>;
+    readonly attributes: AsyncObjectSignal<ViewAttributes>;
+    readonly events: AsyncObjectSignal<ViewEvents>;
+    readonly wrappers: CombineSignal<CoreWrapperConfig>;
+  } & Readonly<
     Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
   >;
 export type _PiResolvedCommonViewFieldConfig = PiResolvedCommonViewFieldConfig<
@@ -100,6 +98,13 @@ export type ViewAttributes = Record<string, any>;
 export type ViewEvents = Record<string, (event: Event) => any>;
 export type ViewProps = Record<string, any>;
 
+export type RawCoreWrapperConfig = {
+  type: string | any | LazyImport<any>;
+  attributes: ViewAttributes;
+  inputs: ViewInputs;
+  outputs: ViewOutputs;
+  events: ViewEvents;
+};
 export type CoreWrapperConfig = {
   type: string | any | LazyImport<any>;
   attributes: AsyncObjectSignal<ViewAttributes>;

@@ -20,7 +20,9 @@ import { fieldQuery } from './field-query';
 
 import {
   _PiResolvedCommonViewFieldConfig,
+  CoreWrapperConfig,
   PiResolvedCommonViewFieldConfig,
+  RawCoreWrapperConfig,
 } from './type/common-field-config';
 import {
   BuildRootInputItem,
@@ -33,9 +35,18 @@ import { FieldGroup } from '../field/field-group';
 import { isFieldLogicGroup, isFieldArray } from '../field/is-field';
 import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../convert';
 import { isArray, isGroup } from './util/is-group';
-import { RawKeyPath, SortedArray, toArray, KeyPath } from '../util';
+import {
+  RawKeyPath,
+  SortedArray,
+  toArray,
+  KeyPath,
+  asyncObjectSignal,
+  combineSignal,
+  observableSignal,
+} from '../util';
 import * as v from 'valibot';
 import { FindConfigToken } from './find-config';
+import { map, pipe } from 'rxjs';
 
 export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #scopeMap =
@@ -107,13 +118,10 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       : typeof field.type !== 'string'
         ? field.type
         : this.#findConfig.findComponentConfig(field.type);
-    const inputs = field.inputs;
-    const outputs = field.outputs;
-
-    const attributes = field.attributes;
-
-    const events = field.events;
-
+    const inputs = asyncObjectSignal(field.inputs);
+    const outputs = asyncObjectSignal(field.outputs);
+    const attributes = asyncObjectSignal(field.attributes);
+    const events = asyncObjectSignal(field.events);
     const formConfig$ = signal(field.formConfig ?? {});
     const renderConfig = signal(field.renderConfig ?? {});
     let control;
@@ -182,7 +190,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       origin: field,
       renderConfig: renderConfig,
       formConfig: formConfig$,
-      props: field.props,
+      props: asyncObjectSignal(field.props),
       context: this.#options.context,
       priority: field.priority,
       hooks: field.hooks,
@@ -202,7 +210,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       define: define
         ? signal({ type: define, inputs, outputs, attributes, events })
         : undefined,
-      wrappers: field.wrappers,
+      wrappers: this.#wrapperToSignal(field.wrappers, injector),
       injector: injector,
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
@@ -479,4 +487,29 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     parent.fixedChildren!().push(inputField);
   }
   #findConfig = inject(FindConfigToken);
+  #wrapperToSignal(list: RawCoreWrapperConfig[], injector: Injector) {
+    return combineSignal(
+      list.map((item) => {
+        return observableSignal<CoreWrapperConfig, CoreWrapperConfig>(
+          {
+            type: item.type,
+            attributes: asyncObjectSignal(item.attributes),
+            inputs: asyncObjectSignal(item.inputs),
+            outputs: asyncObjectSignal(item.outputs),
+            events: asyncObjectSignal(item.events),
+          },
+          {
+            pipe: pipe(
+              map((item) => {
+                const defaultWrapperConfig =
+                  this.#findConfig.findWrapperComponent(item.type);
+                return { ...item, type: defaultWrapperConfig };
+              }),
+            ),
+            injector: injector,
+          },
+        );
+      }),
+    );
+  }
 }

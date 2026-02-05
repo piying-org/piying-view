@@ -4,6 +4,9 @@ import {
   SetOptional,
   SetUnWrapper$,
   CustomDataSymbol,
+  AnyCoreSchemaHandle,
+  _PiResolvedCommonViewFieldConfig,
+  AsyncObjectSignal,
 } from '@piying/view-angular-core';
 import { NgDirectiveConfig } from '../../type';
 import { rawConfig } from './raw-config';
@@ -37,7 +40,16 @@ function createSetOrPatchDirectivePropertyFn(isPatch?: boolean) {
       });
     });
 }
-
+function setSubInitValue<Key extends string>(
+  key: Key,
+  fn: () => Record<Key, AsyncObjectSignal<any>>,
+  initObj: any,
+) {
+  if (!Object.keys(initObj[key]).length) {
+    return;
+  }
+  fn()[key].set(initObj[key]);
+}
 function patchAsyncDirective<T>(
   type: Type<any>,
   actions?: RawConfigAction<'viewRawConfig', any, any>[],
@@ -47,20 +59,40 @@ function patchAsyncDirective<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          const initData = signal({
+          const initData = signal<NgDirectiveConfig>({
             type,
             attributes: asyncObjectSignal({}),
             events: asyncObjectSignal({}),
             inputs: asyncObjectSignal({}),
             outputs: asyncObjectSignal({}),
             model: asyncObjectSignal({}),
-          } as NgDirectiveConfig);
+          });
           field.directives!.add(initData, options?.insertIndex);
           for (const item of actions ?? []) {
-            const tempField = {};
+            const tempField: Partial<AnyCoreSchemaHandle> & { model: any } = {
+              inputs: {},
+              outputs: {},
+              attributes: {},
+              events: {},
+              model: {},
+            };
             (item.value as any)(tempField, undefined, {
-              [CustomDataSymbol]: initData,
+              [CustomDataSymbol]: (
+                rawField: AnyCoreSchemaHandle,
+                field: _PiResolvedCommonViewFieldConfig,
+              ) => {
+                if (rawField) {
+                  return tempField;
+                }
+                return initData;
+              },
             });
+            setSubInitValue('inputs', initData as any, tempField);
+            setSubInitValue('outputs', initData as any, tempField);
+            setSubInitValue('attributes', initData as any, tempField);
+            setSubInitValue('events', initData as any, tempField);
+            setSubInitValue('model', initData as any, tempField);
+
             (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
