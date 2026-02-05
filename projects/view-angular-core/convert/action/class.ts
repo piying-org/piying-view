@@ -6,6 +6,7 @@ import { mergeHooksFn } from './hook';
 import { AsyncCallback } from './type/async-callback';
 import { CustomDataSymbol, __actions as actions } from './input-common';
 import { WritableSignal } from '@angular/core';
+import { ViewAttributes } from '../../builder-base';
 /** 必须防止到所有wrappers操作后面,防止设置错误
  * 设置到顶层,可能是wrapper,也可能是component
  *
@@ -41,21 +42,20 @@ function topClass<T>(className: ClassValue, merge?: boolean) {
 /** 仅设置在组件上 */
 const componentClass = <T>(className: ClassValue, merge?: boolean) =>
   rawConfig<T>((rawField, _, ...args) => {
-    let data$: WritableSignal<any>;
+    let data$;
     if (
       args.length > 0 &&
       typeof args[args.length - 1] === 'object' &&
       CustomDataSymbol in args[args.length - 1]
     ) {
-      data$ = args[args.length - 1][CustomDataSymbol];
+      data$ = (args[args.length - 1][CustomDataSymbol] as any)(rawField);
     } else {
-      data$ = (() => rawField) as any;
+      data$ = rawField;
     }
-    const content$ = data$()['attributes'] as WritableSignal<any>;
-    content$.update((data) => ({
-      ...data,
-      class: merge ? clsx(data?.['class'], className) : clsx(className),
-    }));
+    const content$: ViewAttributes = data$['attributes'];
+    content$['class'] = merge
+      ? clsx(content$['class'], className)
+      : clsx(className);
   });
 
 const bottomClass = componentClass;

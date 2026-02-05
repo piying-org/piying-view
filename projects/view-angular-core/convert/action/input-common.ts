@@ -26,7 +26,9 @@ export const createRemovePropertyFn =
               typeof args[args.length - 1] === 'object' &&
               CustomDataSymbol in args[args.length - 1]
             ) {
-              data$ = args[args.length - 1][CustomDataSymbol];
+              data$ = (args[args.length - 1] as any)[CustomDataSymbol](
+                rawField,
+              );
             } else {
               data$ = (() => field) as any;
             }
@@ -54,17 +56,25 @@ export function createPatchAsyncPropertyFn<
 >(key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') {
   return <T>(dataObj: InputData) =>
     rawConfig<T>((rawField, _, ...args) => {
-      let data$: WritableSignal<any>;
+      let data$;
       if (
         args.length > 0 &&
         typeof args[args.length - 1] === 'object' &&
         CustomDataSymbol in args[args.length - 1]
       ) {
-        data$ = args[args.length - 1][CustomDataSymbol];
+        data$ = (args[args.length - 1][CustomDataSymbol] as any)(rawField);
       } else {
-        data$ = (() => rawField) as any;
+        data$ = rawField;
       }
-      const content$: AsyncObjectSignal<any> = data$()[key];
+      const content$ = {
+        update: (fn: (a: any) => any) => {
+          let value = fn(data$[key]);
+          data$[key] = value;
+        },
+        set: (value: any) => {
+          data$[key] = value;
+        },
+      };
       const inputList = Object.keys(dataObj);
       // 设置初始值
       content$.update((content) => ({
@@ -77,6 +87,20 @@ export function createPatchAsyncPropertyFn<
       return mergeHooksFn(
         {
           allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
+            let data$: WritableSignal<any>;
+            if (
+              args.length > 0 &&
+              typeof args[args.length - 1] === 'object' &&
+              CustomDataSymbol in args[args.length - 1]
+            ) {
+              data$ = (args[args.length - 1][CustomDataSymbol] as any)(
+                undefined,
+                field,
+              );
+            } else {
+              data$ = (() => field) as any;
+            }
+            const content$: AsyncObjectSignal<any> = data$()[key];
             Object.entries(dataObj).forEach(([key, value]) => {
               const result = value(field);
               content$.connect(key, result);
@@ -94,17 +118,25 @@ export function createSetOrPatchPropertyFn<
 >(key: ChangeKey, isPatch?: boolean) {
   return <T>(value: InputData) =>
     rawConfig<T>((rawField, _, ...args) => {
-      let data$: WritableSignal<any>;
+      let data$;
       if (
         args.length > 0 &&
         typeof args[args.length - 1] === 'object' &&
         CustomDataSymbol in args[args.length - 1]
       ) {
-        data$ = args[args.length - 1][CustomDataSymbol];
+        data$ = (args[args.length - 1][CustomDataSymbol] as any)(rawField);
       } else {
-        data$ = (() => rawField) as any;
+        data$ = rawField;
       }
-      const content$ = data$()[key] as WritableSignal<any>;
+      const content$ = {
+        update: (fn: (a: any) => any) => {
+          let value = fn(data$[key]);
+          data$[key] = value;
+        },
+        set: (value: any) => {
+          data$[key] = value;
+        },
+      };
       if (isPatch) {
         content$.update((data) => ({
           ...data,
@@ -115,23 +147,7 @@ export function createSetOrPatchPropertyFn<
       }
     });
 }
-export function createMapPropertyFn(key: ChangeKey) {
-  return <T>(fn: (value: any) => any) =>
-    rawConfig<T>((rawField, _, ...args) => {
-      let data$: WritableSignal<any>;
-      if (
-        args.length > 0 &&
-        typeof args[args.length - 1] === 'object' &&
-        CustomDataSymbol in args[args.length - 1]
-      ) {
-        data$ = args[args.length - 1][CustomDataSymbol];
-      } else {
-        data$ = (() => rawField) as any;
-      }
-      const content$ = data$()[key] as AsyncObjectSignal<any>;
-      content$.map(fn);
-    });
-}
+
 export function createMapAsyncPropertyFn(key: ChangeKey) {
   return <T>(
     fn: (field: _PiResolvedCommonViewFieldConfig) => (value: any) => any,
@@ -146,7 +162,10 @@ export function createMapAsyncPropertyFn(key: ChangeKey) {
               typeof args[args.length - 1] === 'object' &&
               CustomDataSymbol in args[args.length - 1]
             ) {
-              data$ = args[args.length - 1][CustomDataSymbol];
+              data$ = (args[args.length - 1][CustomDataSymbol] as any)(
+                undefined,
+                field,
+              );
             } else {
               data$ = (() => field) as any;
             }
@@ -169,7 +188,6 @@ export const __actions = {
     set: createSetOrPatchPropertyFn('inputs'),
     patchAsync: createPatchAsyncPropertyFn('inputs'),
     remove: createRemovePropertyFn('inputs'),
-    map: createMapPropertyFn('inputs'),
     mapAsync: createMapAsyncPropertyFn('inputs'),
   },
   outputs: {
@@ -190,7 +208,6 @@ export const __actions = {
     remove: createRemovePropertyFn('outputs'),
     merge: mergeOutputs,
     mergeAsync: asyncMergeOutputs,
-    map: createMapPropertyFn('outputs'),
     mapAsync: createMapAsyncPropertyFn('outputs'),
   },
   attributes: {
@@ -198,7 +215,6 @@ export const __actions = {
     set: createSetOrPatchPropertyFn('attributes'),
     patchAsync: createPatchAsyncPropertyFn('attributes'),
     remove: createRemovePropertyFn('attributes'),
-    map: createMapPropertyFn('attributes'),
     mapAsync: createMapAsyncPropertyFn('attributes'),
   },
   events: {
@@ -217,7 +233,6 @@ export const __actions = {
         >
       >('events'),
     remove: createRemovePropertyFn('events'),
-    map: createMapPropertyFn('events'),
     mapAsync: createMapAsyncPropertyFn('events'),
   },
   props: {
@@ -225,7 +240,6 @@ export const __actions = {
     set: createSetOrPatchPropertyFn('props'),
     patchAsync: createPatchAsyncPropertyFn('props'),
     remove: createRemovePropertyFn('props'),
-    map: createMapPropertyFn('props'),
     mapAsync: createMapAsyncPropertyFn('props'),
   },
 };

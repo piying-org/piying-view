@@ -33,6 +33,7 @@ import {
   ViewAttributes,
   ViewProps,
   ViewEvents,
+  RawCoreWrapperConfig,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
 import { asyncObjectSignal, combineSignal, KeyPath } from '../../util';
@@ -43,12 +44,12 @@ export class CoreSchemaHandle<
   Self extends CoreSchemaHandle<any, any>,
   RESOLVED_FN extends () => any,
 > extends BaseSchemaHandle<Self> {
-  inputs = asyncObjectSignal<ViewInputs>({});
-  outputs = asyncObjectSignal<ViewOutputs>({});
-  attributes = asyncObjectSignal<ViewAttributes>({});
-  events = asyncObjectSignal<ViewEvents>({});
-  wrappers = combineSignal<CoreWrapperConfig>([]);
-  override props = asyncObjectSignal<ViewProps>({});
+  inputs: ViewInputs = {};
+  outputs: ViewOutputs = {};
+  attributes: ViewAttributes = {};
+  events: ViewEvents = {};
+  wrappers: RawCoreWrapperConfig[] = [];
+  override props: ViewProps = {};
   alias?: string;
   movePath?: KeyPath;
   renderConfig?: FieldRenderConfig;
@@ -146,16 +147,10 @@ export class CoreSchemaHandle<
     this.formConfig.groupMode = 'reset';
   }
   override enumSchema(schema: EnumSchema): void {
-    this.props.update((data) => ({
-      ...data,
-      options: data['options'] ?? schema.options,
-    }));
+    this.props['options'] = this.props['options'] ?? schema.options;
   }
   override updateProps(key: string, value: any): void {
-    this.props.update((data) => ({
-      ...data,
-      [key]: value,
-    }));
+    this.props[key] = value;
   }
   override intersectBefore(schema: IntersectSchema): void {
     if (this.childrenAsVirtualGroup) {

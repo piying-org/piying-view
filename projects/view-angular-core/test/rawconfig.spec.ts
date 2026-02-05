@@ -10,10 +10,7 @@ describe('rawConfig', () => {
       key1: v.pipe(
         v.string(),
         rawConfig((value) => {
-          value.props.update((value) => ({
-            ...value,
-            props1: 1,
-          }));
+          value.props['props1'] = 1;
 
           return value;
         }),

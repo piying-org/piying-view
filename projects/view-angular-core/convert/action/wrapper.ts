@@ -1,5 +1,9 @@
 import { rawConfig } from './raw-config';
-import { CoreWrapperConfig, PI_VIEW_CONFIG_TOKEN } from '../../builder-base';
+import {
+  _PiResolvedCommonViewFieldConfig,
+  CoreWrapperConfig,
+  PI_VIEW_CONFIG_TOKEN,
+} from '../../builder-base';
 import {
   ObservableSignal,
   observableSignal,
@@ -7,11 +11,15 @@ import {
   SetUnWrapper$,
 } from '../../util';
 import { mergeHooksFn } from './hook';
-import { Signal } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { ConfigAction, CustomDataSymbol } from './input-common';
-import { asyncObjectSignal } from '../../util/create-async-object-signal';
+import {
+  AsyncObjectSignal,
+  asyncObjectSignal,
+} from '../../util/create-async-object-signal';
+import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 function createSetOrPatchWrappersFn(isPatch?: boolean) {
   return <T>(
     wrappers: (
@@ -28,58 +36,52 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
     rawConfig<T>((rawField, _) => {
       const wrapperConfig =
         rawField.globalConfig.additionalData!['defaultWrapperMetadataGroup'];
-      const injector = rawField.globalConfig.additionalData!['injector'];
-      const OptionDefine = {
-        pipe: pipe(
-          map((item: any) => {
-            if (typeof item.type === 'string') {
-              const type = wrapperConfig[item.type]?.type;
-              if (!type) {
-                throw new Error(`🈳wrapper:[${item.type}]❗`);
-              }
-              return { ...item, type: type };
-            }
-
-            return item;
-          }),
-        ),
-        injector: injector,
-      };
       if (!isPatch) {
-        rawField.wrappers.clean();
+        rawField.wrappers = [];
       }
-      wrappers.forEach((item) => {
-        if (typeof item === 'string') {
-          const defaultActions: any[] = wrapperConfig[item]?.actions ?? [];
-          const define = observableSignal(
-            {
-              type: item,
-              inputs: asyncObjectSignal({}),
-              outputs: asyncObjectSignal({}),
-              attributes: asyncObjectSignal({}),
-              events: asyncObjectSignal({}),
-            },
-            OptionDefine,
-          );
-          rawField.wrappers.add(define);
+      wrappers.forEach((wrapperItem) => {
+        if (typeof wrapperItem === 'string') {
+          const defaultActions: any[] =
+            wrapperConfig[wrapperItem]?.actions ?? [];
+          const define = {
+            type: wrapperItem,
+            inputs: {},
+            outputs: {},
+            attributes: {},
+            events: {},
+          };
+          rawField.wrappers.push(define);
           defaultActions.forEach((item) => {
             item.value(rawField, _, {
-              [CustomDataSymbol]: define,
+              [CustomDataSymbol]: (
+                rawField: AnyCoreSchemaHandle,
+                field: _PiResolvedCommonViewFieldConfig,
+              ) => {
+                if (rawField) {
+                  return define;
+                } else {
+                  return field.wrappers.items().find((item) => {
+                    return (
+                      (
+                        item as ObservableSignal<
+                          CoreWrapperConfig,
+                          CoreWrapperConfig
+                        >
+                      ).input().type === wrapperItem
+                    );
+                  });
+                }
+              },
             });
           });
         } else {
-          rawField.wrappers.add(
-            observableSignal(
-              {
-                type: item.type,
-                inputs: asyncObjectSignal(item.inputs ?? {}),
-                outputs: asyncObjectSignal(item.outputs ?? {}),
-                attributes: asyncObjectSignal(item.attributes ?? {}),
-                events: asyncObjectSignal(item.events ?? {}),
-              },
-              OptionDefine,
-            ),
-          );
+          rawField.wrappers.push({
+            type: wrapperItem.type,
+            inputs: wrapperItem.inputs ?? {},
+            outputs: wrapperItem.outputs ?? {},
+            attributes: wrapperItem.attributes ?? {},
+            events: wrapperItem.events ?? {},
+          });
         }
       });
     });
@@ -112,6 +114,16 @@ function removeWrappers<T>(
   });
 }
 
+function setSubInitValue<Key extends string>(
+  key: Key,
+  fn: () => Record<Key, AsyncObjectSignal<any>>,
+  initObj: any,
+) {
+  if (!Object.keys(initObj[key]).length) {
+    return;
+  }
+  fn()[key].set(initObj[key]);
+}
 function patchAsyncWrapper<T>(
   type: any,
   actions?: ConfigAction<any>[],
@@ -156,10 +168,28 @@ function patchAsyncWrapper<T>(
           const allActions = [...defaultActions, ...(actions ?? [])];
 
           for (const item of allActions) {
-            const tempField = {};
+            const tempField: Partial<AnyCoreSchemaHandle> = {
+              inputs: {},
+              outputs: {},
+              attributes: {},
+              events: {},
+            };
             (item.value as any)(tempField, undefined, {
-              [CustomDataSymbol]: initData,
+              [CustomDataSymbol]: (
+                rawField: AnyCoreSchemaHandle,
+                field: _PiResolvedCommonViewFieldConfig,
+              ) => {
+                if (rawField) {
+                  return tempField;
+                }
+                return initData;
+              },
             });
+            setSubInitValue('inputs', initData, tempField);
+            setSubInitValue('outputs', initData, tempField);
+            setSubInitValue('attributes', initData, tempField);
+            setSubInitValue('events', initData, tempField);
+
             (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
@@ -178,7 +208,7 @@ function changeAsyncWrapper<T>(
     mergeHooksFn(
       {
         allFieldsResolved: (field) => {
-          const initData = indexFn(
+          const initData: () => CoreWrapperConfig = indexFn(
             field.wrappers
               .items()
               .map((item) => (item as ObservableSignal<any, any>).input),
@@ -188,10 +218,27 @@ function changeAsyncWrapper<T>(
             throw new Error(`change wrapper not found`);
           }
           for (const item of actions) {
-            const tempField = {};
+            const tempField: Partial<AnyCoreSchemaHandle> = {
+              inputs: {},
+              outputs: {},
+              attributes: {},
+              events: {},
+            };
             (item.value as any)(tempField, undefined, {
-              [CustomDataSymbol]: initData,
+              [CustomDataSymbol]: (
+                rawField: AnyCoreSchemaHandle,
+                field: _PiResolvedCommonViewFieldConfig,
+              ) => {
+                if (rawField) {
+                  return tempField;
+                }
+                return initData;
+              },
             });
+            setSubInitValue('inputs', initData, tempField);
+            setSubInitValue('outputs', initData, tempField);
+            setSubInitValue('attributes', initData, tempField);
+            setSubInitValue('events', initData, tempField);
             (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },

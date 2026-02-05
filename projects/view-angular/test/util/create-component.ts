@@ -43,6 +43,9 @@ export async function createSchemaComponent(
         test1: {
           type: Test1Component,
         },
+        record: {
+          type: PiyingViewGroup,
+        },
         object: {
           type: PiyingViewGroup,
         },

@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { Test1Component } from './test1/test1.component';
 import { BehaviorSubject } from 'rxjs';
 import { htmlInput } from './util/input';
-import { FieldGroup } from '@piying/view-angular-core';
+import { FieldGroup, NFCSchema } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { hooksConfig } from './util/action';
 import { createSchemaComponent } from './util/create-component';
@@ -255,5 +255,33 @@ describe('group初始化', () => {
     fixture.detectChanges();
     inputEl = element.querySelector('input')!;
     expect(inputEl?.value).toEqual('xxx');
+  });
+
+  it('重复子级', async () => {
+    const define = v.record(
+      v.string(),
+      v.pipe(
+        NFCSchema,
+        setComponent(Test1Component),
+        actions.inputs.patchAsync({
+          input1: (field) => {
+            return field.key;
+          },
+        }),
+      ),
+    );
+
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal({ v1: 'v1value', v2: 'v2value' }),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelectorAll('app-test1').item(0).textContent).toContain(
+      'v1',
+    );
+    expect(element.querySelectorAll('app-test1').item(1).textContent).toContain(
+      'v2',
+    );
   });
 });

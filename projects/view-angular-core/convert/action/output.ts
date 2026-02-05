@@ -29,19 +29,15 @@ export const mergeOutputs = <T>(
   outputs: Record<string, (...args: any[]) => void>,
 ) =>
   rawConfig<T>((field) => {
-    field.outputs.update((originOutputs) => {
-      originOutputs = { ...originOutputs };
-      for (const key in outputs) {
-        const oldFn = (originOutputs as any)[key];
-        (originOutputs as any)[key] = (...args: any[]) => {
-          if (oldFn) {
-            oldFn(...args);
-          }
-          return (outputs as any)[key](...args);
-        };
-      }
-      return originOutputs;
-    });
+    for (const key in outputs) {
+      const oldFn = field.outputs[key];
+      field.outputs[key] = (...args: any[]) => {
+        if (oldFn) {
+          oldFn(...args);
+        }
+        return (outputs as any)[key](...args);
+      };
+    }
   });
 export const asyncMergeOutputs = <T>(
   outputs: Record<

@@ -63,24 +63,7 @@ describe('prop', () => {
     inputs = resolved.props();
     expect(Object.keys(inputs).length).toEqual(0);
   });
-  it('map', async () => {
-    const value1 = signal(1);
-    const obj = v.pipe(
-      v.string(),
-      actions.props.patchAsync({
-        value1: () => value1,
-      }),
-      actions.props.map((value) => ({
-        ...value,
-        value2: value['value1'] * 2,
-      })),
-      setComponent('mock-input'),
-    );
-    const resolved = createBuilder(obj);
-    expect(resolved.props()).toEqual({ value1: 1, value2: 2 });
-    value1.set(2);
-    expect(resolved.props()).toEqual({ value1: 2, value2: 4 });
-  });
+
   it('mapAsync', async () => {
     const value1 = signal(1);
     const obj = v.pipe(

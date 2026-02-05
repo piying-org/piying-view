@@ -13,9 +13,9 @@ describe('inputs', () => {
       NFCSchema,
       rawConfig((value) => {
         value.type = 'inputTest';
-        value.inputs.set({ value1: '111', value2: '222' });
+        value.inputs = { value1: '111', value2: '222' };
       }),
-      getField(field$)
+      getField(field$),
     );
     const value = undefined;
     const { instance } = await createComponent(schema, value, {
