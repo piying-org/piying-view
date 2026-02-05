@@ -3,7 +3,7 @@ import * as v from 'valibot';
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
 import { actions } from '@piying/view-angular-core';
-import { NFCSchema } from '@piying/view-core';
+import { NFCSchema } from '@piying/view-angular-core';
 import { Nest1Service } from './nest/nest1.service';
 import { Nest1Component } from './nest/component';
 import { Nest2Component } from './nest/nest2/component';
