@@ -13,7 +13,7 @@ describe('inputs', () => {
       NFCSchema,
       rawConfig((value) => {
         value.type = 'inputTest';
-        value.inputs.set({ value1: '111', value2: '222' });
+        value.inputs = { value1: '111', value2: '222' };
       }),
       getField(field$),
     );
