@@ -264,9 +264,7 @@ describe('group初始化', () => {
         NFCSchema,
         setComponent(Test1Component),
         actions.inputs.patchAsync({
-          input1: (field) => {
-            return field.key;
-          },
+          input1: (field) => field.key,
         }),
       ),
     );

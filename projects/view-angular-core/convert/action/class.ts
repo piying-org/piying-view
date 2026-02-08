@@ -5,7 +5,6 @@ import { mergeHooksFn } from './hook';
 
 import { AsyncCallback } from './type/async-callback';
 import { CustomDataSymbol, __actions as actions } from './input-common';
-import { WritableSignal } from '@angular/core';
 import { ViewAttributes } from '../../builder-base';
 /** 必须防止到所有wrappers操作后面,防止设置错误
  * 设置到顶层,可能是wrapper,也可能是component

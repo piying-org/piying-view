@@ -3,7 +3,11 @@ import type { PiResolvedViewFieldConfig, PiViewConfig } from './type/group';
 import { createContext } from 'solid-js';
 import * as v from 'valibot';
 import type { ConvertOptions } from '@piying/valibot-visit';
-import type { SetOptional, CoreSchemaHandle, FormBuilder } from '@piying/view-core';
+import type {
+  SetOptional,
+  CoreSchemaHandle,
+  FormBuilder,
+} from '@piying/view-core';
 
 export const PI_VIEW_FIELD_TOKEN = createContext<
   PiResolvedViewFieldConfig | undefined

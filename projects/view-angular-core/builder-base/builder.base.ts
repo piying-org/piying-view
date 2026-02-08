@@ -489,8 +489,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
   #findConfig = inject(FindConfigToken);
   #wrapperToSignal(list: RawCoreWrapperConfig[], injector: Injector) {
     return combineSignal(
-      list.map((item) => {
-        return observableSignal<CoreWrapperConfig, CoreWrapperConfig>(
+      list.map((item) =>
+        observableSignal<CoreWrapperConfig, CoreWrapperConfig>(
           {
             type: item.type,
             attributes: asyncObjectSignal(item.attributes),
@@ -508,8 +508,8 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             ),
             injector: injector,
           },
-        );
-      }),
+        ),
+      ),
     );
   }
 }

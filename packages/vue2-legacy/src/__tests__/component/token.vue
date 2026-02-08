@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PI_VIEW_FIELD_TOKEN } from '@piying/view-core';
 import {
   PI_INPUT_MODEL_TOKEN,
   PI_INPUT_OPTIONS_TOKEN,
@@ -15,4 +14,6 @@ emit('tokenChange', {
 });
 </script>
 
-<template></template>
+<template>
+  <div></div>
+</template>

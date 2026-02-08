@@ -26,7 +26,6 @@ export const PI_FORM_BUILDER_ALIAS_MAP = new InjectionToken<
 /** 上下文注入 */
 export const PI_CONTEXT_TOKEN = new InjectionToken<any>('PI_CONTEXT');
 
-
 export const PI_VIEW_FIELD_TOKEN = new InjectionToken<
   Signal<_PiResolvedCommonViewFieldConfig>
 >('PI_VIEW_FIELD_TOKEN');

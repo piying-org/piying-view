@@ -68,7 +68,7 @@ export function createPatchAsyncPropertyFn<
       }
       const content$ = {
         update: (fn: (a: any) => any) => {
-          let value = fn(data$[key]);
+          const value = fn(data$[key]);
           data$[key] = value;
         },
         set: (value: any) => {
@@ -130,7 +130,7 @@ export function createSetOrPatchPropertyFn<
       }
       const content$ = {
         update: (fn: (a: any) => any) => {
-          let value = fn(data$[key]);
+          const value = fn(data$[key]);
           data$[key] = value;
         },
         set: (value: any) => {

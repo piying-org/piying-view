@@ -2,7 +2,6 @@
 
 import { InjectionToken, Signal, EventEmitter } from '@angular/core';
 import { DynamicComponentConfig } from './component';
-import { PiResolvedViewFieldConfig } from './group';
 import { SetOptional } from '@piying/view-angular-core';
 import { NgConvertOptions } from './builder-type';
 import { PiViewConfig } from './view-config';

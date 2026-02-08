@@ -37,9 +37,18 @@ const rootInjector = createRootInjector({
   ],
 });
 provide(InjectorToken, rootInjector);
-provide(PI_INPUT_OPTIONS_TOKEN, computed(() => inputs.options));
-provide(PI_INPUT_SCHEMA_TOKEN, computed(() => inputs.schema));
-provide(PI_INPUT_MODEL_TOKEN, computed(() => inputs.modelValue));
+provide(
+  PI_INPUT_OPTIONS_TOKEN,
+  computed(() => inputs.options),
+);
+provide(
+  PI_INPUT_SCHEMA_TOKEN,
+  computed(() => inputs.schema),
+);
+provide(
+  PI_INPUT_MODEL_TOKEN,
+  computed(() => inputs.modelValue),
+);
 
 let injectorDispose: (() => any) | undefined;
 const initResult = computed(() => {

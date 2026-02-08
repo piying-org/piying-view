@@ -1,6 +1,5 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { InsertFieldDirective } from '../../lib/component/insert-field.directive';
-import { PI_VIEW_FIELD_TOKEN } from '../../lib/type';
 
 @Component({
   selector: 'app-wrapper-switch',

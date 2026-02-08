@@ -11,7 +11,7 @@ import {
   SetUnWrapper$,
 } from '../../util';
 import { mergeHooksFn } from './hook';
-import { Signal, WritableSignal } from '@angular/core';
+import { Signal } from '@angular/core';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
 import { ConfigAction, CustomDataSymbol } from './input-common';
@@ -60,16 +60,17 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
                 if (rawField) {
                   return define;
                 } else {
-                  return field.wrappers.items().find((item) => {
-                    return (
-                      (
-                        item as ObservableSignal<
-                          CoreWrapperConfig,
-                          CoreWrapperConfig
-                        >
-                      ).input().type === wrapperItem
+                  return field.wrappers
+                    .items()
+                    .find(
+                      (item) =>
+                        (
+                          item as ObservableSignal<
+                            CoreWrapperConfig,
+                            CoreWrapperConfig
+                          >
+                        ).input().type === wrapperItem,
                     );
-                  });
                 }
               },
             });
