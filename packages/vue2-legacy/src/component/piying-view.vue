@@ -12,11 +12,16 @@ import {
 } from 'static-injector';
 import { VueSchemaHandle } from '../vue-schema';
 import { VueFormBuilder } from '../builder';
-import { InjectorToken } from '../token';
+import {
+  InjectorToken,
+  PI_INPUT_MODEL_TOKEN,
+  PI_INPUT_OPTIONS_TOKEN,
+  PI_INPUT_SCHEMA_TOKEN,
+} from '../token';
 import FieldTemplate from './field-template.vue';
 import type { Injector } from 'static-injector';
 import { initListen } from '@piying/view-core';
-const dProps = defineProps<{
+const inputs = defineProps<{
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
   modelValue?: any;
   options: any;
@@ -32,6 +37,9 @@ const rootInjector = createRootInjector({
   ],
 });
 provide(InjectorToken, rootInjector);
+provide(PI_INPUT_OPTIONS_TOKEN, computed(() => inputs.options));
+provide(PI_INPUT_SCHEMA_TOKEN, computed(() => inputs.schema));
+provide(PI_INPUT_MODEL_TOKEN, computed(() => inputs.modelValue));
 
 let injectorDispose: (() => any) | undefined;
 const initResult = computed(() => {
@@ -41,11 +49,11 @@ const initResult = computed(() => {
     subInjector.destroy();
     injectorDispose = undefined;
   };
-  const field = convert(dProps.schema as any, {
+  const field = convert(inputs.schema as any, {
     handle: VueSchemaHandle as any,
     builder: VueFormBuilder,
     injector: subInjector,
-    ...dProps.options,
+    ...inputs.options,
   });
   return [field, subInjector] as const;
 });
@@ -55,7 +63,7 @@ onUnmounted(() => {
 const field = computed(() => initResult.value[0]);
 
 watch(
-  () => [initResult.value, dProps.modelValue] as const,
+  () => [initResult.value, inputs.modelValue] as const,
   ([[field, subInjector], modelValue], _1, onWatcherCleanup) => {
     let ref: EffectRef | undefined;
     if (field.form.control) {
@@ -66,7 +74,7 @@ watch(
           }
         });
       });
-      field!.form.control!.updateValue(dProps.modelValue);
+      field!.form.control!.updateValue(inputs.modelValue);
     }
     onWatcherCleanup(() => {
       ref?.destroy();

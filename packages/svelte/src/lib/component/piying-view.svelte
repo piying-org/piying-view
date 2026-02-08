@@ -11,12 +11,12 @@
 	} from 'static-injector';
 	import type { Injector } from 'static-injector';
 	import { setContext } from 'svelte';
-	import { InjectorToken } from '../token';
+	import { InjectorToken, PI_INPUT_MODEL_TOKEN, PI_INPUT_OPTIONS_TOKEN, PI_INPUT_SCHEMA_TOKEN } from '../token';
 	import { SvelteSchemaHandle } from '../svelte-schema';
 	import { SvelteFormBuilder } from '../builder';
 	import FieldTemplate from './field-template.svelte';
 	import { initListen } from '@piying/view-core';
-	let props: {
+	let inputs: {
 		schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
 		model?: any;
 		modelChange?: (value: any) => void;
@@ -32,6 +32,9 @@
 		]
 	});
 	setContext(InjectorToken, rootInjector);
+	setContext(PI_INPUT_OPTIONS_TOKEN, () => inputs.options);
+	setContext(PI_INPUT_SCHEMA_TOKEN, () => inputs.schema);
+	setContext(PI_INPUT_MODEL_TOKEN, () => inputs.model);
 	let injectorDispose: (() => any) | undefined;
 
 	const [field, subInjector] = $derived.by(() => {
@@ -41,11 +44,11 @@
 			subInjector.destroy();
 			injectorDispose = undefined;
 		};
-		const field = convert(props.schema as any, {
+		const field = convert(inputs.schema as any, {
 			handle: SvelteSchemaHandle as any,
 			builder: SvelteFormBuilder,
 			injector: subInjector,
-			...props.options
+			...inputs.options
 		});
 		return [field, subInjector];
 	});
@@ -57,14 +60,14 @@
 	$effect.pre(() => {
 		let ref: EffectRef | undefined;
 		if (field.form.control) {
-			ref = initListen(props.model, field!.form.control!, subInjector as Injector, (value) => {
+			ref = initListen(inputs.model, field!.form.control!, subInjector as Injector, (value) => {
 				untracked(() => {
 					if (field!.form.control?.valueNoError$$()) {
-						props.modelChange?.(value);
+						inputs.modelChange?.(value);
 					}
 				});
 			});
-			field!.form.control?.updateValue(props.model);
+			field!.form.control?.updateValue(inputs.model);
 		}
 
 		return () => {

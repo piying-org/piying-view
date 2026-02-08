@@ -9,7 +9,12 @@ import {
   type EffectRef,
 } from 'static-injector';
 import * as v from 'valibot';
-import { InjectorToken } from '../token';
+import {
+  InjectorToken,
+  PI_INPUT_MODEL_TOKEN,
+  PI_INPUT_OPTIONS_TOKEN,
+  PI_INPUT_SCHEMA_TOKEN,
+} from '../token';
 import { PiyingFieldTemplate } from './field-template';
 import { convert, initListen } from '@piying/view-core';
 import { ReactSchemaHandle } from '../schema-handle';
@@ -78,9 +83,15 @@ export function PiyingView(props: PiyingViewProps) {
 
   return (
     <>
-      <InjectorToken value={rootInjector}>
-        <PiyingFieldTemplate field={field}></PiyingFieldTemplate>
-      </InjectorToken>
+      <PI_INPUT_OPTIONS_TOKEN value={props.options}>
+        <PI_INPUT_SCHEMA_TOKEN value={props.schema}>
+          <PI_INPUT_MODEL_TOKEN value={props.model}>
+            <InjectorToken value={rootInjector}>
+              <PiyingFieldTemplate field={field}></PiyingFieldTemplate>
+            </InjectorToken>
+          </PI_INPUT_MODEL_TOKEN>
+        </PI_INPUT_SCHEMA_TOKEN>
+      </PI_INPUT_OPTIONS_TOKEN>
     </>
   );
 }
