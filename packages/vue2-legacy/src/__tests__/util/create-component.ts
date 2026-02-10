@@ -21,9 +21,11 @@ export async function createComponent(
   cmpOptions?: {
     defaultConfig?: PiViewConfig;
     context?: any;
+    injector?: any;
   },
 ) {
   const options = computed(() => ({
+    injector: cmpOptions?.injector,
     context: cmpOptions?.context,
     fieldGlobalConfig: {
       ...cmpOptions?.defaultConfig,

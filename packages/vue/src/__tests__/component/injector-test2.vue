@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import { InjectorToken } from '@piying/view-vue';
+import { inject } from 'vue';
+import { Test1Token } from '../util/token';
+
+const emit = defineEmits(['tokenChange']);
+emit('tokenChange', {
+  value: inject(InjectorToken)!.get(Test1Token),
+});
+</script>
+
+<template>
+  <div></div>
+</template>

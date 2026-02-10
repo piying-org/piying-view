@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as v from 'valibot';
 import { convert } from '@piying/view-core';
-import { computed, onUnmounted, provide, watch } from 'vue';
+import { computed, inject, onUnmounted, provide, watch } from 'vue';
 import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
@@ -17,6 +17,7 @@ import {
   PI_INPUT_MODEL_TOKEN,
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
+  PI_VIEW_FIELD_TOKEN,
 } from '../token';
 import FieldTemplate from './field-template.vue';
 import type { Injector } from 'static-injector';
@@ -24,22 +25,25 @@ import { initListen } from '@piying/view-core';
 const inputs = defineProps<{
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
   modelValue?: any;
-  options: any;
+  options: { injector?: Injector; [name: string]: any };
 }>();
 
 const emit = defineEmits(['update:modelValue']);
-const rootInjector = createRootInjector({
-  providers: [
-    {
-      provide: ChangeDetectionScheduler,
-      useClass: ChangeDetectionSchedulerImpl,
-    },
-  ],
-});
+const rootInjector =
+  inputs.options.injector ??
+  inject(PI_VIEW_FIELD_TOKEN, undefined)?.value.injector ??
+  createRootInjector({
+    providers: [
+      {
+        provide: ChangeDetectionScheduler,
+        useClass: ChangeDetectionSchedulerImpl,
+      },
+    ],
+  });
 provide(InjectorToken, rootInjector);
 provide(
   PI_INPUT_OPTIONS_TOKEN,
-  computed(() => inputs.options),
+  computed(() => inputs.options as any),
 );
 provide(
   PI_INPUT_SCHEMA_TOKEN,
@@ -59,10 +63,10 @@ const initResult = computed(() => {
     injectorDispose = undefined;
   };
   const field = convert(inputs.schema as any, {
+    ...inputs.options,
     handle: VueSchemaHandle as any,
     builder: VueFormBuilder,
     injector: subInjector,
-    ...inputs.options,
   });
   return [field, subInjector] as const;
 });
