@@ -29,10 +29,11 @@ const inputs = defineProps<{
 }>();
 
 const emit = defineEmits(['update:modelValue']);
+const maybeParentField = inject(PI_VIEW_FIELD_TOKEN, undefined);
 const rootInjector = computed(() => {
   return (
     inputs.options.injector ??
-    inject(PI_VIEW_FIELD_TOKEN, undefined)?.value.injector ??
+    maybeParentField?.value.injector ??
     createRootInjector({
       providers: [
         {
@@ -60,7 +61,7 @@ provide(
 let injectorDispose: (() => any) | undefined;
 const initResult = computed(() => {
   injectorDispose?.();
-  const subInjector = createInjector({ providers: [], parent:  rootInjector.value });
+  const subInjector = createInjector({ providers: [], parent: rootInjector.value });
   injectorDispose = () => {
     subInjector.destroy();
     injectorDispose = undefined;

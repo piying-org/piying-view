@@ -16,6 +16,7 @@ import {
 import InjectorTest2 from './component/injector-test2.vue';
 import PciP1 from './component/parent-change-injector/pci-p1.vue';
 import { delay } from './util/delay';
+import { PciTestService } from './component/parent-change-injector/pci-test.service';
 
 describe('nest', () => {
   it('初始化注入', async () => {
@@ -26,6 +27,7 @@ describe('nest', () => {
       actions.inputs.patchAsync({
         inputs: () => inputs$,
       }),
+      actions.providers.patch([PciTestService]),
     );
     const value = shallowRef();
     const { instance, el } = await createComponent(schema, value, {});

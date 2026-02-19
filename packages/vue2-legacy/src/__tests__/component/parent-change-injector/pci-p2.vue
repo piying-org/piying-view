@@ -5,6 +5,7 @@ import { signal } from 'static-injector';
 import * as v from 'valibot';
 import { inject, watchEffect } from 'vue';
 import PciP3 from './pci-p3.vue';
+import { PciTestService } from './pci-test.service';
 
 let inputs = defineProps<{ value: number }>();
 let schema = v.pipe(
@@ -13,6 +14,11 @@ let schema = v.pipe(
   actions.inputs.patchAsync({
     value: (field) => {
       return field.context['item$']();
+    },
+  }),
+  actions.hooks.merge({
+    allFieldsResolved: (field) => {
+      field.injector.get(PciTestService);
     },
   }),
 );
