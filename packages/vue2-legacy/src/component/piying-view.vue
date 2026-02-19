@@ -29,17 +29,20 @@ const inputs = defineProps<{
 }>();
 
 const emit = defineEmits(['update:modelValue']);
-const rootInjector =
-  inputs.options.injector ??
-  inject(PI_VIEW_FIELD_TOKEN, undefined)?.value.injector ??
-  createRootInjector({
-    providers: [
-      {
-        provide: ChangeDetectionScheduler,
-        useClass: ChangeDetectionSchedulerImpl,
-      },
-    ],
-  });
+const rootInjector = computed(() => {
+  return (
+    inputs.options.injector ??
+    inject(PI_VIEW_FIELD_TOKEN, undefined)?.value.injector ??
+    createRootInjector({
+      providers: [
+        {
+          provide: ChangeDetectionScheduler,
+          useClass: ChangeDetectionSchedulerImpl,
+        },
+      ],
+    })
+  );
+});
 provide(InjectorToken, rootInjector);
 provide(
   PI_INPUT_OPTIONS_TOKEN,
@@ -57,7 +60,7 @@ provide(
 let injectorDispose: (() => any) | undefined;
 const initResult = computed(() => {
   injectorDispose?.();
-  const subInjector = createInjector({ providers: [], parent: rootInjector });
+  const subInjector = createInjector({ providers: [], parent:  rootInjector.value });
   injectorDispose = () => {
     subInjector.destroy();
     injectorDispose = undefined;

@@ -48,8 +48,8 @@ const isControl = isFieldControl(field.value.form.control);
 let dispose: ((destroy?: boolean) => void) | undefined;
 
 watch(
-  [childRef, field],
-  ([childRef, field]) => {
+  [childRef, field, injector],
+  ([childRef, field, injector]) => {
     dispose?.();
     if (isControl && childRef) {
       dispose = createViewControlLink((() => field.form.control) as any, childRef['cva'], injector);

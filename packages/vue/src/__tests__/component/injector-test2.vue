@@ -5,7 +5,7 @@ import { Test1Token } from '../util/token';
 
 const emit = defineEmits(['tokenChange']);
 emit('tokenChange', {
-  value: inject(InjectorToken)!.get(Test1Token),
+  value: inject(InjectorToken)!.value.get(Test1Token),
 });
 </script>
 

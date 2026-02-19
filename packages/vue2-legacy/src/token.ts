@@ -5,7 +5,7 @@ import { SetOptional, CoreSchemaHandle, FormBuilder } from '@piying/view-core';
 import { ConvertOptions } from '@piying/valibot-visit';
 import * as v from 'valibot';
 
-export const InjectorToken: InjectionKey<Injector> = Symbol();
+export const InjectorToken: InjectionKey<ComputedRef<Injector>> = Symbol();
 export const PI_VIEW_FIELD_TOKEN: InjectionKey<ComputedRef<PiResolvedViewFieldConfig>> = Symbol();
 
 export const PI_INPUT_OPTIONS_TOKEN: InjectionKey<

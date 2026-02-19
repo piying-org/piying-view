@@ -16,7 +16,7 @@ export function signalToRef<T>(value: () => T | undefined): ShallowRef<T> {
           dataRef.value = currentValue;
         }
       },
-      { injector: injector },
+      { injector: injector.value },
     );
     onWatcherCleanup(() => {
       ref.destroy();

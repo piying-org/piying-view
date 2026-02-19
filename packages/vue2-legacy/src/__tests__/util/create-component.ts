@@ -103,5 +103,5 @@ export async function createComponent(
   });
   await nextTick();
   await delay();
-  return { instance };
+  return { instance, el: instance.element as HTMLElement };
 }

@@ -8,7 +8,8 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
     "lib": [
-      "ES2024.Promise"
+      "ES2024.Promise",
+      "DOM"
     ],
     "types": [
       "node",
