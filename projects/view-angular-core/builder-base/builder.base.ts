@@ -196,16 +196,16 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       hooks: field.hooks,
       alias: field.alias,
       get inputs() {
-        return resolvedConfig.define!().inputs;
+        return resolvedConfig.define?.().inputs;
       },
       get outputs() {
-        return resolvedConfig.define!().outputs;
+        return resolvedConfig.define?.().outputs;
       },
       get events() {
-        return resolvedConfig.define!().events;
+        return resolvedConfig.define?.().events;
       },
       get attributes() {
-        return resolvedConfig.define!().attributes;
+        return resolvedConfig.define?.().attributes;
       },
       define: define
         ? signal({ type: define, inputs, outputs, attributes, events })

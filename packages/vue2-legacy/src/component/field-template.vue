@@ -25,12 +25,14 @@ const props = defineProps<{
 }>();
 const injector = vInject(InjectorToken)!;
 
-const inputs = signalToRef(() => props.field.inputs());
-const outputs = signalToRef(() => props.field.outputs());
 const renderConfig = signalToRef(() => props.field.renderConfig());
-
-const attributes = signalToRef(() => props.field.attributes());
+const inputs = signalToRef(() => props.field.inputs?.());
+const attributes = signalToRef(() => props.field.attributes?.());
 const fieldInput = computed(() => ({ ...attributes.value, ...inputs.value }));
+const outputs = signalToRef(() => props.field.outputs?.());
+const events = signalToRef(() => props.field.events?.());
+const fieldOutput = computed(() => ({ ...outputs.value, ...events.value }));
+
 const fieldChildren = signalToRef(() => props.field.children?.());
 
 const wrappers = signalToRef(() => props.field.wrappers());
@@ -70,7 +72,7 @@ onUnmounted(() => {
         <pi-wrapper v-bind:wrappers="wrappers">
           <!-- group -->
           <template v-if="fieldChildren">
-            <component :is="componentType" v-bind="fieldInput" v-on="outputs"></component>
+            <component :is="componentType" v-bind="fieldInput" v-on="fieldOutput"></component>
           </template>
           <!-- control -->
           <template v-else>
@@ -78,12 +80,12 @@ onUnmounted(() => {
               <component
                 :is="componentType"
                 v-bind="fieldInput"
-                v-on="outputs"
+                v-on="fieldOutput"
                 ref="childRef"
               ></component>
             </template>
             <template v-else>
-              <component :is="componentType" v-bind="fieldInput" v-on="outputs"></component>
+              <component :is="componentType" v-bind="fieldInput" v-on="fieldOutput"></component>
             </template>
           </template>
         </pi-wrapper>
