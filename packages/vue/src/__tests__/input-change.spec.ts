@@ -2,11 +2,12 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
-import { shallowRef } from 'vue';
+import { ref, shallowRef } from 'vue';
 import { nextTick } from 'vue';
 import { delay } from './util/delay';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
+import { actions } from '@piying/view-core';
 
 describe('输入参数变化', () => {
   it('string变number', async () => {
@@ -37,5 +38,31 @@ describe('输入参数变化', () => {
     await delay();
     const field = await field$.promise;
     expect(field.form.control!.value$$()).eq(456);
+  });
+  it('allFieldsResolved不被ref影响', async () => {
+    let testRef1 = ref(1);
+    const value = shallowRef(1);
+    let count = 0;
+    const { instance } = await createComponent(
+      v.pipe(
+        v.string(),
+        actions.hooks.merge({
+          allFieldsResolved: (field) => {
+            testRef1.value
+            count++;
+          },
+        }),
+      ),
+      value,
+      { context: { test1: testRef1 } },
+    );
+
+    await nextTick();
+    await delay();
+    value.value = 2;
+    testRef1.value = 2;
+    await nextTick();
+    await delay();
+    expect(count).eq(1);
   });
 });

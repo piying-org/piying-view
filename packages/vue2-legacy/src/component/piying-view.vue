@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as v from 'valibot';
-import { convert } from '@piying/view-core';
-import { computed, inject, onUnmounted, provide, watch } from 'vue';
+import { convert, PiResolvedCommonViewFieldConfig } from '@piying/view-core';
+import { computed, inject, onUnmounted, provide, shallowRef, watch } from 'vue';
 import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
@@ -20,7 +20,7 @@ import {
   PI_VIEW_FIELD_TOKEN,
 } from '../token';
 import FieldTemplate from './field-template.vue';
-import type { Injector } from 'static-injector';
+import type { Injector, R3Injector } from 'static-injector';
 import { initListen } from '@piying/view-core';
 const inputs = defineProps<{
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
@@ -58,29 +58,30 @@ provide(
   computed(() => inputs.modelValue),
 );
 
-let injectorDispose: (() => any) | undefined;
-const initResult = computed(() => {
-  injectorDispose?.();
-  const subInjector = createInjector({ providers: [], parent: rootInjector.value });
-  injectorDispose = () => {
-    subInjector.destroy();
-    injectorDispose = undefined;
-  };
-  const field = convert(inputs.schema as any, {
-    ...inputs.options,
-    handle: VueSchemaHandle as any,
-    builder: VueFormBuilder,
-    injector: subInjector,
-  });
-  return [field, subInjector] as const;
-});
-onUnmounted(() => {
-  injectorDispose?.();
-});
-const field = computed(() => initResult.value[0]);
+let initResult =
+  shallowRef<[Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>, R3Injector]>();
+watch(
+  () => [inputs.schema, inputs.options, rootInjector.value],
+  (_, __, onCleanup) => {
+    const subInjector = createInjector({ providers: [], parent: rootInjector.value });
+    onCleanup(() => {
+      subInjector.destroy();
+    });
+
+    const field = convert(inputs.schema as any, {
+      ...inputs.options,
+      handle: VueSchemaHandle as any,
+      builder: VueFormBuilder,
+      injector: subInjector,
+    });
+    initResult.value = [field, subInjector] as const;
+  },
+  { immediate: true },
+);
+const field = computed(() => initResult.value![0]);
 
 watch(
-  () => [initResult.value, inputs.modelValue] as const,
+  () => [initResult.value!, inputs.modelValue] as const,
   ([[field, subInjector], modelValue], _1, onWatcherCleanup) => {
     let ref: EffectRef | undefined;
     if (field.form.control) {
