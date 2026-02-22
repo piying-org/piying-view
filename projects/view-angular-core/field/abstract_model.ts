@@ -19,19 +19,39 @@ import { PI_CONTEXT_TOKEN } from '../builder-base/type/token';
 import { clone } from '../util/clone';
 import { toObservable } from '../util/to_observable';
 import { deepEqual } from 'fast-equals';
-export type ValidationErrors = {
+export type ValidationErrorsLegacy = {
   [key: string]: any;
 };
+
+export type ValidationValibotError2 = {
+  kind: 'valibot';
+  metadata: [v.BaseIssue<unknown>, ...v.BaseIssue<unknown>[]];
+};
+export type ValidationErrorError2 = {
+  kind: 'error';
+  metadata: Error;
+};
+export type ValidationCommonError2 = {
+  kind: string;
+  metatdata?: any;
+  message?: string;
+};
+export type ValidationErrors2 =
+  | ValidationValibotError2
+  | ValidationErrorError2
+  | ValidationCommonError2;
 export interface ValidatorFn {
-  (control: AbstractControl): ValidationErrors | undefined;
+  (
+    control: AbstractControl,
+  ): ValidationErrorsLegacy | ValidationErrors2[] | undefined;
 }
 export interface AsyncValidatorFn {
   (
     control: AbstractControl,
   ):
-    | Promise<ValidationErrors | undefined>
-    | Observable<ValidationErrors | undefined>
-    | Signal<ValidationErrors | undefined>;
+    | Promise<ValidationErrorsLegacy | ValidationErrors2[] | undefined>
+    | Observable<ValidationErrorsLegacy | ValidationErrors2[] | undefined>
+    | Signal<ValidationErrorsLegacy | ValidationErrors2[] | undefined>;
 }
 
 function shortCircuitTrue(value: boolean): boolean {
@@ -73,7 +93,12 @@ export abstract class AbstractControl<TValue = any> {
   /** 已激活的子级,用于校验获得返回值之类 */
   activatedChildren$$?: Signal<AbstractControl[]>;
   /** 通用的子级,用于查询之类 */
-  children$$?: Signal<AbstractControl[]>;
+  children$$?: Signal<
+    | {
+        [s: string]: AbstractControl;
+      }
+    | ArrayLike<AbstractControl>
+  >;
   /** disabled */
   readonly selfDisabled$$ = computed(() => this.config$?.().disabled ?? false);
   /** `self` || `parent` */
@@ -112,13 +137,15 @@ export abstract class AbstractControl<TValue = any> {
   /** dirty */
   private readonly selfDirty$ = signal(false);
 
-  readonly dirty$$: Signal<boolean> = computed(() =>
-    this.reduceChildren(
+  readonly dirty$$: Signal<boolean> = computed(() => {
+    return this.reduceChildren(
       this.selfDirty$(),
-      (child, value) => value || child.dirty$$(),
+      (child, value) => {
+        return value || child.dirty$$();
+      },
       shortCircuitTrue,
-    ),
-  );
+    );
+  });
   get dirty(): boolean {
     return untracked(this.dirty$$);
   }
@@ -136,22 +163,33 @@ export abstract class AbstractControl<TValue = any> {
         if (disabled) {
           return undefined;
         }
+        // 请求同级
         this.resetIndex$();
         this.value$$();
-        const result = this.#validators$$().reduce((obj, item) => {
+        const result = this.#validators$$().flatMap((item) => {
           const result = untracked(() => item(this));
-          if (result) {
-            obj = { ...obj, ...result };
+          if (!result) {
+            return [];
           }
-          return obj;
-        }, {} as ValidationErrors);
+          if (Array.isArray(result)) {
+            return result as ValidationErrors2[];
+          }
+          return Object.entries(result as ValidationErrorsLegacy).map(
+            ([key, value]) => {
+              return {
+                kind: key,
+                metatdata: value,
+              } as ValidationErrors2;
+            },
+          );
+        });
         const schemaResult = this.#schemaCheck$$();
         if (!schemaResult.success) {
-          return { ...result, valibot: schemaResult.issues };
+          return result.concat([
+            { kind: 'valibot', metadata: schemaResult.issues },
+          ]);
         }
-        return Object.keys(result).length
-          ? (result as ValidationErrors)
-          : undefined;
+        return result.length ? result : undefined;
       },
       { equal: () => false },
     ),
@@ -169,20 +207,31 @@ export abstract class AbstractControl<TValue = any> {
     return computed(() => {
       const params = dataList.map((item) => item());
       let pendingCount = 0;
-      const errorResult = params.reduce(
-        (obj, item) => {
-          if (item === ValidatorPending) {
-            pendingCount++;
-            return obj;
-          } else if ('value' in item) {
-            return { ...obj, ...item.value };
-          } else {
-            return { ...obj, error: item.error };
+      const errorResult = params.flatMap((item) => {
+        if (item === ValidatorPending) {
+          pendingCount++;
+          return [];
+        } else if ('value' in item) {
+          let result = item.value;
+          if (!result) {
+            return [];
           }
-        },
-        {} as Record<string, any>,
-      );
-      if (!Object.keys(errorResult).length) {
+          if (Array.isArray(result)) {
+            return result as ValidationErrors2[];
+          }
+          return Object.entries(result as ValidationErrorsLegacy).map(
+            ([key, value]) => {
+              return {
+                kind: key,
+                metatdata: value,
+              } as ValidationErrors2;
+            },
+          );
+        } else {
+          return { kind: 'error', metadata: item.error } as ValidationErrors2;
+        }
+      });
+      if (!errorResult.length) {
         if (pendingCount) {
           return ValidatorPending;
         }
@@ -219,7 +268,7 @@ export abstract class AbstractControl<TValue = any> {
       return PENDING;
     }
     if (syncError && asyncError) {
-      return { ...syncError, ...asyncError };
+      return [...syncError, ...asyncError];
     } else if (syncError || asyncError) {
       return syncError || asyncError;
     } else {
@@ -356,7 +405,7 @@ export abstract class AbstractControl<TValue = any> {
   /** 校验和获得值用 */
   private reduceChildren<T>(
     initialValue: T,
-    fn: (child: AbstractControl<any>, value: T) => T,
+    fn: (child: AbstractControl<any>, value: T, key: string | number) => T,
     shortCircuit?: (value: T) => boolean,
   ): T {
     const childrenMap = (this.activatedChildren$$ ?? this.children$$)?.();
@@ -364,15 +413,20 @@ export abstract class AbstractControl<TValue = any> {
       return initialValue;
     }
     let value = initialValue;
-    for (const child of childrenMap) {
-      if (!child) {
+    let list = Object.entries(childrenMap);
+    let isArray = Array.isArray(childrenMap);
+    for (let index = 0; index < list.length; index++) {
+      if (!list[index][1]) {
         continue;
       }
+      let key = isArray ? index : list[index][0];
+      let item = list[index][1];
       if (shortCircuit?.(value)) {
         break;
       }
-      value = fn(child, value);
+      value = fn(item, value, key);
     }
+
     return value;
   }
   #valueChange: Observable<any> | undefined;
@@ -431,7 +485,7 @@ export abstract class AbstractControl<TValue = any> {
   /** 仅触发 updateOn: submit 时使用 */
   emitSubmit() {
     if (this.children$$) {
-      this.children$$().forEach((child) => {
+      Object.values(this.children$$()).forEach((child) => {
         if (!child) {
           return;
         }

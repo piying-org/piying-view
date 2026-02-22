@@ -5,6 +5,7 @@ import { htmlInput } from './util/input';
 import {
   FieldFormConfig$,
   FieldGroup,
+  findError,
   isFieldControl,
   layout,
 } from '@piying/view-angular-core';
@@ -320,7 +321,7 @@ describe('表单控件配置', () => {
               if (control.value % 2 === 0) {
                 return undefined;
               }
-              return { error: true };
+              return { error1: true };
             },
           ],
         }),
@@ -339,7 +340,9 @@ describe('表单控件配置', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control?.invalid).toBeTrue();
-    expect(field.form.control?.errors!['error']).toBeTrue();
+    expect(
+      findError(field.form.control!.errors, 'error1')?.metatdata,
+    ).toBeTrue();
     expect(instance.form$().value$$()).toEqual(undefined as any);
   });
 });

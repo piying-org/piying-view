@@ -14,11 +14,11 @@ export function getDeepError(control?: AbstractControl) {
     }
     list.push({ control, errors: control.errors });
     if (isFieldArray(control) || isFieldGroup(control)) {
-      (control.activatedChildren$$ ?? control.children$$)().forEach(
-        (control) => {
-          controlList.push(control);
-        },
-      );
+      Object.values(
+        (control.activatedChildren$$ ?? control.children$$)(),
+      ).forEach((control) => {
+        controlList.push(control);
+      });
     }
   }
   return list;

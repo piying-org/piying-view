@@ -9,7 +9,7 @@ import {
 } from '@piying/view-angular-core/test';
 import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { isUndefined, omitBy } from 'es-toolkit';
-describe('object', () => {
+describe('compatible', () => {
   it('relate-req', async () => {
     const jsonSchema = {
       dependencies: { key1: ['req1'] },

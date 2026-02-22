@@ -66,15 +66,26 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
       this.value$$.set(transfomered.output);
       this.syncError$.update((data) => {
         if (data) {
-          delete data['valibot'];
+          let index = data.findIndex((item) => item.kind === 'valibot');
+          if (index !== -1) {
+            data.splice(index, 1);
+          }
         }
         return data && Object.keys(data).length ? data : undefined;
       });
     } else {
-      this.syncError$.update((data) => ({
-        ...data,
-        valibot: transfomered.issues,
-      }));
+      this.syncError$.update((data) => {
+        if (data) {
+          let index = data.findIndex((item) => item.kind === 'valibot');
+          if (index !== -1) {
+            data.splice(index, 1);
+          }
+        }
+        return (data ?? []).concat({
+          kind: 'valibot',
+          metadata: transfomered.issues,
+        });
+      });
     }
   }
 
