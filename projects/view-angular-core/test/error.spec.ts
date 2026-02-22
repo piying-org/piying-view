@@ -36,4 +36,13 @@ describe('error', () => {
     field.form.control?.updateValue({ k2: '2' });
     expect(getDeepError(field.form.control).length).toEqual(2);
   });
+  it('查找子级异常', () => {
+    const obj = v.object({
+      k1: v.string(),
+    });
+    const field = createBuilder(obj);
+    field.form.control?.updateValue({ k1: 1 });
+    expect(field.form.control?.errors![0].kind).toBe('descendant')
+    expect(field.form.control?.errors![0]['metadata']).toBeTruthy()
+  });
 });

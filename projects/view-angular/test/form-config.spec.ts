@@ -341,7 +341,7 @@ describe('表单控件配置', () => {
     fixture.detectChanges();
     expect(field.form.control?.invalid).toBeTrue();
     expect(
-      findError(field.form.control!.errors, 'error1')?.metatdata,
+      findError(field.form.control!.errors, 'error1')?.metadata,
     ).toBeTrue();
     expect(instance.form$().value$$()).toEqual(undefined as any);
   });

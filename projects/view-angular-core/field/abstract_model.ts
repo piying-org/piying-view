@@ -31,14 +31,21 @@ export type ValidationErrorError2 = {
   kind: 'error';
   metadata: Error;
 };
+export type ValidationDescendantError2 = {
+  kind: 'descendant';
+  key: string | number;
+  field: AbstractControl;
+  metadata: ValidationCommonError2[];
+};
 export type ValidationCommonError2 = {
   kind: string;
-  metatdata?: any;
+  metadata?: any;
   message?: string;
 };
 export type ValidationErrors2 =
   | ValidationValibotError2
   | ValidationErrorError2
+  | ValidationDescendantError2
   | ValidationCommonError2;
 export interface ValidatorFn {
   (
@@ -166,6 +173,27 @@ export abstract class AbstractControl<TValue = any> {
         // 请求同级
         this.resetIndex$();
         this.value$$();
+        let childrenResult = this.reduceChildren<ValidationErrors2[]>(
+          [],
+          (child, value, key) => {
+            if (
+              (!child.selfDisabled$$() ||
+                (child.selfDisabled$$() &&
+                  child.config$().disabledValue === 'reserve')) &&
+              child.errors
+            ) {
+              value.push({
+                kind: 'descendant',
+                key: key,
+                metadata: child.errors,
+              });
+            }
+            return value;
+          },
+        );
+        if (childrenResult.length) {
+          return childrenResult;
+        }
         const result = this.#validators$$().flatMap((item) => {
           const result = untracked(() => item(this));
           if (!result) {
@@ -178,7 +206,7 @@ export abstract class AbstractControl<TValue = any> {
             ([key, value]) => {
               return {
                 kind: key,
-                metatdata: value,
+                metadata: value,
               } as ValidationErrors2;
             },
           );
@@ -223,7 +251,7 @@ export abstract class AbstractControl<TValue = any> {
             ([key, value]) => {
               return {
                 kind: key,
-                metatdata: value,
+                metadata: value,
               } as ValidationErrors2;
             },
           );
