@@ -15,7 +15,7 @@ export const PI_VIEW_FIELD_TOKEN = createContext<
 export const InjectorToken = createContext<Injector | undefined>(undefined);
 export const PI_INPUT_OPTIONS_TOKEN = createContext<
   SetOptional<ConvertOptions<typeof CoreSchemaHandle<any, any>>, 'handle'> & {
-    builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
+    builder?: typeof FormBuilder<CoreSchemaHandle<any, any>>;
     fieldGlobalConfig?: PiViewConfig;
   }
 >(undefined as any);

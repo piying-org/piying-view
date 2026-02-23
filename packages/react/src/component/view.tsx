@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
@@ -14,6 +14,7 @@ import {
   PI_INPUT_MODEL_TOKEN,
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
+  PI_VIEW_FIELD_TOKEN,
 } from '../token';
 import { PiyingFieldTemplate } from './field-template';
 import { convert, initListen } from '@piying/view-core';
@@ -24,19 +25,25 @@ export interface PiyingViewProps {
   schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
   model?: any;
   modelChange?: (value: any) => void;
-  options: any;
+  options: { injector?: Injector; builder?: any; [name: string]: any };
 }
 export function PiyingView(props: PiyingViewProps) {
+  const maybeParentField = useContext(PI_VIEW_FIELD_TOKEN);
+
   const rootInjector = useMemo(() => {
-    return createRootInjector({
-      providers: [
-        {
-          provide: ChangeDetectionScheduler,
-          useClass: ChangeDetectionSchedulerImpl,
-        },
-      ],
-    });
-  }, []);
+    return (
+      props.options.injector ??
+      maybeParentField?.injector ??
+      createRootInjector({
+        providers: [
+          {
+            provide: ChangeDetectionScheduler,
+            useClass: ChangeDetectionSchedulerImpl,
+          },
+        ],
+      })
+    );
+  }, [props.options.injector, maybeParentField?.injector]);
   const injectorDispose = useRef<(() => void) | undefined>(undefined);
 
   const [field, subInjector] = useMemo(() => {
@@ -47,13 +54,13 @@ export function PiyingView(props: PiyingViewProps) {
       injectorDispose.current = undefined;
     };
     const field = convert(props.schema as any, {
+      ...props.options,
       handle: ReactSchemaHandle as any,
       builder: ReactFormBuilder,
       injector: subInjector,
-      ...props.options,
     });
     return [field, subInjector];
-  }, [props.schema, props.options]);
+  }, [props.schema, props.options, rootInjector]);
   useEffect(() => {
     return () => {
       injectorDispose.current?.();
