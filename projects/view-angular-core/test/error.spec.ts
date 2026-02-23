@@ -59,8 +59,10 @@ describe('error', () => {
     const result = createBuilder(obj);
     let v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
     v1Field.updateValue({ k1: '1', k2: '2' });
+    expect(v1Field.valid).toBeFalsy();
     expect(v1Field.errors).toBeTruthy();
     v1Field.activateControls$.set([v1Field.controls[0]]);
+    expect(v1Field.valid).toBeTruthy();
     expect(v1Field.errors).toBeFalsy();
   });
 });
