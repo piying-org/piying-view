@@ -1,7 +1,6 @@
 import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
-import { AbstractControl } from '../field/abstract_model';
 import { FieldControl } from '../../../dist/view-core';
 import { FieldArray } from '../field/field-array';
 import { FieldLogicGroup } from '../field/field-logic-group';
@@ -10,14 +9,12 @@ describe('transform', () => {
     const obj = v.object({
       v1: v.pipe(
         v.string(),
-        v.transform((a) => {
-          return +a;
-        }),
+        v.transform((a) => +a),
       ),
     });
     const result = createBuilder(obj);
     result.form.control?.updateValue({ v1: '11' });
-    let v1Field = result.get(['v1'])?.form.control as any as FieldControl;
+    const v1Field = result.get(['v1'])?.form.control as any as FieldControl;
     v1Field.viewValueChange('22');
     expect(v1Field.value).toBe(22);
     expect(result.form.control?.value).toEqual({ v1: 22 });
@@ -27,13 +24,12 @@ describe('transform', () => {
     const obj = v.object({
       v1: v.pipe(
         v.object({ v2: v.string() }),
-        v.transform((a) => {
-          return a.v2;
-        }),
+        v.transform((a) => a.v2),
       ),
     });
     const result = createBuilder(obj);
-    let v2Field = result.get(['v1', 'v2'])?.form.control as any as FieldControl;
+    const v2Field = result.get(['v1', 'v2'])?.form
+      .control as any as FieldControl;
     v2Field.viewValueChange('22');
     expect(v2Field.value).toBe('22');
     expect(result.form.root.value).toEqual({ v1: '22' });
@@ -43,13 +39,11 @@ describe('transform', () => {
     const obj = v.object({
       v1: v.pipe(
         v.array(v.string()),
-        v.transform((a) => {
-          return a.join(':');
-        }),
+        v.transform((a) => a.join(':')),
       ),
     });
     const result = createBuilder(obj);
-    let v1Field = result.get(['v1'])?.form.control as any as FieldArray;
+    const v1Field = result.get(['v1'])?.form.control as any as FieldArray;
     v1Field.updateValue(['1', '2']);
     expect(v1Field.value).toBe('1:2');
     expect(v1Field.valid).toBeTrue();
@@ -62,13 +56,11 @@ describe('transform', () => {
           v.object({ k1: v.string() }),
           v.object({ k2: v.string() }),
         ]),
-        v.transform((input) => {
-          return `${input.k1}-${input.k2}`;
-        }),
+        v.transform((input) => `${input.k1}-${input.k2}`),
       ),
     });
     const result = createBuilder(obj);
-    let v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
+    const v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
     v1Field.updateValue({ k1: '11', k2: '22' });
     expect(v1Field.value).toBe('11-22');
     expect(v1Field.valid).toBeTrue();
@@ -78,13 +70,11 @@ describe('transform', () => {
     const obj = v.object({
       v1: v.pipe(
         v.union([v.object({ k1: v.string() }), v.object({ k2: v.string() })]),
-        v.transform((input) => {
-          return JSON.stringify(input);
-        }),
+        v.transform((input) => JSON.stringify(input)),
       ),
     });
     const result = createBuilder(obj);
-    let v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
+    const v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
     v1Field.updateValue({ k1: '11', k2: '22' });
     expect(v1Field.value).toBe(JSON.stringify({ k1: '11' }));
     expect(v1Field.valid).toBeTrue();

@@ -480,7 +480,9 @@ describe('子级解析', () => {
     field1.form.control!.disable();
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.field$$()?.get(['v1', 0, 'k1'])?.form.control?.errors).toBeTruthy()
+    expect(
+      instance.field$$()?.get(['v1', 0, 'k1'])?.form.control?.errors,
+    ).toBeTruthy();
     expect(instance.form$().errors).toBeTruthy();
     expect(instance.form$().value$$()).toEqual({
       v1: { k1: ['k1-value'] },

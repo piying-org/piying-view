@@ -99,7 +99,7 @@ export abstract class AbstractControl<TValue = any> {
   originValue$$!: Signal<TValue | undefined>;
   /** model的value */
   value$$ = computedWithPrev<TValue>((value) => {
-    let result = this.#schemaCheck$$();
+    const result = this.#schemaCheck$$();
     return result.success ? result.output : value;
   });
   /** 已激活的子级,用于校验获得返回值之类 */
@@ -149,15 +149,13 @@ export abstract class AbstractControl<TValue = any> {
   /** dirty */
   private readonly selfDirty$ = signal(false);
 
-  readonly dirty$$: Signal<boolean> = computed(() => {
-    return this.reduceChildren(
+  readonly dirty$$: Signal<boolean> = computed(() =>
+    this.reduceChildren(
       this.selfDirty$(),
-      (child, value) => {
-        return value || child.dirty$$();
-      },
+      (child, value) => value || child.dirty$$(),
       shortCircuitTrue,
-    );
-  });
+    ),
+  );
   get dirty(): boolean {
     return untracked(this.dirty$$);
   }
@@ -178,7 +176,7 @@ export abstract class AbstractControl<TValue = any> {
         // 请求同级
         this.resetIndex$();
         this.originValue$$();
-        let childrenResult = this.reduceChildren<ValidationErrors2[]>(
+        const childrenResult = this.reduceChildren<ValidationErrors2[]>(
           [],
           (child, value, key) => {
             if (
@@ -209,12 +207,11 @@ export abstract class AbstractControl<TValue = any> {
             return result as ValidationErrors2[];
           }
           return Object.entries(result as ValidationErrorsLegacy).map(
-            ([key, value]) => {
-              return {
+            ([key, value]) =>
+              ({
                 kind: key,
                 metadata: value,
-              } as ValidationErrors2;
-            },
+              }) as ValidationErrors2,
           );
         });
         const schemaResult = this.#schemaCheck$$();
@@ -246,7 +243,7 @@ export abstract class AbstractControl<TValue = any> {
           pendingCount++;
           return [];
         } else if ('value' in item) {
-          let result = item.value;
+          const result = item.value;
           if (!result) {
             return [];
           }
@@ -254,12 +251,11 @@ export abstract class AbstractControl<TValue = any> {
             return result as ValidationErrors2[];
           }
           return Object.entries(result as ValidationErrorsLegacy).map(
-            ([key, value]) => {
-              return {
+            ([key, value]) =>
+              ({
                 kind: key,
                 metadata: value,
-              } as ValidationErrors2;
-            },
+              }) as ValidationErrors2,
           );
         } else {
           return { kind: 'error', metadata: item.error } as ValidationErrors2;
@@ -428,9 +424,7 @@ export abstract class AbstractControl<TValue = any> {
     return value ?? this.config$().defaultValue;
   }
 
-  #transformer$$ = computed(() => {
-    return this.config$().transfomer;
-  });
+  #transformer$$ = computed(() => this.config$().transfomer);
   protected transformToModel(value: any, control: AbstractControl<any>) {
     if (this.#transformer$$()) {
       value = this.#transformer$$()?.toModel?.(value, control) ?? value;
@@ -454,14 +448,14 @@ export abstract class AbstractControl<TValue = any> {
       return initialValue;
     }
     let value = initialValue;
-    let list = Object.entries(childrenMap);
-    let isArray = Array.isArray(childrenMap);
+    const list = Object.entries(childrenMap);
+    const isArray = Array.isArray(childrenMap);
     for (let index = 0; index < list.length; index++) {
       if (!list[index][1]) {
         continue;
       }
-      let key = isArray ? index : list[index][0];
-      let item = list[index][1];
+      const key = isArray ? index : list[index][0];
+      const item = list[index][1];
       if (shortCircuit?.(value)) {
         break;
       }

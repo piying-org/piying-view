@@ -7,14 +7,12 @@ import { inject, watchEffect } from 'vue';
 import PciP3 from './pci-p3.vue';
 import { PciTestService } from './pci-test.service';
 
-let inputs = defineProps<{ value: number }>();
-let schema = v.pipe(
+const inputs = defineProps<{ value: number }>();
+const schema = v.pipe(
   NFCSchema,
   setComponent(PciP3),
   actions.inputs.patchAsync({
-    value: (field) => {
-      return field.context['item$']();
-    },
+    value: (field) => field.context['item$'](),
   }),
   actions.hooks.merge({
     allFieldsResolved: (field) => {

@@ -1,4 +1,4 @@
-import { computed, Signal, signal, untracked } from '@angular/core';
+import { computed, signal, untracked } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';

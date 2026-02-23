@@ -22,7 +22,6 @@ import { JsonSchemaDraft202012Object } from '@hyperjump/json-schema/draft-2020-1
 import { JsonSchemaDraft07 } from '@hyperjump/json-schema/draft-07';
 import { BooleanComponent } from '../component/boolean/component';
 import { TextComponent } from '../component/text/component';
-import { findError } from '@piying/view-angular-core';
 describe('anyof', () => {
   it('default', async () => {
     const define = jsonSchemaToValibot(anyOf as any) as any;

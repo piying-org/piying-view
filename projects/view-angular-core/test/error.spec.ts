@@ -35,7 +35,7 @@ describe('error', () => {
       ),
     ]);
     const field = createBuilder(obj);
-    field.form.control?.updateValue({ k2: '2' });    
+    field.form.control?.updateValue({ k2: '2' });
     expect(getDeepError(field.form.control).length).toEqual(1);
   });
   it('查找子级异常', () => {
@@ -58,7 +58,7 @@ describe('error', () => {
     });
 
     const result = createBuilder(obj);
-    let v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
+    const v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
     v1Field.updateValue({ k1: '1', k2: '2' });
     expect(v1Field.valid).toBeFalsy();
     expect(v1Field.errors).toBeTruthy();
@@ -73,7 +73,7 @@ describe('error', () => {
 
     const result = createBuilder(obj);
     result.form.control!.updateValue({ v1: { k2: 1 } });
-    let list = errorSummary(result.form.root);
+    const list = errorSummary(result.form.root);
     expect(list[0].pathList).toEqual(['v1', 'v2']);
   });
   it('intersect-errorSummary', async () => {
@@ -83,7 +83,7 @@ describe('error', () => {
 
     const result = createBuilder(obj);
     result.form.control!.updateValue({ v1: { k2: 1 } });
-    let list = errorSummary(result.form.root);
+    const list = errorSummary(result.form.root);
     expect(list[0].pathList).toEqual(['v1', '[∧0]', 'v2']);
     expect(list[0].fieldList[0] instanceof FieldLogicGroup).toBeTrue();
   });
@@ -94,7 +94,7 @@ describe('error', () => {
 
     const result = createBuilder(obj);
     result.form.control!.updateValue({ v1: [{ k2: 1 }] });
-    let list = errorSummary(result.form.root);    
+    const list = errorSummary(result.form.root);
     expect(list[0].pathList).toEqual(['v1', '[0]', 'v2']);
     expect(list[0].fieldList[0] instanceof FieldArray).toBeTrue();
     expect(typeof list[0].valibotIssueSummary === 'string').toBeTrue();

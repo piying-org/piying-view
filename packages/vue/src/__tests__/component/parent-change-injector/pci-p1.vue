@@ -14,9 +14,9 @@ const options = {
   injector: undefined,
 };
 
-let schema$$ = computed(() => {
-  return v.pipe(NFCSchema, setComponent(PciP2), actions.inputs.patch(inputs.inputs ?? {}));
-});
+const schema$$ = computed(() =>
+  v.pipe(NFCSchema, setComponent(PciP2), actions.inputs.patch(inputs.inputs ?? {})),
+);
 </script>
 <template>
   <PiyingView :schema="schema$$" :options="options"></PiyingView>

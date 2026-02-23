@@ -4,7 +4,6 @@ import { Test1Component } from './test1/test1.component';
 import { getField } from './util/action';
 import { createSchemaComponent } from './util/create-component';
 import * as v from 'valibot';
-import { firstValueFrom, skip } from 'rxjs';
 import { setComponent } from '@piying/view-angular-core';
 import { assertFieldControl } from '@piying/view-angular-core/test';
 

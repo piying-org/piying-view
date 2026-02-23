@@ -35,7 +35,9 @@ describe('allof', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field?.form.control?.valid).toBeFalse();
-    expect(findError(field.form.control.errors, 'valibot')?.metadata[0].type).toEqual('max_value');
+    expect(
+      findError(field.form.control.errors, 'valibot')?.metadata[0].type,
+    ).toEqual('max_value');
   });
   it('allOfObjSchema', async () => {
     const define = jsonSchemaToValibot(allOfObjSchema as any) as any;

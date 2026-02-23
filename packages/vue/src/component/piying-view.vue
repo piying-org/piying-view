@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as v from 'valibot';
 import { convert, type PiResolvedCommonViewFieldConfig } from '@piying/view-core';
-import { computed, inject, markRaw, onUnmounted, provide, shallowRef, watch } from 'vue';
+import { computed, inject, provide, shallowRef, watch } from 'vue';
 import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
@@ -30,8 +30,8 @@ const inputs = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 const maybeParentField = inject(PI_VIEW_FIELD_TOKEN, undefined);
-const rootInjector = computed(() => {
-  return (
+const rootInjector = computed(
+  () =>
     inputs.options.injector ??
     maybeParentField?.value.injector ??
     createRootInjector({
@@ -41,9 +41,8 @@ const rootInjector = computed(() => {
           useClass: ChangeDetectionSchedulerImpl,
         },
       ],
-    })
-  );
-});
+    }),
+);
 provide(InjectorToken, rootInjector);
 provide(
   PI_INPUT_OPTIONS_TOKEN,
@@ -58,7 +57,7 @@ provide(
   computed(() => inputs.modelValue),
 );
 
-let initResult =
+const initResult =
   shallowRef<[Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>, R3Injector]>();
 watch(
   () => [inputs.schema, inputs.options, rootInjector.value],

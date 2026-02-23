@@ -40,7 +40,7 @@ describe('输入参数变化', () => {
     expect(field.form.control!.value$$()).eq(456);
   });
   it('allFieldsResolved不被ref影响', async () => {
-    let testRef1 = ref(1);
+    const testRef1 = ref(1);
     const value = shallowRef(1);
     let count = 0;
     const { instance } = await createComponent(
@@ -48,7 +48,7 @@ describe('输入参数变化', () => {
         v.string(),
         actions.hooks.merge({
           allFieldsResolved: (field) => {
-            testRef1.value
+            testRef1.value;
             count++;
           },
         }),

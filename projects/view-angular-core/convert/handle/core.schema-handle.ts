@@ -52,15 +52,12 @@ function AnyDefault(
       : input;
 }
 const checkOverride = {
-  logicGroup: (schemahandle: CoreSchemaHandle<any, any>) => {
-    return v.pipe(
-      AnyDefault(v.pipe(AnyDefine, v.check(Boolean)), schemahandle),
-    );
-  },
+  logicGroup: (schemahandle: CoreSchemaHandle<any, any>) =>
+    v.pipe(AnyDefault(v.pipe(AnyDefine, v.check(Boolean)), schemahandle)),
   array: (schemahandle: CoreSchemaHandle<any, any>) => {
-    let source = schemahandle.coreSchema as v.TupleSchema<any[], any>;
+    const source = schemahandle.coreSchema as v.TupleSchema<any[], any>;
 
-    let length =
+    const length =
       source &&
       schemahandle.formConfig.groupMode &&
       schemahandle.formConfig.groupMode !== 'reset'
@@ -95,9 +92,9 @@ const checkOverride = {
     );
   },
   group: (schemahandle: CoreSchemaHandle<any, any>) => {
-    let source = schemahandle.coreSchema as v.ObjectSchema<any, any>;
+    const source = schemahandle.coreSchema as v.ObjectSchema<any, any>;
 
-    let keys =
+    const keys =
       source &&
       schemahandle.formConfig.groupMode &&
       schemahandle.formConfig.groupMode !== 'reset'
@@ -113,9 +110,7 @@ const checkOverride = {
               return false;
             }
             if (schemahandle.formConfig.groupMode === 'strict') {
-              return Object.keys(value).every((key) => {
-                return key in source.entries;
-              });
+              return Object.keys(value).every((key) => key in source.entries);
             }
             return true;
           }),

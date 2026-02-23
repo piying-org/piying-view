@@ -4,23 +4,14 @@ import * as v from 'valibot';
 import { createComponent } from './util/create-component';
 import { nextTick, shallowRef } from 'vue';
 import { NFCSchema, setComponent, actions } from '@piying/view-core';
-import Token from './component/token.vue';
-import InjectorTest from './component/injector-test.vue';
-import { Test1Token } from './util/token';
-import {
-  ChangeDetectionScheduler,
-  ChangeDetectionSchedulerImpl,
-  createRootInjector,
-  signal,
-} from 'static-injector';
-import InjectorTest2 from './component/injector-test2.vue';
+import { signal } from 'static-injector';
 import PciP1 from './component/parent-change-injector/pci-p1.vue';
 import { delay } from './util/delay';
 import { PciTestService } from './component/parent-change-injector/pci-test.service';
 
 describe('nest', () => {
   it('初始化注入', async () => {
-    let inputs$ = signal({ value: 1 });
+    const inputs$ = signal({ value: 1 });
     const schema = v.pipe(
       NFCSchema,
       setComponent(PciP1),

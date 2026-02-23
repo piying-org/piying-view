@@ -7,7 +7,6 @@ import {
 } from '../field/abstract_model';
 import { FieldArray } from '../field/field-array';
 import { FieldLogicGroup } from '../field/field-logic-group';
-import { isFieldArray, isFieldGroup } from '../field/is-field';
 
 export interface ErrorSummary {
   pathList: string[];
@@ -21,14 +20,14 @@ function errorItem(
   list: ErrorSummary[],
 ) {
   if (item.kind === 'descendant') {
-    let item2 = item as ValidationDescendantError2;
+    const item2 = item as ValidationDescendantError2;
     item2.metadata.forEach((child) => {
       errorItem(child, prefixList.slice().concat(item2), list);
     });
   } else {
     list.push({
       pathList: prefixList.map((item) => {
-        let parentField = item.field.parent;
+        const parentField = item.field.parent;
         if (parentField instanceof FieldLogicGroup) {
           return parentField.type() === 'and'
             ? `[∧${item.key}]`
@@ -54,7 +53,7 @@ export function errorSummary(control?: AbstractControl) {
   if (!control?.errors) {
     return [];
   }
-  let list: ErrorSummary[] = [];
+  const list: ErrorSummary[] = [];
   for (const item of control.errors) {
     errorItem(item, [], list);
   }
