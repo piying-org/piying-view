@@ -38,7 +38,99 @@ import { FieldFormConfig } from '../../field/type';
 import { KeyPath } from '../../util';
 import { NonFieldControlAction } from '../action/non-field-control';
 import { Provider, StaticProvider } from '@angular/core';
+import { pick } from 'es-toolkit';
 export type InjectorProvider = Provider | StaticProvider;
+const AnyDefine = v.any();
+function AnyDefault(
+  input: v.BaseSchema<any, any, any>,
+  schemahandle: CoreSchemaHandle<any, any>,
+) {
+  return schemahandle.undefinedable
+    ? v.optional(input, schemahandle.defaultValue)
+    : schemahandle.nullable
+      ? v.nullable(input, schemahandle.defaultValue)
+      : input;
+}
+const checkOverride = {
+  logicGroup: (schemahandle: CoreSchemaHandle<any, any>) => {
+    return v.pipe(
+      AnyDefault(v.pipe(AnyDefine, v.check(Boolean)), schemahandle),
+    );
+  },
+  array: (schemahandle: CoreSchemaHandle<any, any>) => {
+    let source = schemahandle.coreSchema as v.TupleSchema<any[], any>;
+
+    let length =
+      source &&
+      schemahandle.formConfig.groupMode &&
+      schemahandle.formConfig.groupMode !== 'reset'
+        ? source.items.length
+        : undefined;
+
+    return v.pipe(
+      AnyDefault(
+        v.pipe(
+          AnyDefine,
+          v.check((value: any[]) => {
+            if (!Array.isArray(value)) {
+              return false;
+            }
+            if (schemahandle.formConfig.groupMode === 'strict') {
+              return value.length === length;
+            }
+            return true;
+          }),
+          v.transform((value) => {
+            if (
+              schemahandle.formConfig.groupMode === 'default' &&
+              value.length !== length
+            ) {
+              return value.slice(0, length);
+            }
+            return value;
+          }),
+        ),
+        schemahandle,
+      ),
+    );
+  },
+  group: (schemahandle: CoreSchemaHandle<any, any>) => {
+    let source = schemahandle.coreSchema as v.ObjectSchema<any, any>;
+
+    let keys =
+      source &&
+      schemahandle.formConfig.groupMode &&
+      schemahandle.formConfig.groupMode !== 'reset'
+        ? (Object.keys(source.entries) as unknown as string[])
+        : undefined;
+
+    return v.pipe(
+      AnyDefault(
+        v.pipe(
+          AnyDefine,
+          v.check((value) => {
+            if (typeof value !== 'object') {
+              return false;
+            }
+            if (schemahandle.formConfig.groupMode === 'strict') {
+              return Object.keys(value).every((key) => {
+                return key in source.entries;
+              });
+            }
+            return true;
+          }),
+          v.transform((a) => {
+            if (schemahandle.formConfig.groupMode === 'default') {
+              return pick(a, keys!);
+            }
+            return a;
+          }),
+        ),
+        schemahandle,
+      ),
+    );
+  },
+};
 export class CoreSchemaHandle<
   Self extends CoreSchemaHandle<any, any>,
   RESOLVED_FN extends () => any,
@@ -62,6 +154,11 @@ export class CoreSchemaHandle<
   nonFieldControl = false;
   hooks?: HookConfig<ReturnType<RESOLVED_FN>>;
   providers?: InjectorProvider[];
+  checkSchema?: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
+  checkActions: (
+    | v.BaseValidation<any, any, any>
+    | v.BaseTransformation<any, any, any>
+  )[] = [];
   override lazySchema(schema: LazySchema): void {
     super.lazySchema(schema);
     if (this.parent) {
@@ -213,10 +310,43 @@ export class CoreSchemaHandle<
         break;
     }
   }
+  override validation(
+    item: v.BaseValidation<any, any, v.BaseIssue<unknown>>,
+  ): void {
+    super.validation(item);
+    this.checkActions.push(item);
+  }
+  override transformation(
+    item: v.BaseTransformation<any, any, v.BaseIssue<unknown>>,
+  ): void {
+    super.transformation(item);
+    this.checkActions.push(item);
+  }
   override end(schema: SchemaOrPipe): void {
     super.end(schema);
     this.formConfig.defaultValue =
       this.defaultValue ?? (this.nullable ? null : undefined);
+    if (this.isGroup) {
+      this.checkSchema = v.pipe(
+        checkOverride.group(this),
+        ...this.checkActions,
+      );
+    } else if (this.isTuple || this.isArray) {
+      this.checkSchema = v.pipe(
+        checkOverride.array(this),
+        ...this.checkActions,
+      );
+    } else if (this.isLogicAnd || this.isLogicOr) {
+      this.checkSchema = v.pipe(
+        checkOverride.logicGroup(this),
+        ...this.checkActions,
+      );
+    }
+  }
+  coreSchema!: v.BaseSchema<any, any, any>;
+  override defineSchema(schema: SchemaOrPipe): void {
+    super.defineSchema(schema);
+    this.coreSchema = schema;
   }
 }
 export type AnyCoreSchemaHandle = CoreSchemaHandle<

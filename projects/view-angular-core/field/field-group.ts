@@ -40,7 +40,7 @@ export class FieldGroup<
   get controls() {
     return this.#controls$$();
   }
-  override children$$ = computed(() =>this.#controls$$());
+  override children$$ = computed(() => this.#controls$$());
 
   removeRestControl(key: string): void {
     if (!this.resetControls$()[key]) {

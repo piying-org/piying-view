@@ -16,7 +16,9 @@ import { Injectable } from '@angular/core';
 describe('自定义handle', () => {
   it('默认条件', () => {
     class HiddenType extends CoreSchemaHandle<any, any> {
-      override defineSchema(schema: Schema): void {}
+      override defineSchema(schema: Schema): void {
+        this.coreSchema = schema;
+      }
     }
 
     const obj = v.object({

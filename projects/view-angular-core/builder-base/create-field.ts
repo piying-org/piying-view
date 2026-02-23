@@ -31,7 +31,7 @@ export function createField(
   let control;
   if (isRoot) {
     control = new (FieldClass as any)(
-      field.sourceSchema,
+      field.checkSchema ?? field.sourceSchema,
       injector,
     ) as AbstractControl;
     if (isFieldLogicGroup(control)) {
@@ -42,7 +42,7 @@ export function createField(
     control = parentForm.get([key]);
     if (!control) {
       control = new (FieldClass as any)(
-        field.sourceSchema,
+        field.checkSchema ?? field.sourceSchema,
         injector,
       ) as AbstractControl;
       if (isFieldLogicGroup(control)) {

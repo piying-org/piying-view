@@ -17,7 +17,7 @@ describe('field-logic-group', () => {
     result.form.control.updateValue({ k1: 0 });
     expect(result.form.control.activateIndex$()).toEqual(0);
   });
-  it('union-index', () => {
+  it('union-index-strict', () => {
     const obj = v.union([
       v.strictObject({ k1: v.number() }),
       v.strictObject({ k1: v.number(), k2: v.string() }),
