@@ -9,6 +9,7 @@ import {
   VALID,
   formConfig,
   PENDING,
+  findError,
 } from '@piying/view-angular-core';
 import { assertFieldControl } from './util/is-field';
 import { assertIssues } from './util/assert';
@@ -67,7 +68,10 @@ describe('status', () => {
     resolved.form.control.viewValueChange('2');
     const statusList = controlStatusList(resolved.form.control);
     expect(statusList.includes('invalid')).toBeTruthy();
-    const valibotIssue = resolved.form.control.syncError$()?.['valibot'];
+    const valibotIssue = findError(
+      resolved.form.control.syncError$(),
+      'valibot',
+    )?.metadata;
     expect(valibotIssue).toBeTruthy();
     assertIssues(valibotIssue);
     expect(valibotIssue?.[0].input).toBe('2');

@@ -23,9 +23,9 @@ export class FieldArray<
     });
     list = [...list, ...(this.resetValue$() ?? [])];
     const returnResult = list.length === 0 ? this.emptyValue$$() : list;
-    return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
+    return this.transformToModel(returnResult, this);
   }
-  override value$$ = computed<any>(() => {
+  override originValue$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();
       return untracked(() => this.#childUpdate());

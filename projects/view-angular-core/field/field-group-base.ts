@@ -43,7 +43,7 @@ export class FieldGroupbase extends AbstractControl {
     });
   }
   override updateValue(value: any): void {
-    if (deepEqual(value, this.value$$())) {
+    if (this.valid && deepEqual(value, this.value$$())) {
       return;
     }
     if (this.isUnChanged()) {

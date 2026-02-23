@@ -7,6 +7,7 @@ import { PurePipe } from '../../../lib/pipe/pure.pipe';
 import { InsertFieldDirective } from '../../../lib/component/insert-field.directive';
 import { PI_VIEW_FIELD_TOKEN } from '../../../lib/type';
 import { MatFormControlBindDirective } from './mat-bind.directive';
+import { findError } from '@piying/view-angular-core';
 @Component({
   selector: 'mat-form-field-wrapper',
   templateUrl: './component.html',
@@ -32,7 +33,7 @@ export class MatFormFieldWrapper {
   );
   errorStr$$ = computed(() => {
     const field = this.field$$();
-    const valibot = field.form.control!.errors!['valibot'];
+    const valibot = findError(field.form.control?.errors, 'valibot')?.metadata;
     if (valibot) {
       return summarize(valibot);
     } else {

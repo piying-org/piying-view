@@ -3,7 +3,11 @@ import { createSchemaComponent } from './util/create-component';
 import { PiResolvedViewFieldConfig } from '../lib/type';
 import * as v from 'valibot';
 import { getField } from './util/action';
-import { formConfig, ValidationErrors } from '@piying/view-angular-core';
+import {
+  findError,
+  formConfig,
+  ValidationErrorsLegacy,
+} from '@piying/view-angular-core';
 import { of, Subject } from 'rxjs';
 
 describe('验证', () => {
@@ -43,9 +47,12 @@ describe('验证', () => {
     expect(field.form.control?.pending).toEqual(true);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.form$().value$$()).toEqual(undefined as any);
+    expect(instance.form$().errors).toBeTruthy();
+    expect(instance.form$().value$$()).toEqual({ v1: 0 });
     expect(field.form.control?.valid).toEqual(false);
-    expect(field.form.control?.errors).toEqual({ value: '1' });
+    expect(findError(field.form.control?.errors, 'value')?.metadata).toEqual(
+      '1',
+    );
     field.form.control?.updateValue(2);
     // 因为惰性的原因
     field.form.control?.rawError$$();
@@ -63,7 +70,7 @@ describe('验证', () => {
           asyncValidators: [
             (control) => {
               if (control.value === 1) {
-                const subject = new Subject<ValidationErrors>();
+                const subject = new Subject<ValidationErrorsLegacy>();
                 Promise.resolve().then(() => {
                   subject.next({
                     value: '1',
@@ -94,9 +101,12 @@ describe('验证', () => {
     expect(field.form.control?.pending).toEqual(true);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.form$().value$$()).toEqual(undefined as any);
+    expect(instance.form$().errors).toBeTruthy();
+    expect(instance.form$().value$$()).toEqual({ v1: 0 });
     expect(field.form.control?.valid).toEqual(false);
-    expect(field.form.control?.errors).toEqual({ value: '1' });
+    expect(findError(field.form.control?.errors, 'value')?.metadata).toEqual(
+      '1',
+    );
     field.form.control?.updateValue(2);
     // 因为惰性的原因
     field.form.control?.rawError$$();
@@ -125,7 +135,9 @@ describe('验证', () => {
     fixture.detectChanges();
     const field = await field$.promise;
     expect(field.form.control?.valid).toEqual(false);
-    expect(field.form.control?.errors).toEqual({ value: '1' });
+    expect(findError(field.form.control?.errors, 'value')?.metadata).toEqual(
+      '1',
+    );
   });
   it('同步验证', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -163,10 +175,13 @@ describe('验证', () => {
     field.form.control?.updateValue(1);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.form$().value$$()).toEqual(undefined as any);
+    expect(instance.form$().errors).toBeTruthy();
+    expect(instance.form$().value$$()).toEqual({ v1: 0 });
     expect(field.form.control?.valid).toEqual(false);
     expect(field.form.control?.invalid).toEqual(true);
-    expect(field.form.control?.errors).toEqual({ value: '1' });
+    expect(findError(field.form.control?.errors, 'value')?.metadata).toEqual(
+      '1',
+    );
 
     field.form.control?.updateValue(2);
     await fixture.whenStable();

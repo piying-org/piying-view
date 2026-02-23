@@ -22,7 +22,7 @@ describe('输入参数变化', () => {
     setSchema(v.pipe(v.number(), getField(field$)));
     // 改为信号后不同步了,需要分开,未来改为专用适配
     await delay(10);
-    setModel('1234');
+    setModel(1234);
     await delay(10);
     const inputEl2 = el.querySelector('input')!;
     expect(inputEl2.value).eq('1234');
