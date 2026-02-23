@@ -1,8 +1,9 @@
 import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
-import { getDeepError } from '../util/get-error';
+import { errorSummary, getDeepError } from '../util/get-error';
 import { FieldLogicGroup } from '../field/field-logic-group';
+import { FieldArray } from '../field/field-array';
 describe('error', () => {
   it('valid', () => {
     const obj = v.pipe(v.string());
@@ -64,5 +65,38 @@ describe('error', () => {
     v1Field.activateControls$.set([v1Field.controls[0]]);
     expect(v1Field.valid).toBeTruthy();
     expect(v1Field.errors).toBeFalsy();
+  });
+  it('object-errorSummary', async () => {
+    const obj = v.object({
+      v1: v.object({ v2: v.string() }),
+    });
+
+    const result = createBuilder(obj);
+    result.form.control!.updateValue({ v1: { k2: 1 } });
+    let list = errorSummary(result.form.root);
+    expect(list[0].pathList).toEqual(['v1', 'v2']);
+  });
+  it('intersect-errorSummary', async () => {
+    const obj = v.object({
+      v1: v.intersect([v.object({ v2: v.string() })]),
+    });
+
+    const result = createBuilder(obj);
+    result.form.control!.updateValue({ v1: { k2: 1 } });
+    let list = errorSummary(result.form.root);
+    expect(list[0].pathList).toEqual(['v1', '[∧0]', 'v2']);
+    expect(list[0].fieldList[0] instanceof FieldLogicGroup).toBeTrue();
+  });
+  it('array-errorSummary', async () => {
+    const obj = v.object({
+      v1: v.tuple([v.object({ v2: v.string() })]),
+    });
+
+    const result = createBuilder(obj);
+    result.form.control!.updateValue({ v1: [{ k2: 1 }] });
+    let list = errorSummary(result.form.root);    
+    expect(list[0].pathList).toEqual(['v1', '[0]', 'v2']);
+    expect(list[0].fieldList[0] instanceof FieldArray).toBeTrue();
+    expect(typeof list[0].valibotIssueSummary === 'string').toBeTrue();
   });
 });

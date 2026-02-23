@@ -191,6 +191,7 @@ export abstract class AbstractControl<TValue = any> {
                 kind: 'descendant',
                 key: key,
                 metadata: child.errors,
+                field: child,
               });
             }
             return value;
