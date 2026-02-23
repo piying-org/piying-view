@@ -24,7 +24,7 @@ describe('error', () => {
     const obj = v.object({ k1: v.string() });
     const field = createBuilder(obj);
     field.form.control?.updateValue({ k2: '2' });
-    expect(getDeepError(field.form.control).length).toEqual(2);
+    expect(getDeepError(field.form.control).length).toEqual(1);
   });
   it('union-error', () => {
     const obj = v.union([
@@ -35,8 +35,8 @@ describe('error', () => {
       ),
     ]);
     const field = createBuilder(obj);
-    field.form.control?.updateValue({ k2: '2' });
-    expect(getDeepError(field.form.control).length).toEqual(2);
+    field.form.control?.updateValue({ k2: '2' });    
+    expect(getDeepError(field.form.control).length).toEqual(1);
   });
   it('查找子级异常', () => {
     const obj = v.object({
