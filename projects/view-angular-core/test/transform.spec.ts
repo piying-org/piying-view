@@ -52,5 +52,25 @@ describe('transform', () => {
     v1Field.updateValue(['1', '2']);
     expect(v1Field.value).toBe('1:2');
     expect(v1Field.valid).toBeTrue();
+    expect(result.form.root.valid).toBeTrue();
+  });
+  it('intersect-to-str', () => {
+    const obj = v.object({
+      v1: v.pipe(
+        v.intersect([
+          v.object({ k1: v.string() }),
+          v.object({ k2: v.string() }),
+        ]),
+        v.transform((input) => {
+          return `${input.k1}-${input.k2}`;
+        }),
+      ),
+    });
+    const result = createBuilder(obj);
+    let v1Field = result.get(['v1'])?.form.control as any as FieldArray;
+    v1Field.updateValue({ k1: '11', k2: '22' });
+    expect(v1Field.value).toBe('11-22');
+    expect(v1Field.valid).toBeTrue();
+    expect(result.form.root.valid).toBeTrue();
   });
 });
