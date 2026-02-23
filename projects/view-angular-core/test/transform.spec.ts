@@ -4,6 +4,7 @@ import { createBuilder } from './util/create-builder';
 import { AbstractControl } from '../field/abstract_model';
 import { FieldControl } from '../../../dist/view-core';
 import { FieldArray } from '../field/field-array';
+import { FieldLogicGroup } from '../field/field-logic-group';
 describe('transform', () => {
   it('str-to-number', () => {
     const obj = v.object({
@@ -67,7 +68,7 @@ describe('transform', () => {
       ),
     });
     const result = createBuilder(obj);
-    let v1Field = result.get(['v1'])?.form.control as any as FieldArray;
+    let v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
     v1Field.updateValue({ k1: '11', k2: '22' });
     expect(v1Field.value).toBe('11-22');
     expect(v1Field.valid).toBeTrue();
@@ -83,7 +84,7 @@ describe('transform', () => {
       ),
     });
     const result = createBuilder(obj);
-    let v1Field = result.get(['v1'])?.form.control as any as FieldArray;
+    let v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
     v1Field.updateValue({ k1: '11', k2: '22' });
     expect(v1Field.value).toBe(JSON.stringify({ k1: '11' }));
     expect(v1Field.valid).toBeTrue();

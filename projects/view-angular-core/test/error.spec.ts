@@ -2,6 +2,7 @@ import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
 import { getDeepError } from '../util/get-error';
+import { FieldLogicGroup } from '../field/field-logic-group';
 describe('error', () => {
   it('valid', () => {
     const obj = v.pipe(v.string());
@@ -44,5 +45,22 @@ describe('error', () => {
     field.form.control?.updateValue({ k1: 1 });
     expect(field.form.control?.errors![0].kind).toBe('descendant');
     expect(field.form.control?.errors![0]['metadata']).toBeTruthy();
+  });
+  it('intersect异常一个', async () => {
+    const obj = v.object({
+      v1: v.pipe(
+        v.intersect([
+          v.object({ k1: v.string() }),
+          v.object({ k2: v.number() }),
+        ]),
+      ),
+    });
+
+    const result = createBuilder(obj);
+    let v1Field = result.get(['v1'])?.form.control as any as FieldLogicGroup;
+    v1Field.updateValue({ k1: '1', k2: '2' });
+    expect(v1Field.errors).toBeTruthy();
+    v1Field.activateControls$.set([v1Field.controls[0]]);
+    expect(v1Field.errors).toBeFalsy();
   });
 });
