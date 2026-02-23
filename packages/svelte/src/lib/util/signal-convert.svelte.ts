@@ -3,7 +3,7 @@ import { InjectorToken } from '../token';
 import { getContext } from 'svelte';
 
 export function signalToState<T>(value: () => T | undefined) {
-	const injector = getContext<Injector>(InjectorToken)!;
+	const injector = getContext<() => Injector>(InjectorToken)!;
 	let dataRef = $state.raw<T | undefined>(undefined as any);
 	$effect.pre(() => {
 		dataRef = value();
@@ -14,7 +14,7 @@ export function signalToState<T>(value: () => T | undefined) {
 					dataRef = currentValue;
 				}
 			},
-			{ injector: injector }
+			{ injector: injector() }
 		);
 		return () => {
 			ref.destroy();

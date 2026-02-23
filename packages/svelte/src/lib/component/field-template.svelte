@@ -9,7 +9,7 @@
 	const props: {
 		field: PiResolvedViewFieldConfig;
 	} = $props();
-	const injector = getContext<Injector>(InjectorToken)!;
+	const injector = getContext<() => Injector>(InjectorToken)!;
 	const fieldInputs = signalToState(() => {
 		return {
 			...props.field.attributes(),
@@ -24,7 +24,7 @@
 	$effect.pre(() => {
 		let dispose: (() => any) | undefined;
 		if (controlRef?.cva) {
-			dispose = createViewControlLink((() => control) as any, controlRef?.cva, injector);
+			dispose = createViewControlLink((() => control) as any, controlRef?.cva, injector());
 		}
 		return () => {
 			dispose?.();

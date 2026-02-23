@@ -10,8 +10,14 @@
 		type EffectRef
 	} from 'static-injector';
 	import type { Injector } from 'static-injector';
-	import { setContext } from 'svelte';
-	import { InjectorToken, PI_INPUT_MODEL_TOKEN, PI_INPUT_OPTIONS_TOKEN, PI_INPUT_SCHEMA_TOKEN } from '../token';
+	import { getContext, setContext } from 'svelte';
+	import {
+		InjectorToken,
+		PI_INPUT_MODEL_TOKEN,
+		PI_INPUT_OPTIONS_TOKEN,
+		PI_INPUT_SCHEMA_TOKEN,
+		PI_VIEW_FIELD_TOKEN
+	} from '../token';
 	import { SvelteSchemaHandle } from '../svelte-schema';
 	import { SvelteFormBuilder } from '../builder';
 	import FieldTemplate from './field-template.svelte';
@@ -20,18 +26,25 @@
 		schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
 		model?: any;
 		modelChange?: (value: any) => void;
-		options: any;
+		options: { injector?: Injector; builder?: any; [name: string]: any };
 	} = $props();
-
-	const rootInjector = createRootInjector({
-		providers: [
-			{
-				provide: ChangeDetectionScheduler,
-				useClass: ChangeDetectionSchedulerImpl
-			}
-		]
+	const maybeParentField = getContext<PI_VIEW_FIELD_TOKEN>(PI_VIEW_FIELD_TOKEN);
+	const rootInjector = $derived.by(() => {
+		return (
+			inputs.options.injector ??
+			maybeParentField?.().injector ??
+			createRootInjector({
+				providers: [
+					{
+						provide: ChangeDetectionScheduler,
+						useClass: ChangeDetectionSchedulerImpl
+					}
+				]
+			})
+		);
 	});
-	setContext(InjectorToken, rootInjector);
+
+	setContext(InjectorToken, () => rootInjector);
 	setContext(PI_INPUT_OPTIONS_TOKEN, () => inputs.options);
 	setContext(PI_INPUT_SCHEMA_TOKEN, () => inputs.schema);
 	setContext(PI_INPUT_MODEL_TOKEN, () => inputs.model);
@@ -45,10 +58,10 @@
 			injectorDispose = undefined;
 		};
 		const field = convert(inputs.schema as any, {
+			...inputs.options,
 			handle: SvelteSchemaHandle as any,
 			builder: SvelteFormBuilder,
-			injector: subInjector,
-			...inputs.options
+			injector: subInjector
 		});
 		return [field, subInjector];
 	});
