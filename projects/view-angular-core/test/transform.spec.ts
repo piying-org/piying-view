@@ -73,4 +73,20 @@ describe('transform', () => {
     expect(v1Field.valid).toBeTrue();
     expect(result.form.root.valid).toBeTrue();
   });
+  it('union-to-str', () => {
+    const obj = v.object({
+      v1: v.pipe(
+        v.union([v.object({ k1: v.string() }), v.object({ k2: v.string() })]),
+        v.transform((input) => {
+          return JSON.stringify(input);
+        }),
+      ),
+    });
+    const result = createBuilder(obj);
+    let v1Field = result.get(['v1'])?.form.control as any as FieldArray;
+    v1Field.updateValue({ k1: '11', k2: '22' });
+    expect(v1Field.value).toBe(JSON.stringify({ k1: '11' }));
+    expect(v1Field.valid).toBeTrue();
+    expect(result.form.root.valid).toBeTrue();
+  });
 });
