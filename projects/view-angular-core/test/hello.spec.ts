@@ -52,7 +52,8 @@ describe('hello', () => {
     assertFieldGroup(result.form.control);
     assertFieldControl(field.form.control);
 
-    expect(field.form.control?.value$$()).toBe('d1');
+    expect(field.form.control?.originValue$$()).toBe('d1');
+    expect(field.form.control?.value$$()).toBe(undefined);
     expect(field.form.control?.errors).toBeTruthy();
     expect(result.form.control?.value$$()).toBe(undefined);
   });

@@ -10,9 +10,9 @@ export class FieldLogicGroup extends FieldArray {
   activateControls$ = signal<AbstractControl[] | undefined>(undefined);
   #childUpdate() {
     const returnResult = this.getValue(false);
-    return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
+    return this.transformToModel(returnResult, this);
   }
-  override value$$ = computed<any>(() => {
+  override originValue$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();
       return untracked(() => this.#childUpdate());
@@ -33,7 +33,9 @@ export class FieldLogicGroup extends FieldArray {
     }
     return list;
   }
-  override activatedChildren$$ = computed(() => this.#getActivateControls());
+  override activatedChildren$$ = computed(() => {
+    return this.#getActivateControls();
+  });
   getValue(rawData: boolean) {
     const controls = rawData
       ? this.activatedChildren$$()
@@ -61,7 +63,7 @@ export class FieldLogicGroup extends FieldArray {
     return this.getValue(true);
   }
   override updateValue(value: any): void {
-    if (deepEqual(value, this.value$$())) {
+    if (this.valid && deepEqual(value, this.value$$())) {
       return;
     }
     if (this.isUnChanged()) {

@@ -47,7 +47,8 @@ describe('验证', () => {
     expect(field.form.control?.pending).toEqual(true);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.form$().value$$()).toEqual(undefined as any);
+    expect(instance.form$().errors).toBeTruthy();
+    expect(instance.form$().value$$()).toEqual({ v1: 0 });
     expect(field.form.control?.valid).toEqual(false);
     expect(findError(field.form.control?.errors, 'value')?.metadata).toEqual(
       '1',
@@ -100,7 +101,8 @@ describe('验证', () => {
     expect(field.form.control?.pending).toEqual(true);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.form$().value$$()).toEqual(undefined as any);
+    expect(instance.form$().errors).toBeTruthy();
+    expect(instance.form$().value$$()).toEqual({ v1: 0 });
     expect(field.form.control?.valid).toEqual(false);
     expect(findError(field.form.control?.errors, 'value')?.metadata).toEqual(
       '1',
@@ -173,7 +175,8 @@ describe('验证', () => {
     field.form.control?.updateValue(1);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.form$().value$$()).toEqual(undefined as any);
+    expect(instance.form$().errors).toBeTruthy();
+    expect(instance.form$().value$$()).toEqual({ v1: 0 });
     expect(field.form.control?.valid).toEqual(false);
     expect(field.form.control?.invalid).toEqual(true);
     expect(findError(field.form.control?.errors, 'value')?.metadata).toEqual(

@@ -255,8 +255,10 @@ describe('子级解析', () => {
     });
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(field1.form.control?.value).toBe(undefined);
-    expect(field2.form.control?.value).toBe(undefined);
+    expect(field1.form.control?.errors).toBeTruthy();
+    expect(field1.form.control?.value).toBe('vv1');
+    expect(field2.form.control?.errors).toBeTruthy();
+    expect(field2.form.control?.value).toBe('v2');
   });
   it('union联合', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -478,8 +480,11 @@ describe('子级解析', () => {
     field1.form.control!.disable();
     await fixture.whenStable();
     fixture.detectChanges();
-    // 因为底层禁用,并且只有一个,导致顶层全部禁用
-    expect(instance.form$().value$$()).toEqual(undefined);
+    expect(instance.field$$()?.get(['v1', 0, 'k1'])?.form.control?.errors).toBeTruthy()
+    expect(instance.form$().errors).toBeTruthy();
+    expect(instance.form$().value$$()).toEqual({
+      v1: { k1: ['k1-value'] },
+    });
   });
   it('or-切换', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

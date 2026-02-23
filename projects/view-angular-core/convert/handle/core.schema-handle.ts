@@ -46,9 +46,9 @@ function AnyDefault(
   schemahandle: CoreSchemaHandle<any, any>,
 ) {
   return schemahandle.undefinedable
-    ? v.optional(input, schemahandle.defaultValue)
+    ? v.optional(input)
     : schemahandle.nullable
-      ? v.nullable(input, schemahandle.defaultValue)
+      ? v.nullable(input)
       : input;
 }
 const checkOverride = {

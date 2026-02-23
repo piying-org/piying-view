@@ -1,4 +1,4 @@
-import { computed, signal, untracked } from '@angular/core';
+import { computed, Signal, signal, untracked } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
@@ -20,9 +20,9 @@ export class FieldGroup<
       ? result
       : this.emptyValue$$();
 
-    return this.transfomerToModel$$()?.(returnResult, this) ?? returnResult;
+    return this.transformToModel(returnResult, this);
   }
-  override value$$ = computed<any>(() => {
+  override originValue$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();
       return untracked(() => this.#childUpdate());

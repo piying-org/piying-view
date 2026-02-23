@@ -34,8 +34,8 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     { equal: () => false },
   );
   /** modelValue + viewValue => modelValue */
-  override value$$ = signal<any>(undefined);
 
+  override originValue$$ = signal<any>(undefined);
   override reset(formState: TValue = this.config$().defaultValue): void {
     this.markAsPristine();
     this.markAsUntouched();
@@ -59,34 +59,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   #viewValueChange(value: TValue | undefined) {
     this.markAllAsDirty();
     this.#viewIndex++;
-    const toModel = this.config$?.().transfomer?.toModel;
-    const originValue = toModel ? toModel(value, this) : value;
-    const transfomered = this.schemaParser(originValue);
-    if (transfomered.success) {
-      this.value$$.set(transfomered.output);
-      this.syncError$.update((data) => {
-        if (data) {
-          let index = data.findIndex((item) => item.kind === 'valibot');
-          if (index !== -1) {
-            data.splice(index, 1);
-          }
-        }
-        return data && Object.keys(data).length ? data : undefined;
-      });
-    } else {
-      this.syncError$.update((data) => {
-        if (data) {
-          let index = data.findIndex((item) => item.kind === 'valibot');
-          if (index !== -1) {
-            data.splice(index, 1);
-          }
-        }
-        return (data ?? []).concat({
-          kind: 'valibot',
-          metadata: transfomered.issues,
-        });
-      });
-    }
+    this.originValue$$.set(this.transformToModel(value, this));
   }
 
   /** view变更 */
@@ -101,17 +74,17 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     if (this.isUnChanged() || force) {
       value ??= this.getInitValue(value);
       this.modelValue$.set(value);
-      this.value$$.set(value);
+      this.originValue$$.set(value);
       this.#viewIndex++;
       this.viewIndex$.set(this.#viewIndex);
       this.resetIndex$.update((a) => a + 1);
       return;
     }
-    if (deepEqual(value, this.value$$())) {
+    if (this.valid && deepEqual(value, this.value$$())) {
       return;
     }
     this.modelValue$.set(value);
-    this.value$$.set(value);
+    this.originValue$$.set(value);
     this.viewIndex$.set(this.#viewIndex);
   }
 
@@ -126,6 +99,6 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   override updateInitValue(value: any): void {
     const initValue = this.getInitValue(value);
     this.modelValue$.set(initValue);
-    this.value$$.set(initValue);
+    this.originValue$$.set(value);
   }
 }

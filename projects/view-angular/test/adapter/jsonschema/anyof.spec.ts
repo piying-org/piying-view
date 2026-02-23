@@ -301,11 +301,11 @@ describe('anyof', () => {
     });
     await fixture.whenStable();
     fixture.detectChanges();
+    expect(field?.form.control.errors).toBeTruthy();
     expect(omitBy(field?.form.control?.value, isUndefined)).toEqual({
-      cond1: 3,
+      cond1: 1,
       cond2: 2,
       value1: 10,
-      common1: 11,
     });
   });
   it('enum2', async () => {

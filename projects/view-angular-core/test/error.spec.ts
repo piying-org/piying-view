@@ -42,7 +42,7 @@ describe('error', () => {
     });
     const field = createBuilder(obj);
     field.form.control?.updateValue({ k1: 1 });
-    expect(field.form.control?.errors![0].kind).toBe('descendant')
-    expect(field.form.control?.errors![0]['metadata']).toBeTruthy()
+    expect(field.form.control?.errors![0].kind).toBe('descendant');
+    expect(field.form.control?.errors![0]['metadata']).toBeTruthy();
   });
 });

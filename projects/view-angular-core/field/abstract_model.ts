@@ -19,6 +19,7 @@ import { PI_CONTEXT_TOKEN } from '../builder-base/type/token';
 import { clone } from '../util/clone';
 import { toObservable } from '../util/to_observable';
 import { deepEqual } from 'fast-equals';
+import { computedWithPrev } from '../util/computed-with-prev';
 export type ValidationErrorsLegacy = {
   [key: string]: any;
 };
@@ -95,8 +96,12 @@ export abstract class AbstractControl<TValue = any> {
         (this.selfDisabled$$() && this.config$().disabledValue === 'reserve')),
   );
   readonly injector;
+  originValue$$!: Signal<TValue | undefined>;
   /** model的value */
-  value$$!: Signal<TValue | undefined>;
+  value$$ = computedWithPrev<TValue>((value) => {
+    let result = this.#schemaCheck$$();
+    return result.success ? result.output : value;
+  });
   /** 已激活的子级,用于校验获得返回值之类 */
   activatedChildren$$?: Signal<AbstractControl[]>;
   /** 通用的子级,用于查询之类 */
@@ -172,7 +177,7 @@ export abstract class AbstractControl<TValue = any> {
         }
         // 请求同级
         this.resetIndex$();
-        this.value$$();
+        this.originValue$$();
         let childrenResult = this.reduceChildren<ValidationErrors2[]>(
           [],
           (child, value, key) => {
@@ -228,7 +233,7 @@ export abstract class AbstractControl<TValue = any> {
       return undefined;
     }
     this.resetIndex$();
-    this.value$$();
+    this.originValue$$();
     const dataList = result.map((item) =>
       untracked(() => asyncValidatorToSignal(item(this))),
     );
@@ -326,7 +331,7 @@ export abstract class AbstractControl<TValue = any> {
     this.context = this.injector.get(PI_CONTEXT_TOKEN);
   }
 
-  #schemaCheck$$ = computed(() => this.schemaParser(this.value$$()));
+  #schemaCheck$$ = computed(() => this.schemaParser(this.originValue$$()));
   setParent(parent: AbstractControl | undefined): void {
     this._parent = parent;
   }
@@ -421,9 +426,16 @@ export abstract class AbstractControl<TValue = any> {
   protected getInitValue(value: any) {
     return value ?? this.config$().defaultValue;
   }
-  protected transfomerToModel$$ = computed(
-    () => this.config$().transfomer?.toModel,
-  );
+
+  #transformer$$ = computed(() => {
+    return this.config$().transfomer;
+  });
+  protected transformToModel(value: any, control: AbstractControl<any>) {
+    if (this.#transformer$$()) {
+      value = this.#transformer$$()?.toModel?.(value, control) ?? value;
+    }
+    return value;
+  }
   /** @internal */
   updateInitValue(value: any) {}
   find(name: string | number): AbstractControl | null {

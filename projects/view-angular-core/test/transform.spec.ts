@@ -21,4 +21,20 @@ describe('transform', () => {
     expect(result.form.control?.value).toEqual({ v1: 22 });
     expect(result.form.root.valid).toBeTrue();
   });
+  it('object-to-str', () => {
+    const obj = v.object({
+      v1: v.pipe(
+        v.object({ v2: v.string() }),
+        v.transform((a) => {
+          return a.v2;
+        }),
+      ),
+    });
+    const result = createBuilder(obj);
+    let v2Field = result.get(['v1', 'v2'])?.form.control as any as FieldControl;
+    v2Field.viewValueChange('22');
+    expect(v2Field.value).toBe('22');
+    expect(result.form.root.value).toEqual({ v1: '22' });
+    expect(result.form.root.valid).toBeTrue();
+  });
 });

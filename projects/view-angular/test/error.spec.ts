@@ -48,13 +48,15 @@ describe('error', () => {
     expect(element).toBeTruthy();
     const field = await field$.promise;
     assertFieldControl(field.form.control);
-    const result = firstValueFrom(
-      field.form.control.valueChanges.pipe(skip(1)),
-    );
+    let lastValue: any;
+    field.form.control.valueChanges.subscribe((value) => {
+      lastValue = value;
+    });
+
     instance.model$.set('1');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(await result).toBe('1');
+    expect(lastValue).toBe('2');
     expect(field.form.control.valueNoError$$()).toBeFalse();
   });
 });

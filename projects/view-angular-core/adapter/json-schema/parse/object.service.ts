@@ -191,8 +191,9 @@ export class ObjectTypeService extends BaseTypeService {
               if (!result.success) {
                 for (const item of result.issues) {
                   addIssue({
-                    ...item,
-                  });
+                    label: `dependentSchemas:${key}`,
+                    issues: item,
+                  } as any);
                 }
               }
             }
