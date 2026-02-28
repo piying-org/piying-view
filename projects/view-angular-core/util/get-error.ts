@@ -9,7 +9,10 @@ import { FieldArray } from '../field/field-array';
 import { FieldLogicGroup } from '../field/field-logic-group';
 
 export interface ErrorSummary {
-  pathList: string[];
+  /** 方便判断是哪一个控件产生的异常 */
+  debugPathList: string[];
+  /** 可以用于直接get查询到当前配置 */
+  queryPathList: (number | string)[];
   fieldList: AbstractControl[];
   item: Exclude<ValidationErrors2, ValidationDescendantError2>;
   valibotIssueSummary: string | undefined;
@@ -26,7 +29,7 @@ function errorItem(
     });
   } else {
     list.push({
-      pathList: prefixList.map((item) => {
+      debugPathList: prefixList.map((item) => {
         const parentField = item.field.parent;
         if (parentField instanceof FieldLogicGroup) {
           return parentField.type() === 'and'
@@ -38,6 +41,7 @@ function errorItem(
           return `${item.key}`;
         }
       }),
+      queryPathList: prefixList.map((item) => item.key),
       fieldList: prefixList.map((item) => item.field),
       item: item,
       get valibotIssueSummary() {

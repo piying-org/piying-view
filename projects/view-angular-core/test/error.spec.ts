@@ -68,35 +68,48 @@ describe('error', () => {
   });
   it('object-errorSummary', async () => {
     const obj = v.object({
-      v1: v.object({ v2: v.string() }),
+      v1: v.object({ v2: v.pipe(v.string(), v.title('test-title')) }),
     });
 
     const result = createBuilder(obj);
     result.form.control!.updateValue({ v1: { k2: 1 } });
     const list = errorSummary(result.form.root);
-    expect(list[0].pathList).toEqual(['v1', 'v2']);
+    expect(list[0].debugPathList).toEqual(['v1', 'v2']);
+    expect(result.get(list[0].queryPathList)!.props()['title']).toEqual(
+      'test-title',
+    );
   });
   it('intersect-errorSummary', async () => {
     const obj = v.object({
-      v1: v.intersect([v.object({ v2: v.string() })]),
+      v1: v.intersect([
+        v.object({ v2: v.pipe(v.string(), v.title('test-title')) }),
+      ]),
     });
 
     const result = createBuilder(obj);
     result.form.control!.updateValue({ v1: { k2: 1 } });
     const list = errorSummary(result.form.root);
-    expect(list[0].pathList).toEqual(['v1', '[∧0]', 'v2']);
+    expect(list[0].debugPathList).toEqual(['v1', '[∧0]', 'v2']);
     expect(list[0].fieldList[0] instanceof FieldLogicGroup).toBeTrue();
+    expect(result.get(list[0].queryPathList)!.props()['title']).toEqual(
+      'test-title',
+    );
   });
   it('array-errorSummary', async () => {
     const obj = v.object({
-      v1: v.tuple([v.object({ v2: v.string() })]),
+      v1: v.tuple([
+        v.object({ v2: v.pipe(v.string(), v.title('test-title')) }),
+      ]),
     });
 
     const result = createBuilder(obj);
     result.form.control!.updateValue({ v1: [{ k2: 1 }] });
     const list = errorSummary(result.form.root);
-    expect(list[0].pathList).toEqual(['v1', '[0]', 'v2']);
+    expect(list[0].debugPathList).toEqual(['v1', '[0]', 'v2']);
     expect(list[0].fieldList[0] instanceof FieldArray).toBeTrue();
     expect(typeof list[0].valibotIssueSummary === 'string').toBeTrue();
+    expect(result.get(list[0].queryPathList)!.props()['title']).toEqual(
+      'test-title',
+    );
   });
 });
