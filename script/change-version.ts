@@ -1,7 +1,7 @@
 import { glob } from 'fast-glob';
 import path from 'path';
 import fs from 'fs';
-import { version } from '../package.json';
+import { version, dependencies } from '../package.json';
 
 if (!version) {
   throw new Error('version not found');
@@ -29,6 +29,9 @@ async function main() {
       }
       if (data?.dependencies?.['@piying/view-core']) {
         data.dependencies['@piying/view-core'] = `^${version}`;
+      }
+      if (data?.dependencies?.['static-injector']) {
+        data.dependencies['static-injector'] = dependencies['static-injector'];
       }
       await fs.promises.writeFile(
         path.join(absDir, item),
