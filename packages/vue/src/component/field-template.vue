@@ -4,7 +4,7 @@ import {
   defineAsyncComponent,
   onUnmounted,
   provide,
-  ref,
+  shallowRef,
   inject as vInject,
   watch,
 } from 'vue';
@@ -44,7 +44,7 @@ const componentType = computed(() =>
 const field = computed(() => props.field);
 provide(PI_VIEW_FIELD_TOKEN, field);
 // 使用cva
-const childRef = ref<any>(null);
+const childRef = shallowRef<any>(null);
 const isControl = isFieldControl(field.value.form.control);
 let dispose: ((destroy?: boolean) => void) | undefined;
 

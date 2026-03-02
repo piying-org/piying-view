@@ -1,8 +1,8 @@
 import type { ControlValueAccessor } from '@piying/view-core';
-import { ref, watch } from 'vue';
+import { ref, shallowRef, watch } from 'vue';
 
 export function useControlValueAccessor(autoChange = true) {
-  const value = ref();
+  const value = shallowRef();
   const disabled = ref(false);
   let onChange: (input: any) => void;
   let touched: () => void;
