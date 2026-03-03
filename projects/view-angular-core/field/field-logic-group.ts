@@ -7,7 +7,20 @@ import { deepEqual } from 'fast-equals';
 export class FieldLogicGroup extends FieldArray {
   activateIndex$ = signal(0);
   type = signal<LogicType>('and');
-  activateControls$ = signal<AbstractControl[] | undefined>(undefined);
+  /** 过滤激活控件 */
+  filterActivateControl$ = signal<
+    | ((
+        item: AbstractControl,
+        index: number,
+        list: AbstractControl[],
+      ) => boolean)
+    | undefined
+  >(undefined);
+  activateControls$$ = computed(() => {
+    const fn = this.filterActivateControl$();
+    return fn ? this.children$$().filter(fn) : undefined;
+  });
+
   #childUpdate() {
     const returnResult = this.getValue(false);
     return this.transformToModel(returnResult, this);
@@ -22,8 +35,8 @@ export class FieldLogicGroup extends FieldArray {
 
   #getActivateControls() {
     let list;
-    if (this.activateControls$()) {
-      list = this.activateControls$()!;
+    if (this.activateControls$$()) {
+      list = this.activateControls$$()!;
     } else if (this.type() === 'and') {
       list = this.fixedControls$();
     } else if (this.type() === 'or') {

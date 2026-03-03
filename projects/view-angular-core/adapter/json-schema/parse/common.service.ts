@@ -614,7 +614,7 @@ export class CommonTypeService extends BaseTypeService {
                 activateList.length = 0;
                 const conditionDisplay = field.get([...displayName])!.form
                   .control as any as jsonActions.FieldLogicGroup;
-                const parentAList = [];
+                const parentAList: number[] = [];
 
                 for (
                   let index = 0;
@@ -632,11 +632,13 @@ export class CommonTypeService extends BaseTypeService {
                       hidden: !result.success,
                     }));
                   if (result.success) {
-                    parentAList.push(conditionDisplay!.children$$!()[index]);
+                    parentAList.push(index);
                   }
                 }
                 if (!options.useOr) {
-                  conditionDisplay.activateControls$.set(parentAList);
+                  conditionDisplay.filterActivateControl$.set((item, index) =>
+                    parentAList.includes(index),
+                  );
                 }
               });
           },

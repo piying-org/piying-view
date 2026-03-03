@@ -62,7 +62,7 @@ describe('error', () => {
     v1Field.updateValue({ k1: '1', k2: '2' });
     expect(v1Field.valid).toBeFalsy();
     expect(v1Field.errors).toBeTruthy();
-    v1Field.activateControls$.set([v1Field.controls[0]]);
+    v1Field.filterActivateControl$.set((item, index) => index === 0);
     expect(v1Field.valid).toBeTruthy();
     expect(v1Field.errors).toBeFalsy();
   });

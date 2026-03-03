@@ -490,14 +490,16 @@ describe('anyof', () => {
     const field = field$$()!;
     expect(field.form.control!.valid).toBeFalse();
     assertFieldLogicGroup(field.form.control);
-    field.form.control.activateControls$.set([field.form.control.controls[0]]);
+    field.form.control.filterActivateControl$.set((item, index) => index === 0);
+
     field.form.control!.updateValue({ lorem: '1' });
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control!.valid).toBeTrue();
     expect(field.form.control!.value).toEqual({ lorem: '1' });
     field.form.control!.updateValue({ lorem: '1', ipsum: '2' });
-    field.form.control.activateControls$.set(field.form.control.controls);
+    field.form.control.filterActivateControl$.set((item, index) => true);
+
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control!.valid).toBeTrue();
@@ -561,9 +563,8 @@ describe('anyof', () => {
     const field = field$$()!;
     const childF = field.get([1]);
     assertFieldLogicGroup(childF?.form.control);
-    childF?.form.control!.activateControls$.set([
-      childF?.form.control.controls[1],
-    ]);
+    childF.form.control.filterActivateControl$.set((item, index) => index === 1);
+
     await fixture.whenStable();
     fixture.detectChanges();
     expect(field.form.control!.valid).toBeTrue();
