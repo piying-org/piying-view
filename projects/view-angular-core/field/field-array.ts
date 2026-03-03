@@ -42,7 +42,14 @@ export class FieldArray<
   get controls() {
     return this.children$$();
   }
-
+  override *activatedChildrenIterable(): Iterable<
+    [string | number, AbstractControl]
+  > {
+    const children = this.children$$();
+    for (let index = 0; index < children.length; index++) {
+      yield [index, children[index]] as [number, AbstractControl];
+    }
+  }
   removeRestControl(key: number): void {
     if (!this.resetControls$()[key]) {
       return;

@@ -16,10 +16,6 @@ export class FieldLogicGroup extends FieldArray {
       ) => boolean)
     | undefined
   >(undefined);
-  activateControls$$ = computed(() => {
-    const fn = this.filterActivateControl$();
-    return fn ? this.children$$().filter(fn) : undefined;
-  });
 
   #childUpdate() {
     const returnResult = this.getValue(false);
@@ -35,8 +31,9 @@ export class FieldLogicGroup extends FieldArray {
 
   #getActivateControls() {
     let list;
-    if (this.activateControls$$()) {
-      list = this.activateControls$$()!;
+    const fn = this.filterActivateControl$();
+    if (fn) {
+      list = this.children$$().filter(fn);
     } else if (this.type() === 'and') {
       list = this.fixedControls$();
     } else if (this.type() === 'or') {
@@ -46,7 +43,29 @@ export class FieldLogicGroup extends FieldArray {
     }
     return list;
   }
-  override activatedChildren$$ = computed(() => this.#getActivateControls());
+  activatedChildren$$ = computed(() => this.#getActivateControls());
+  override activatedChildrenIterable = computed(() => {
+    const filterFn = this.filterActivateControl$();
+    const type = this.type();
+    if (filterFn) {
+      const children = this.children$$();
+      return children
+        .map((element, index) => [index, element] as [number, AbstractControl])
+        .filter(([index, item]) => !!filterFn(item, index, children));
+    } else if (type === 'and') {
+      return this.fixedControls$().map(
+        (control, index) => [index, control] as [number, AbstractControl],
+      );
+    } else if (type === 'or') {
+      const index = this.activateIndex$();
+      return [
+        [index, this.fixedControls$()[index]] as [number, AbstractControl],
+      ];
+    }
+
+    return [];
+  });
+
   getValue(rawData: boolean) {
     const controls = rawData
       ? this.activatedChildren$$()

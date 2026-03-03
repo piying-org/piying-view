@@ -102,8 +102,7 @@ export abstract class AbstractControl<TValue = any> {
     const result = this.#schemaCheck$$();
     return result.success ? result.output : value;
   });
-  /** 已激活的子级,用于校验获得返回值之类 */
-  activatedChildren$$?: Signal<AbstractControl[]>;
+
   /** 通用的子级,用于查询之类 */
   children$$?: Signal<
     | {
@@ -437,32 +436,24 @@ export abstract class AbstractControl<TValue = any> {
     return null;
   }
   setControl(name: string | number, control: AbstractControl) {}
+  *activatedChildrenIterable(): Iterable<[string | number, AbstractControl]> {}
   /** 校验和获得值用 */
   private reduceChildren<T>(
     initialValue: T,
     fn: (child: AbstractControl<any>, value: T, key: string | number) => T,
     shortCircuit?: (value: T) => boolean,
   ): T {
-    const childrenMap = (this.activatedChildren$$ ?? this.children$$)?.();
-    if (!childrenMap) {
-      return initialValue;
-    }
-    let value = initialValue;
-    const list = Object.entries(childrenMap);
-    const isArray = Array.isArray(childrenMap);
-    for (let index = 0; index < list.length; index++) {
-      if (!list[index][1]) {
+    let result = initialValue;
+    for (const [key, child] of this.activatedChildrenIterable()) {
+      if (!child) {
         continue;
       }
-      const key = isArray ? index : list[index][0];
-      const item = list[index][1];
-      if (shortCircuit?.(value)) {
+      if (shortCircuit?.(result)) {
         break;
       }
-      value = fn(item, value, key);
+      result = fn(child, result, key);
     }
-
-    return value;
+    return result;
   }
   #valueChange: Observable<any> | undefined;
   get valueChanges() {

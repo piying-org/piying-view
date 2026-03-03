@@ -38,6 +38,18 @@ describe('error', () => {
     field.form.control?.updateValue({ k2: '2' });
     expect(getDeepError(field.form.control).length).toEqual(1);
   });
+  it('intersect-select-error', () => {
+    const obj = v.intersect([
+      v.object({ v1: v.string() }),
+      v.object({ v2: v.string() }),
+    ]);
+    const field = createBuilder(obj);
+    const control = field.form.control as FieldLogicGroup;
+    control.filterActivateControl$.set((item, index) => index === 1);
+    field.form.control?.updateValue({ v2: 1 });
+    expect(getDeepError(field.form.control)[0].queryPathList[0]).toEqual(1);
+    expect(control.activatedChildren$$()?.length).toEqual(1)
+  });
   it('查找子级异常', () => {
     const obj = v.object({
       k1: v.string(),

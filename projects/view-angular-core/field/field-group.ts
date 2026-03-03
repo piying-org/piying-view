@@ -41,6 +41,12 @@ export class FieldGroup<
     return this.#controls$$();
   }
   override children$$ = computed(() => this.#controls$$());
+  override *activatedChildrenIterable() {
+    const children = this.children$$();
+    for (const key in children) {
+      yield [key, children[key]] as [string, AbstractControl];
+    }
+  }
 
   removeRestControl(key: string): void {
     if (!this.resetControls$()[key]) {
