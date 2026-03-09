@@ -494,4 +494,12 @@ describe('对象', () => {
     expect(resolved.form.control.valid).toEqual(false);
     expect(resolved.form.control.value).toEqual(undefined);
   });
+
+  it('optional', () => {
+    const obj = v.optional(v.object({ foo: v.number() }));
+    const result = createBuilder(obj);
+    result.form.root.updateValue(undefined);
+    expect(result.form.root.valid).toBeTrue();
+    expect(result.form.root.errors).toBeFalsy();
+  });
 });

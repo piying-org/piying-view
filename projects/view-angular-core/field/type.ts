@@ -29,6 +29,8 @@ export interface FieldFormConfig<T = any> {
   // type?: LogicType;
   /** auto */
   required?: boolean;
+  undefinedable?: boolean;
+  nullable?: boolean;
   /** array/group/logic group */
   emptyValue?: any;
   /** array  */

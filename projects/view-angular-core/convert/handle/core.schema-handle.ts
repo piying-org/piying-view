@@ -277,6 +277,8 @@ export class CoreSchemaHandle<
   override beforeSchemaType(schema: Schema): void {
     super.beforeSchemaType(schema);
     this.formConfig.required = !this.undefinedable && !this.nullable;
+    this.formConfig.undefinedable = this.undefinedable;
+    this.formConfig.nullable = this.nullable;
   }
   override voidSchema(schema: VoidSchema): void {
     this.nonFieldControl = true;

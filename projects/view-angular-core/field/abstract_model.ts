@@ -164,6 +164,17 @@ export abstract class AbstractControl<TValue = any> {
   /** validator */
   #validators$$ = computed(() => this.config$().validators ?? []);
   #asyncValidators$$ = computed(() => this.config$().asyncValidators ?? []);
+  #undefinedable$$ = computed(() => this.config$().undefinedable);
+  #nullable$$ = computed(() => this.config$().nullable);
+  #isOptionalEmpty = computed(() => {
+    if (this.required$$()) {
+      return false;
+    }
+    return (
+      (this.#undefinedable$$() && this.originValue$$() === undefined) ||
+      (this.#nullable$$() && this.originValue$$() === null)
+    );
+  });
   protected resetIndex$ = signal(0);
   syncError$ = linkedSignal(
     computed(
@@ -174,28 +185,29 @@ export abstract class AbstractControl<TValue = any> {
         }
         // 请求同级
         this.resetIndex$();
-        this.originValue$$();
-        const childrenResult = this.reduceChildren<ValidationErrors2[]>(
-          [],
-          (child, value, key) => {
-            if (
-              (!child.selfDisabled$$() ||
-                (child.selfDisabled$$() &&
-                  child.config$().disabledValue === 'reserve')) &&
-              child.errors
-            ) {
-              value.push({
-                kind: 'descendant',
-                key: key,
-                metadata: child.errors,
-                field: child,
-              });
-            }
-            return value;
-          },
-        );
-        if (childrenResult.length) {
-          return childrenResult;
+        if (!this.#isOptionalEmpty()) {
+          const childrenResult = this.reduceChildren<ValidationErrors2[]>(
+            [],
+            (child, value, key) => {
+              if (
+                (!child.selfDisabled$$() ||
+                  (child.selfDisabled$$() &&
+                    child.config$().disabledValue === 'reserve')) &&
+                child.errors
+              ) {
+                value.push({
+                  kind: 'descendant',
+                  key: key,
+                  metadata: child.errors,
+                  field: child,
+                });
+              }
+              return value;
+            },
+          );
+          if (childrenResult.length) {
+            return childrenResult;
+          }
         }
         const result = this.#validators$$().flatMap((item) => {
           const result = untracked(() => item(this));
@@ -475,18 +487,21 @@ export abstract class AbstractControl<TValue = any> {
     if (this.disabled$$()) {
       return VALID;
     }
-    const childStatus = this.reduceChildren<VALID_STATUS>(
-      VALID,
-      (child, value) => {
-        if (value === INVALID || child.status$$() === INVALID) {
-          return INVALID;
-        } else if (value === PENDING || child.status$$() === PENDING) {
-          return PENDING;
-        }
-        return VALID;
-      },
-      (v) => v === INVALID || v === PENDING,
-    );
+    let childStatus: VALID_STATUS = VALID;
+    if (!this.#isOptionalEmpty()) {
+      childStatus = this.reduceChildren<VALID_STATUS>(
+        VALID,
+        (child, value) => {
+          if (value === INVALID || child.status$$() === INVALID) {
+            return INVALID;
+          } else if (value === PENDING || child.status$$() === PENDING) {
+            return PENDING;
+          }
+          return VALID;
+        },
+        (v) => v === INVALID || v === PENDING,
+      );
+    }
     if (childStatus === VALID) {
       if (this.rawError$$()) {
         if (this.rawError$$() !== PENDING) {
