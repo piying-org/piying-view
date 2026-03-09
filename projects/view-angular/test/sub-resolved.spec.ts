@@ -565,7 +565,7 @@ describe('子级解析', () => {
     field1.form.control!.updateValue('xxx');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.form$().value$$()).toEqual(undefined);
+    expect(instance.form$().value$$()).toEqual({ v1: undefined });
   });
   it('and禁用子级保留', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

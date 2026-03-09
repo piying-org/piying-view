@@ -364,4 +364,15 @@ describe('对象相交', () => {
     result.form.root.reset();
     expect(result.form.control?.value$$()).toEqual({ k1: '2', k2: 'k2-value' });
   });
+
+  it('intersect-child-optional', () => {
+    const obj = v.intersect([
+      v.optional(v.object({ foo: v.number() })),
+      v.optional(v.object({ bar: v.number() })),
+    ]);
+    const result = createBuilder(obj);
+    result.form.root.updateValue(undefined);
+    expect(result.form.root.valid).toBeTrue();
+    expect(result.form.root.errors).toBeFalsy();
+  });
 });

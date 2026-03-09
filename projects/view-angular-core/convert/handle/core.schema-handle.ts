@@ -53,7 +53,7 @@ function AnyDefault(
 }
 const checkOverride = {
   logicGroup: (schemahandle: CoreSchemaHandle<any, any>) =>
-    v.pipe(AnyDefault(v.pipe(AnyDefine, v.check(Boolean)), schemahandle)),
+    v.pipe(AnyDefault(AnyDefine, schemahandle)),
   array: (schemahandle: CoreSchemaHandle<any, any>) => {
     const source = schemahandle.coreSchema as v.TupleSchema<any[], any>;
 
