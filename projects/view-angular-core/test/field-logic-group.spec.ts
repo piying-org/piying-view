@@ -54,4 +54,17 @@ describe('field-logic-group', () => {
     expect(result.form.control.find(0)).toBeTruthy();
     expect(result.form.control.find(1)).toBeTruthy();
   });
+  it('valuePath', () => {
+    const obj = v.pipe(
+      v.object({
+        l1: v.tuple([
+          v.union([v.object({ k1: v.number() }), v.object({ k2: v.string() })]),
+        ]),
+      }),
+    );
+    const result = createBuilder(obj);
+    result.form.control!.updateValue({ l1: [{ k2: '1' }] });
+    const field = result.get(['l1', 0, 1, 'k2']);
+    expect(field?.form.control?.valuePath).toEqual(['l1', 0, 'k2']);
+  });
 });

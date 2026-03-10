@@ -83,6 +83,7 @@ export const InitPendingValue = {
   value: undefined,
 };
 export abstract class AbstractControl<TValue = any> {
+  protected skipValuePath?: boolean;
   pendingStatus = signal(InitPendingValue);
 
   protected readonly emptyValue$$ = computed(() =>
@@ -326,7 +327,34 @@ export abstract class AbstractControl<TValue = any> {
   get parent(): AbstractControl | undefined {
     return this._parent;
   }
+  get valuePath(): (string | number)[] {
+    if (!this.parent) {
+      return [];
+    }
+    if (this.parent.skipValuePath) {
+      return this.parent.valuePath;
+    }
+    const parentChildren = this.parent!.children$$!();
+    let index;
+    if (Array.isArray(parentChildren)) {
+      index = parentChildren.findIndex((item) => item === this);
+      if (index === -1) {
+        throw new Error('child index not found');
+      }
+    } else {
+      for (const key in parentChildren) {
+        if ((parentChildren as any)[key] === this) {
+          index = key;
+          break;
+        }
+      }
+      if (!index) {
+        throw new Error('child index not found');
+      }
+    }
 
+    return [...this.parent.valuePath!, index];
+  }
   get value() {
     return this.value$$();
   }
