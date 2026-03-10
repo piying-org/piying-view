@@ -327,12 +327,15 @@ export abstract class AbstractControl<TValue = any> {
   get parent(): AbstractControl | undefined {
     return this._parent;
   }
-  get valuePath(): (string | number)[] {
+  #getPath(
+    parentPath: () => (string | number)[],
+    skip: () => boolean,
+  ): (string | number)[] {
     if (!this.parent) {
       return [];
     }
-    if (this.parent.skipValuePath) {
-      return this.parent.valuePath;
+    if (skip()) {
+      return parentPath();
     }
     const parentChildren = this.parent!.children$$!();
     let index;
@@ -353,7 +356,19 @@ export abstract class AbstractControl<TValue = any> {
       }
     }
 
-    return [...this.parent.valuePath!, index];
+    return [...parentPath()!, index];
+  }
+  get valuePath(): (string | number)[] {
+    return this.#getPath(
+      () => this.parent!.valuePath,
+      () => !!this.parent!.skipValuePath,
+    );
+  }
+  get formPath(): (string | number)[] {
+    return this.#getPath(
+      () => this.parent!.formPath,
+      () => false,
+    );
   }
   get value() {
     return this.value$$();
