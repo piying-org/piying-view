@@ -491,7 +491,7 @@ export abstract class AbstractControl<TValue = any> {
     return null;
   }
   setControl(name: string | number, control: AbstractControl) {}
-  *activatedChildrenIterable(): Iterable<[string | number, AbstractControl]> {}
+  *activatedChildren(): Iterable<[string | number, AbstractControl]> {}
   /** 校验和获得值用 */
   private reduceChildren<T>(
     initialValue: T,
@@ -499,7 +499,7 @@ export abstract class AbstractControl<TValue = any> {
     shortCircuit?: (value: T) => boolean,
   ): T {
     let result = initialValue;
-    for (const [key, child] of this.activatedChildrenIterable()) {
+    for (const [key, child] of this.activatedChildren()) {
       if (!child) {
         continue;
       }

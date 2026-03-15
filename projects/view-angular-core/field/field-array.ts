@@ -42,7 +42,7 @@ export class FieldArray<
   get controls() {
     return this.children$$();
   }
-  override *activatedChildrenIterable(): Iterable<
+  override *activatedChildren(): Iterable<
     [string | number, AbstractControl]
   > {
     const children = this.children$$();

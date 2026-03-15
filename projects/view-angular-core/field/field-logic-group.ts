@@ -30,22 +30,7 @@ export class FieldLogicGroup extends FieldArray {
     return this.#childUpdate();
   });
 
-  #getActivateControls() {
-    let list;
-    const fn = this.filterActivateControl$();
-    if (fn) {
-      list = this.children$$().filter(fn);
-    } else if (this.type() === 'and') {
-      list = this.fixedControls$();
-    } else if (this.type() === 'or') {
-      list = [this.fixedControls$()[this.activateIndex$()]];
-    } else {
-      throw new Error('');
-    }
-    return list;
-  }
-  activatedChildren$$ = computed(() => this.#getActivateControls());
-  override activatedChildrenIterable = computed(() => {
+  override activatedChildren = computed(() => {
     const filterFn = this.filterActivateControl$();
     const type = this.type();
     if (filterFn) {
@@ -69,10 +54,10 @@ export class FieldLogicGroup extends FieldArray {
 
   getValue(rawData: boolean) {
     const controls = rawData
-      ? this.activatedChildren$$()
-      : this.activatedChildren$$().filter((control) =>
-          control.shouldInclude$$(),
-        );
+      ? this.activatedChildren().map(([index, control]) => control)
+      : this.activatedChildren()
+          .map(([index, control]) => control)
+          .filter((control) => control.shouldInclude$$());
     const control = controls[0];
     if (controls.length === 0) {
       return this.emptyValue$$();
