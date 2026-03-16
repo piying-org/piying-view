@@ -1,9 +1,9 @@
 import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
-import { FieldControl } from '../../../dist/view-core';
 import { FieldArray } from '../field/field-array';
 import { FieldLogicGroup } from '../field/field-logic-group';
+import { FieldControl } from '../field/field-control';
 describe('transform', () => {
   it('str-to-number', () => {
     const obj = v.object({
