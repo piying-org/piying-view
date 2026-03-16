@@ -1,4 +1,4 @@
-import { Injector, Signal, Type } from '@angular/core';
+import { Injector, InputSignal, Signal, Type } from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { NgResolvedComponentDefine1 } from './group';
 import {
@@ -36,3 +36,16 @@ export type NgComponentDefine = {
   component: Type<any>;
   module?: Type<any>;
 };
+
+
+type GetKeyWithType<T, ValueType> = {
+  [K in keyof T as T[K] extends ValueType
+    ? T[K] extends any
+      ? any extends T[K]
+        ? never
+        : K
+      : K
+    : never]: T[K];
+};
+
+export type ComponentInputs<Component> = GetKeyWithType<Component, InputSignal<any>>;
