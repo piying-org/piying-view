@@ -364,9 +364,9 @@ export abstract class AbstractControl<TValue = any> {
       () => !!this.parent!.skipValuePath,
     );
   }
-  get formPath(): (string | number)[] {
+  get fieldPath(): (string | number)[] {
     return this.#getPath(
-      () => this.parent!.formPath,
+      () => this.parent!.fieldPath,
       () => false,
     );
   }

@@ -54,7 +54,7 @@ describe('field-logic-group', () => {
     expect(result.form.control.find(0)).toBeTruthy();
     expect(result.form.control.find(1)).toBeTruthy();
   });
-  it('valuePath/formPath', () => {
+  it('valuePath/fieldPath', () => {
     const obj = v.pipe(
       v.object({
         l1: v.tuple([
@@ -66,6 +66,6 @@ describe('field-logic-group', () => {
     result.form.control!.updateValue({ l1: [{ k2: '1' }] });
     const field = result.get(['l1', 0, 1, 'k2']);
     expect(field?.form.control?.valuePath).toEqual(['l1', 0, 'k2']);
-    expect(field?.form.control?.formPath).toEqual(['l1', 0, 1, 'k2']);
+    expect(field?.form.control?.fieldPath).toEqual(['l1', 0, 1, 'k2']);
   });
 });
