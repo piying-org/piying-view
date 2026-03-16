@@ -1,5 +1,6 @@
 import {
   ApplicationRef,
+  ComponentRef,
   computed,
   createComponent,
   createNgModule,
@@ -102,6 +103,7 @@ export class BaseComponent {
   fieldComponentInstance?: any;
   fieldElementRef?: ElementRef<HTMLElement>;
   fieldDirectiveRefList?: any[];
+  componentRef?: ComponentRef<any>;
   /** 比较时使用 */
   #componentCheckConfig$$!: Signal<ComponentCheckConfig>;
   #setComponentCheck(config: DynamicComponentConfig) {
@@ -220,6 +222,7 @@ export class BaseComponent {
               ]),
         ],
       });
+      this.componentRef = componentRef;
       this.fieldComponentInstance = componentRef.instance;
       this.fieldElementRef = componentRef.location;
       this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(

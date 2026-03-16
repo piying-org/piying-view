@@ -11,6 +11,8 @@ import { setComponent } from '@piying/view-angular-core';
 import { actions } from '@piying/view-angular-core';
 import { RestGroupComponent } from './rest-group/component';
 import { SwitchGroupComponent } from './switch-group/component';
+import { Wrapper1Component } from './wrapper1/component';
+import { Test1SelectorlessComponent } from './test1-selectorless/component';
 
 describe('group初始化', () => {
   it('存在', async () => {
@@ -256,7 +258,55 @@ describe('group初始化', () => {
     inputEl = element.querySelector('input')!;
     expect(inputEl?.value).toEqual('xxx');
   });
-
+  it('group-switch2-selectorless', async () => {
+    const activate$ = signal(0);
+    const destroyed$ = signal(false);
+    const define = v.pipe(
+      v.intersect([
+        v.object({
+          k1: v.pipe(
+            v.string(),
+            setComponent(Test1SelectorlessComponent),
+            actions.wrappers.patch([{ type: Wrapper1Component }]),
+            actions.outputs.patch({
+              destroyedChange: (value) => {
+                destroyed$.set(value);
+              },
+            }),
+          ),
+        }),
+        v.object({
+          k2: v.pipe(
+            v.string(),
+            setComponent(Test1Component),
+            actions.wrappers.patch([{ type: Wrapper1Component }]),
+          ),
+        }),
+      ]),
+      setComponent('switch-group'),
+      actions.inputs.patchAsync({
+        activate: () => activate$,
+      }),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal({ k1: '111', k2: '222' }),
+      {
+        types: {
+          'switch-group': { type: SwitchGroupComponent },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const inputEl = element.querySelector('input')!;
+    expect(inputEl.value).toEqual('111');
+    htmlInput(inputEl, 'xxx');
+    activate$.set(1);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(destroyed$()).toBeTrue();
+  });
   it('重复子级', async () => {
     const define = v.record(
       v.string(),

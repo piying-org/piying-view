@@ -28,4 +28,12 @@ export class InsertFieldDirective extends BaseComponent {
   ngOnInit(): void {
     this.createComponent();
   }
+  ngOnDestroy(): void {
+    if (
+      this.componentRef &&
+      (this.componentRef.componentType as any).__version === 2
+    ) {
+      this.componentRef.destroy();
+    }
+  }
 }
