@@ -6,6 +6,7 @@ import {
   FieldArray,
   FieldControl,
   FieldGroup,
+  setComponent,
 } from '@piying/view-angular-core';
 
 import { typedComponent } from '../lib/util/typed-component';
@@ -15,33 +16,51 @@ import { PiyingViewGroup } from '../lib/component/group/component';
 
 describe('强类型化', () => {
   it('存在', async () => {
-    let typeDefine = typedComponent({
+    const typeDefine = typedComponent({
       types: {
-        test1: { type: Test1Component },
+        test1: {
+          type: Test1Component,
+        },
+        test2: {
+          actions: [setComponent(Test1Component)],
+        },
         object: { type: PiyingViewGroup },
       },
+    });
+
+    typeDefine.setComponent('test2', (actions) => {
+      actions.outputs.patch({ output1: () => {} });
+      actions.outputs.set({
+        output1: (input) => {
+          const str: string = input;
+        },
+      });
+      actions.outputs.mapAsync((field) => (value) => value);
+      actions.outputs.patchAsync({
+        output1: (field) => (input) => {},
+      });
+      actions.inputs.patch({ input1: '' });
+      return [actions.inputs.set({ input1: 'div-display' })];
     });
     const define = v.object({
       key1: v.pipe(
         v.string(),
         typeDefine.setComponent('test1', (actions) => {
           actions.outputs.patch({ output1: () => {} });
-          actions.outputs.set({ output1: () => {} });
-          actions.outputs.mapAsync((field) => {
-            return (value) => {
-              return value;
-            };
-          });
-          actions.outputs.patchAsync({
-            output1: (field) => {
-              return (input) => {};
+          actions.outputs.set({
+            output1: (input) => {
+              const str: string = input;
             },
+          });
+          actions.outputs.mapAsync((field) => (value) => value);
+          actions.outputs.patchAsync({
+            output1: (field) => (input) => {},
           });
           actions.inputs.patch({ input1: '' });
           return [actions.inputs.set({ input1: 'div-display' })];
         }),
         v.transform((a) => {
-          let str: string = a;
+          const str: string = a;
           return str;
         }),
       ),
@@ -89,7 +108,7 @@ describe('强类型化', () => {
     //   signal(define),
     //   signal({ key1: 'value1' }),
     // );
-    let element = fixture.nativeElement;
+    const element = fixture.nativeElement;
     expect(element).toBeTruthy();
     fixture.detectChanges();
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;

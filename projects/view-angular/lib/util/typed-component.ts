@@ -4,6 +4,7 @@ import {
   actions,
   _PiResolvedCommonViewFieldConfig,
   setComponent,
+  PiTypeConfig,
 } from '@piying/view-angular-core';
 import {
   ComponentInputs,
@@ -91,6 +92,15 @@ type ComponentActions<TComponent> = {
     ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
   };
 };
+export type ObservableInputTuple<T> = {
+  [K in keyof T]: T[K];
+};
+type ActionComponent<A extends PiTypeConfig> =
+  A['type'] extends Type<any>
+    ? A['type']
+    : (readonly [
+        ...ObservableInputTuple<NonNullable<A['actions']>>,
+      ])[0]['__type'];
 
 export function typedComponent<T extends PiCommonConfig>(
   input: T,
@@ -99,16 +109,16 @@ export function typedComponent<T extends PiCommonConfig>(
   setComponent: <TCName extends keyof T['types'], K>(
     input: TCName,
     fn: (
-      actions: Omit<typeof PresetActions, 'inputs'> &
-        ComponentActions<NonNullable<T['types']>[TCName]['type']>,
+      actions: Omit<typeof PresetActions, 'inputs' | 'outputs'> &
+        ComponentActions<ActionComponent<NonNullable<T['types']>[TCName]>>,
     ) => any[],
   ) => MetadataListAction<K>;
 } {
   return {
     define: input,
     setComponent(key, fn) {
-      let type = input.types![key as string].type;
-      let list = fn?.(actions as any) ?? [];
+      const type = input.types![key as string].type;
+      const list = fn?.(actions as any) ?? [];
       return metadataList([setComponent(type), ...list]);
     },
   };

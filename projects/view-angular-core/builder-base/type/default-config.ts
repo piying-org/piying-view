@@ -1,9 +1,12 @@
 import { BaseMetadata } from 'valibot';
 import { RawConfigAction } from '@piying/valibot-visit';
 
-export interface PiTypeConfig<TComponent = any> {
+export interface PiTypeConfig<
+  TComponent = any,
+  TActionList extends readonly BaseMetadata<any>[]=any[],
+> {
   type?: TComponent;
-  actions?: BaseMetadata<any>[];
+  actions?: TActionList;
 }
 
 export interface PiWrapperConfig<TWrapperComponent = any> {
