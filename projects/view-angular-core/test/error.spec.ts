@@ -48,7 +48,7 @@ describe('error', () => {
     control.filterActivateControl$.set((item, index) => index === 1);
     field.form.control?.updateValue({ v2: 1 });
     expect(getDeepError(field.form.control)[0].queryPathList[0]).toEqual(1);
-    expect(control.activatedChildren()?.length).toEqual(1)
+    expect(control.activatedChildren()?.length).toEqual(1);
   });
   it('查找子级异常', () => {
     const obj = v.object({

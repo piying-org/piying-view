@@ -563,7 +563,9 @@ describe('anyof', () => {
     const field = field$$()!;
     const childF = field.get([1]);
     assertFieldLogicGroup(childF?.form.control);
-    childF.form.control.filterActivateControl$.set((item, index) => index === 1);
+    childF.form.control.filterActivateControl$.set(
+      (item, index) => index === 1,
+    );
 
     await fixture.whenStable();
     fixture.detectChanges();

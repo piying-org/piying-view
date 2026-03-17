@@ -23,7 +23,7 @@ describe('token', () => {
 			})
 		);
 		const value = undefined;
-		const { instance } = await createComponent(schema, value, {});
+		await createComponent(schema, value, {});
 		expect(check).ok;
 	});
 });

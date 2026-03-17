@@ -1,8 +1,4 @@
-import {
-  Injector,
-  Signal,
-  Type,
-} from '@angular/core';
+import { Injector, Signal, Type } from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { NgResolvedComponentDefine1 } from './group';
 import {
@@ -40,4 +36,3 @@ export type NgComponentDefine = {
   component: Type<any>;
   module?: Type<any>;
 };
-

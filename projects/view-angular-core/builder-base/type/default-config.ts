@@ -3,7 +3,7 @@ import { RawConfigAction } from '@piying/valibot-visit';
 
 export interface PiTypeConfig<
   TComponent = any,
-  TActionList extends readonly BaseMetadata<any>[]=any[],
+  TActionList extends readonly BaseMetadata<any>[] = any[],
 > {
   type?: TComponent;
   actions?: TActionList;
