@@ -50,11 +50,12 @@ type ComponentOutputsAsync<T> = {
     : never;
 };
 
-type GetComponentInstance<TComponent> =
+type ComponentInstance<TComponent> =
   TComponent extends Type<infer Instance> ? Instance : never;
 
+// inputs
 type GetComponentInputs<TComponent> = ComponentInputs<
-  GetComponentInstance<TComponent>
+  ComponentInstance<TComponent>
 >;
 
 type GetComponentInputsOrigin<TComponent> = Partial<
@@ -64,8 +65,9 @@ type GetComponentInputsOrigin<TComponent> = Partial<
 type GetComponentInputsAsync<TComponent> = Partial<
   ComponentInputsAsync<GetComponentInputs<TComponent>>
 >;
+// outputs
 type GetComponentOutputs<TComponent> = ComponentOutputs<
-  GetComponentInstance<TComponent>
+  ComponentInstance<TComponent>
 >;
 
 type GetComponentOutputsOrigin<TComponent> = Partial<
@@ -75,49 +77,53 @@ type GetComponentOutputsOrigin<TComponent> = Partial<
 type GetComponentOutputsAsync<TComponent> = Partial<
   ComponentOutputsAsync<GetComponentOutputs<TComponent>>
 >;
-
+type ReturnAction<Input> = RawConfigAction<
+  'viewRawConfig',
+  Input,
+  AnyCoreSchemaHandle
+>;
 type ComponentActions<TComponent> = {
   inputs: {
     patch: <Input>(
       value: GetComponentInputsOrigin<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     set: <Input>(
       value: GetComponentInputsOrigin<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     patchAsync: <Input>(
       value: GetComponentInputsAsync<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     remove: <Input>(
       value: (keyof GetComponentInputs<TComponent>)[],
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     mapAsync: <Input>(
       value: (
         field: _PiResolvedCommonViewFieldConfig,
       ) => (
         value: GetComponentInputs<TComponent>,
       ) => GetComponentInputs<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
   };
   outputs: {
     patch: <Input>(
       value: GetComponentOutputsOrigin<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     set: <Input>(
       value: GetComponentOutputsOrigin<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     patchAsync: <Input>(
       value: GetComponentOutputsAsync<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     remove: <Input>(
       value: (keyof GetComponentOutputs<TComponent>)[],
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
     mapAsync: <Input>(
       value: (
         field: _PiResolvedCommonViewFieldConfig,
       ) => (
         value: GetComponentOutputs<TComponent>,
       ) => GetComponentOutputs<TComponent>,
-    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    ) => ReturnAction<Input>;
   };
 };
 
