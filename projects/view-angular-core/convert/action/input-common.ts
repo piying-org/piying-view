@@ -8,8 +8,8 @@ import { rawConfig } from './raw-config';
 
 import { asyncMergeOutputs, mergeOutputs } from './output';
 
-type AsyncResult = Promise<any> | Observable<any> | Signal<any> | (any & {});
-type AsyncProperty = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult;
+type AsyncResult<T=any> = Promise<T> | Observable<T> | Signal<T> | (T & {});
+export type AsyncProperty<T=any> = (field: _PiResolvedCommonViewFieldConfig) => AsyncResult<T>;
 type ChangeKey = 'inputs' | 'outputs' | 'attributes' | 'events' | 'props';
 export const CustomDataSymbol = Symbol();
 

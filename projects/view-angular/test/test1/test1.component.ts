@@ -29,7 +29,7 @@ export class Test1Component extends BaseControl {
   override defaultValue = '';
   // 理论上不应该放到自定义控件中,但是为了测试
   field = inject(PI_VIEW_FIELD_TOKEN);
-  input1 = input();
+  input1 = input<string>();
   input2 = input();
   output1 = output<string>();
   value = signal('');

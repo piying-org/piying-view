@@ -7,6 +7,7 @@ import {
   ViewOutputs,
   LazyImport,
   LazyMarkType,
+  AsyncProperty,
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */
 export interface RawDirectiveOutputs {
@@ -37,8 +38,7 @@ export type NgComponentDefine = {
   module?: Type<any>;
 };
 
-
-type GetKeyWithType<T, ValueType> = {
+export type GetKeyWithType<T, ValueType> = {
   [K in keyof T as T[K] extends ValueType
     ? T[K] extends any
       ? any extends T[K]
@@ -48,4 +48,14 @@ type GetKeyWithType<T, ValueType> = {
     : never]: T[K];
 };
 
-export type ComponentInputs<Component> = GetKeyWithType<Component, InputSignal<any>>;
+export type ComponentInputs<Component> = GetKeyWithType<
+  Component,
+  InputSignal<any>
+>;
+
+export type ComponentInputsOrigin<T> = {
+  [K in keyof T]: T[K] extends InputSignal<infer V> ? V : never;
+};
+export type ComponentInputsAsync<T> = {
+  [K in keyof T]: T[K] extends InputSignal<infer V> ? AsyncProperty<V> : never;
+};
