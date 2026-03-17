@@ -14,7 +14,7 @@ export * from './non-field-control';
 import { wrappers } from './wrapper';
 export { wrappers as ɵwrappers } from './wrapper';
 export { CustomDataSymbol } from './input-common';
-export type { ConfigAction } from './input-common';
+export type { ConfigAction,AsyncProperty } from './input-common';
 import { classAction } from './class';
 export { classAction as ɵclassAction } from './class';
 import { __actions } from './input-common';
