@@ -5,22 +5,50 @@ import {
   _PiResolvedCommonViewFieldConfig,
   setComponent,
   PiTypeConfig,
+  AsyncProperty,
 } from '@piying/view-angular-core';
-import {
-  ComponentInputs,
-  ComponentInputsAsync,
-  ComponentInputsOrigin,
-  ComponentOutputs,
-  ComponentOutputsAsync,
-  ComponentOutputsOrigin,
-} from '../type/component';
-import { Type } from '@angular/core';
+
+import { InputSignal, OutputEmitterRef, Type } from '@angular/core';
 import {
   metadataList,
   MetadataListAction,
   RawConfigAction,
 } from '@piying/valibot-visit';
 import { AnyCoreSchemaHandle } from '@piying/view-angular-core';
+type GetKeyWithType<T, ValueType> = {
+  [K in keyof T as T[K] extends ValueType
+    ? T[K] extends any
+      ? any extends T[K]
+        ? never
+        : K
+      : K
+    : never]: T[K];
+};
+
+type ComponentInputs<Component> = GetKeyWithType<Component, InputSignal<any>>;
+
+type ComponentInputsOrigin<T> = {
+  [K in keyof T]: T[K] extends InputSignal<infer V> ? V : never;
+};
+type ComponentInputsAsync<T> = {
+  [K in keyof T]: T[K] extends InputSignal<infer V> ? AsyncProperty<V> : never;
+};
+
+type ComponentOutputs<Component> = GetKeyWithType<
+  Component,
+  OutputEmitterRef<any>
+>;
+
+type ComponentOutputsOrigin<T> = {
+  [K in keyof T]: T[K] extends OutputEmitterRef<infer V>
+    ? (input: V) => void
+    : never;
+};
+type ComponentOutputsAsync<T> = {
+  [K in keyof T]: T[K] extends OutputEmitterRef<infer V>
+    ? AsyncProperty<(input: V) => void>
+    : never;
+};
 
 type GetComponentInstance<TComponent> =
   TComponent extends Type<infer Instance> ? Instance : never;

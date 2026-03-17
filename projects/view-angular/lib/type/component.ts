@@ -1,7 +1,5 @@
 import {
   Injector,
-  InputSignal,
-  OutputEmitterRef,
   Signal,
   Type,
 } from '@angular/core';
@@ -13,7 +11,6 @@ import {
   ViewOutputs,
   LazyImport,
   LazyMarkType,
-  AsyncProperty,
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */
 export interface RawDirectiveOutputs {
@@ -44,40 +41,3 @@ export type NgComponentDefine = {
   module?: Type<any>;
 };
 
-export type GetKeyWithType<T, ValueType> = {
-  [K in keyof T as T[K] extends ValueType
-    ? T[K] extends any
-      ? any extends T[K]
-        ? never
-        : K
-      : K
-    : never]: T[K];
-};
-
-export type ComponentInputs<Component> = GetKeyWithType<
-  Component,
-  InputSignal<any>
->;
-
-export type ComponentInputsOrigin<T> = {
-  [K in keyof T]: T[K] extends InputSignal<infer V> ? V : never;
-};
-export type ComponentInputsAsync<T> = {
-  [K in keyof T]: T[K] extends InputSignal<infer V> ? AsyncProperty<V> : never;
-};
-
-export type ComponentOutputs<Component> = GetKeyWithType<
-  Component,
-  OutputEmitterRef<any>
->;
-
-export type ComponentOutputsOrigin<T> = {
-  [K in keyof T]: T[K] extends OutputEmitterRef<infer V>
-    ? (input: V) => void
-    : never;
-};
-export type ComponentOutputsAsync<T> = {
-  [K in keyof T]: T[K] extends OutputEmitterRef<infer V>
-    ? AsyncProperty<(input: V) => void>
-    : never;
-};
