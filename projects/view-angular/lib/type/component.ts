@@ -1,4 +1,10 @@
-import { Injector, InputSignal, Signal, Type } from '@angular/core';
+import {
+  Injector,
+  InputSignal,
+  OutputEmitterRef,
+  Signal,
+  Type,
+} from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { NgResolvedComponentDefine1 } from './group';
 import {
@@ -58,4 +64,20 @@ export type ComponentInputsOrigin<T> = {
 };
 export type ComponentInputsAsync<T> = {
   [K in keyof T]: T[K] extends InputSignal<infer V> ? AsyncProperty<V> : never;
+};
+
+export type ComponentOutputs<Component> = GetKeyWithType<
+  Component,
+  OutputEmitterRef<any>
+>;
+
+export type ComponentOutputsOrigin<T> = {
+  [K in keyof T]: T[K] extends OutputEmitterRef<infer V>
+    ? (input: V) => void
+    : never;
+};
+export type ComponentOutputsAsync<T> = {
+  [K in keyof T]: T[K] extends OutputEmitterRef<infer V>
+    ? AsyncProperty<(input: V) => void>
+    : never;
 };

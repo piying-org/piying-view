@@ -25,13 +25,24 @@ describe('强类型化', () => {
       key1: v.pipe(
         v.string(),
         typeDefine.setComponent('test1', (actions) => {
+          actions.outputs.patch({ output1: () => {} });
+          actions.outputs.set({ output1: () => {} });
+          actions.outputs.mapAsync((field) => {
+            return (value) => {
+              return value;
+            };
+          });
+          actions.outputs.patchAsync({
+            output1: (field) => {
+              return (input) => {};
+            },
+          });
+          actions.inputs.patch({ input1: '' });
           return [actions.inputs.set({ input1: 'div-display' })];
         }),
         v.transform((a) => {
-          return a;
-        }),
-        v.check((a) => {
-          return true;
+          let str: string = a;
+          return str;
         }),
       ),
     });

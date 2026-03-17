@@ -9,6 +9,9 @@ import {
   ComponentInputs,
   ComponentInputsAsync,
   ComponentInputsOrigin,
+  ComponentOutputs,
+  ComponentOutputsAsync,
+  ComponentOutputsOrigin,
 } from '../type/component';
 import { Type } from '@angular/core';
 import {
@@ -32,6 +35,17 @@ type GetComponentInputsOrigin<TComponent> = Partial<
 type GetComponentInputsAsync<TComponent> = Partial<
   ComponentInputsAsync<GetComponentInputs<TComponent>>
 >;
+type GetComponentOutputs<TComponent> = ComponentOutputs<
+  GetComponentInstance<TComponent>
+>;
+
+type GetComponentOutputsOrigin<TComponent> = Partial<
+  ComponentOutputsOrigin<GetComponentOutputs<TComponent>>
+>;
+
+type GetComponentOutputsAsync<TComponent> = Partial<
+  ComponentOutputsAsync<GetComponentOutputs<TComponent>>
+>;
 
 type ComponentActions<TComponent> = {
   inputs: {
@@ -53,6 +67,27 @@ type ComponentActions<TComponent> = {
       ) => (
         value: GetComponentInputs<TComponent>,
       ) => GetComponentInputs<TComponent>,
+    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+  };
+  outputs: {
+    patch: <Input>(
+      value: GetComponentOutputsOrigin<TComponent>,
+    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    set: <Input>(
+      value: GetComponentOutputsOrigin<TComponent>,
+    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    patchAsync: <Input>(
+      value: GetComponentOutputsAsync<TComponent>,
+    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    remove: <Input>(
+      value: (keyof GetComponentOutputs<TComponent>)[],
+    ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+    mapAsync: <Input>(
+      value: (
+        field: _PiResolvedCommonViewFieldConfig,
+      ) => (
+        value: GetComponentOutputs<TComponent>,
+      ) => GetComponentOutputs<TComponent>,
     ) => RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
   };
 };
