@@ -8,11 +8,10 @@ export function FindConfigFactory() {
   return {
     findWrapperComponent: (wrapper: any) => {
       let config;
-      let type;
       if (typeof wrapper === 'string') {
         config = globalConfig?.wrappers?.[wrapper];
         if (!config) {
-          throw new Error(`🈳wrapper:[${type}]❗`);
+          throw new Error(`🈳wrapper:[${wrapper}]❗`);
         }
         return config?.type;
       }
