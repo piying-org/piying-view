@@ -51,7 +51,7 @@ describe('array', () => {
     const obj = v.pipe(
       v.array(v.pipe(v.optional(v.string()))),
       formConfig({
-        transfomer: {
+        transformer: {
           toModel(value, control) {
             if (value) {
               expect(value).toEqual(['2']);

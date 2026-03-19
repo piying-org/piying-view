@@ -256,7 +256,7 @@ describe('对象', () => {
         k1: v.string(),
       }),
       formConfig({
-        transfomer: {
+        transformer: {
           toModel(value, control) {
             if (value) {
               expect(value).toEqual({ k1: '2' });

@@ -294,7 +294,7 @@ describe('对象相交', () => {
         ),
       ]),
       formConfig({
-        transfomer: {
+        transformer: {
           toModel(value, control) {
             if (value) {
               expect(value).toEqual({ k1: '2' });

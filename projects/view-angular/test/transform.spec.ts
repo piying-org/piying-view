@@ -12,7 +12,7 @@ describe('转换', () => {
         v.number(),
         setComponent(Test1Component),
         formConfig({
-          transfomer: {
+          transformer: {
             toModel: (value) => +value + 1,
           },
         }),

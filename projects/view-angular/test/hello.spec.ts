@@ -329,7 +329,7 @@ describe('初始化', () => {
         v.number(),
         setComponent(Test1Component),
         formConfig({
-          transfomer: {
+          transformer: {
             toModel: (value) => +value + 1,
             toView: (value) => `${value}9`,
           },

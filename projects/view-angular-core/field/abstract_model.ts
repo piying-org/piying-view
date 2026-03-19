@@ -478,7 +478,7 @@ export abstract class AbstractControl<TValue = any> {
     return value ?? this.config$().defaultValue;
   }
 
-  #transformer$$ = computed(() => this.config$().transfomer);
+  #transformer$$ = computed(() => this.config$().transformer);
   protected transformToModel(value: any, control: AbstractControl<any>) {
     if (this.#transformer$$()) {
       value = this.#transformer$$()?.toModel?.(value, control) ?? value;

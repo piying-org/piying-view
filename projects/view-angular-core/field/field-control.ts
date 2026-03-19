@@ -19,7 +19,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   modelValue$: WritableSignal<TValue | undefined> = signal(undefined);
   private modelValueToViewValueOrigin$$ = computed(() => {
     const viewValue = this.modelValue$();
-    const toView = this.config$?.().transfomer?.toView;
+    const toView = this.config$?.().transformer?.toView;
     if (toView) {
       return toView(viewValue, this);
     }

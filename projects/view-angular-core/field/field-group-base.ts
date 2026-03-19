@@ -15,7 +15,7 @@ export class FieldGroupbase extends AbstractControl {
 
   /** @internal */
   protected _updateValue(value: any, type: UpdateType) {
-    const viewValue = this.config$().transfomer?.toView?.(value, this) ?? value;
+    const viewValue = this.config$().transformer?.toView?.(value, this) ?? value;
     if (type === UpdateType.init) {
       this.initedValue = viewValue;
     }

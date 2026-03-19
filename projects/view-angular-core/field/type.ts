@@ -19,7 +19,7 @@ export interface FieldFormConfig<T = any> {
   disabled?: boolean;
   /** 删除时value应该如何处理 */
   disabledValue?: DisabledValueStrategy;
-  transfomer?: FieldTransformerConfig;
+  transformer?: FieldTransformerConfig;
   pipe?: { toModel?: UnaryFunction<Observable<any>, Observable<T>> };
   defaultValue?: any;
   validators?: ValidatorFn[];
