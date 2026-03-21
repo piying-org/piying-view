@@ -57,6 +57,7 @@ describe('强类型化', () => {
             output1: (field) => (input) => {},
           });
           actions.inputs.patch({ input1: '' });
+          actions.inputs.patch({ transformed: '' });
           return [actions.inputs.set({ input1: 'div-display' })];
         }),
         v.transform((a) => {

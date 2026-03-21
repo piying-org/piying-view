@@ -27,6 +27,9 @@ import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
 })
 export class Test1Component extends BaseControl {
   override defaultValue = '';
+   transformed = input<string, string | undefined>('', {
+    transform: (a) => a!,
+  });
   // 理论上不应该放到自定义控件中,但是为了测试
   field = inject(PI_VIEW_FIELD_TOKEN);
   input1 = input<string>();

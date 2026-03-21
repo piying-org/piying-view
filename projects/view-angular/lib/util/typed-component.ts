@@ -8,7 +8,12 @@ import {
   AsyncProperty,
 } from '@piying/view-angular-core';
 
-import { InputSignal, OutputEmitterRef, Type } from '@angular/core';
+import {
+  InputSignal,
+  InputSignalWithTransform,
+  OutputEmitterRef,
+  Type,
+} from '@angular/core';
 import {
   metadataList,
   MetadataListAction,
@@ -28,10 +33,18 @@ type GetKeyWithType<T, ValueType> = {
 type ComponentInputs<Component> = GetKeyWithType<Component, InputSignal<any>>;
 
 type ComponentInputsOrigin<T> = {
-  [K in keyof T]: T[K] extends InputSignal<infer V> ? V : never;
+  [K in keyof T]: T[K] extends InputSignal<infer V>
+    ? V
+    : T[K] extends InputSignalWithTransform<infer V, infer D>
+      ? V
+      : never;
 };
 type ComponentInputsAsync<T> = {
-  [K in keyof T]: T[K] extends InputSignal<infer V> ? AsyncProperty<V> : never;
+  [K in keyof T]: T[K] extends InputSignal<infer V>
+    ? AsyncProperty<V>
+    : T[K] extends InputSignalWithTransform<infer V, infer D>
+      ? AsyncProperty<V>
+      : never;
 };
 
 type ComponentOutputs<Component> = GetKeyWithType<
