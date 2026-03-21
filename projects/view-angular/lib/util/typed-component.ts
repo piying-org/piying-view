@@ -36,14 +36,14 @@ type ComponentInputsOrigin<T> = {
   [K in keyof T]: T[K] extends InputSignal<infer V>
     ? V
     : T[K] extends InputSignalWithTransform<infer V, infer D>
-      ? V
+      ? D
       : never;
 };
 type ComponentInputsAsync<T> = {
   [K in keyof T]: T[K] extends InputSignal<infer V>
     ? AsyncProperty<V>
     : T[K] extends InputSignalWithTransform<infer V, infer D>
-      ? AsyncProperty<V>
+      ? AsyncProperty<D>
       : never;
 };
 
