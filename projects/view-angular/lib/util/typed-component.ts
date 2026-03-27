@@ -149,20 +149,25 @@ export function typedComponent<T extends PiCommonConfig>(
   input: T,
 ): {
   define: T;
-  setComponent: <TCName extends keyof T['types'], K>(
+  setComponent: <TCName extends keyof T['types'] | Type<any>, K>(
     input: TCName,
-    fn: (
+    fn?: (
       actions: Omit<typeof PresetActions, 'inputs' | 'outputs'> &
-        ComponentActions<ActionComponent<NonNullable<T['types']>[TCName]>>,
+        ComponentActions<
+          TCName extends keyof T['types']
+            ? ActionComponent<NonNullable<T['types']>[TCName]>
+            : TCName
+        >,
     ) => any[],
   ) => MetadataListAction<K>;
 } {
   return {
     define: input,
     setComponent(key, fn) {
-      const type = input.types![key as string].type;
-      const list = fn?.(actions as any) ?? [];
-      return metadataList([setComponent(type), ...list]);
+      const type = typeof key === 'string' ? input.types![key].type : key;
+      return metadataList(
+        fn ? [setComponent(type), ...fn(actions as any)] : [setComponent(type)],
+      );
     },
   };
 }

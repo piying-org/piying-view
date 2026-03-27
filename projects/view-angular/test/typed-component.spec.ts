@@ -42,6 +42,20 @@ describe('强类型化', () => {
       actions.inputs.patch({ input1: '' });
       return [actions.inputs.set({ input1: 'div-display' })];
     });
+    typeDefine.setComponent(Test1Component, (actions) => {
+      actions.outputs.patch({ output1: () => {} });
+      actions.outputs.set({
+        output1: (input) => {
+          const str: string = input;
+        },
+      });
+      actions.outputs.mapAsync((field) => (value) => value);
+      actions.outputs.patchAsync({
+        output1: (field) => (input) => {},
+      });
+      actions.inputs.patch({ input1: '' });
+      return [actions.inputs.set({ input1: 'div-display' })];
+    });
     const define = v.object({
       key1: v.pipe(
         v.string(),
