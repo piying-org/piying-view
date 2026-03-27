@@ -19,6 +19,7 @@ export type CoreResolvedComponentDefine = {
   outputs?: AsyncObjectSignal<ViewOutputs>;
   attributes?: AsyncObjectSignal<ViewAttributes>;
   events?: AsyncObjectSignal<ViewEvents>;
+  slots?: AsyncObjectSignal<ViewSlots>;
 };
 
 export interface HookConfig<RESOLVED_FIELD> {
@@ -77,6 +78,7 @@ export type PiResolvedCommonViewFieldConfig<
     readonly outputs: AsyncObjectSignal<ViewOutputs>;
     readonly attributes: AsyncObjectSignal<ViewAttributes>;
     readonly events: AsyncObjectSignal<ViewEvents>;
+    readonly slots: AsyncObjectSignal<ViewSlots>;
     readonly wrappers: CombineSignal<CoreWrapperConfig>;
   } & Readonly<
     Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
@@ -97,6 +99,7 @@ export type ViewOutputs = Record<string, (...args: any[]) => any>;
 export type ViewAttributes = Record<string, any>;
 export type ViewEvents = Record<string, (event: Event) => any>;
 export type ViewProps = Record<string, any>;
+export type ViewSlots = Record<string, any>;
 
 export type RawCoreWrapperConfig = {
   type: string | any | LazyImport<any>;
@@ -104,6 +107,7 @@ export type RawCoreWrapperConfig = {
   inputs: ViewInputs;
   outputs: ViewOutputs;
   events: ViewEvents;
+  slots: ViewSlots;
 };
 export type CoreWrapperConfig = {
   type: string | any | LazyImport<any>;
@@ -111,4 +115,5 @@ export type CoreWrapperConfig = {
   inputs: AsyncObjectSignal<ViewInputs>;
   outputs: AsyncObjectSignal<ViewOutputs>;
   events: AsyncObjectSignal<ViewEvents>;
+  slots: AsyncObjectSignal<ViewSlots>;
 };

@@ -26,9 +26,9 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
       | SetOptional<
           SetUnWrapper$<
             CoreWrapperConfig,
-            'inputs' | 'outputs' | 'attributes' | 'events'
+            'inputs' | 'outputs' | 'attributes' | 'events' | 'slots'
           >,
-          'inputs' | 'outputs' | 'attributes' | 'events'
+          'inputs' | 'outputs' | 'attributes' | 'events' | 'slots'
         >
       | string
     )[],
@@ -49,6 +49,7 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
             outputs: {},
             attributes: {},
             events: {},
+            slots: {},
           };
           rawField.wrappers.push(define);
           defaultActions.forEach((item) => {
@@ -82,6 +83,7 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
             outputs: wrapperItem.outputs ?? {},
             attributes: wrapperItem.attributes ?? {},
             events: wrapperItem.events ?? {},
+            slots: wrapperItem.slots ?? {},
           });
         }
       });
@@ -146,6 +148,7 @@ function patchAsyncWrapper<T>(
               events: asyncObjectSignal({}),
               inputs: asyncObjectSignal({}),
               outputs: asyncObjectSignal({}),
+              slots: asyncObjectSignal({}),
             } as CoreWrapperConfig,
             {
               pipe: pipe(
@@ -174,6 +177,7 @@ function patchAsyncWrapper<T>(
               outputs: {},
               attributes: {},
               events: {},
+              slots: {},
             };
             (item.value as any)(tempField, undefined, {
               [CustomDataSymbol]: (
@@ -190,6 +194,7 @@ function patchAsyncWrapper<T>(
             setSubInitValue('outputs', initData, tempField);
             setSubInitValue('attributes', initData, tempField);
             setSubInitValue('events', initData, tempField);
+            setSubInitValue('slots', initData, tempField);
 
             (tempField as any).hooks?.allFieldsResolved?.(field);
           }
@@ -224,6 +229,7 @@ function changeAsyncWrapper<T>(
               outputs: {},
               attributes: {},
               events: {},
+              slots: {},
             };
             (item.value as any)(tempField, undefined, {
               [CustomDataSymbol]: (
@@ -240,6 +246,7 @@ function changeAsyncWrapper<T>(
             setSubInitValue('outputs', initData, tempField);
             setSubInitValue('attributes', initData, tempField);
             setSubInitValue('events', initData, tempField);
+            setSubInitValue('slots', initData, tempField);
             (tempField as any).hooks?.allFieldsResolved?.(field);
           }
         },
