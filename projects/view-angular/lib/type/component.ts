@@ -7,6 +7,7 @@ import {
   ViewOutputs,
   LazyImport,
   LazyMarkType,
+  ViewSlots,
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */
 export interface RawDirectiveOutputs {
@@ -24,8 +25,9 @@ export interface DynamicComponentConfig {
   attributes: Signal<ViewAttributes | undefined>;
   events: Signal<Record<string, (event: any) => any> | undefined>;
   inputs: Signal<ViewInputs | undefined>;
-  directives?: DirectiveConfig[];
   outputs?: Signal<ViewOutputs>;
+  slots?: Signal<ViewSlots>;
+  directives?: DirectiveConfig[];
   injector?: Injector;
 }
 
