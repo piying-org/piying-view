@@ -24,6 +24,7 @@ import {
   ComponentRawType,
   NgDirectiveConfig,
   PI_VIEW_COMPONENT_LIST_TOKEN,
+  PI_VIEW_NEXT_TEMPLATE_REF_TOKEN,
 } from '../type';
 import {
   ComponentVersion,
@@ -96,13 +97,6 @@ function createEventsDirective(events: Signal<ViewEvents | undefined>) {
 })
 export class FieldOutlet {
   fieldOutlet = input.required<PiResolvedViewFieldConfig>();
-  nextTemplateRef = input.required<
-    TemplateRef<{
-      injector: Signal<Injector | undefined>;
-      index: number;
-      fieldConfig: PiResolvedViewFieldConfig;
-    }>
-  >();
   index = input(0);
   injector = input.required<Injector>();
   listen = input<any>();
@@ -170,7 +164,6 @@ export class FieldOutlet {
 
     const index = this.index();
     /** 用于wrapper的槽传递 */
-    const templateRef = this.nextTemplateRef();
     let createProjectableNodes: (
       componentDefine: NgComponentDefine,
     ) => Node[][];
@@ -182,11 +175,15 @@ export class FieldOutlet {
 
     /** 包装器 */
     if (typeDefine) {
-      const embRef = this.#viewRef.createEmbeddedView(templateRef, {
-        injector: cmpInjector,
-        index: index + 1,
-        fieldConfig: this.fieldOutlet(),
-      });
+      const embRef = this.#viewRef.createEmbeddedView(
+        injector.get(PI_VIEW_NEXT_TEMPLATE_REF_TOKEN),
+        {
+          injector: cmpInjector,
+          index: index + 1,
+          fieldConfig: this.fieldOutlet(),
+        },
+        { injector: injector },
+      );
       createProjectableNodes = () => [embRef.rootNodes];
       directivesList = [];
     } else {

@@ -20,6 +20,8 @@ import {
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
   PI_INPUT_MODEL_TOKEN,
+  PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
+  PI_VIEW_NEXT_TEMPLATE_REF_TOKEN,
 } from './type';
 
 import { NgTemplateOutlet } from '@angular/common';
@@ -36,7 +38,6 @@ import { NgConvertOptions } from './type/builder-type';
 import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
 import { FieldOutlet } from './directives/field-outlet.directive';
-import { TemplatePipe } from './pipe/template.pipe';
 import { InputsPipe, ListenPipe } from './pipe/listen.pipe';
 import { ListInjectorPipe } from './pipe/list-injector.pipe';
 const DefaultConvertOptions = {
@@ -48,7 +49,6 @@ const DefaultConvertOptions = {
   imports: [
     NgTemplateOutlet,
     FieldOutlet,
-    TemplatePipe,
     ListenPipe,
     InputsPipe,
     ListInjectorPipe,
@@ -59,6 +59,8 @@ const DefaultConvertOptions = {
 })
 export class PiyingView implements OnChanges {
   templateRef = viewChild.required('templateRef');
+  fieldTemplate = viewChild.required('fieldTemplate');
+  nextTemplate = viewChild.required('nextTemplate');
   readonly selectorless = input<boolean>(false);
   schema = input.required<v.BaseSchema<any, any, any>>();
   model = input<any>(undefined);
@@ -94,7 +96,21 @@ export class PiyingView implements OnChanges {
   #builderInjector?: DestroyableInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
   #listenDispose?: () => void;
-  injector3$$ = computed(() => this.resolvedField$()!.injector);
+  injector3$$ = computed(() => {
+    return Injector.create({
+      providers: [
+        {
+          provide: PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
+          useValue: this.fieldTemplate(),
+        },
+        {
+          provide: PI_VIEW_NEXT_TEMPLATE_REF_TOKEN,
+          useValue: this.nextTemplate(),
+        },
+      ],
+      parent: this.resolvedField$()!.injector,
+    });
+  });
   #fieldRoot = Injector.create({
     providers: [
       {

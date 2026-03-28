@@ -31,9 +31,12 @@ export const PI_INPUT_MODEL_TOKEN = new InjectionToken<Signal<any>>(
  * core
  */
 export const PI_VIEW_FIELD_TOKEN = PVFT;
-export const PI_VIEW_TEMPLATE_REF_TOKEN = new InjectionToken<TemplateRef<any>>(
-  'PI_VIEW_TEMPLATE_REF',
-);
+export const PI_VIEW_FIELD_TEMPLATE_REF_TOKEN = new InjectionToken<
+  TemplateRef<any>
+>('PI_VIEW_TEMPLATE_REF');
+export const PI_VIEW_NEXT_TEMPLATE_REF_TOKEN = new InjectionToken<
+  TemplateRef<any>
+>('PI_VIEW_NEXT_TEMPLATE_REF');
 /** todo 用以前的? */
 export const PI_VIEW_COMPONENT_LIST_TOKEN = new InjectionToken<
   ComponentRef<any>[]

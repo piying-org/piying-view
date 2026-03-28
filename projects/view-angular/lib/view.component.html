@@ -8,22 +8,19 @@
     <ng-template
       [fieldOutlet]="fieldConfig"
       [index]="index"
-      [nextTemplateRef]="nextTemplate"
       [injector]="injector"
     ></ng-template>
   }
 </ng-template>
 
-<ng-template #dynamicComponent let-field let-injector="injector">
-  @let listij = injector ?? NewInjector | listInjector;
+<ng-template #fieldTemplate let-field let-injector="injector">
   @let renderConfig = field.renderConfig();
   @if (field.define && !renderConfig?.hidden) {
     @let define = field.define();
     <ng-template
       [fieldOutlet]="field"
       [index]="0"
-      [nextTemplateRef]="nextTemplate"
-      [injector]="listij"
+      [injector]="injector ?? injector3$$() | listInjector"
       [listen]="
         field.wrappers()
           | listen
@@ -34,16 +31,15 @@
     ></ng-template>
   }
 </ng-template>
-@let NewInjector = injector3$$() | templateInjector: dynamicComponent;
 
 <ng-template #templateRef>
   @if (resolvedField$(); as field) {
     <ng-container
       *ngTemplateOutlet="
-        dynamicComponent;
+        fieldTemplate;
         context: {
           $implicit: field,
-          injector: NewInjector,
+          injector: injector3$$(),
         }
       "
     ></ng-container>
