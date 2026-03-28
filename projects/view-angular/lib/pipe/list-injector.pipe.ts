@@ -1,7 +1,7 @@
 import { Injector, Pipe, PipeTransform } from '@angular/core';
 import {
   PI_VIEW_COMPONENT_LIST_TOKEN,
-} from './type';
+} from '../type';
 
 @Pipe({ name: 'listInjector' })
 export class ListInjectorPipe implements PipeTransform {

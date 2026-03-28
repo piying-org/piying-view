@@ -35,10 +35,10 @@ import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
 import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
-import { FieldOutlet } from './hook/field-outlet';
-import { TemplatePipe } from './template.pipe';
-import { InputsPipe, ListenPipe } from './listen.pipe';
-import { ListInjectorPipe } from './list-injector.pipe';
+import { FieldOutlet } from './directives/field-outlet.directive';
+import { TemplatePipe } from './pipe/template.pipe';
+import { InputsPipe, ListenPipe } from './pipe/listen.pipe';
+import { ListInjectorPipe } from './pipe/list-injector.pipe';
 const DefaultConvertOptions = {
   builder: AngularFormBuilder,
   handle: NgSchemaHandle,

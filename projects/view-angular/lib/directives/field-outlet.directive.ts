@@ -25,7 +25,7 @@ import {
   NgDirectiveConfig,
   PI_VIEW_COMPONENT_LIST_TOKEN,
 } from '../type';
-import { DynamicComponentConfig, NgComponentDefine } from '../type/component';
+import { ComponentVersion, DynamicComponentConfig, NgComponentDefine } from '../type/component';
 import { isComponentType } from '../util/async-cache';
 import {
   asyncObjectSignal,
@@ -37,11 +37,11 @@ import {
   ViewOutputs,
 } from '@piying/view-angular-core';
 
-import { AttributesDirective } from '../directives/attributes.directive';
-import { EventsDirective } from '../directives/events.directive';
-import { FieldControlDirective } from '../directives/field-control-directive';
+import { AttributesDirective } from './attributes.directive';
+import { EventsDirective } from './events.directive';
+import { FieldControlDirective } from './field-control-directive';
 import { DirectiveConfig } from '../component/dynamic-define.component';
-import { ChainedInjector } from './chained_injector';
+import { ChainedInjector } from '../hook/chained_injector';
 function createInputsBind(inputs?: Signal<ViewInputs | undefined>) {
   if (!inputs?.()) {
     return [];
@@ -203,7 +203,7 @@ export class FieldOutlet {
     }
     this.#loadComponent(typeDefine.type, (componentDefine) => {
       const COMPONENT_VERSION: number | undefined = (
-        componentDefine.component as { __version?: number }
+        componentDefine.component as ComponentVersion
       ).__version;
       this.#moduleRef = componentDefine.module
         ? createNgModule(componentDefine.module, injector)

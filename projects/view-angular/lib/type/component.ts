@@ -38,3 +38,8 @@ export type NgComponentDefine = {
   component: Type<any>;
   module?: Type<any>;
 };
+export interface ComponentVersion {
+  __version?: 2;
+  /** todo 应该有平行插槽,也就是和ng的逻辑一样,但是不好设计 */
+  __slotPeer?: boolean;
+}
