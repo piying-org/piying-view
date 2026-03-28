@@ -53,7 +53,7 @@ const DefaultConvertOptions = {
     InputsPipe,
     ListInjectorPipe,
   ],
-  templateUrl: './component.html',
+  templateUrl: './view.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
