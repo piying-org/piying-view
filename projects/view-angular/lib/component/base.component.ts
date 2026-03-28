@@ -200,7 +200,7 @@ export class BaseComponent {
       const cm = reflectComponentType(componentDefine.component)!;
       const templateSlots = componentConfig.slots!();
       const templateRefList = cm.ngContentSelectors.map(
-        (key) => templateSlots[key],
+        (key) => templateSlots[key] as TemplateRef<any> | undefined,
       );
       const viewRefList = templateRefList.map((item) =>
         item ? viewContainerRef.createEmbeddedView(item) : undefined,

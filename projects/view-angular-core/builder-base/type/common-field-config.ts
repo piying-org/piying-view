@@ -1,4 +1,4 @@
-import { Injector, Signal, TemplateRef, WritableSignal } from '@angular/core';
+import { Injector, Signal, WritableSignal } from '@angular/core';
 
 import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
@@ -99,7 +99,7 @@ export type ViewOutputs = Record<string, (...args: any[]) => any>;
 export type ViewAttributes = Record<string, any>;
 export type ViewEvents = Record<string, (event: Event) => any>;
 export type ViewProps = Record<string, any>;
-export type ViewSlots = Record<string, TemplateRef<any>>;
+export type ViewSlots = Record<string, any>;
 
 export type RawCoreWrapperConfig = {
   type: string | any | LazyImport<any>;
