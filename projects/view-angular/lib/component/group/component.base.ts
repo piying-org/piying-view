@@ -1,12 +1,5 @@
-import {
-  computed,
-  Directive,
-  inject,
-  Injector,
-  input,
-  TemplateRef,
-} from '@angular/core';
-import { PI_VIEW_FIELD_TOKEN } from '../../type';
+import { computed, Directive, inject, Injector } from '@angular/core';
+import { PI_VIEW_FIELD_TOKEN, PI_VIEW_TEMPLATE_REF_TOKEN } from '../../type';
 
 @Directive()
 export class PiyingViewGroupBase {
@@ -15,6 +8,10 @@ export class PiyingViewGroupBase {
   children$$ = computed(() => this.field$$().children!());
   fixedChildren$$ = computed(() => this.field$$().fixedChildren?.() ?? []);
   restChildren$$ = computed(() => this.field$$().restChildren?.() ?? []);
-  fieldTemplateRef = input.required<TemplateRef<any>>();
+  fieldTemplateRef = (() => {
+    const a = inject(PI_VIEW_TEMPLATE_REF_TOKEN);
+    return () => a;
+  })();
+
   injector = inject(Injector);
 }

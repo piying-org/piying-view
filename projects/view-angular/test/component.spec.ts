@@ -7,7 +7,6 @@ import * as v from 'valibot';
 import {
   findComponent,
   NFCSchema,
-  patchHooks,
   actions,
 } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
@@ -166,7 +165,7 @@ describe('组件', () => {
     const define = v.pipe(
       v.string(),
       setComponent('test1'),
-      patchHooks({
+      actions.hooks.patch({
         allFieldsResolved(field) {
           changed.subscribe(() => {
             field.define!.update((data) => ({

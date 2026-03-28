@@ -7,13 +7,10 @@
   [color]="props['color'] ?? 'primary'"
   #formField
   class="w-full"
+  [matFormControlBind]="formField"
 >
-  <ng-container
-    insertField
-    #insertField="insertField"
-    [matFormControlBind]="insertField"
-    [matFormFiled]="formField"
-  ></ng-container>
+  <ng-content></ng-content>
+
   @if (props['title'] && props['hideLabel'] !== true) {
     <mat-label>
       {{ props['title'] }}

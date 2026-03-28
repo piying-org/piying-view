@@ -1,30 +1,41 @@
-<ng-template #dynamicComponent let-field let-injector="injector">
-  @let renderConfig = field.renderConfig();
-  @if (!renderConfig?.hidden) {
-    @if (field.fixedChildren || field.restChildren) {
-      <!-- 自定义group -->
-      <ng-container
-        [ngComponentOutlet]="field.define?.()"
-        [ngComponentOutletExtraInputs]="
-          groupInputsValue | pure: dynamicComponent
-        "
-        [ngComponentOutletWrappers]="field.wrappers()"
-        [ngComponentOutletField]="field"
-        [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletInjector]="injector ?? injector3$$()"
-      ></ng-container>
-    } @else {
-      <ng-container
-        [ngComponentOutlet]="field.define?.()"
-        [ngComponentOutletFormControl]="$any(field.form.control)"
-        [ngComponentOutletWrappers]="field.wrappers()"
-        [ngComponentOutletField]="field"
-        [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletInjector]="injector ?? injector3$$()"
-      ></ng-container>
-    }
+<ng-template
+  #nextTemplate
+  let-injector="injector"
+  let-index="index"
+  let-fieldConfig="fieldConfig"
+>
+  @if (injector(); as injector) {
+    <ng-template
+      [fieldOutlet]="fieldConfig"
+      [index]="index"
+      [nextTemplateRef]="nextTemplate"
+      [injector]="injector"
+    ></ng-template>
   }
 </ng-template>
+
+<ng-template #dynamicComponent let-field let-injector="injector">
+  @let listij = injector ?? NewInjector | listInjector;
+  @let renderConfig = field.renderConfig();
+  @if (field.define && !renderConfig?.hidden) {
+    @let define = field.define();
+    <ng-template
+      [fieldOutlet]="field"
+      [index]="0"
+      [nextTemplateRef]="nextTemplate"
+      [injector]="listij"
+      [listen]="
+        field.wrappers()
+          | listen
+            : (define.inputs | inputKeys)
+            : (define.outputs | inputKeys)
+            : define.type
+      "
+    ></ng-template>
+  }
+</ng-template>
+@let NewInjector = injector3$$() | templateInjector: dynamicComponent;
+
 <ng-template #templateRef>
   @if (resolvedField$(); as field) {
     <ng-container
@@ -32,7 +43,7 @@
         dynamicComponent;
         context: {
           $implicit: field,
-          injector: injector3$$(),
+          injector: NewInjector,
         }
       "
     ></ng-container>

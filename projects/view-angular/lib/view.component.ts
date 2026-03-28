@@ -10,11 +10,9 @@ import {
   output,
   signal,
   SimpleChanges,
-  TemplateRef,
   untracked,
   viewChild,
 } from '@angular/core';
-import { NgComponentOutlet } from './hook/ng_component_outlet';
 
 import {
   PiViewConfig,
@@ -37,14 +35,24 @@ import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
 import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
-import { PurePipe } from './pipe/pure.pipe';
+import { FieldOutlet } from './hook/field-outlet';
+import { TemplatePipe } from './template.pipe';
+import { InputsPipe, ListenPipe } from './listen.pipe';
+import { ListInjectorPipe } from './list-injector.pipe';
 const DefaultConvertOptions = {
   builder: AngularFormBuilder,
   handle: NgSchemaHandle,
 };
 @Component({
   selector: 'piying-view',
-  imports: [NgComponentOutlet, PurePipe, NgTemplateOutlet],
+  imports: [
+    NgTemplateOutlet,
+    FieldOutlet,
+    TemplatePipe,
+    ListenPipe,
+    InputsPipe,
+    ListInjectorPipe,
+  ],
   templateUrl: './component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -151,10 +159,6 @@ export class PiyingView implements OnChanges {
       };
       result.form.control.updateValue(model);
     }
-  }
-
-  groupInputsValue(fieldTemplateRef: TemplateRef<any>) {
-    return { fieldTemplateRef };
   }
 
   ngOnDestroy(): void {

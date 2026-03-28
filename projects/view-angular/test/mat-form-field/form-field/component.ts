@@ -4,7 +4,6 @@ import { Component, computed, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { summarize } from 'valibot';
 import { PurePipe } from '../../../lib/pipe/pure.pipe';
-import { InsertFieldDirective } from '../../../lib/component/insert-field.directive';
 import { PI_VIEW_FIELD_TOKEN } from '../../../lib/type';
 import { MatFormControlBindDirective } from './mat-bind.directive';
 import { findError } from '@piying/view-angular-core';
@@ -17,12 +16,12 @@ import { findError } from '@piying/view-angular-core';
     MatFormFieldModule,
     CommonModule,
     PurePipe,
-    InsertFieldDirective,
-    MatFormControlBindDirective,
+    MatFormControlBindDirective
   ],
 })
 export class MatFormFieldWrapper {
   field$$ = inject(PI_VIEW_FIELD_TOKEN);
+
   props$$ = computed(() => this.field$$().props());
 
   showError$$ = computed(
