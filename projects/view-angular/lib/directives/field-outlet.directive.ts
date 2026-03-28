@@ -25,7 +25,11 @@ import {
   NgDirectiveConfig,
   PI_VIEW_COMPONENT_LIST_TOKEN,
 } from '../type';
-import { ComponentVersion, DynamicComponentConfig, NgComponentDefine } from '../type/component';
+import {
+  ComponentVersion,
+  DynamicComponentConfig,
+  NgComponentDefine,
+} from '../type/component';
 import { isComponentType } from '../util/async-cache';
 import {
   asyncObjectSignal,

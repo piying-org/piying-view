@@ -16,7 +16,7 @@ import { findError } from '@piying/view-angular-core';
     MatFormFieldModule,
     CommonModule,
     PurePipe,
-    MatFormControlBindDirective
+    MatFormControlBindDirective,
   ],
 })
 export class MatFormFieldWrapper {

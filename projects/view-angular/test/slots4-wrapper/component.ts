@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
 
 @Component({
   selector: 'app-slots4-wrapper',

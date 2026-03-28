@@ -4,11 +4,7 @@ import { Test2Module } from './module1/module1.module';
 import { Test2Component } from './module1/test2.component';
 import { TestAttrComponent } from './test-attr/component';
 import * as v from 'valibot';
-import {
-  findComponent,
-  NFCSchema,
-  actions,
-} from '@piying/view-angular-core';
+import { findComponent, NFCSchema, actions } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 import { setComponent, formConfig } from '@piying/view-angular-core';
 import { NgControl } from '@angular/forms';

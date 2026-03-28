@@ -13,7 +13,7 @@ import { Slots1ContentComponent } from '../slots-child/component';
   selector: 'app-slots3-wrapper',
   templateUrl: './component.html',
   standalone: true,
-  imports: [ Slots1ContentComponent],
+  imports: [Slots1ContentComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Slots3WrapperComponent {

@@ -93,7 +93,8 @@ export class FieldLogicGroup extends FieldArray {
     this.#updateValue(initValue, UpdateType.init);
   }
   #updateValue(value: any, type: UpdateType) {
-    const viewValue = this.config$().transformer?.toView?.(value, this) ?? value;
+    const viewValue =
+      this.config$().transformer?.toView?.(value, this) ?? value;
     let isUpdateActivate = false;
     this.fixedControls$().forEach((control, i) => {
       if (type === UpdateType.init) {

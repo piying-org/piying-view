@@ -8,7 +8,7 @@ export class ListenPipe implements PipeTransform {
 }
 @Pipe({ name: 'inputKeys' })
 export class InputsPipe implements PipeTransform {
-  transform(value: Record<string,any>) {
-    return Object.keys(value).join('|')
+  transform(value: Record<string, any>) {
+    return Object.keys(value).join('|');
   }
 }
