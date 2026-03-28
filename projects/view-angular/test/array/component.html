@@ -2,7 +2,7 @@
   <div [attributes]="attr()">
     @for (field of children$$(); track field.id || $index) {
       <ng-container
-        *ngTemplateOutlet="fieldTemplateRef(); context: { $implicit: field }"
+        *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: field }"
       ></ng-container>
     }
   </div>

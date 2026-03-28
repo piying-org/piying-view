@@ -1,6 +1,12 @@
 /** component */
 
-import { InjectionToken, Signal, EventEmitter } from '@angular/core';
+import {
+  InjectionToken,
+  Signal,
+  EventEmitter,
+  TemplateRef,
+  ComponentRef,
+} from '@angular/core';
 import { DynamicComponentConfig } from './component';
 import { SetOptional } from '@piying/view-angular-core';
 import { NgConvertOptions } from './builder-type';
@@ -21,8 +27,17 @@ export const PI_INPUT_SCHEMA_TOKEN = new InjectionToken<
 export const PI_INPUT_MODEL_TOKEN = new InjectionToken<Signal<any>>(
   'PI_INPUT_MODEL',
 );
-/** wrapper中可以使用,已解析的配置 */
+/** wrapper中可以使用,已解析的配置
+ * core
+ */
 export const PI_VIEW_FIELD_TOKEN = PVFT;
+export const PI_VIEW_TEMPLATE_REF_TOKEN = new InjectionToken<TemplateRef<any>>(
+  'PI_VIEW_TEMPLATE_REF',
+);
+/** todo 用以前的? */
+export const PI_VIEW_COMPONENT_LIST_TOKEN = new InjectionToken<
+  ComponentRef<any>[]
+>('PI_VIEW_COMPONENT_LIST');
 
 /**
  * @internal

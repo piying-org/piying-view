@@ -111,9 +111,9 @@ export type RawCoreWrapperConfig = {
 };
 export type CoreWrapperConfig = {
   type: string | any | LazyImport<any>;
-  attributes: AsyncObjectSignal<ViewAttributes>;
   inputs: AsyncObjectSignal<ViewInputs>;
   outputs: AsyncObjectSignal<ViewOutputs>;
+  attributes: AsyncObjectSignal<ViewAttributes>;
   events: AsyncObjectSignal<ViewEvents>;
   slots: AsyncObjectSignal<ViewSlots>;
 };

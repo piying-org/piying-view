@@ -1,15 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
 import {
-  InsertFieldDirective,
   PI_VIEW_FIELD_TOKEN,
 } from '@piying/view-angular';
 
 @Component({
   selector: 'selectorless-wrapper',
-  template: `<ng-container insertField></ng-container>`,
+  template: `<ng-content></ng-content>`,
   standalone: true,
   providers: [],
-  imports: [InsertFieldDirective],
 })
 export class ChangeInputWrapper {
   field$$ = inject(PI_VIEW_FIELD_TOKEN);

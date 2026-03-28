@@ -20,18 +20,16 @@ import { htmlBlur } from './util/touch';
 
 describe('初始化', () => {
   it('存在', async () => {
-    const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
-        actions.inputs.set({
-          input1: 'div-display',
-        }),
-      ),
-    });
+    const define = v.pipe(
+      v.string(),
+      setComponent(Test1Component),
+      actions.inputs.set({
+        input1: 'div-display',
+      }),
+    );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal({ key1: 'value1' }),
+      signal('value1'),
     );
     expect(element).toBeTruthy();
     fixture.detectChanges();
@@ -61,24 +59,22 @@ describe('初始化', () => {
   it('输出', async () => {
     const subject1 = new BehaviorSubject<string>('');
     const subject2 = new BehaviorSubject<string>('');
-    const define = v.object({
-      key1: v.pipe(
-        v.string(),
-        setComponent(Test1Component),
+    const define = v.pipe(
+      v.string(),
+      setComponent(Test1Component),
 
-        actions.outputs.set({
-          output1: (value) => {
-            subject1.next(value);
-          },
-          output2: (value) => {
-            subject2.next(value);
-          },
-        }),
-      ),
-    });
+      actions.outputs.set({
+        output1: (value) => {
+          subject1.next(value);
+        },
+        output2: (value) => {
+          subject2.next(value);
+        },
+      }),
+    );
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
-      signal({ key1: 'value1' }),
+      signal('value1'),
     );
     fixture.detectChanges();
     const inputEl = element.querySelector('input')!;
@@ -91,7 +87,7 @@ describe('初始化', () => {
     fixture.detectChanges();
     expect(subject1.value).toBe('value2');
     expect(subject2.value).toBe('value2');
-    expect(instance.model$()).toEqual({ key1: 'value2' });
+    expect(instance.model$()).toEqual('value2');
   });
   it('初始化后model变更', async () => {
     const define = v.object({

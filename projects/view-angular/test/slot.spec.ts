@@ -72,7 +72,8 @@ describe('slot', () => {
     const slotService = field$$()?.injector.get(SlotService);
     expect(slotService?.destroyed).toBeTrue();
   });
-  it('slot-input', async () => {
+  // 新版去掉指令,因此也无法直接插入
+  xit('slot-input', async () => {
     const define = v.pipe(
       NFCSchema,
       setComponent(Slots1Component),

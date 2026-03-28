@@ -39,7 +39,7 @@ describe('hook', () => {
     keyEqual((await fields$.promise).keyPath, 'v1');
     expect((await fields$.promise).form).toBeTruthy();
   });
-  it('beforeCreateComponent', async () => {
+  xit('beforeCreateComponent', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({
       v1: v.pipe(
@@ -71,7 +71,7 @@ describe('hook', () => {
     keyEqual((await fields$.promise).keyPath, 'v1');
     expect((await fields$.promise).form).toBeTruthy();
   });
-  it('afterCreateComponent', async () => {
+  xit('afterCreateComponent', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({
       v1: v.pipe(

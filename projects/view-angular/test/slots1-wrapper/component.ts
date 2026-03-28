@@ -6,13 +6,11 @@ import {
   viewChild,
 } from '@angular/core';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
-import { InsertFieldDirective } from '../../lib/component/insert-field.directive';
 
 @Component({
   selector: 'app-slots1-wrapper',
   templateUrl: './component.html',
   standalone: true,
-  imports: [InsertFieldDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Slots1WrapperComponent {

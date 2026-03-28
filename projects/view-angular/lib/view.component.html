@@ -1,0 +1,54 @@
+<ng-template
+  #nextTemplate
+  let-injector="injector"
+  let-index="index"
+  let-fieldConfig="fieldConfig"
+>
+  @if (injector(); as injector) {
+    <ng-template
+      [fieldOutlet]="fieldConfig"
+      [index]="index"
+      [nextTemplateRef]="nextTemplate"
+      [injector]="injector"
+    ></ng-template>
+  }
+</ng-template>
+
+<ng-template #dynamicComponent let-field let-injector="injector">
+  @let listij = injector ?? NewInjector | listInjector;
+  @let renderConfig = field.renderConfig();
+  @if (field.define && !renderConfig?.hidden) {
+    @let define = field.define();
+    <ng-template
+      [fieldOutlet]="field"
+      [index]="0"
+      [nextTemplateRef]="nextTemplate"
+      [injector]="listij"
+      [listen]="
+        field.wrappers()
+          | listen
+            : (define.inputs | inputKeys)
+            : (define.outputs | inputKeys)
+            : define.type
+      "
+    ></ng-template>
+  }
+</ng-template>
+@let NewInjector = injector3$$() | templateInjector: dynamicComponent;
+
+<ng-template #templateRef>
+  @if (resolvedField$(); as field) {
+    <ng-container
+      *ngTemplateOutlet="
+        dynamicComponent;
+        context: {
+          $implicit: field,
+          injector: NewInjector,
+        }
+      "
+    ></ng-container>
+  }
+</ng-template>
+@if (!selectorless()) {
+  <ng-container *ngTemplateOutlet="templateRef"></ng-container>
+}

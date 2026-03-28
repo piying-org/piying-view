@@ -1,8 +1,6 @@
 import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
-import { PiResolvedViewFieldConfig } from '../lib/type';
 import * as v from 'valibot';
-import { getField } from './util/action';
 import { InputFCC } from './mat-form-field/input/component';
 import { MatInput } from '@angular/material/input';
 import { MatFormFieldWrapper } from './mat-form-field/form-field/component';
@@ -11,8 +9,7 @@ import { actions } from '@piying/view-angular-core';
 import { directives } from '../lib/schema/action';
 describe('mat', () => {
   it('mat input', async () => {
-    const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
-    const define = v.pipe(v.string(), getField(fields$));
+    const define = v.pipe(v.string());
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),
       signal('v1'),

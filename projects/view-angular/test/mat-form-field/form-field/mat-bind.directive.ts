@@ -1,35 +1,20 @@
-import { computed, Directive, ElementRef, input } from '@angular/core';
-import { MatFormField } from '@angular/material/form-field';
-import { InsertFieldDirective } from '@piying/view-angular';
+import { Directive, inject, input } from '@angular/core';
+import { PI_VIEW_COMPONENT_LIST_TOKEN } from '../../../lib/type';
+import {
+  MatFormField,
+  MatFormFieldControl,
+} from '@angular/material/form-field';
 
 @Directive({
   selector: '[matFormControlBind]',
 })
 export class MatFormControlBindDirective {
-  matFormControlBind = input<InsertFieldDirective>();
-  fieldComponentInstance = computed(
-    () => this.matFormControlBind()?.fieldComponentInstance,
-  );
-  matFormFiled = input<MatFormField>();
-  fieldDirectiveRefList = computed(
-    () => this.matFormControlBind()?.fieldDirectiveRefList,
-  );
+  matFormControlBind = input<MatFormField>();
+  #list = inject(PI_VIEW_COMPONENT_LIST_TOKEN);
+
   ngOnChanges(): void {
-    const fieldComponentInstance = this.fieldComponentInstance();
-    if (
-      fieldComponentInstance &&
-      '__isElement' in fieldComponentInstance &&
-      fieldComponentInstance.__isElement
-    ) {
-      this.matFormFiled()!._control = this.fieldDirectiveRefList()![0]!;
-    } else if (
-      fieldComponentInstance instanceof ElementRef ||
-      this.fieldDirectiveRefList()?.[0].controlType === 'auto'
-    ) {
-      // 判断是否是元素,如果是那么就用指令
-      this.matFormFiled()!._control = this.fieldDirectiveRefList()![0]!;
-    } else {
-      this.matFormFiled()!._control = fieldComponentInstance;
-    }
+    const item = this.#list[this.#list.length - 1];
+    this.matFormControlBind()!._control =
+      item.injector.get(MatFormFieldControl);
   }
 }

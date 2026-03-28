@@ -95,6 +95,7 @@ export async function createSchemaComponent(
   await TestBed.configureTestingModule({
     imports: [Hello],
     providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
+    teardown: { destroyAfterEach: false },
   }).compileComponents();
   const fixture = TestBed.createComponent(Hello);
   fixture.detectChanges();

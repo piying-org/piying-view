@@ -1,7 +1,7 @@
 @if (children$$()!.length) {
   <ng-container
     *ngTemplateOutlet="
-      fieldTemplateRef();
+      fieldTemplateRef;
       context: { $implicit: children$$()![activate()] }
     "
   ></ng-container>
