@@ -8,6 +8,7 @@ import { Slots1WrapperComponent } from './slots1-wrapper/component';
 import { Slots2WrapperComponent } from './slots2-wrapper/component';
 import { Slots3WrapperComponent } from './slots3-wrapper/component';
 import { SlotService } from './slots-child/service';
+import { Slots4WrapperComponent } from './slots4-wrapper/component';
 
 describe('slot', () => {
   it('hello', async () => {
@@ -70,5 +71,21 @@ describe('slot', () => {
     fixture.destroy();
     const slotService = field$$()?.injector.get(SlotService);
     expect(slotService?.destroyed).toBeTrue();
+  });
+  it('slot-input', async () => {
+    const define = v.pipe(
+      NFCSchema,
+      setComponent(Slots1Component),
+      actions.wrappers.patch([{ type: Slots4WrapperComponent }]),
+    );
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+    expect(element).toBeTruthy();
+    fixture.detectChanges();
+    const el = element.querySelector('.slot1 .slot1-content');
+    expect(el).toBeTruthy();
+    expect(el!.textContent!.trim()).toEqual('content1');
   });
 });
