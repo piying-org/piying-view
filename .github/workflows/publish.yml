@@ -5,6 +5,7 @@ on:
       - 'main'
       - 'alpha'
 permissions:
+  id-token: write  
   contents: write
 env:
   PUBLISH_TAG: ${{ github.ref_name == 'main' && 'latest' || 'alpha' }}
@@ -16,11 +17,12 @@ jobs:
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@gmail.com"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: install-node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.x
+          registry-url: 'https://registry.npmjs.org'
       - name: install-pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -31,7 +33,4 @@ jobs:
       - run: npm run build
       - run: npm run test:ci
       - run: npm run build
-      - name: Setup npmrc
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
       - run: npm run publish-only
