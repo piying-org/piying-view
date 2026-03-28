@@ -122,6 +122,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     const outputs = asyncObjectSignal(field.outputs);
     const attributes = asyncObjectSignal(field.attributes);
     const events = asyncObjectSignal(field.events);
+    const slots = asyncObjectSignal(field.slots);
     const formConfig$ = signal(field.formConfig ?? {});
     const renderConfig = signal(field.renderConfig ?? {});
     let control;
@@ -207,8 +208,11 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       get attributes() {
         return resolvedConfig.define?.().attributes;
       },
+      get slots() {
+        return resolvedConfig.define?.().slots;
+      },
       define: define
-        ? signal({ type: define, inputs, outputs, attributes, events })
+        ? signal({ type: define, inputs, outputs, attributes, events, slots })
         : undefined,
       wrappers: this.#wrapperToSignal(field.wrappers, injector),
       injector: injector,
@@ -497,6 +501,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             inputs: asyncObjectSignal(item.inputs),
             outputs: asyncObjectSignal(item.outputs),
             events: asyncObjectSignal(item.events),
+            slots: asyncObjectSignal(item.slots),
           },
           {
             pipe: pipe(

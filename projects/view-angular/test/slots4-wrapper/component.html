@@ -1,0 +1,6 @@
+<ng-template #slot1>
+  <div class="slot1-content">content1</div>
+</ng-template>
+<ng-template #templateRef>
+  <ng-container insertField [insertFieldSlots]="{ '*': slot1 }"></ng-container>
+</ng-template>

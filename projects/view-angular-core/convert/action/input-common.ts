@@ -12,7 +12,13 @@ type AsyncResult<T = any> = Promise<T> | Observable<T> | Signal<T> | (T & {});
 export type AsyncProperty<T = any> = (
   field: _PiResolvedCommonViewFieldConfig,
 ) => AsyncResult<T>;
-type ChangeKey = 'inputs' | 'outputs' | 'attributes' | 'events' | 'props';
+type ChangeKey =
+  | 'inputs'
+  | 'outputs'
+  | 'attributes'
+  | 'events'
+  | 'props'
+  | 'slots';
 export const CustomDataSymbol = Symbol();
 
 export const createRemovePropertyFn =
@@ -55,7 +61,7 @@ export function createPatchAsyncPropertyFn<
     string,
     AsyncProperty
   >,
->(key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs') {
+>(key: 'inputs' | 'attributes' | 'events' | 'props' | 'outputs' | 'slots') {
   return <T>(dataObj: InputData) =>
     rawConfig<T>((rawField, _, ...args) => {
       let data$;
@@ -236,6 +242,13 @@ export const __actions = {
       >('events'),
     remove: createRemovePropertyFn('events'),
     mapAsync: createMapAsyncPropertyFn('events'),
+  },
+  slots: {
+    patch: createSetOrPatchPropertyFn('slots', true),
+    set: createSetOrPatchPropertyFn('slots'),
+    patchAsync: createPatchAsyncPropertyFn('slots'),
+    remove: createRemovePropertyFn('slots'),
+    mapAsync: createMapAsyncPropertyFn('slots'),
   },
   props: {
     patch: createSetOrPatchPropertyFn('props', true),

@@ -13,6 +13,7 @@ import {
   inputBinding,
   outputBinding,
   PendingTasks,
+  reflectComponentType,
   signal,
   Signal,
   TemplateRef,
@@ -196,6 +197,15 @@ export class BaseComponent {
       const injector = componentDefine.module
         ? createNgModule(componentDefine.module, componentInjector).injector
         : componentInjector;
+      const cm = reflectComponentType(componentDefine.component)!;
+      const templateSlots = componentConfig.slots!();
+      const templateRefList = cm.ngContentSelectors.map(
+        (key) => templateSlots[key] as TemplateRef<any> | undefined,
+      );
+      const viewRefList = templateRefList.map((item) =>
+        item ? viewContainerRef.createEmbeddedView(item) : undefined,
+      );
+
       const componentRef = createComponent(componentDefine.component, {
         elementInjector: injector,
         environmentInjector: injector.get(EnvironmentInjector),
@@ -221,6 +231,7 @@ export class BaseComponent {
                 ...createEventsDirective(componentConfig.events),
               ]),
         ],
+        projectableNodes: viewRefList.map((item) => item?.rootNodes ?? []),
       });
       this.componentRef = componentRef;
       this.fieldComponentInstance = componentRef.instance;

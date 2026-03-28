@@ -33,6 +33,7 @@ import {
   ViewProps,
   ViewEvents,
   RawCoreWrapperConfig,
+  ViewSlots,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
 import { KeyPath } from '../../util';
@@ -134,6 +135,7 @@ export class CoreSchemaHandle<
   outputs: ViewOutputs = {};
   attributes: ViewAttributes = {};
   events: ViewEvents = {};
+  slots: ViewSlots = {};
   wrappers: RawCoreWrapperConfig[] = [];
   override props: ViewProps = {};
   alias?: string;
