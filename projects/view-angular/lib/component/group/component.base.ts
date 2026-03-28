@@ -8,10 +8,7 @@ export class PiyingViewGroupBase {
   children$$ = computed(() => this.field$$().children!());
   fixedChildren$$ = computed(() => this.field$$().fixedChildren?.() ?? []);
   restChildren$$ = computed(() => this.field$$().restChildren?.() ?? []);
-  fieldTemplateRef = (() => {
-    const a = inject(PI_VIEW_TEMPLATE_REF_TOKEN);
-    return () => a;
-  })();
+  fieldTemplateRef = inject(PI_VIEW_TEMPLATE_REF_TOKEN);
 
   injector = inject(Injector);
 }
