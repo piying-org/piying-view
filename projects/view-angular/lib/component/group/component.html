@@ -2,7 +2,7 @@
   @for (field of children$$(); track field.id || $index) {
     <ng-container
       *ngTemplateOutlet="
-        fieldTemplateRef();
+        fieldTemplateRef;
         context: { $implicit: field, injector }
       "
     ></ng-container>

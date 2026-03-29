@@ -1,6 +1,11 @@
 /** component */
 
-import { InjectionToken, Signal, EventEmitter } from '@angular/core';
+import {
+  InjectionToken,
+  Signal,
+  EventEmitter,
+  TemplateRef,
+} from '@angular/core';
 import { DynamicComponentConfig } from './component';
 import { SetOptional } from '@piying/view-angular-core';
 import { NgConvertOptions } from './builder-type';
@@ -37,3 +42,7 @@ export const PI_COMPONENT_INDEX = new InjectionToken<number>(
 export const PI_COMPONENT_LIST_LISTEN = new InjectionToken<
   EventEmitter<DynamicComponentConfig[]>
 >('PI_COMPONENT_LIST_LISTEN');
+
+export const PI_VIEW_FIELD_TEMPLATE_REF_TOKEN = new InjectionToken<
+  TemplateRef<any>
+>('PI_VIEW_TEMPLATE_REF');

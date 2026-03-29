@@ -30,7 +30,6 @@ export class NgComponentOutlet<T = any>
 {
   /** 输入 */
   ngComponentOutlet = input<NgResolvedComponentDefine2>();
-  ngComponentOutletExtraInputs = input<Record<string, unknown>>();
   /** 控件用 */
   ngComponentOutletFormControl = input<FieldControl>();
   /** 包裹用 */
@@ -67,10 +66,6 @@ export class NgComponentOutlet<T = any>
       ? [...(directivesInputs?.() ?? []), formConfig]
       : directivesInputs?.();
   });
-  #componentInput$$ = computed(() => ({
-    ...this.ngComponentOutlet()?.inputs?.(),
-    ...this.ngComponentOutletExtraInputs(),
-  }));
   #componentConfig$$ = computed(() => {
     const define = this.ngComponentOutlet();
     if (!define) {
@@ -79,8 +74,6 @@ export class NgComponentOutlet<T = any>
     const directives = this.#directiveConfigList$$();
     return {
       ...define!,
-      outputs: define.outputs,
-      inputs: this.#componentInput$$,
       directives: directives,
     } as DynamicComponentConfig;
   });

@@ -38,3 +38,7 @@ export type NgComponentDefine = {
   component: Type<any>;
   module?: Type<any>;
 };
+
+export interface ComponentVersion {
+  __version?: 2;
+}

@@ -1,13 +1,10 @@
-<ng-template #dynamicComponent let-field let-injector="injector">
+<ng-template #fieldTemplate let-field let-injector="injector">
   @let renderConfig = field.renderConfig();
   @if (!renderConfig?.hidden) {
     @if (field.fixedChildren || field.restChildren) {
       <!-- 自定义group -->
       <ng-container
         [ngComponentOutlet]="field.define?.()"
-        [ngComponentOutletExtraInputs]="
-          groupInputsValue | pure: dynamicComponent
-        "
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
@@ -29,7 +26,7 @@
   @if (resolvedField$(); as field) {
     <ng-container
       *ngTemplateOutlet="
-        dynamicComponent;
+        fieldTemplate;
         context: {
           $implicit: field,
           injector: injector3$$(),
