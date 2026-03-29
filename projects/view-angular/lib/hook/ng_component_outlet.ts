@@ -41,7 +41,7 @@ export class NgComponentOutlet<T = any>
   // 这里感觉会在非发射时出现多次输入?
 
   ngComponentOutletInjector = input.required<Injector>();
-
+  override index = 0;
   #injector$$ = computed(
     () =>
       new ChainedInjector(
@@ -90,7 +90,6 @@ export class NgComponentOutlet<T = any>
     if (!this.#lastList) {
       const field = this.ngComponentOutletField();
       field.hooks?.beforeCreateComponent?.(field);
-      this.setFieldData(this.ngComponentOutletField, 0);
       this.createComponent(list, this.#viewContainerRef);
     } else if (this.#lastList !== list) {
       this.update(list);

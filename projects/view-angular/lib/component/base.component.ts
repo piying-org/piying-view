@@ -20,7 +20,7 @@ import {
   untracked,
   ViewContainerRef,
 } from '@angular/core';
-import { ComponentRawType, PiResolvedViewFieldConfig } from '../type';
+import { ComponentRawType } from '../type';
 import {
   ComponentVersion,
   DynamicComponentConfig,
@@ -110,7 +110,7 @@ const EmptyOBJ = {};
 @Directive()
 export class BaseComponent {
   /** 第一次默认为空 */
-  #index = inject(PI_COMPONENT_INDEX, { optional: true }) ?? 0!;
+  protected index = inject(PI_COMPONENT_INDEX, { optional: true }) ?? 0!;
 
   /** 发射提供到下一级 */
   #eventEmitter!: EventEmitter<DynamicComponentConfig[]>;
@@ -129,9 +129,7 @@ export class BaseComponent {
       untracked(() => getComponentCheckConfig(config)),
     );
   }
-  setFieldData(field: Signal<PiResolvedViewFieldConfig>, index: number) {
-    this.#index = index;
-  }
+
   /**
    * 输入引用绑定
    * 1. 上次传入的数据格式和当前一样,只触发更新
@@ -176,8 +174,9 @@ export class BaseComponent {
     this.#viewContainerRef = viewContainerRef;
     // 取消上一级的定义
     this.#eventEmitter = new EventEmitter();
-    const componentConfig = list[this.#index];
-    const isLast = list.length === this.#index + 1;
+    const index = this.index;
+    const componentConfig = list[index];
+    const isLast = list.length === index + 1;
     this.#loadComponent(componentConfig.type, (componentDefine) => {
       this.#componentConfig = componentConfig;
       this.#inputCache = {
@@ -203,7 +202,7 @@ export class BaseComponent {
       const componentInjector = Injector.create({
         providers: [
           { provide: PI_COMPONENT_LIST, useValue: list },
-          { provide: PI_COMPONENT_INDEX, useValue: this.#index + 1 },
+          { provide: PI_COMPONENT_INDEX, useValue: index + 1 },
           { provide: PI_COMPONENT_LIST_LISTEN, useValue: this.#eventEmitter },
         ],
         parent: componentConfig.injector ?? viewContainerRef.injector,
@@ -274,7 +273,7 @@ export class BaseComponent {
         componentRef.destroy();
         this.#eventEmitter.unsubscribe();
       };
-      if (list.length === this.#index + 1) {
+      if (list.length === index + 1) {
         const field = componentInjector.get(PI_VIEW_FIELD_TOKEN)();
         field.hooks?.afterCreateComponent?.(field);
       }
@@ -282,7 +281,7 @@ export class BaseComponent {
   }
 
   update(list: DynamicComponentConfig[]) {
-    const item = list[this.#index];
+    const item = list[this.index];
     const currentCheckConfig = getComponentCheckConfig(item);
     const isEqual = deepEqualObject(
       currentCheckConfig,
