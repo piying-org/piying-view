@@ -3,7 +3,7 @@ import { Wrapper1Component } from './wrapper1/component';
 import * as v from 'valibot';
 
 import { createSchemaComponent } from './util/create-component';
-import { setComponent, actions } from '@piying/view-angular-core';
+import { setComponent, actions, nfcComponent } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
 
 describe('attributes', () => {
@@ -263,5 +263,20 @@ describe('attributes', () => {
     fixture.detectChanges();
     expect(element.querySelector('app-wrapper1')).toBeTruthy();
     expect(element.querySelector('app-wrapper1.abcd')).toBeTruthy();
+  });
+  it('class-asyncTop', async () => {
+    const testClass$ = signal('async-abcd');
+    const define = v.pipe(
+      nfcComponent(Test1Component),
+      actions.class.asyncTop((field) => testClass$),
+    );
+
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('.async-abcd')).toBeTruthy();
   });
 });
