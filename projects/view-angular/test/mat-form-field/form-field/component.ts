@@ -3,7 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { summarize } from 'valibot';
-import { PurePipe } from '../../../lib/pipe/pure.pipe';
+import { PurePipe } from '../../util/pure.pipe';
 import { InsertFieldDirective } from '../../../lib/component/insert-field.directive';
 import { PI_VIEW_FIELD_TOKEN } from '../../../lib/type';
 import { MatFormControlBindDirective } from './mat-bind.directive';
