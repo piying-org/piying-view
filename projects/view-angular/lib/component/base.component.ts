@@ -21,7 +21,11 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { ComponentRawType, PiResolvedViewFieldConfig } from '../type';
-import { DynamicComponentConfig, NgComponentDefine } from '../type/component';
+import {
+  ComponentVersion,
+  DynamicComponentConfig,
+  NgComponentDefine,
+} from '../type/component';
 import {
   ComponentCheckConfig,
   getComponentCheckConfig,
@@ -205,7 +209,7 @@ export class BaseComponent {
         parent: componentConfig.injector ?? viewContainerRef.injector,
       });
       const COMPONENT_VERSION: number | undefined = (
-        componentDefine.component as any
+        componentDefine.component as ComponentVersion
       ).__version;
       const injector = componentDefine.module
         ? createNgModule(componentDefine.module, componentInjector).injector
