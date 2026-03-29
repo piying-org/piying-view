@@ -1,4 +1,4 @@
-import { Injector, Signal, Type } from '@angular/core';
+import { Injector, Type } from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { NgResolvedComponentDefine1 } from './group';
 import {
@@ -8,6 +8,8 @@ import {
   LazyImport,
   LazyMarkType,
   ViewSlots,
+  AsyncObjectSignal,
+  ViewEvents,
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */
 export interface RawDirectiveOutputs {
@@ -22,12 +24,12 @@ export interface DynamicComponentConfig {
     | LazyImport<NgComponentDefine>
     | LazyMarkType<Type<any>>
     | LazyMarkType<NgComponentDefine>;
-  attributes: Signal<ViewAttributes | undefined>;
-  events: Signal<Record<string, (event: any) => any> | undefined>;
-  inputs: Signal<ViewInputs | undefined>;
-  outputs?: Signal<ViewOutputs>;
-  slots?: Signal<ViewSlots>;
-  directives?: DirectiveConfig[];
+  inputs: AsyncObjectSignal<ViewInputs>;
+  outputs: AsyncObjectSignal<ViewOutputs>;
+  attributes: AsyncObjectSignal<ViewAttributes>;
+  events: AsyncObjectSignal<ViewEvents>;
+  slots: AsyncObjectSignal<ViewSlots>;
+  directives: DirectiveConfig[];
   injector?: Injector;
 }
 
