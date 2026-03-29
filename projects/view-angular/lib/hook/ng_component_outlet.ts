@@ -29,8 +29,7 @@ export class NgComponentOutlet<T = any>
 {
   /** 输入 */
   ngComponentOutlet = input.required<NgResolvedComponentDefine2>();
-  /** 控件用 */
-  ngComponentOutletFormControl = input<FieldControl>();
+
   /** 包裹用 */
   ngComponentOutletWrappers = input<NgResolvedWraaperConfig[]>();
   ngComponentOutletDirectives =
@@ -49,8 +48,15 @@ export class NgComponentOutlet<T = any>
         this.ngComponentOutletInjector(),
       ),
   );
+  /** 控件用 */
+  #ngComponentOutletFormControl$ = computed(() => {
+    let field = this.ngComponentOutletField();
+    return field.fixedChildren || field.restChildren
+      ? undefined
+      : this.ngComponentOutletField().form.control;
+  });
   #formControlDirectiveConfig$$ = computed(() => {
-    const fieldControl = this.ngComponentOutletFormControl();
+    const fieldControl = this.#ngComponentOutletFormControl$();
     return fieldControl
       ? ({
           type: FieldControlDirective,

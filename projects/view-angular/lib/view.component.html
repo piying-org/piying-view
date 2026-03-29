@@ -1,25 +1,13 @@
 <ng-template #fieldTemplate let-field let-injector="injector">
   @let renderConfig = field.renderConfig();
   @if (field.define && !renderConfig?.hidden) {
-    @if (field.fixedChildren || field.restChildren) {
-      <!-- 自定义group -->
-      <ng-container
-        [ngComponentOutlet]="field.define()"
-        [ngComponentOutletWrappers]="field.wrappers()"
-        [ngComponentOutletField]="field"
-        [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletInjector]="injector ?? injector3$$()"
-      ></ng-container>
-    } @else {
-      <ng-container
-        [ngComponentOutlet]="field.define()"
-        [ngComponentOutletFormControl]="$any(field.form.control)"
-        [ngComponentOutletWrappers]="field.wrappers()"
-        [ngComponentOutletField]="field"
-        [ngComponentOutletDirectives]="field.directives"
-        [ngComponentOutletInjector]="injector ?? injector3$$()"
-      ></ng-container>
-    }
+    <ng-container
+      [ngComponentOutlet]="field.define()"
+      [ngComponentOutletWrappers]="field.wrappers()"
+      [ngComponentOutletField]="field"
+      [ngComponentOutletDirectives]="field.directives"
+      [ngComponentOutletInjector]="injector ?? injector3$$()"
+    ></ng-container>
   }
 </ng-template>
 <ng-template #templateRef>
