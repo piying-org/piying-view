@@ -10,7 +10,6 @@ import {
   output,
   signal,
   SimpleChanges,
-  TemplateRef,
   untracked,
   viewChild,
 } from '@angular/core';
@@ -22,6 +21,7 @@ import {
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
   PI_INPUT_MODEL_TOKEN,
+  PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
 } from './type';
 
 import { NgTemplateOutlet } from '@angular/common';
@@ -37,20 +37,20 @@ import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
 import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
-import { PurePipe } from './pipe/pure.pipe';
 const DefaultConvertOptions = {
   builder: AngularFormBuilder,
   handle: NgSchemaHandle,
 };
 @Component({
   selector: 'piying-view',
-  imports: [NgComponentOutlet, PurePipe, NgTemplateOutlet],
-  templateUrl: './component.html',
+  imports: [NgComponentOutlet, NgTemplateOutlet],
+  templateUrl: './view.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PiyingView implements OnChanges {
-  templateRef = viewChild.required('templateRef');
+  readonly templateRef = viewChild.required('templateRef');
+  readonly fieldTemplate = viewChild.required('fieldTemplate');
   readonly selectorless = input<boolean>(false);
   schema = input.required<v.BaseSchema<any, any, any>>();
   model = input<any>(undefined);
@@ -86,7 +86,17 @@ export class PiyingView implements OnChanges {
   #builderInjector?: DestroyableInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
   #listenDispose?: () => void;
-  injector3$$ = computed(() => this.resolvedField$()!.injector);
+  injector3$$ = computed(() =>
+    Injector.create({
+      providers: [
+        {
+          provide: PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
+          useValue: this.fieldTemplate(),
+        },
+      ],
+      parent: this.resolvedField$()!.injector,
+    }),
+  );
   #fieldRoot = Injector.create({
     providers: [
       {
@@ -151,10 +161,6 @@ export class PiyingView implements OnChanges {
       };
       result.form.control.updateValue(model);
     }
-  }
-
-  groupInputsValue(fieldTemplateRef: TemplateRef<any>) {
-    return { fieldTemplateRef };
   }
 
   ngOnDestroy(): void {

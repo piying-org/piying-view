@@ -13,7 +13,6 @@ import {
   DynamicComponentConfig,
   NgResolvedComponentDefine2,
 } from '../type/component';
-import { EMPTY_ARRAY } from '../const';
 import { BaseComponent } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { asyncObjectSignal, FieldControl } from '@piying/view-angular-core';
@@ -29,8 +28,7 @@ export class NgComponentOutlet<T = any>
   implements OnChanges, OnDestroy
 {
   /** 输入 */
-  ngComponentOutlet = input<NgResolvedComponentDefine2>();
-  ngComponentOutletExtraInputs = input<Record<string, unknown>>();
+  ngComponentOutlet = input.required<NgResolvedComponentDefine2>();
   /** 控件用 */
   ngComponentOutletFormControl = input<FieldControl>();
   /** 包裹用 */
@@ -67,28 +65,16 @@ export class NgComponentOutlet<T = any>
       ? [...(directivesInputs?.() ?? []), formConfig]
       : directivesInputs?.();
   });
-  #componentInput$$ = computed(() => ({
-    ...this.ngComponentOutlet()?.inputs?.(),
-    ...this.ngComponentOutletExtraInputs(),
-  }));
   #componentConfig$$ = computed(() => {
     const define = this.ngComponentOutlet();
-    if (!define) {
-      return;
-    }
     const directives = this.#directiveConfigList$$();
     return {
       ...define!,
-      outputs: define.outputs,
-      inputs: this.#componentInput$$,
       directives: directives,
     } as DynamicComponentConfig;
   });
   #componentList$$ = computed(() => {
     const componentConfig = this.#componentConfig$$();
-    if (!componentConfig) {
-      return EMPTY_ARRAY;
-    }
     const list = [
       ...(this.ngComponentOutletWrappers() ?? []),
       componentConfig,
@@ -101,9 +87,6 @@ export class NgComponentOutlet<T = any>
   ngOnChanges() {
     //todo 变更时的一些检测,相同时应该不处理
     const list = this.#componentList$$();
-    if (!list.length) {
-      return this.destroyComponentFn?.();
-    }
     if (!this.#lastList) {
       const field = this.ngComponentOutletField();
       field.hooks?.beforeCreateComponent?.(field);

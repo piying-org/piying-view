@@ -21,7 +21,11 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { ComponentRawType, PiResolvedViewFieldConfig } from '../type';
-import { DynamicComponentConfig, NgComponentDefine } from '../type/component';
+import {
+  ComponentVersion,
+  DynamicComponentConfig,
+  NgComponentDefine,
+} from '../type/component';
 import {
   ComponentCheckConfig,
   getComponentCheckConfig,
@@ -44,7 +48,7 @@ import { AttributesDirective } from '../directives/attributes.directive';
 import { isComponentType } from '../util/async-cache';
 import { EventsDirective } from '../directives/events.directive';
 function createInputsBind(inputs?: Signal<ViewInputs | undefined>) {
-  if (!inputs || !inputs()) {
+  if (!inputs?.()) {
     return [];
   }
   return Object.keys(inputs()!).map((key) =>
@@ -54,15 +58,12 @@ function createInputsBind(inputs?: Signal<ViewInputs | undefined>) {
     ),
   );
 }
-function createOutputsBind(
-  outputs?: () => ViewOutputs | undefined,
-  config?: Signal<PiResolvedViewFieldConfig>,
-) {
+function createOutputsBind(outputs?: () => ViewOutputs | undefined) {
   if (!outputs?.()) {
     return [];
   }
-  return Object.entries(outputs!()!).map(([key, value]) =>
-    outputBinding(key, config ? (event) => value(event, config()) : value),
+  return Object.keys(outputs!()!).map((key) =>
+    outputBinding(key, (event) => outputs()![key](event)),
   );
 }
 function createAttributesDirective(
@@ -88,6 +89,22 @@ function createEventsDirective(events: Signal<ViewAttributes | undefined>) {
     ];
   }
   return [];
+}
+function deepEqualObject(
+  a: Record<string, any>,
+  b: Record<string, any>,
+  skip: Record<string, boolean>,
+) {
+  for (const key in a) {
+    if (skip[key]) {
+      if (a[key] !== b[key]) {
+        return false;
+      }
+    } else if (!deepEqual(a[key], b[key])) {
+      return false;
+    }
+  }
+  return true;
 }
 const EmptyOBJ = {};
 @Directive()
@@ -160,7 +177,7 @@ export class BaseComponent {
     // 取消上一级的定义
     this.#eventEmitter = new EventEmitter();
     const componentConfig = list[this.#index];
-
+    const isLast = list.length === this.#index + 1;
     this.#loadComponent(componentConfig.type, (componentDefine) => {
       this.#componentConfig = componentConfig;
       this.#inputCache = {
@@ -192,20 +209,23 @@ export class BaseComponent {
         parent: componentConfig.injector ?? viewContainerRef.injector,
       });
       const COMPONENT_VERSION: number | undefined = (
-        componentDefine.component as any
+        componentDefine.component as ComponentVersion
       ).__version;
       const injector = componentDefine.module
         ? createNgModule(componentDefine.module, componentInjector).injector
         : componentInjector;
-      const cm = reflectComponentType(componentDefine.component)!;
-      const templateSlots = componentConfig.slots!();
-      const templateRefList = cm.ngContentSelectors.map(
-        (key) => templateSlots[key] as TemplateRef<any> | undefined,
-      );
-      const viewRefList = templateRefList.map((item) =>
-        item ? viewContainerRef.createEmbeddedView(item) : undefined,
-      );
-
+      let projectableNodes;
+      if (isLast) {
+        const cm = reflectComponentType(componentDefine.component)!;
+        const templateSlots = componentConfig.slots!();
+        const templateRefList = cm.ngContentSelectors.map(
+          (key) => templateSlots[key] as TemplateRef<any> | undefined,
+        );
+        const viewRefList = templateRefList.map((item) =>
+          item ? viewContainerRef.createEmbeddedView(item) : undefined,
+        );
+        projectableNodes = viewRefList.map((item) => item?.rootNodes ?? []);
+      }
       const componentRef = createComponent(componentDefine.component, {
         elementInjector: injector,
         environmentInjector: injector.get(EnvironmentInjector),
@@ -218,10 +238,7 @@ export class BaseComponent {
             type: item.type,
             bindings: [
               ...createInputsBind(this.#inputCache.directiveList![index]),
-              ...createOutputsBind(
-                item.outputs,
-                injector!.get(PI_VIEW_FIELD_TOKEN),
-              ),
+              ...createOutputsBind(item.outputs),
             ],
           })),
           ...(COMPONENT_VERSION === 2
@@ -231,7 +248,7 @@ export class BaseComponent {
                 ...createEventsDirective(componentConfig.events),
               ]),
         ],
-        projectableNodes: viewRefList.map((item) => item?.rootNodes ?? []),
+        projectableNodes: projectableNodes,
       });
       this.componentRef = componentRef;
       this.fieldComponentInstance = componentRef.instance;
@@ -267,9 +284,10 @@ export class BaseComponent {
   update(list: DynamicComponentConfig[]) {
     const item = list[this.#index];
     const currentCheckConfig = getComponentCheckConfig(item);
-    const isEqual = deepEqual(
+    const isEqual = deepEqualObject(
       currentCheckConfig,
       this.#componentCheckConfig$$(),
+      { slots: true, injector: true, type: true },
     );
     // this.#componentCheckConfig$$ = computed(() => currentCheckConfig);
     if (isEqual) {

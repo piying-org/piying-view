@@ -7,7 +7,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { PI_COMPONENT_LIST_LISTEN, PI_COMPONENT_LIST } from '../type';
-import { DynamicComponentConfig } from '../type/component';
+import { ComponentVersion, DynamicComponentConfig } from '../type/component';
 import { BaseComponent } from './base.component';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
 
@@ -48,7 +48,7 @@ export class InsertFieldDirective extends BaseComponent {
   ngOnDestroy(): void {
     if (
       this.componentRef &&
-      (this.componentRef.componentType as any).__version === 2
+      (this.componentRef.componentType as ComponentVersion).__version === 2
     ) {
       this.componentRef.destroy();
     }
