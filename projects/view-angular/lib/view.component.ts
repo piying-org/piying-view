@@ -37,15 +37,14 @@ import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
 import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
-import { PurePipe } from './pipe/pure.pipe';
 const DefaultConvertOptions = {
   builder: AngularFormBuilder,
   handle: NgSchemaHandle,
 };
 @Component({
   selector: 'piying-view',
-  imports: [NgComponentOutlet, PurePipe, NgTemplateOutlet],
-  templateUrl: './component.html',
+  imports: [NgComponentOutlet, NgTemplateOutlet],
+  templateUrl: './view.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -87,7 +86,8 @@ export class PiyingView implements OnChanges {
   #builderInjector?: DestroyableInjector;
   resolvedField$ = signal<PiResolvedViewFieldConfig | undefined>(undefined);
   #listenDispose?: () => void;
-  injector3$$ = computed(() => Injector.create({
+  injector3$$ = computed(() =>
+    Injector.create({
       providers: [
         {
           provide: PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
@@ -95,7 +95,8 @@ export class PiyingView implements OnChanges {
         },
       ],
       parent: this.resolvedField$()!.injector,
-    }));
+    }),
+  );
   #fieldRoot = Injector.create({
     providers: [
       {
@@ -161,8 +162,6 @@ export class PiyingView implements OnChanges {
       result.form.control.updateValue(model);
     }
   }
-
-
 
   ngOnDestroy(): void {
     this.#listenDispose?.();
