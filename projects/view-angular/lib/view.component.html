@@ -1,10 +1,10 @@
 <ng-template #fieldTemplate let-field let-injector="injector">
   @let renderConfig = field.renderConfig();
-  @if (!renderConfig?.hidden) {
+  @if (field.define && !renderConfig?.hidden) {
     @if (field.fixedChildren || field.restChildren) {
       <!-- 自定义group -->
       <ng-container
-        [ngComponentOutlet]="field.define?.()"
+        [ngComponentOutlet]="field.define()"
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"
         [ngComponentOutletDirectives]="field.directives"
@@ -12,7 +12,7 @@
       ></ng-container>
     } @else {
       <ng-container
-        [ngComponentOutlet]="field.define?.()"
+        [ngComponentOutlet]="field.define()"
         [ngComponentOutletFormControl]="$any(field.form.control)"
         [ngComponentOutletWrappers]="field.wrappers()"
         [ngComponentOutletField]="field"

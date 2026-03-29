@@ -247,4 +247,30 @@ describe('组件', () => {
 
     expect(element.querySelector('app-update2.a2')).toBeTruthy();
   });
+  it('组件切换-destroy', async () => {
+    let destroyed = false;
+    const define = v.object({
+      l1: v.pipe(
+        v.string(),
+        setComponent(Test1Component),
+        actions.outputs.patch({
+          destroyedChange: (event) => {
+            destroyed = true;
+          },
+        }),
+      ),
+    });
+    const { fixture, instance, element } = await createSchemaComponent(
+      signal(define),
+      signal(undefined),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('app-test1')).toBeTruthy();
+    instance.fields$.set(v.object({}));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('app-test1')).toBeFalsy();
+    expect(destroyed).toBeTruthy();    
+  });
 });
