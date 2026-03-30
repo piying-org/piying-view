@@ -7,6 +7,7 @@ import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 import { rawConfig } from './raw-config';
 
 import { asyncMergeOutputs, mergeOutputs } from './output';
+import { top } from './position-common';
 
 type AsyncResult<T = any> = Promise<T> | Observable<T> | Signal<T> | (T & {});
 export type AsyncProperty<T = any> = (
@@ -224,6 +225,11 @@ export const __actions = {
     patchAsync: createPatchAsyncPropertyFn('attributes'),
     remove: createRemovePropertyFn('attributes'),
     mapAsync: createMapAsyncPropertyFn('attributes'),
+    top: {
+      set: top.setOrPath('attributes'),
+      patch: top.setOrPath('attributes', true),
+    },
+ 
   },
   events: {
     patch: createSetOrPatchPropertyFn<Record<string, (event: Event) => any>>(
