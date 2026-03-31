@@ -164,9 +164,8 @@ export function typedComponent<T extends PiCommonConfig>(
   return {
     define: input,
     setComponent(key, fn) {
-      const type = typeof key === 'string' ? input.types![key].type : key;
       return metadataList(
-        fn ? [setComponent(type), ...fn(actions as any)] : [setComponent(type)],
+        fn ? [setComponent(key), ...fn(actions as any)] : [setComponent(key)],
       );
     },
   };

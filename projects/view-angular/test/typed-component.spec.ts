@@ -3,6 +3,7 @@ import { Test1Component } from './test1/test1.component';
 
 import * as v from 'valibot';
 import {
+  actions,
   FieldArray,
   FieldControl,
   FieldGroup,
@@ -13,6 +14,7 @@ import { typedComponent } from '../lib/util/typed-component';
 import { PiyingView } from '../lib/view.component';
 import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { PiyingViewGroup } from '../lib/component/group/component';
+import { createSchemaComponent } from './util/create-component';
 
 describe('强类型化', () => {
   it('存在', async () => {
@@ -129,5 +131,32 @@ describe('强类型化', () => {
     const input1Div = element.querySelector('.test1-div-input1') as HTMLElement;
     expect(input1Div).toBeTruthy();
     expect(input1Div.innerHTML).toEqual('div-display');
+  });
+
+  it('default actions + typed', async () => {
+    const typeDefine = typedComponent({
+      types: {
+        test1: {
+          type: Test1Component,
+        },
+      },
+    });
+    const define = v.pipe(v.string(), typeDefine.setComponent('test1'));
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+      {
+        types: {
+          test1: {
+            type: Test1Component,
+            actions: [actions.inputs.patch({ input1: 'abc' })],
+          },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(field$$()?.inputs()).toEqual({ input1: 'abc' });
   });
 });
