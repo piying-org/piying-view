@@ -49,7 +49,11 @@
       "DOM",
       "ESNext"
     ],
-    "stripInternal": true
+    "stripInternal": true,
+    "types": [
+      "node",
+      "jasmine"
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
