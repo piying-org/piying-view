@@ -27,7 +27,6 @@ import {
 } from '../type';
 import { BaseTypeService } from './base.service';
 import * as v from 'valibot';
-import { schema as cSchema } from '@piying/valibot-visit';
 import * as jsonActions from '@piying/view-angular-core';
 import { getBooleanDefine } from '../../util/define';
 import { clone } from '../../util/clone';
@@ -215,7 +214,7 @@ export class CommonTypeService extends BaseTypeService {
               conditionVSchema,
               baseSchema,
               v.pipe(
-                cSchema.intersect(
+                v.intersect(
                   childSchemaList.map((item) =>
                     v.pipe(
                       v.optional(item),
@@ -262,7 +261,7 @@ export class CommonTypeService extends BaseTypeService {
         },
         conditionSchemaFn(baseSchema, conditionVSchema, childSchemaList) {
           return v.pipe(
-            cSchema.intersect([
+            v.intersect([
               conditionVSchema,
               baseSchema,
               v.union(
@@ -701,7 +700,7 @@ export class CommonTypeService extends BaseTypeService {
             v.pipe(
               options.useOr
                 ? v.union(chilList)
-                : cSchema.intersect(chilList.map((item) => v.optional(item))),
+                : v.intersect(chilList.map((item) => v.optional(item))),
               ...getMetadataAction(schema),
               jsonActions.setComponent(
                 `${options.useOr ? 'oneOf' : 'anyOf'}-select`,

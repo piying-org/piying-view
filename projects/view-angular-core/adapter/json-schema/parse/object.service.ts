@@ -4,7 +4,6 @@ import { BaseTypeService, ChildKind } from './base.service';
 import * as v from 'valibot';
 import { isBoolean } from 'es-toolkit';
 import * as jsonActions from '@piying/view-angular-core';
-import { schema as cSchema } from '@piying/valibot-visit';
 import { hideWhen } from '@piying/view-angular-core';
 import { createImpasseAction } from '../../util/validation';
 
@@ -256,7 +255,7 @@ export class ObjectTypeService extends BaseTypeService {
     } else if (mode === 'strict') {
       if (conditionList.length) {
         schemaDefine = v.pipe(
-          cSchema.intersect([
+          v.intersect([
             v.pipe(v.object(childObject), jsonActions.setAlias(fixedObjName)),
             v.optional(v.intersect(conditionList)),
           ]),
