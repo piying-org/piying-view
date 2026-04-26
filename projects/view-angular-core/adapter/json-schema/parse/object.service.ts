@@ -177,6 +177,15 @@ export class ObjectTypeService extends BaseTypeService {
               );
             },
           }),
+          // 如果key不存在,那么应该跳过异常验证,即异常重置
+          v.rawCheck((context) => {
+            if (
+              context.dataset.value === undefined ||
+              !(key in context.dataset.value)
+            ) {
+              context.dataset.issues = undefined;
+            }
+          }),
         );
         conditionList.push(vSchema);
       }
@@ -231,7 +240,7 @@ export class ObjectTypeService extends BaseTypeService {
     }
     if (mode === 'default') {
       if (conditionList.length) {
-        schemaDefine = cSchema.intersect([
+        schemaDefine = v.intersect([
           v.pipe(
             v.looseObject(childObject),
             jsonActions.setAlias(fixedObjName),
