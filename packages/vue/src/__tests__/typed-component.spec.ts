@@ -29,7 +29,7 @@ describe('强类型化', () => {
       }),
     ]);
     expect(result.type).eq('metadataList');
-    expect(result.value.length).eq(9);
+    expect(result.value.length).eq(10);
   });
   it('action中', async () => {
     const typeDefine = typedComponent({
@@ -55,7 +55,7 @@ describe('强类型化', () => {
       }),
     ]);
     expect(result.type).eq('metadataList');
-    expect(result.value.length).eq(9);
+    expect(result.value.length).eq(10);
   });
   it('直接传入', async () => {
     const typeDefine = typedComponent({});
@@ -77,6 +77,6 @@ describe('强类型化', () => {
       }),
     ]);
     expect(result.type).eq('metadataList');
-    expect(result.value.length).eq(9);
+    expect(result.value.length).eq(10);
   });
 });
