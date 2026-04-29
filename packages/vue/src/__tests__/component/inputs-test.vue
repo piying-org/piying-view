@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const inputs = defineProps<{
-  value1?: any;
-  value2?: any;
+  value1?: string;
+  value2?: number;
 }>();
 </script>
 
