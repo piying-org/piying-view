@@ -216,6 +216,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         : undefined,
       wrappers: this.#wrapperToSignal(field.wrappers, injector),
       injector: injector,
+      arrayChild: field.arrayChild,
     } as any as _PiResolvedCommonViewFieldConfig;
     resolvedConfig =
       this.afterResolveConfig(field, resolvedConfig) ?? resolvedConfig;

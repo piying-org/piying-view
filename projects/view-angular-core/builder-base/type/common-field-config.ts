@@ -4,7 +4,7 @@ import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
-import { AnyCoreSchemaHandle } from '../../convert';
+import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
 import { KeyPath, Wrapper$, LazyImport } from '../../util';
 import { CombineSignal } from '../../util/create-combine-signal';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
@@ -60,7 +60,7 @@ export type PiResolvedCommonViewFieldConfig<
   injector: Injector;
   /** 外部传入引用 */
   readonly context?: any;
-
+  arrayChild?: CoreSchemaHandle<any, any>;
   get: (
     keyPath: KeyPath,
     aliasNotFoundFn?: (

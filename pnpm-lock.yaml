@@ -39,8 +39,8 @@ importers:
         specifier: ^1.16.4
         version: 1.17.3(@hyperjump/browser@1.3.1)
       '@piying/valibot-visit':
-        specifier: ^1.3.7
-        version: 1.3.7(typescript@5.8.3)
+        specifier: ^1.3.11
+        version: 1.3.11(typescript@5.8.3)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1792,8 +1792,8 @@ packages:
     resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
     engines: {node: '>= 10.0.0'}
 
-  '@piying/valibot-visit@1.3.7':
-    resolution: {integrity: sha512-E7lZv3xbv7pkC8KBCDSZLsp5+eSaAD+Tr2n5NCTXDAs89kKC4nPtveAgrksTTUMH9mSKqz39Hak1VTXUrGgIrg==}
+  '@piying/valibot-visit@1.3.11':
+    resolution: {integrity: sha512-mDXudGos8b13C5qNuTrPVwDPpMKPgdEI8xbbQrM7PXGkBxJG90hmTQClXd+aS5wRskQ01Y0c3qlvuXxnny0BHA==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -7188,7 +7188,7 @@ snapshots:
       '@parcel/watcher-win32-x64': 2.5.1
     optional: true
 
-  '@piying/valibot-visit@1.3.7(typescript@5.8.3)':
+  '@piying/valibot-visit@1.3.11(typescript@5.8.3)':
     dependencies:
       valibot: 1.1.0(typescript@5.8.3)
     transitivePeerDependencies:

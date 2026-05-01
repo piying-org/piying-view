@@ -226,4 +226,14 @@ describe('array', () => {
     assertFieldArray(result.form.control);
     expect(result.form.root.config$().groupValueSchema).toBeTruthy();
   });
+  it('array arrayChild', async () => {
+    const obj = v.array(
+      v.pipe(v.object({ num1: v.pipe(v.number(), v.title('num1-title')) })),
+    );
+    const result = createBuilder(obj);
+    assertFieldArray(result.form.control);
+    expect(result.arrayChild).toBeTruthy();
+    expect(result.arrayChild?.children.length).toBe(1);
+    expect(result.arrayChild?.children[0].props['title']).toBe('num1-title');
+  });
 });
