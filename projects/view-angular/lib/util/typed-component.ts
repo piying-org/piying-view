@@ -162,7 +162,7 @@ export function typedComponent<T extends PiCommonConfig>(
         >,
     ) => any[],
   ) => MetadataListAction<K>;
-  nfcComponent: <TCName extends keyof T['types'] | Type<any>, K>(
+  nfcComponent: <TCName extends keyof T['types'] | Type<any>>(
     input: TCName,
     fn?: (
       actions: Omit<typeof PresetActions, 'inputs' | 'outputs'> &
