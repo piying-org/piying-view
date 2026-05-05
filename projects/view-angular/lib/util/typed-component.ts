@@ -6,6 +6,7 @@ import {
   setComponent,
   PiTypeConfig,
   AsyncProperty,
+  NFCSchema,
 } from '@piying/view-angular-core';
 
 import {
@@ -20,6 +21,7 @@ import {
   RawConfigAction,
 } from '@piying/valibot-visit';
 import { AnyCoreSchemaHandle } from '@piying/view-angular-core';
+import * as v from 'valibot';
 type GetKeyWithType<T, ValueType> = {
   [K in keyof T as T[K] extends ValueType
     ? T[K] extends any
@@ -160,12 +162,36 @@ export function typedComponent<T extends PiCommonConfig>(
         >,
     ) => any[],
   ) => MetadataListAction<K>;
+  nfcComponent: <TCName extends keyof T['types'] | Type<any>, K>(
+    input: TCName,
+    fn?: (
+      actions: Omit<typeof PresetActions, 'inputs' | 'outputs'> &
+        ComponentActions<
+          TCName extends keyof T['types']
+            ? ActionComponent<NonNullable<T['types']>[TCName]>
+            : TCName
+        >,
+    ) => any[],
+  ) => v.SchemaWithPipe<
+    readonly [
+      v.OptionalSchema<v.VoidSchema<undefined>, undefined>,
+      MetadataListAction<void | undefined>,
+    ]
+  >;
 } {
   return {
     define: input,
     setComponent(key, fn) {
       return metadataList(
         fn ? [setComponent(key), ...fn(actions as any)] : [setComponent(key)],
+      );
+    },
+    nfcComponent(key, fn) {
+      return v.pipe(
+        NFCSchema,
+        metadataList(
+          fn ? [setComponent(key), ...fn(actions as any)] : [setComponent(key)],
+        ),
       );
     },
   };

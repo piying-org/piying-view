@@ -1,4 +1,5 @@
 import {
+  NFCSchema,
   actions as PresetActions,
   actions,
   setComponent,
@@ -11,7 +12,7 @@ import {
 
 import { metadataList, type MetadataListAction, type RawConfigAction } from '@piying/valibot-visit';
 import type { AllowedComponentProps, DefineComponent, VNodeProps } from 'vue';
-
+import * as v from 'valibot';
 type ComponentInputs<TComponent> = TComponent extends new (...args: any[]) => any
   ? InstanceType<TComponent> extends { $props: any }
     ? Omit<InstanceType<TComponent>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
@@ -64,11 +65,33 @@ export function typedComponent<T extends PiCommonConfig>(
         >,
     ) => any[],
   ) => MetadataListAction<K>;
+  nfcComponent: <TCName extends keyof T['types'] | DefineComponent<any, any, any>, K>(
+    input: TCName,
+    fn?: (
+      actions: Omit<typeof PresetActions, 'inputs'> &
+        ComponentActions<
+          TCName extends keyof T['types']
+            ? ActionComponent<NonNullable<T['types']>[TCName]>
+            : TCName
+        >,
+    ) => any[],
+  ) => v.SchemaWithPipe<
+    readonly [
+      v.OptionalSchema<v.VoidSchema<undefined>, undefined>,
+      MetadataListAction<void | undefined>,
+    ]
+  >;
 } {
   return {
     define: input,
     setComponent(key, fn) {
       return metadataList(fn ? [setComponent(key), ...fn(actions as any)] : [setComponent(key)]);
+    },
+    nfcComponent(key, fn) {
+      return v.pipe(
+        NFCSchema,
+        metadataList(fn ? [setComponent(key), ...fn(actions as any)] : [setComponent(key)]),
+      );
     },
   };
 }

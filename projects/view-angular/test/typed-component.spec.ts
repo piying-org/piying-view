@@ -159,4 +159,18 @@ describe('强类型化', () => {
 
     expect(field$$()?.inputs()).toEqual({ input1: 'abc' });
   });
+  it('nfcComponent', async () => {
+    const typeDefine = typedComponent({
+      types: {
+        test1: {
+          type: Test1Component,
+        },
+      },
+    });
+    const define = typeDefine.nfcComponent(Test1Component, (actions) => [
+      actions.inputs.patch({ input1: 'abc' }),
+    ]);
+    expect(define.type).toEqual('optional')
+    expect(define.wrapped.type).toEqual('void')
+  });
 });
