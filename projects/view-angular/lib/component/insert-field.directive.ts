@@ -17,6 +17,7 @@ import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
 })
 export class InsertFieldDirective extends BaseComponent {
   insertFieldSlots = input<Record<string, TemplateRef<any>>>();
+  insertFieldAttributes = input<Record<string, any>>();
   #viewContainerRef = inject(ViewContainerRef);
   #listen = inject(PI_COMPONENT_LIST_LISTEN);
   #list = inject(PI_COMPONENT_LIST);
@@ -39,6 +40,12 @@ export class InsertFieldDirective extends BaseComponent {
       this.#field().slots.update((slots) => ({
         ...slots,
         ...this.insertFieldSlots(),
+      }));
+    }
+    if (changes.insertFieldAttributes) {
+      this.#field().inputs.update((data) => ({
+        ...data,
+        ...this.insertFieldAttributes(),
       }));
     }
   }
