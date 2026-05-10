@@ -61,6 +61,11 @@ describe('object', () => {
   });
   it('dependentSchemas', async () => {
     const jsonSchema = {
+      properties: {
+        key1: {
+          type: 'number',
+        },
+      },
       dependentSchemas: {
         key1: {
           properties: {
@@ -69,11 +74,6 @@ describe('object', () => {
             },
           },
           required: ['req1'],
-        },
-      },
-      properties: {
-        key1: {
-          type: 'number',
         },
       },
     } as JsonSchemaDraft202012Object;

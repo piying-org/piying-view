@@ -325,7 +325,12 @@ export class CoreSchemaHandle<
     super.end(schema);
     this.formConfig.defaultValue =
       this.defaultValue ?? (this.nullable ? null : undefined);
-    if (this.isGroup) {
+    if (schema.type === 'intersect' || schema.type === 'union') {
+      this.checkSchema = v.pipe(
+        checkOverride.logicGroup(this),
+        ...this.checkActions,
+      );
+    } else if (this.isGroup) {
       this.checkSchema = v.pipe(
         checkOverride.group(this),
         ...this.checkActions,
@@ -333,11 +338,6 @@ export class CoreSchemaHandle<
     } else if (this.isTuple || this.isArray) {
       this.checkSchema = v.pipe(
         checkOverride.array(this),
-        ...this.checkActions,
-      );
-    } else if (this.isLogicAnd || this.isLogicOr) {
-      this.checkSchema = v.pipe(
-        checkOverride.logicGroup(this),
         ...this.checkActions,
       );
     }

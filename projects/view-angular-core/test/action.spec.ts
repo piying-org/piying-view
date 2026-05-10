@@ -3,6 +3,7 @@ import {
   actions,
   asVirtualGroup,
   condition,
+  formConfig,
   layout,
   mergeHooks,
   patchHooks,
@@ -478,5 +479,18 @@ describe('action', () => {
     });
     expect(field).toBeTruthy();
     expect(field.props()['title']).toEqual('testTitle');
+  });
+  it('intersect-check', async () => {
+    const obj = v.pipe(
+      v.intersect([v.object({ a: v.string() })]),
+      asVirtualGroup(),
+      formConfig({ groupMode: 'loose' }),
+    );
+    const field = createBuilder(obj, {
+      types: {},
+    });
+    expect(field).toBeTruthy();
+    field.form.root.updateValue({ a: '11' });
+    expect(field.form.root.errors).toBeFalsy();
   });
 });

@@ -59,7 +59,7 @@ export class ObjectTypeService extends BaseTypeService {
         }),
       );
     }
-    let hasRequiredKey = false;
+    const reqList: string[] = [];
     // 普通属性
     if (schema.properties) {
       for (const key in schema.properties) {
@@ -78,7 +78,7 @@ export class ObjectTypeService extends BaseTypeService {
         const isRequired = !!schema.required?.includes(key);
         const wrapperOptional = !isRequired && !propData.optional;
         if (isRequired && !propData.optional) {
-          hasRequiredKey = true;
+          reqList.push(key);
         }
         const createRef = () => {
           let propVSchema = this.commonTypeParse(propJSchema, {
@@ -180,7 +180,9 @@ export class ObjectTypeService extends BaseTypeService {
           v.rawCheck((context) => {
             if (
               context.dataset.value === undefined ||
-              !(key in context.dataset.value)
+              !(key in context.dataset.value) ||
+              (!reqList.includes(key) &&
+                context.dataset.value[key] === undefined)
             ) {
               context.dataset.issues = undefined;
             }
@@ -234,7 +236,7 @@ export class ObjectTypeService extends BaseTypeService {
       );
     }
     let schemaDefine;
-    if (!Object.keys(childObject).length || !hasRequiredKey) {
+    if (!Object.keys(childObject).length || !reqList.length) {
       this.#optional = true;
     }
     if (mode === 'default') {
