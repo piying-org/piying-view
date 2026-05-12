@@ -58,7 +58,7 @@ const TypeMap: Record<string, typeof BaseTypeService> = {
 export class JsonSchemaToValibot {
   root;
   options;
-  cacheSchema = new WeakMap();
+  cacheSchema = new Map();
   constructor(root: JSONSchemaRaw, options?: J2VOptions) {
     this.root = root;
     this.options = options;
@@ -67,7 +67,9 @@ export class JsonSchemaToValibot {
   convert() {
     const Service = TypeMap['common'];
     const instance = new Service(this, this.root as any);
-    return instance.parse([]);
+    const result= instance.parse([]);
+    this.cacheSchema.clear()
+    return result
   }
 
   #jsonSchemaCompatiable(schema: JsonSchemaDraft202012Object) {
