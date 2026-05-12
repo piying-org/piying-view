@@ -77,12 +77,12 @@ export class CommonTypeService extends BaseTypeService {
     if (this.instance.cacheSchema.has(input)) {
       return this.instance.cacheSchema.get(input);
     }
-    const schema = this.resolveSchema2(input);
-    this.schema = schema;
-    const actionList = this.#applicatorNot(schema);
+    const jSchema = this.instance.resolveSchema2(input);
+    this.schema = jSchema;
+    const actionList = this.#applicatorNot(jSchema);
     const result = actionList.length
-      ? v.pipe(this.#applicatorParse(schema), ...actionList)
-      : this.#applicatorParse(schema);
+      ? v.pipe(this.#applicatorParse(jSchema), ...actionList)
+      : this.#applicatorParse(jSchema);
     this.instance.cacheSchema.set(input, result);
     return result;
   }
@@ -94,7 +94,7 @@ export class CommonTypeService extends BaseTypeService {
       }
     } else if (schema.not) {
       const vSchema = this.#jsonSchemaBase(
-        this.resolveSchema2(schema.not),
+        this.instance.resolveSchema2(schema.not),
         () => [],
       );
       actionList.push(
@@ -147,7 +147,9 @@ export class CommonTypeService extends BaseTypeService {
       }
       case 'array': {
         if (schema.items && !isBoolean(schema.items)) {
-          const result = this.getOptions([this.resolveSchema2(schema)]);
+          const result = this.getOptions([
+            this.instance.resolveSchema2(schema),
+          ]);
           if (result) {
             return this.typeParse(
               '__fixedList',
@@ -283,7 +285,7 @@ export class CommonTypeService extends BaseTypeService {
           v.check(() => !!schema.if),
         );
       } else {
-        const ifSchema = this.resolveSchema2(schema.if!);
+        const ifSchema = this.instance.resolveSchema2(schema.if!);
         ifVSchema = v.pipe(
           this.#jsonSchemaBase(ifSchema, () =>
             this.getValidationActionList(ifSchema),
@@ -329,7 +331,7 @@ export class CommonTypeService extends BaseTypeService {
       }
       let thenSchema: ResolvedSchema;
       if (schema.then && !isBoolean(schema.then)) {
-        const subSchema = this.resolveSchema2(schema.then!);
+        const subSchema = this.instance.resolveSchema2(schema.then!);
         thenSchema = v.pipe(
           this.#jsonSchemaBase(subSchema, () => [
             ...this.getValidationActionList(subSchema),
@@ -349,7 +351,7 @@ export class CommonTypeService extends BaseTypeService {
 
       let elseSchema: ResolvedSchema;
       if (schema.else && !isBoolean(schema.else)) {
-        const subSchema = this.resolveSchema2(schema.else);
+        const subSchema = this.instance.resolveSchema2(schema.else);
         elseSchema = v.pipe(
           this.#jsonSchemaBase(subSchema, () => [
             ...this.getValidationActionList(subSchema),
@@ -399,7 +401,7 @@ export class CommonTypeService extends BaseTypeService {
     } else {
       vSchema = v.pipe(
         // 通用部分
-        this.#jsonSchemaBase(this.resolveSchema2(schema), () =>
+        this.#jsonSchemaBase(this.instance.resolveSchema2(schema), () =>
           this.getValidationActionList(schema),
         ),
       );
@@ -417,7 +419,7 @@ export class CommonTypeService extends BaseTypeService {
     for (const rawChildSchema of list.filter(
       (item) => !isBoolean(item),
     ) as any as JsonSchemaDraft202012Object[]) {
-      const childSchema = clone(this.resolveSchema2(rawChildSchema));
+      const childSchema = clone(this.instance.resolveSchema2(rawChildSchema));
       actionList.push(...this.getValidationActionList(childSchema));
       baseKeyList = union(baseKeyList, Object.keys(childSchema));
       for (const key of baseKeyList) {
@@ -544,7 +546,7 @@ export class CommonTypeService extends BaseTypeService {
         schema,
         ...options
           .getChildren()
-          .map((item) => this.resolveSchema2(item as any)),
+          .map((item) => this.instance.resolveSchema2(item as any)),
       );
 
       if (conditionResult) {
@@ -556,7 +558,7 @@ export class CommonTypeService extends BaseTypeService {
         /** 子级的共同部分验证,用于检测是哪个子级,不显示 */
         const childConditionVSchemaList =
           conditionResult.childConditionJSchemaList.map((schema) => {
-            const rSchema = this.resolveSchema2(schema);
+            const rSchema = this.instance.resolveSchema2(schema);
             return v.pipe(
               this.#jsonSchemaBase(rSchema, () =>
                 this.getValidationActionList(rSchema),
@@ -649,7 +651,7 @@ export class CommonTypeService extends BaseTypeService {
         /** 主条件部分,用于显示切换 */
         const conditionVSchema = v.pipe(
           this.#jsonSchemaBase(
-            this.resolveSchema2(conditionResult.conditionJSchema),
+            this.instance.resolveSchema2(conditionResult.conditionJSchema),
             () => [],
           ),
           checkAction,
@@ -687,7 +689,7 @@ export class CommonTypeService extends BaseTypeService {
       } else {
         activateList = childOriginSchemaList.map((_, i) => true);
         const chilList = options.getChildren()!.map((item) => {
-          const resolved = this.resolveSchema2(item as any);
+          const resolved = this.instance.resolveSchema2(item as any);
 
           return this.#jsonSchemaBase(resolved, () =>
             this.getValidationActionList(resolved),
@@ -759,7 +761,7 @@ export class CommonTypeService extends BaseTypeService {
           }
           options = schema.enum.map((item) => ({ label: item, value: item }));
         } else if (schema.items && !isBoolean(schema.items)) {
-          const items = this.resolveSchema2(schema.items);
+          const items = this.instance.resolveSchema2(schema.items);
           options = fn2().fn(items);
           multi2 = true;
           data.uniqueItems &&= !!schema.uniqueItems;
@@ -811,7 +813,7 @@ export class CommonTypeService extends BaseTypeService {
           if (isBoolean(propItem)) {
             return false;
           }
-          const resolved = this.resolveSchema2(propItem);
+          const resolved = this.instance.resolveSchema2(propItem);
           return !resolved.__resolved.type.types.includes('object');
         });
         if (!cur) {
@@ -846,7 +848,7 @@ export class CommonTypeService extends BaseTypeService {
       }
       const optionsResult = this.getOptions(
         childList.map((item) =>
-          this.resolveSchema2(item.properties![key] as any),
+          this.instance.resolveSchema2(item.properties![key] as any),
         ),
       );
       if (optionsResult) {
@@ -864,8 +866,9 @@ export class CommonTypeService extends BaseTypeService {
       } else {
         conditionKeyList.push(key);
         conditionJSchema.properties![key] = {
-          type: this.resolveSchema2(childList[0].properties![key]! as any)
-            .__resolved.type.types[0],
+          type: this.instance.resolveSchema2(
+            childList[0].properties![key]! as any,
+          ).__resolved.type.types[0],
         };
         childConditionJSchemaList.forEach((item, i) => {
           item.properties![key] = childList[i].properties![key];

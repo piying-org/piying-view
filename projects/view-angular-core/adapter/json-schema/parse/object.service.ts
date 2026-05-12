@@ -68,7 +68,7 @@ export class ObjectTypeService extends BaseTypeService {
         if (isBoolean(propJSchema)) {
           propData = { optional: false, hasRef: false };
         } else {
-          const rSchema = this.resolveSchema2(propJSchema);
+          const rSchema = this.instance.resolveSchema2(propJSchema);
           propData = {
             optional: rSchema.__resolved.type.optional,
             hasRef: rSchema.__resolved.hasRef,

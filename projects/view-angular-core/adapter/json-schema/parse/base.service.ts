@@ -12,7 +12,6 @@ import { isNumber } from '../../util/is-number';
 import * as jsonActions from '@piying/view-angular-core';
 import {
   JsonSchemaDraft202012,
-  JsonSchemaDraft202012Object,
 } from '@hyperjump/json-schema/draft-2020-12';
 import { ObjectTypeService } from './object.service';
 import { computed } from '@angular/core';
@@ -217,15 +216,13 @@ export class BaseTypeService {
     // const resolved = this.resolveSchema2(schema as any);
     return this.typeParse('common', schema as any, [], options);
   }
-  resolveSchema2(schema: JsonSchemaDraft202012Object) {
-    return this.instance.resolveSchema2(schema);
-  }
+
 
   schemahasRef(schema: JsonSchemaDraft202012) {
     if (isBoolean(schema)) {
       return false;
     } else {
-      const result = this.resolveSchema2(schema);
+      const result = this.instance.resolveSchema2(schema);
       return result.__resolved.hasRef;
     }
   }
