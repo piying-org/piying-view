@@ -3,6 +3,7 @@ import * as v from 'valibot';
 import { asControl } from '@piying/valibot-visit';
 import {
   _PiResolvedCommonViewFieldConfig,
+  FieldControl,
   formConfig,
   NFCSchema,
   setComponent,
@@ -501,5 +502,10 @@ describe('对象', () => {
     result.form.root.updateValue(undefined);
     expect(result.form.root.valid).toBeTrue();
     expect(result.form.root.errors).toBeFalsy();
+  });
+  it('record-asControl', () => {
+    const obj = v.pipe(v.record(v.any(), v.any()), asControl());
+    const result = createBuilder(obj);
+    expect(result.form.root instanceof FieldControl).toBeTrue()
   });
 });

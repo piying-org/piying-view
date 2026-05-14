@@ -223,6 +223,9 @@ export class CoreSchemaHandle<
     value: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
   ): void {
     super.recordSchema(key, value);
+    if (this.isObjectControl) {
+      return;
+    }
     this.isGroup = true;
     // equal {[name:string]:v.InferOutput< typeof value>}
     this.formConfig.groupKeySchema = key;
