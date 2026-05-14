@@ -1,3 +1,12 @@
+## 2.9.5 (2026-05-14)
+
+
+### Bug Fixes
+
+* record asControl ([662bd76](https://github.com/piying-org/piying-view/commit/662bd76b44507425aaeb56cb6e7e6144dce24679))
+
+
+
 ## 2.9.4 (2026-05-10)
 
 
