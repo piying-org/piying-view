@@ -29,6 +29,15 @@ async function main() {
       return fs.promises.writeFile(absFilePath, content);
     }),
   ]);
-  console.log('复制完成')
+
+  // 重命名 static-injector.ts 为 index.ts
+  let injectorDir = path.join(absDir, 'test/util/injector');
+  let staticInjectorPath = path.join(injectorDir, 'static-injector.ts');
+  let indexPath = path.join(injectorDir, 'index.ts');
+
+  await fs.promises.rm(indexPath, { force: true });
+  await fs.promises.cp(staticInjectorPath, indexPath);
+
+  console.log('复制完成');
 }
 main();

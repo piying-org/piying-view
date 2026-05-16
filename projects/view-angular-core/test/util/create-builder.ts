@@ -1,10 +1,11 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   _PiResolvedCommonViewFieldConfig,
   FormBuilder,
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
 import { convert } from '@piying/view-angular-core';
+import { createInjector } from './injector';
 @Injectable()
 class TestFormBuilder extends FormBuilder<any> {}
 export function createBuilder(
@@ -18,9 +19,8 @@ export function createBuilder(
     builder?: any;
   },
 ) {
-  const injector = Injector.create({
-    providers: [],
-  });
+  const injector = createInjector();
+
   const MockType = { type: Symbol() } as any;
   const result = convert(obj, {
     injector,

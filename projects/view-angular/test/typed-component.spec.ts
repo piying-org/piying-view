@@ -1,4 +1,4 @@
-import { Component, computed, model, signal, viewChild } from '@angular/core';
+import { Component, computed, model, provideZonelessChangeDetection, signal, viewChild } from '@angular/core';
 import { Test1Component } from './test1/test1.component';
 
 import * as v from 'valibot';
@@ -117,7 +117,10 @@ describe('强类型化', () => {
     }
     await TestBed.configureTestingModule({
       imports: [Hello],
-      providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
+      providers: [
+        { provide: ComponentFixtureAutoDetect, useValue: true },
+        provideZonelessChangeDetection(),
+      ],
     }).compileComponents();
     const fixture = TestBed.createComponent(Hello);
     fixture.detectChanges();
@@ -170,7 +173,7 @@ describe('强类型化', () => {
     const define = typeDefine.nfcComponent(Test1Component, (actions) => [
       actions.inputs.patch({ input1: 'abc' }),
     ]);
-    expect(define.type).toEqual('optional')
-    expect(define.wrapped.type).toEqual('void')
+    expect(define.type).toEqual('optional');
+    expect(define.wrapped.type).toEqual('void');
   });
 });

@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  provideZonelessChangeDetection,
   signal,
   viewChild,
   WritableSignal,
@@ -94,7 +95,10 @@ export async function createSchemaComponent(
   }
   await TestBed.configureTestingModule({
     imports: [Hello],
-    providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
+    providers: [
+      { provide: ComponentFixtureAutoDetect, useValue: true },
+      provideZonelessChangeDetection(),
+    ],
   }).compileComponents();
   const fixture = TestBed.createComponent(Hello);
   fixture.detectChanges();
