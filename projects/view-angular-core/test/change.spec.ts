@@ -4,7 +4,7 @@ import { createBuilder } from './util/create-builder';
 
 import { firstValueFrom, skip } from 'rxjs';
 
-describe('change', () => {
+fdescribe('change', () => {
   it('值变更', async () => {
     const obj = v.string();
     const resolved = createBuilder(obj);
@@ -15,5 +15,10 @@ describe('change', () => {
       resolved.form.control!.valueChanges.pipe(skip(1)),
     );
     expect(result).toBe('111');
+    resolved.form.control!.updateValue('222');
+    result = await firstValueFrom(
+      resolved.form.control!.valueChanges.pipe(skip(1)),
+    );
+    expect(result).toBe('222');
   });
 });
