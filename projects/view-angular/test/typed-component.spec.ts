@@ -1,4 +1,11 @@
-import { Component, computed, model, provideZonelessChangeDetection, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  model,
+  provideZonelessChangeDetection,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Test1Component } from './test1/test1.component';
 
 import * as v from 'valibot';

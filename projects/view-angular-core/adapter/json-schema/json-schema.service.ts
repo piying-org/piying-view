@@ -67,9 +67,9 @@ export class JsonSchemaToValibot {
   convert() {
     const Service = TypeMap['common'];
     const instance = new Service(this, this.root as any);
-    const result= instance.parse([]);
-    this.cacheSchema.clear()
-    return result
+    const result = instance.parse([]);
+    this.cacheSchema.clear();
+    return result;
   }
 
   #jsonSchemaCompatiable(schema: JsonSchemaDraft202012Object) {

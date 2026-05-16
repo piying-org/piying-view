@@ -229,7 +229,6 @@ export const __actions = {
       set: top.setOrPath('attributes'),
       patch: top.setOrPath('attributes', true),
     },
- 
   },
   events: {
     patch: createSetOrPatchPropertyFn<Record<string, (event: Event) => any>>(

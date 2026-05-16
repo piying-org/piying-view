@@ -69,5 +69,5 @@ function topSet(key: PositionKey, isPatch?: boolean) {
 
 export const top = {
   setOrPath: topSet,
-//   async: topAsync,
+  //   async: topAsync,
 };

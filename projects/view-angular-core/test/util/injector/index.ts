@@ -8,11 +8,11 @@ import {
 } from '@angular/core';
 
 export const createInjector = () => {
-  let instance = Injector.create({
+  const instance = Injector.create({
     providers: [
       { provide: ɵINJECTOR_SCOPE, useValue: 'root' },
       ...(() => {
-        let zone = provideZonelessChangeDetection();
+        const zone = provideZonelessChangeDetection();
         if (ɵisEnvironmentProviders(zone)) {
           return zone.ɵproviders as Provider[];
         }

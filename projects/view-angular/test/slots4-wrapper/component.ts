@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
 import { InsertFieldDirective } from '../../lib/component/insert-field.directive';
 
 @Component({

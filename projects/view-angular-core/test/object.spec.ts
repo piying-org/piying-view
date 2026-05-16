@@ -506,6 +506,6 @@ describe('对象', () => {
   it('record-asControl', () => {
     const obj = v.pipe(v.record(v.any(), v.any()), asControl());
     const result = createBuilder(obj);
-    expect(result.form.root instanceof FieldControl).toBeTrue()
+    expect(result.form.root instanceof FieldControl).toBeTrue();
   });
 });

@@ -10,9 +10,7 @@ import { get } from 'es-toolkit/compat';
 import * as v from 'valibot';
 import { isNumber } from '../../util/is-number';
 import * as jsonActions from '@piying/view-angular-core';
-import {
-  JsonSchemaDraft202012,
-} from '@hyperjump/json-schema/draft-2020-12';
+import { JsonSchemaDraft202012 } from '@hyperjump/json-schema/draft-2020-12';
 import { ObjectTypeService } from './object.service';
 import { computed } from '@angular/core';
 export const enum ChildKind {
@@ -216,7 +214,6 @@ export class BaseTypeService {
     // const resolved = this.resolveSchema2(schema as any);
     return this.typeParse('common', schema as any, [], options);
   }
-
 
   schemahasRef(schema: JsonSchemaDraft202012) {
     if (isBoolean(schema)) {

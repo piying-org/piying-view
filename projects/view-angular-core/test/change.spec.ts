@@ -2,7 +2,6 @@ import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
 
-import { actions, setComponent } from '../convert';
 import { firstValueFrom, skip } from 'rxjs';
 
 describe('change', () => {
@@ -12,7 +11,9 @@ describe('change', () => {
     let result = await firstValueFrom(resolved.form.control!.valueChanges);
     expect(result).toBe(undefined);
     resolved.form.control!.updateValue('111');
-    result = await firstValueFrom(resolved.form.control!.valueChanges.pipe(skip(1)));
+    result = await firstValueFrom(
+      resolved.form.control!.valueChanges.pipe(skip(1)),
+    );
     expect(result).toBe('111');
   });
 });

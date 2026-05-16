@@ -1,9 +1,4 @@
-import {
-  computed,
-  Directive,
-  inject,
-  Injector,
-} from '@angular/core';
+import { computed, Directive, inject, Injector } from '@angular/core';
 import {
   PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
   PI_VIEW_FIELD_TOKEN,

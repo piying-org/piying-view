@@ -271,6 +271,6 @@ describe('组件', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('app-test1')).toBeFalsy();
-    expect(destroyed).toBeTruthy();    
+    expect(destroyed).toBeTruthy();
   });
 });

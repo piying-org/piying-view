@@ -15,7 +15,7 @@ import {
 } from '../type/component';
 import { BaseComponent } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
-import { asyncObjectSignal, FieldControl } from '@piying/view-angular-core';
+import { asyncObjectSignal } from '@piying/view-angular-core';
 import { FieldControlDirective } from '../directives/field-control-directive';
 import { ChainedInjector } from './chained_injector';
 
@@ -50,7 +50,7 @@ export class NgComponentOutlet<T = any>
   );
   /** 控件用 */
   #ngComponentOutletFormControl$ = computed(() => {
-    let field = this.ngComponentOutletField();
+    const field = this.ngComponentOutletField();
     return field.fixedChildren || field.restChildren
       ? undefined
       : this.ngComponentOutletField().form.control;
