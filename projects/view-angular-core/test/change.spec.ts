@@ -4,7 +4,7 @@ import { createBuilder } from './util/create-builder';
 
 import { firstValueFrom, skip } from 'rxjs';
 
-fdescribe('change', () => {
+describe('change', () => {
   it('值变更', async () => {
     const obj = v.string();
     const resolved = createBuilder(obj);
