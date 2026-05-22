@@ -5,8 +5,11 @@ import { getField } from './util/action';
 import {
   _PiResolvedCommonViewFieldConfig,
   formConfig,
+  toObservable,
 } from '@piying/view-angular-core';
 import { pickBy } from 'es-toolkit';
+import { computed } from '@angular/core';
+import { take } from 'rxjs';
 // 用于测试fields和model变动时,数值是否正确
 describe('raw-value', () => {
   // 将子级提权到父级
@@ -64,6 +67,30 @@ describe('raw-value', () => {
     expect(value.o1.l1).toEqual('111');
     expect(value.o1.l2).toEqual(undefined);
     expect(value.o1.l3).toEqual(undefined);
+  });
+  it('部分有效-group-change', async () => {
+    const obj = v.object({
+      o1: v.object({
+        l1: v.string(),
+        l2: v.pipe(v.string(), formConfig({ disabled: true })),
+        l3: v.string(),
+      }),
+    });
+    const result = createBuilder(obj);
+    const data$$ = computed(() => result.form.root.getRawValue(1));
+    let index = 0;
+    const resultList = [
+      { o1: { l1: undefined, l3: undefined } },
+      { o1: { l1: '111', l3: undefined } },
+    ];
+    toObservable(data$$, data$$, { injector: result.injector })
+      .pipe(take(2))
+      .subscribe({
+        next: (data) => {
+          expect(resultList[index++]).toEqual(data);
+        },
+      });
+    result.form.root!.updateValue({ o1: { l1: '111', l2: '222' } });
   });
 
   it('部分有效-array', async () => {
