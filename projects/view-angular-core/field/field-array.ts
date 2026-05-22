@@ -2,35 +2,19 @@ import { computed, signal, untracked } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
+import { ValueType } from './type';
 
 export class FieldArray<
   TControl extends AbstractControl<any> = any,
 > extends FieldGroupbase {
   #deletionMode$$ = computed(() => this.config$().deletionMode ?? 'shrink');
-  #childUpdate() {
-    let list: any[] = [];
-    this._reduceChildren(list, (acc, control, name) => {
-      if (control && control.shouldInclude$$()) {
-        list.push(control.value$$());
-      } else {
-        if (this.#deletionMode$$() === 'shrink') {
-          return list;
-        } else if (this.#deletionMode$$() === 'mark') {
-          list.push(undefined);
-        }
-      }
-      return list;
-    });
-    list = [...list, ...(this.resetValue$() ?? [])];
-    const returnResult = list.length === 0 ? this.emptyValue$$() : list;
-    return this.transformToModel(returnResult, this);
-  }
+
   override originValue$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();
-      return untracked(() => this.#childUpdate());
+      return untracked(() => this.getValueByType(ValueType.valid));
     }
-    return this.#childUpdate();
+    return this.getValueByType(ValueType.valid);
   });
   override children$$ = computed(() => [
     ...this.fixedControls$(),
@@ -74,11 +58,46 @@ export class FieldArray<
     return this.controls.length;
   }
 
-  override getRawValue() {
-    return this._reduceChildren([], (acc, control, key) => {
-      acc[key] = control.getRawValue();
-      return acc;
-    });
+  getValueByType(mode = ValueType.allPartialValid) {
+    let list: any[] = [];
+    if (mode === ValueType.allPartialValid) {
+      this._reduceChildren(list, (acc, control, key) => {
+        acc[key] = control.getRawValue(mode);
+        return acc;
+      });
+    } else if (mode === ValueType.valid) {
+      this._reduceChildren(list, (acc, control, name) => {
+        if (control && control.shouldInclude$$()) {
+          list.push(control.value$$());
+        } else if (this.#deletionMode$$() === 'shrink') {
+          return list;
+        } else if (this.#deletionMode$$() === 'mark') {
+          list.push(undefined);
+        }
+        return list;
+      });
+    } else if (mode === ValueType.partialValid) {
+      this._reduceChildren(list, (acc, control, name) => {
+        if (control && control.shouldEmitValue$$()) {
+          list.push(control.getRawValue(mode));
+        } else if (this.#deletionMode$$() === 'shrink') {
+          return list;
+        } else if (this.#deletionMode$$() === 'mark') {
+          list.push(undefined);
+        }
+        return list;
+      });
+    }
+
+    list = [...list, ...(this.resetValue$() ?? [])];
+    const returnResult = list.length === 0 ? this.emptyValue$$() : list;
+    const value = this.transformToModel(returnResult, this);
+    return value;
+  }
+  override getRawValue(mode: ValueType = ValueType.allPartialValid) {
+    const value = this.getValueByType(mode);
+    const result = this.schemaCheck2$$(value);
+    return result.output;
   }
   clear(): void {
     if (this.resetControls$().length < 1) return;

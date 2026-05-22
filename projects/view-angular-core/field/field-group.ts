@@ -2,32 +2,17 @@ import { computed, signal, untracked } from '@angular/core';
 
 import { AbstractControl } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
+import { ValueType } from './type';
 
 export class FieldGroup<
   TControl extends { [K in keyof TControl]: AbstractControl<any> } = any,
 > extends FieldGroupbase {
-  #childUpdate() {
-    const result = this._reduceChildren(
-      { ...this.resetValue$() },
-      (acc, control, name) => {
-        if (control.shouldInclude$$()) {
-          acc[name] = control.value;
-        }
-        return acc;
-      },
-    );
-    const returnResult = Object.keys(result).length
-      ? result
-      : this.emptyValue$$();
-
-    return this.transformToModel(returnResult, this);
-  }
   override originValue$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();
-      return untracked(() => this.#childUpdate());
+      return untracked(() => this.getValueByType(ValueType.valid));
     }
-    return this.#childUpdate();
+    return this.getValueByType(ValueType.valid);
   });
   #controls$$ = computed(() => ({
     ...this.fixedControls$(),
@@ -65,11 +50,49 @@ export class FieldGroup<
     control.setParent(this);
   }
 
-  override getRawValue() {
-    return this._reduceChildren({}, (acc, control, key) => {
-      acc[key] = control.getRawValue();
-      return acc;
-    });
+  getValueByType(mode = ValueType.allPartialValid) {
+    let result: Record<string, any> = {};
+    if (mode === ValueType.allPartialValid) {
+      result = this._reduceChildren(
+        { ...this.resetValue$() },
+        (acc, control, key) => {
+          acc[key] = control.getRawValue(mode);
+          return acc;
+        },
+      );
+    } else if (mode === ValueType.valid) {
+      result = this._reduceChildren(
+        { ...this.resetValue$() },
+        (acc, control, key) => {
+          if (control && control.shouldInclude$$()) {
+            acc[key] = control.value;
+          }
+          return acc;
+        },
+      );
+    } else if (mode === ValueType.partialValid) {
+      result = this._reduceChildren(
+        { ...this.resetValue$() },
+        (acc, control, key) => {
+          if (control && control.shouldEmitValue$$()) {
+            acc[key] = control.getRawValue(mode);
+          }
+          return acc;
+        },
+      );
+    }
+
+    result = { ...result, ...(this.resetValue$() ?? {}) };
+    const returnResult = Object.keys(result).length
+      ? result
+      : this.emptyValue$$();
+    const value = this.transformToModel(returnResult, this);
+    return value;
+  }
+  override getRawValue(mode: ValueType = ValueType.allPartialValid) {
+    const value = this.getValueByType(mode);
+    const result = this.schemaCheck2$$(value);
+    return result.output;
   }
   clear(): void {
     if (Object.keys(this.resetControls$()).length < 1) return;

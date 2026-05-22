@@ -1,7 +1,7 @@
 import { AbstractControl } from './abstract_model';
 import { FieldArray } from './field-array';
 import { computed, signal, untracked } from '@angular/core';
-import { LogicType, UpdateType } from './type';
+import { LogicType, UpdateType, ValueType } from './type';
 import { deepEqual } from 'fast-equals';
 // 切换索引后,理论上应该触发下值变更,否则不知道值是什么
 export class FieldLogicGroup extends FieldArray {
@@ -18,16 +18,12 @@ export class FieldLogicGroup extends FieldArray {
     | undefined
   >(undefined);
 
-  #childUpdate() {
-    const returnResult = this.getValue(false);
-    return this.transformToModel(returnResult, this);
-  }
   override originValue$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();
-      return untracked(() => this.#childUpdate());
+      return untracked(() => this.getValueByType(ValueType.valid));
     }
-    return this.#childUpdate();
+    return this.getValueByType(ValueType.valid);
   });
 
   override activatedChildren = computed(() => {
@@ -52,12 +48,24 @@ export class FieldLogicGroup extends FieldArray {
     return [];
   });
 
-  getValue(rawData: boolean) {
-    const controls = rawData
-      ? this.activatedChildren().map(([index, control]) => control)
-      : this.activatedChildren()
+  #getValue(mode: ValueType) {
+    let controls;
+    switch (mode) {
+      case ValueType.valid: {
+        controls = this.activatedChildren()
           .map(([index, control]) => control)
           .filter((control) => control.shouldInclude$$());
+        break;
+      }
+      case ValueType.partialValid: {
+        controls = this.activatedChildren()
+          .map(([index, control]) => control)
+          .filter((control) => control.shouldEmitValue$$());
+        break;
+      }
+      case ValueType.allPartialValid:
+        controls = this.activatedChildren().map(([index, control]) => control);
+    }
     const control = controls[0];
     if (controls.length === 0) {
       return this.emptyValue$$();
@@ -65,18 +73,30 @@ export class FieldLogicGroup extends FieldArray {
     if (controls.length === 1) {
       return control.value;
     }
+    let getChildValue: (control: AbstractControl) => any;
+    if (mode === ValueType.valid) {
+      getChildValue = (control: AbstractControl) => control.value$$();
+    } else {
+      getChildValue = (control: AbstractControl) => control.getRawValue(mode);
+    }
     const result = controls.reduce(
-      (obj, control) => ({ ...obj, ...control.value$$() }),
+      (obj, control) => ({ ...obj, ...getChildValue(control) }),
       {} as Record<string, any>,
     );
     return Object.keys(result).length ? result : this.emptyValue$$();
+  }
+  override getValueByType(mode: ValueType) {
+    const returnResult = this.#getValue(mode);
+    return this.transformToModel(returnResult, this);
   }
   override reset(value?: any[]): void {
     const initValue = this.getInitValue(value);
     this.#updateValue(initValue, UpdateType.reset);
   }
-  override getRawValue(): any {
-    return this.getValue(true);
+  override getRawValue(mode: ValueType = ValueType.allPartialValid) {
+    const value = this.getValueByType(mode);
+    const result = this.schemaCheck2$$(value);
+    return result.output;
   }
   override updateValue(value: any): void {
     if (this.valid && deepEqual(value, this.value$$())) {

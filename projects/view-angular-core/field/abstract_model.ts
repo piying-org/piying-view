@@ -7,7 +7,7 @@ import {
   linkedSignal,
 } from '@angular/core';
 
-import { FieldFormConfig$ } from './type';
+import { FieldFormConfig$, ValueType } from './type';
 import { SchemaOrPipe } from '@piying/valibot-visit';
 import * as v from 'valibot';
 import { Observable } from 'rxjs';
@@ -89,13 +89,16 @@ export abstract class AbstractControl<TValue = any> {
   protected readonly emptyValue$$ = computed(() =>
     clone(this.config$().emptyValue),
   );
+  shouldEmitValue$$ = computed(
+    () =>
+      !this.selfDisabled$$() ||
+      (this.selfDisabled$$() && this.config$().disabledValue === 'reserve'),
+  );
   /** 父级取值时,当前子级是否包含在内 */
   shouldInclude$$ = computed(
-    () =>
-      this.valueNoError$$() &&
-      (!this.selfDisabled$$() ||
-        (this.selfDisabled$$() && this.config$().disabledValue === 'reserve')),
+    () => this.valueNoError$$() && this.shouldEmitValue$$(),
   );
+
   readonly injector;
   originValue$$!: Signal<TValue | undefined>;
   /** model的value */
@@ -382,7 +385,12 @@ export abstract class AbstractControl<TValue = any> {
     this.context = this.injector.get(PI_CONTEXT_TOKEN);
   }
 
+  /** 校验以及转换 */
   #schemaCheck$$ = computed(() => this.schemaParser(this.originValue$$()));
+  protected schemaCheck2$$(value: any) {
+    return this.schemaParser(value);
+  }
+
   setParent(parent: AbstractControl | undefined): void {
     this._parent = parent;
   }
@@ -441,7 +449,7 @@ export abstract class AbstractControl<TValue = any> {
     this.pendingStatus.set(InitPendingValue);
   }
 
-  getRawValue(): any {
+  getRawValue(mode = ValueType.allPartialValid): any {
     return this.value;
   }
 

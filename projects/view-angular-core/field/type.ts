@@ -59,3 +59,11 @@ export const enum UpdateType {
   update = 1,
   reset = 2,
 }
+export const enum ValueType {
+  /** 全部有效 */
+  valid = 0,
+  /** 部分有效 */
+  partialValid = 1,
+  /** 也返回带禁用的有效 */
+  allPartialValid = 2,
+}

@@ -99,6 +99,6 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   override updateInitValue(value: any): void {
     const initValue = this.getInitValue(value);
     this.modelValue$.set(initValue);
-    this.originValue$$.set(value);
+    this.originValue$$.set(initValue);
   }
 }
