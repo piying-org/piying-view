@@ -59,12 +59,10 @@ export class FieldGroupbase extends AbstractControl {
   /** @internal */
   override updateInitValue(value: any): void {
     this.inited = true;
-    const initValue = this.getInitValue(value);
-    this._updateValue(initValue, UpdateType.init);
+    this._updateValue(this.getInitValue(value), UpdateType.init);
   }
   override reset(value?: any): void {
-    const initValue = this.getInitValue(value);
-    this._updateValue(initValue, UpdateType.reset);
+    this._updateValue(this.getInitValue(value), UpdateType.reset);
   }
   /** @internal */
   _reduceChildren(

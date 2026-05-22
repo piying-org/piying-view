@@ -314,11 +314,8 @@ export abstract class AbstractControl<TValue = any> {
     }
     if (syncError && asyncError) {
       return [...syncError, ...asyncError];
-    } else if (syncError || asyncError) {
-      return syncError || asyncError;
-    } else {
-      return undefined;
     }
+    return syncError || asyncError || undefined;
   });
   valueNoError$$ = computed(() => this.rawError$$() === undefined);
   get errors() {
@@ -445,17 +442,17 @@ export abstract class AbstractControl<TValue = any> {
     this.selfDirty$.set(false);
   }
 
-  reset(value?: any) {
+  reset(_value?: any) {
     this.pendingStatus.set(InitPendingValue);
   }
 
-  getRawValue(mode = ValueType.allPartialValid): any {
+  getRawValue(_mode = ValueType.allPartialValid): any {
     return this.value;
   }
 
   get<P extends string | (string | number)[]>(path: P): AbstractControl | null {
     let currPath: Array<string | number> | string = path;
-    if (currPath == null) return null;
+    if (currPath === null || currPath === undefined) return null;
     if (!Array.isArray(currPath)) currPath = currPath.split('.');
     if (currPath.length === 0) return null;
     return currPath.reduce(
@@ -475,8 +472,8 @@ export abstract class AbstractControl<TValue = any> {
   }
 
   /** @internal */
-  _forEachChild(cb: (c: AbstractControl, key: any) => void) {}
-  updateValue(value: any) {}
+  _forEachChild(_cb: (c: AbstractControl, key: any) => void) {}
+  updateValue(_value: any) {}
   config$: FieldFormConfig$ = signal({}, { equal: deepEqual });
   /** @internal */
   initConfig(config: any) {
@@ -494,11 +491,13 @@ export abstract class AbstractControl<TValue = any> {
     return value;
   }
   /** @internal */
-  updateInitValue(value: any) {}
-  find(name: string | number): AbstractControl | null {
+  updateInitValue(_value: any) {}
+  find(_name: string | number): AbstractControl | null {
     return null;
   }
-  setControl(name: string | number, control: AbstractControl) {}
+
+  setControl(_name: string | number, _control: AbstractControl) {}
+
   *activatedChildren(): Iterable<[string | number, AbstractControl]> {}
   /** 校验和获得值用 */
   private reduceChildren<T>(
@@ -555,11 +554,7 @@ export abstract class AbstractControl<TValue = any> {
     }
     if (childStatus === VALID) {
       if (this.rawError$$()) {
-        if (this.rawError$$() !== PENDING) {
-          return INVALID;
-        } else {
-          return PENDING;
-        }
+        return this.rawError$$() === PENDING ? PENDING : INVALID;
       }
     }
     return childStatus;

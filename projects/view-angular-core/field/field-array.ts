@@ -90,9 +90,10 @@ export class FieldArray<
     }
 
     list = [...list, ...(this.resetValue$() ?? [])];
-    const returnResult = list.length === 0 ? this.emptyValue$$() : list;
-    const value = this.transformToModel(returnResult, this);
-    return value;
+    return this.transformToModel(
+      list.length === 0 ? this.emptyValue$$() : list,
+      this,
+    );
   }
   override getRawValue(mode: ValueType = ValueType.allPartialValid) {
     const value = this.getValueByType(mode);

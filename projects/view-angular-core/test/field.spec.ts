@@ -68,5 +68,4 @@ describe('field', () => {
     const field = await field$.promise;
     expect(field.form.control?.root).toBe(result.form.control);
   });
-
 });

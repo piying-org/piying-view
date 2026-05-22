@@ -109,8 +109,7 @@ export class FieldLogicGroup extends FieldArray {
   }
   /** @internal */
   override updateInitValue(value: any): void {
-    const initValue = this.getInitValue(value);
-    this.#updateValue(initValue, UpdateType.init);
+    this.#updateValue(this.getInitValue(value), UpdateType.init);
   }
   #updateValue(value: any, type: UpdateType) {
     const viewValue =

@@ -83,11 +83,10 @@ export class FieldGroup<
     }
 
     result = { ...result, ...(this.resetValue$() ?? {}) };
-    const returnResult = Object.keys(result).length
-      ? result
-      : this.emptyValue$$();
-    const value = this.transformToModel(returnResult, this);
-    return value;
+    return this.transformToModel(
+      Object.keys(result).length ? result : this.emptyValue$$(),
+      this,
+    );
   }
   override getRawValue(mode: ValueType = ValueType.allPartialValid) {
     const value = this.getValueByType(mode);
