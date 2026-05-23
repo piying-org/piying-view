@@ -193,12 +193,7 @@ export abstract class AbstractControl<TValue = any> {
           const childrenResult = this.reduceChildren<ValidationErrors2[]>(
             [],
             (child, value, key) => {
-              if (
-                (!child.selfDisabled$$() ||
-                  (child.selfDisabled$$() &&
-                    child.config$().disabledValue === 'reserve')) &&
-                child.errors
-              ) {
+              if (child.shouldEmitValue$$() && child.errors) {
                 value.push({
                   kind: 'descendant',
                   key: key,
