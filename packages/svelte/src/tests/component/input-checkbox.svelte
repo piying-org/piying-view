@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useControlValueAccessor } from '@piying/view-svelte';
 
-	const { cva, cvaa } = useControlValueAccessor();
+	const { cva, cvaa } = useControlValueAccessor(true);
 	export { cva };
 </script>
 
