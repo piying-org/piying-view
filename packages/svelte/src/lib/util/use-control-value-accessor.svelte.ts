@@ -1,6 +1,6 @@
 import type { ControlValueAccessor } from '@piying/view-core';
 
-export function useControlValueAccessor() {
+export function useControlValueAccessor(optionalBind?: boolean) {
 	let value = $state();
 	let disabled = $state(false);
 	let onChange: (input: any) => void;
@@ -29,11 +29,19 @@ export function useControlValueAccessor() {
 				return disabled;
 			},
 			valueChange: (input: any) => {
-				onChange?.(input);
+				if (optionalBind) {
+					onChange?.(input);
+				} else {
+					onChange(input);
+				}
 				value = input;
 			},
 			touchedChange: () => {
-				touched();
+				if (optionalBind) {
+					touched?.();
+				} else {
+					touched();
+				}
 			}
 		}
 	};

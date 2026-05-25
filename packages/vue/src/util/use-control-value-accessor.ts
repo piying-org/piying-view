@@ -1,7 +1,7 @@
 import type { ControlValueAccessor } from '@piying/view-core';
 import { ref, shallowRef } from 'vue';
 
-export function useControlValueAccessor() {
+export function useControlValueAccessor(optionalBind?: boolean) {
   const value = shallowRef();
   const disabled = ref(false);
   let onChange: (input: any) => void;
@@ -26,11 +26,19 @@ export function useControlValueAccessor() {
       value: value,
       disabled: disabled,
       valueChange: (input: any) => {
-        onChange(input);
+        if (optionalBind) {
+          onChange?.(input);
+        } else {
+          onChange(input);
+        }
         value.value = input;
       },
       touchedChange: () => {
-        touched();
+        if (optionalBind) {
+          touched?.();
+        } else {
+          touched();
+        }
       },
     },
   };

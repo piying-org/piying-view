@@ -1,7 +1,7 @@
 import type { ControlValueAccessor } from '@piying/view-core';
 import { createSignal, type Accessor } from 'solid-js';
 
-export function useControlValueAccessor() {
+export function useControlValueAccessor(optionalBind?: boolean) {
   const [value, setValue] = createSignal<any>(undefined);
   const [disabled, setDisabled] = createSignal(false);
   const [onChange, setOnChange] = createSignal<
@@ -31,11 +31,19 @@ export function useControlValueAccessor() {
       value: value,
       disabled: disabled,
       valueChange: (value: any) => {
-        onChange()?.(value);
+        if (optionalBind) {
+          onChange()?.(value);
+        } else {
+          onChange()!(value);
+        }
         setValue(value);
       },
       touchedChange: () => {
-        touched()?.();
+        if (optionalBind) {
+          touched()?.();
+        } else {
+          touched()!();
+        }
       },
     } as ControlValueAccessorAdapter,
   };

@@ -1,7 +1,7 @@
 import type { ControlValueAccessor } from '@piying/view-core';
 import { useMemo, useRef, useState } from 'react';
 
-export function useControlValueAccessor() {
+export function useControlValueAccessor(optionalBind?: boolean) {
   const [value, setValue] = useState(undefined);
   const [disabled, setDisabled] = useState(false);
   const onChange = useRef<((input: any) => void) | undefined>(undefined);
@@ -27,11 +27,19 @@ export function useControlValueAccessor() {
       value: value,
       disabled: disabled,
       valueChange: (value: any) => {
-        onChange.current?.(value);
+        if (optionalBind) {
+          onChange.current?.(value);
+        } else {
+          onChange.current!(value);
+        }
         setValue(value);
       },
       touchedChange: () => {
-        touched.current?.();
+        if (optionalBind) {
+          touched.current?.();
+        } else {
+          touched.current!();
+        }
       },
     } as ControlValueAccessorAdapter;
   }, [value, disabled]);
