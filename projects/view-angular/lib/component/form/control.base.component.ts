@@ -10,9 +10,11 @@ export class BaseControl<T = any> implements ControlValueAccessor {
     this.emitValue = fn;
   }
   /** 同时发射和value变更 */
-  valueChange(value: T) {
+  valueChange(value: T, setValue?: boolean) {
     this.emitValue?.(value);
-    this.value$.set(value);
+    if (setValue) {
+      this.value$.set(value);
+    }
   }
 
   writeValue(obj: any): void {
@@ -25,8 +27,8 @@ export class BaseControl<T = any> implements ControlValueAccessor {
   touchedChange() {
     this.#touched!();
   }
-  valueAndTouchedChange(value: T) {
-    this.valueChange(value);
+  valueAndTouchedChange(value: T, setValue?: boolean) {
+    this.valueChange(value, setValue);
     this.touchedChange();
   }
   disabled$ = signal(false);
