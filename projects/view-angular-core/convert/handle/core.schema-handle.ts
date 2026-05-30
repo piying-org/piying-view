@@ -328,21 +328,23 @@ export class CoreSchemaHandle<
     super.end(schema);
     this.formConfig.defaultValue =
       this.defaultValue ?? (this.nullable ? null : undefined);
-    if (schema.type === 'intersect' || schema.type === 'union') {
-      this.checkSchema = v.pipe(
-        checkOverride.logicGroup(this),
-        ...this.checkActions,
-      );
-    } else if (this.isGroup) {
-      this.checkSchema = v.pipe(
-        checkOverride.group(this),
-        ...this.checkActions,
-      );
-    } else if (this.isTuple || this.isArray) {
-      this.checkSchema = v.pipe(
-        checkOverride.array(this),
-        ...this.checkActions,
-      );
+    if (!this.isObjectControl) {
+      if (schema.type === 'intersect' || schema.type === 'union') {
+        this.checkSchema = v.pipe(
+          checkOverride.logicGroup(this),
+          ...this.checkActions,
+        );
+      } else if (this.isGroup) {
+        this.checkSchema = v.pipe(
+          checkOverride.group(this),
+          ...this.checkActions,
+        );
+      } else if (this.isTuple || this.isArray) {
+        this.checkSchema = v.pipe(
+          checkOverride.array(this),
+          ...this.checkActions,
+        );
+      }
     }
   }
   coreSchema!: v.BaseSchema<any, any, any>;

@@ -1,6 +1,11 @@
 import * as v from 'valibot';
 import { createBuilder } from './util/create-builder';
-import { asVirtualGroup, formConfig, layout } from '@piying/view-angular-core';
+import {
+  asControl,
+  asVirtualGroup,
+  formConfig,
+  layout,
+} from '@piying/view-angular-core';
 import { keyEqual } from './util/key-equal';
 import {
   assertFieldControl,
@@ -374,5 +379,12 @@ describe('对象相交', () => {
     result.form.root.updateValue(undefined);
     expect(result.form.root.valid).toBeTrue();
     expect(result.form.root.errors).toBeFalsy();
+  });
+  it('union-asControl-valid', () => {
+    const obj = v.pipe(v.union([v.string(), v.number()]), asControl());
+    const result = createBuilder(obj);
+    result.form.root.updateValue(undefined);
+    expect(result.form.root.valid).toBeFalsy();
+    expect(result.form.root.errors).toBeTruthy();
   });
 });
