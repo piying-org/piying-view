@@ -52,13 +52,17 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | 文档                                                        | 说明                                                                               |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | [setComponent](api/setComponent.md)                         | 组件设置：字符串引用 vs 直接传组件类                                               |
-| [inputs / outputs / events](api/inputs-outputs.md)          | Inputs / Outputs / Events 设置（同步 set / patch / remove / mapAsync）             |
-| [attributes / CSS class](api/attributes-class.md)           | Attributes / CSS Class 设置（topClass / bottomClass）                              |
+| [inputs](api/inputs.md)                                       | Inputs 设置（set / patch / remove）                                              |
+| [outputs](api/outputs.md)                                     | Outputs 设置（set / patch / remove / patchAsync）                                |
+| [events](api/events.md)                                       | DOM 事件处理                                                                     |
+| [attributes](api/attributes.md)                               | HTML Attributes 设置（set / patch / remove / patchAsync）                        |
+| [CSS class](api/css-class.md)                                 | CSS Class 设置（topClass / bottomClass）                                         |
 | [Layout metadata](api/layout.md)                            | keyPath (fullPath / keyPath / @alias / ..) + priority                              |
 | [hideWhen / disableWhen / valueChange](api/hide-disable.md) | 动态控制字段可见性、可用性和值变化                                                 |
-| [Wrappers 包装器](api/wrappers.md)                          | Wrappers 设置（set / patch / remove / patchAsync / changeAsync）+ Wrapper 编写指南 |
+| [Wrappers 包装器](api/wrappers.md)                          | Wrappers 设置（set / remove / patchAsync）+ Wrapper 编写指南 |
 | [路径查询](api/path-querying.md)                            | KeyPath 类型定义、field.get() 用法、查询表达式速查（`#` `..` `@alias`）              |
 | [FieldFormConfig](api/field-config.md)                      | disabled / disabledValue / pipe / updateOn / emptyValue 等配置详解                 |
+| [Control API](api/control-api.md)                           | FieldControl / AbstractControl 完整参考：值管理、状态、验证、导航、配置             |
 | [fieldGlobalConfig](api/global-config.md)                   | types / wrappers / actions 全局默认值 + 优先级体系                                 |
 
 ---

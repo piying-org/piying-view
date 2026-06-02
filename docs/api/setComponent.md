@@ -110,6 +110,9 @@ options = {
 
 ## 下一步
 
-- [API: inputs/outputs](inputs-outputs.md) — 为组件设置输入输出
-- [API: attributes/class](attributes-class.md) — 设置 HTML attributes 和 CSS class
+- [API: inputs](inputs.md) — 组件输入属性
+- [API: outputs](outputs.md) — 组件输出事件
+- [API: events](events.md) — DOM 事件处理
+- [API: attributes](attributes.md) — HTML Attributes 设置
+- [API: CSS class](css-class.md) — CSS Class 设置
 - [API: global-config](global-config.md) — 全局类型配置优先级体系
