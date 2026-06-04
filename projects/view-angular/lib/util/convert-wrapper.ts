@@ -6,10 +6,9 @@ import {
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
   PI_INPUT_MODEL_TOKEN,
-  PiResolvedViewFieldConfig,
 } from '../type';
 import { NgConvertOptions } from '../type/builder-type';
-import type { SetOptional } from '@piying/view-angular-core';
+import type { _PiResolvedCommonViewFieldConfig, SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
 
 const DefaultConvertOptions = {
@@ -25,7 +24,7 @@ export function convertToField<T extends v.BaseSchema<any, any, any>>(
   parent: Injector,
   model?: Signal<v.InferInput<T>>,
   options?: Signal<SetOptional<NgConvertOptions, 'builder' | 'handle'>>,
-): PiResolvedViewFieldConfig {
+) {
   const fieldRoot = Injector.create({
     providers: [
       { provide: PI_INPUT_OPTIONS_TOKEN, useValue: options },
@@ -35,7 +34,7 @@ export function convertToField<T extends v.BaseSchema<any, any, any>>(
     parent,
   });
 
-  return convert<PiResolvedViewFieldConfig>(schema, {
+  return convert<_PiResolvedCommonViewFieldConfig>(schema, {
     ...DefaultConvertOptions,
     ...options,
     injector: fieldRoot,
