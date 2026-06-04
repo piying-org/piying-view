@@ -42,3 +42,5 @@ testem.log
 Thumbs.db
 
 /projects/view-core
+.agents
+skills-lock.json

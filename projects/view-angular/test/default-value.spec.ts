@@ -19,9 +19,8 @@ describe('默认值', () => {
     expect(instance.model$()).toEqual({ v1: 9999 });
   });
   it('undefined', async () => {
-    const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
     const define = v.object({
-      v1: v.pipe(v.optional(v.number())),
+      v1: v.optional(v.number()),
     });
     const { fixture, instance, element } = await createSchemaComponent(
       signal(define),

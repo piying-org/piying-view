@@ -177,6 +177,9 @@ export class BaseComponent {
     const index = this.index;
     const componentConfig = list[index];
     const isLast = list.length === index + 1;
+    if (typeof componentConfig.type === 'string') {
+      throw new Error(`🈳define:[${componentConfig.type}]❗`);
+    }
     this.#loadComponent(componentConfig.type, (componentDefine) => {
       this.#componentConfig = componentConfig;
       this.#inputCache = {

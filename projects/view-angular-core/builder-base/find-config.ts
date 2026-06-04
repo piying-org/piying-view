@@ -21,7 +21,7 @@ export function FindConfigFactory() {
       if (typeof type === 'string') {
         const config = globalConfig?.types?.[type];
         if (!config) {
-          throw new Error(`🈳define:[${type}]❗`);
+          return undefined
         }
         return config.type;
       } else {

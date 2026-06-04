@@ -211,8 +211,15 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       get slots() {
         return resolvedConfig.define?.().slots;
       },
-      define: define
-        ? signal({ type: define, inputs, outputs, attributes, events, slots })
+      define: field.type
+        ? signal({
+            type: define ?? field.type,
+            inputs,
+            outputs,
+            attributes,
+            events,
+            slots,
+          })
         : undefined,
       wrappers: this.#wrapperToSignal(field.wrappers, injector),
       injector: injector,

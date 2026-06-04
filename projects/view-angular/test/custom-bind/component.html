@@ -1,0 +1,13 @@
+<label for="">
+  {{ bind1().props()['title'] ?? '' }}
+</label>
+<input type="text" class="mode1" [formControl]="bind1()" />
+<div>
+  <input
+    type="text"
+    class="mode2"
+    [formControl]="bind2()"
+    [keyPath]="['k1']"
+    #formControl="formControl"
+  />
+</div>

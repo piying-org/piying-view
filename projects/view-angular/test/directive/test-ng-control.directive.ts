@@ -1,5 +1,5 @@
 import { Directive, inject, output } from '@angular/core';
-import { FieldControlDirective } from '../../lib/directives/field-control-directive';
+import { FieldControlDirective } from '../../lib/directives/field-control.directive';
 
 @Directive({
   selector: '[testNgControl]',

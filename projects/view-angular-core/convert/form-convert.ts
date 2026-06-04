@@ -6,7 +6,6 @@ import {
 import {
   convertCore,
   ConvertOptions,
-  SchemaOrPipe,
 } from '@piying/valibot-visit';
 import {
   computed,
@@ -31,10 +30,11 @@ import {
   FindConfigToken,
 } from '../builder-base/find-config';
 import { BaseMetadata } from 'valibot';
+import * as v from 'valibot';
 export function convert<
   RESULT extends Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>,
 >(
-  obj: SchemaOrPipe,
+  obj: v.BaseSchema<any, any, any>,
   options: SetOptional<
     ConvertOptions<typeof CoreSchemaHandle<any, any>>,
     'handle'

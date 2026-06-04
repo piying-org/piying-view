@@ -16,7 +16,7 @@ import {
 import { BaseComponent } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { asyncObjectSignal } from '@piying/view-angular-core';
-import { FieldControlDirective } from '../directives/field-control-directive';
+import { FieldControlDirective } from '../directives/field-control.directive';
 import { ChainedInjector } from './chained_injector';
 
 @Directive({

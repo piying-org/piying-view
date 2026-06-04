@@ -17,6 +17,7 @@ import {
 } from '@piying/view-angular-core';
 import { SchemaOrPipe } from '@piying/valibot-visit';
 import { PiyingViewGroup } from '@piying/view-angular';
+import { CustomInputComponent } from '../custom-input/custom-input.component';
 
 export async function createSchemaComponent(
   field: WritableSignal<SchemaOrPipe>,
@@ -65,10 +66,10 @@ export async function createSchemaComponent(
         tuple: {
           type: PiyingViewGroup,
         },
-        string: {},
-        number: {},
-        boolean: {},
-        void: {},
+        string: { type: Test1Component },
+        number: { type: CustomInputComponent },
+        boolean: { type: CustomInputComponent },
+        void: { type: CustomInputComponent },
         'intersect-group': {
           type: PiyingViewGroup,
         },

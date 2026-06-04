@@ -1,11 +1,4 @@
-import {
-  Directive,
-  inject,
-  Injector,
-  input,
-  OnDestroy,
-  Provider,
-} from '@angular/core';
+import { Directive, inject, Injector, OnDestroy, Signal } from '@angular/core';
 
 import {
   ControlValueAccessor,
@@ -15,18 +8,11 @@ import {
 import { createViewControlLink, FieldControl } from '@piying/view-angular-core';
 import { InteropNgControl } from './interop_ng_control';
 
-const formControlBinding: Provider = {
-  provide: NgControl,
-  useFactory: () => inject(FieldControlDirective).ngControl,
-};
 
-@Directive({
-  selector: '[fieldControl]',
-  providers: [formControlBinding],
-  standalone: true,
-})
-export class FieldControlDirective implements OnDestroy {
-  fieldControl = input.required<FieldControl>();
+
+@Directive({})
+export class FieldControlBase implements OnDestroy {
+  fieldControl$$!: Signal<FieldControl>;
   readonly cvaArray = inject<ControlValueAccessor[]>(NG_VALUE_ACCESSOR);
   readonly injector = inject(Injector);
 
@@ -37,7 +23,7 @@ export class FieldControlDirective implements OnDestroy {
 
   get ngControl(): NgControl {
     return (this.#_ngControl ??= new InteropNgControl(() =>
-      this.fieldControl(),
+      this.fieldControl$$(),
     )) as unknown as NgControl;
   }
 
@@ -45,7 +31,7 @@ export class FieldControlDirective implements OnDestroy {
   ngOnChanges(): void {
     this.#disposeFn?.();
     this.#disposeFn = createViewControlLink(
-      this.fieldControl,
+      this.fieldControl$$,
       this.cva,
       this.injector,
     );
