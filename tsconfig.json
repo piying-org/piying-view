@@ -53,7 +53,8 @@
     "types": [
       "node",
       "jasmine"
-    ]
+    ],
+    "rootDir": "./"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
