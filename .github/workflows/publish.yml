@@ -27,7 +27,7 @@ jobs:
       - name: install-pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: '10'
+          version: '11'
 
       - run: pnpm i
       - run: npx playwright install --with-deps
