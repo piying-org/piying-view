@@ -6,7 +6,8 @@ import {
   input,
 } from '@angular/core';
 
-import { PI_INPUT_OPTIONS_TOKEN, PiyingView } from '@piying/view-angular';
+import { PiyingView } from '@piying/view-angular';
+import { PI_INPUT_OPTIONS_TOKEN } from '@piying/view-angular-core';
 
 @Component({
   selector: 'app-nest4',

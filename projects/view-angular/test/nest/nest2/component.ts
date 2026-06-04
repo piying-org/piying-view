@@ -6,9 +6,10 @@ import {
   input,
 } from '@angular/core';
 
-import { PI_INPUT_OPTIONS_TOKEN, PiyingView } from '@piying/view-angular';
+import { PiyingView } from '@piying/view-angular';
 import { Nest1Service } from '../nest1.service';
 import { SelectorlessOutlet } from '@cyia/ngx-common/directive';
+import { PI_INPUT_OPTIONS_TOKEN } from '@piying/view-angular-core';
 
 @Component({
   selector: 'app-nest2',

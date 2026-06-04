@@ -3,10 +3,7 @@ import {
   CoreSchemaHandle,
 } from './handle/core.schema-handle';
 
-import {
-  convertCore,
-  ConvertOptions,
-} from '@piying/valibot-visit';
+import { convertCore, ConvertOptions } from '@piying/valibot-visit';
 import {
   computed,
   DestroyableInjector,
@@ -31,19 +28,17 @@ import {
 } from '../builder-base/find-config';
 import { BaseMetadata } from 'valibot';
 import * as v from 'valibot';
+export type CoreOptions = SetOptional<
+  ConvertOptions<typeof CoreSchemaHandle<any, any>>,
+  'handle'
+> & {
+  injector: DestroyableInjector;
+  builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
+  fieldGlobalConfig?: PiCommonConfig;
+};
 export function convert<
   RESULT extends Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>,
->(
-  obj: v.BaseSchema<any, any, any>,
-  options: SetOptional<
-    ConvertOptions<typeof CoreSchemaHandle<any, any>>,
-    'handle'
-  > & {
-    injector: DestroyableInjector;
-    builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
-    fieldGlobalConfig?: PiCommonConfig;
-  },
-) {
+>(obj: v.BaseSchema<any, any, any>, options: CoreOptions) {
   const buildOptions: FormBuilderOptions<RESULT> = {
     form$$: computed<FieldGroup>(
       () => buildOptions.resolvedField$()?.form.control as any,

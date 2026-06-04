@@ -6,6 +6,8 @@ export type RawKeyPath = string | number;
 
 export type SetOptional<OBJ, K extends keyof OBJ> = Omit<OBJ, K> &
   Partial<Pick<OBJ, K>>;
+export type SetRequired<OBJ, K extends keyof OBJ> = Omit<OBJ, K> &
+  Required<Pick<OBJ, K>>;
 export type SetReadonly<OBJ, K extends keyof OBJ> = Omit<OBJ, K> &
   Readonly<Pick<OBJ, K>>;
 export type ArraryIterable<T> = T[] | Iterable<T>;
