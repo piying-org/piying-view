@@ -37,10 +37,8 @@ import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
 import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
-const DefaultConvertOptions = {
-  builder: AngularFormBuilder,
-  handle: NgSchemaHandle,
-};
+import { convertToField } from './util/convert-wrapper';
+
 @Component({
   selector: 'piying-view',
   imports: [NgComponentOutlet, NgTemplateOutlet],
@@ -97,36 +95,21 @@ export class PiyingView implements OnChanges {
       parent: this.resolvedField$()!.injector,
     }),
   );
-  #fieldRoot = Injector.create({
-    providers: [
-      {
-        provide: PI_INPUT_OPTIONS_TOKEN,
-        useValue: this.options,
-      },
-      {
-        provide: PI_INPUT_SCHEMA_TOKEN,
-        useValue: this.schema,
-      },
-      {
-        provide: PI_INPUT_MODEL_TOKEN,
-        useValue: this.model,
-      },
-    ],
-    parent: this.#injector,
-  });
+
   #updateField() {
     this.#clean();
     // 临时销毁
     const envInjector = Injector.create({
       providers: [],
-      parent: this.#fieldRoot,
+      parent: this.#injector,
     });
     this.#builderInjector = envInjector;
-    const result = convert<PiResolvedViewFieldConfig>(this.schema() as any, {
-      ...DefaultConvertOptions,
-      ...this.options(),
-      injector: envInjector,
-    });
+    const result = convertToField(
+      this.schema,
+      envInjector,
+      this.model,
+      this.options,
+    );
     this.resolvedField$.set(result);
     return result;
   }
