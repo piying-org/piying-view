@@ -17,31 +17,36 @@ import {
   getLazyImport,
   isFieldControl,
   isLazyMark,
+  type KeyPath,
 } from '@piying/view-core';
 const props = defineProps<{
   field: PiResolvedViewFieldConfig;
+  path?: KeyPath;
 }>();
+const field = computed(() => {
+  const keyPath = props.path;
+  return keyPath ? props.field.get(keyPath)! : props.field;
+});
 const injector = vInject(InjectorToken)!;
 
-const renderConfig = signalToRef(() => props.field.renderConfig());
+const renderConfig = signalToRef(() => field.value.renderConfig());
 
-const inputs = signalToRef(() => props.field.inputs?.());
-const attributes = signalToRef(() => props.field.attributes?.());
+const inputs = signalToRef(() => field.value.inputs?.());
+const attributes = signalToRef(() => field.value.attributes?.());
 const fieldInput = computed(() => ({ ...attributes.value, ...inputs.value }));
-const outputs = signalToRef(() => props.field.outputs?.());
-const events = signalToRef(() => props.field.events?.());
+const outputs = signalToRef(() => field.value.outputs?.());
+const events = signalToRef(() => field.value.events?.());
 const fieldOutput = computed(() => ({ ...outputs.value, ...events.value }));
 
-const fieldChildren = signalToRef(() => props.field.children?.());
+const fieldChildren = signalToRef(() => field.value.children?.());
 
-const wrappers = signalToRef(() => props.field.wrappers());
-const define = signalToRef(() => props.field.define?.());
+const wrappers = signalToRef(() => field.value.wrappers());
+const define = signalToRef(() => field.value.define?.());
 const componentType = computed(() =>
   typeof define.value?.type === 'function' || isLazyMark(define.value?.type)
     ? defineAsyncComponent(getLazyImport<any>(define.value?.type))
     : define.value?.type,
 );
-const field = computed(() => props.field);
 provide(PI_VIEW_FIELD_TOKEN, field);
 // 使用cva
 const childRef = shallowRef<any>(null);

@@ -5,6 +5,8 @@ import PiyingFieldTemplate from './component/field-template.vue';
 export { PiyingFieldTemplate };
 import PiyingViewGroup from './component/group.vue';
 export { PiyingViewGroup };
+import PiyingFieldControlBind from './component/field-control-bind.vue';
+export { PiyingFieldControlBind as Field, PiyingFieldControlBind };
 export * from './type';
 export * from './token';
 export * from './builder';

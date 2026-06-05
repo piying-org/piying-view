@@ -25,22 +25,24 @@ export type ConvertOptions = SetOptional<ConvertFactoryOptions, 'handle'>;
 /** 创建 convertToField 函数的工厂 */
 export function createConvertToField(
   defaultOptions: SetRequired<Partial<CoreOptions>, 'builder'>,
+  defaultInjector?: Injector,
 ) {
   return <T extends v.BaseSchema<any, any, any>>(
     schema: () => T,
-    parent: Injector,
+    parent?: Injector,
     options?: () => ConvertFactoryOptions | undefined,
     providers?: Provider[],
   ) => {
+    let parent2 = (parent ?? defaultInjector)!;
     const injector = Injector.create({
       providers: [
         { provide: PI_INPUT_OPTIONS_TOKEN, useValue: options },
         { provide: PI_INPUT_SCHEMA_TOKEN, useValue: schema },
         ...(providers ?? []),
       ],
-      parent,
+      parent: parent2,
     });
-    parent.get(DestroyRef).onDestroy(() => {
+    parent2.get(DestroyRef).onDestroy(() => {
       injector.destroy();
     });
     return convert<_PiResolvedCommonViewFieldConfig>(schema(), {

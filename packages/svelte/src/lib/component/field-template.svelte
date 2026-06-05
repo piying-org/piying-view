@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PiResolvedViewFieldConfig } from '../type/group';
+	import type { _PiResolvedCommonViewFieldConfig, KeyPath } from '@piying/view-core';
 	import { signalToState } from '../util/signal-convert.svelte';
 	import { PI_VIEW_FIELD_TOKEN, InjectorToken } from '../token';
 	import { createViewControlLink, getLazyImport, isLazyMark } from '@piying/view-core';
@@ -7,20 +7,22 @@
 	import type { Injector } from 'static-injector';
 	import PiWrapper from './wrapper.svelte';
 	const props: {
-		field: PiResolvedViewFieldConfig;
+		field: _PiResolvedCommonViewFieldConfig;
+		path?: KeyPath;
 	} = $props();
 	const injector = getContext<() => Injector>(InjectorToken)!;
+	const field = $derived(props.path ? props.field.get(props.path)! : props.field);
 	const fieldInputs = signalToState(() => {
 		return {
-			...props.field.attributes(),
-			...props.field.inputs(),
+			...field.attributes(),
+			...field.inputs(),
 			// todo outputs不应该加signal,因为没必要动态更新?
-			...props.field.outputs()
+			...field.outputs()
 		};
 	});
 	let controlRef = $state<any>();
-	const renderConfig = signalToState(() => props.field.renderConfig());
-	const control = $derived.by(() => props.field.form.control);
+	const renderConfig = signalToState(() => field.renderConfig());
+	const control = $derived.by(() => field.form.control);
 	$effect.pre(() => {
 		let dispose: (() => any) | undefined;
 		if (controlRef?.cva) {
@@ -31,11 +33,11 @@
 			dispose = undefined;
 		};
 	});
-	const fieldChildren = signalToState(() => props.field.children?.());
+	const fieldChildren = signalToState(() => field.children?.());
 
-	const wrappers = signalToState(() => props.field.wrappers());
+	const wrappers = signalToState(() => field.wrappers());
 	const ComponentType = $derived.by(() => {
-		return props.field.define?.()?.type;
+		return field.define?.()?.type;
 	});
 	const isLazy = $derived.by(() => {
 		return isLazyMark(ComponentType);
@@ -43,7 +45,6 @@
 	const loading = $derived.by(() => {
 		return getLazyImport<() => Promise<any>>(ComponentType)!();
 	});
-	const field = $derived(props.field);
 	setContext(PI_VIEW_FIELD_TOKEN, () => field);
 </script>
 

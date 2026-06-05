@@ -1,5 +1,8 @@
 import { useContext, useEffect, useMemo, useRef } from 'react';
-import type { PiResolvedViewFieldConfig } from '../type';
+import type {
+  _PiResolvedCommonViewFieldConfig,
+  KeyPath,
+} from '@piying/view-core';
 import { CVA, InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
 import { useSignalToRef } from '../util/signal-convert';
 import { PiyingWrapper } from './wrapper';
@@ -8,21 +11,25 @@ import {
   type ControlValueAccessor,
 } from '@piying/view-core';
 export interface PiyingFieldTemplateProps {
-  field: PiResolvedViewFieldConfig;
+  field: _PiResolvedCommonViewFieldConfig;
+  path?: KeyPath;
 }
 
 export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
-  const fieldInputs = useSignalToRef(props.field, (field) => ({
+  const keyPath = props.path;
+  const field = useMemo(() => {
+    return keyPath ? props.field.get(keyPath)! : props.field;
+  }, [props.field, keyPath]);
+
+  const fieldInputs = useSignalToRef(field, (field) => ({
     ...field.attributes(),
     ...field.inputs(),
     ...field.outputs(),
   }));
-  const renderConfig = useSignalToRef(props.field, (field) =>
-    field.renderConfig(),
-  );
-  const wrappers = useSignalToRef(props.field, (field) => field.wrappers());
-  const control = props.field.form.control;
-  const define = useSignalToRef(props.field, (field) => field.define?.());
+  const renderConfig = useSignalToRef(field, (field) => field.renderConfig());
+  const wrappers = useSignalToRef(field, (field) => field.wrappers());
+  const control = field.form.control;
+  const define = useSignalToRef(field, (field) => field.define?.());
   const ComponentType = define?.type;
   const isHidden = useMemo(() => {
     return !!renderConfig.hidden || !ComponentType;
@@ -51,10 +58,10 @@ export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
   }, [controlRef.current, control, injector]);
   return (
     <>
-      <PI_VIEW_FIELD_TOKEN value={props.field}>
+      <PI_VIEW_FIELD_TOKEN value={field}>
         {!isHidden ? (
           <PiyingWrapper wrappers={wrappers}>
-            {props.field.form.control ? (
+            {field.form.control ? (
               <ComponentType {...fieldControlInput}></ComponentType>
             ) : (
               <ComponentType {...fieldInputs}></ComponentType>

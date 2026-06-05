@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { useControlValueAccessor } from '@piying/view-svelte';
 
+	const props = $props();
 	const { cva, cvaa } = useControlValueAccessor();
 	export { cva };
 </script>
@@ -10,4 +11,5 @@
 	bind:value={() => cvaa.value, (v) => cvaa.valueChange(v)}
 	disabled={cvaa.disabled}
 	onblur={cvaa.touchedChange}
+	{...props}
 />
