@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as v from 'valibot';
-import type { ConvertOptions, PiResolvedCommonViewFieldConfig } from '@piying/view-core';
+import type { FieldConvertViewOptions, PiResolvedCommonViewFieldConfig } from '@piying/view-core';
 import { computed, inject, provide, shallowRef, watch } from 'vue';
 import {
   ChangeDetectionScheduler,
@@ -18,7 +18,7 @@ import { convertToField } from '../util/convert-wrapper';
 const inputs = defineProps<{
   schema: v.BaseSchema<any, any, any>;
   modelValue?: any;
-  options: ConvertOptions;
+  options: FieldConvertViewOptions;
 }>();
 
 const emit = defineEmits(['update:modelValue']);

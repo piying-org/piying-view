@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as v from 'valibot';
-	import type { ConvertOptions } from '@piying/view-core';
+	import type { FieldConvertViewOptions } from '@piying/view-core';
 	import {
 		ChangeDetectionScheduler,
 		ChangeDetectionSchedulerImpl,
@@ -19,7 +19,7 @@
 		schema: v.BaseSchema<any, any, any>;
 		model?: any;
 		modelChange?: (value: any) => void;
-		options: ConvertOptions;
+		options: FieldConvertViewOptions;
 	} = $props();
 	const maybeParentField = getContext<PI_VIEW_FIELD_TOKEN>(PI_VIEW_FIELD_TOKEN);
 	const rootInjector = $derived.by(() => {

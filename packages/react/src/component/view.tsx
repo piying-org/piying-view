@@ -9,7 +9,7 @@ import {
   type EffectRef,
 } from 'static-injector';
 import * as v from 'valibot';
-import { type ConvertOptions } from '@piying/view-core';
+import { type FieldConvertViewOptions } from '@piying/view-core';
 import { InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
 import { PiyingFieldTemplate } from './field-template';
 import { initListen } from '@piying/view-core';
@@ -20,7 +20,7 @@ export interface PiyingViewProps {
   schema: v.BaseSchema<any, any, any>;
   model?: any;
   modelChange?: (value: any) => void;
-  options: ConvertOptions;
+  options: FieldConvertViewOptions;
 }
 
 export function PiyingView(props: PiyingViewProps) {

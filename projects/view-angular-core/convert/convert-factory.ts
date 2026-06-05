@@ -6,48 +6,55 @@ import {
   Provider,
   signal,
 } from '@angular/core';
-import { CoreOptions } from './form-convert';
 import * as v from 'valibot';
-import { SetOptional, SetRequired } from '../util';
+import { SetOptional } from '../util';
 import {
   FormBuilderOptions,
   PI_CONTEXT_TOKEN,
   PI_FORM_BUILDER_OPTIONS_TOKEN,
   PI_VIEW_CONFIG_TOKEN,
 } from '../builder-base';
-import { convertCore } from '@piying/valibot-visit';
+import { BaseSchemaHandle, convertCore } from '@piying/valibot-visit';
 import {
   FindConfigToken,
   FindConfigFactory,
 } from '../builder-base/find-config';
-import {
-  AnyCoreSchemaHandle,
-  CoreSchemaHandle,
-} from './handle/core.schema-handle';
+import { CoreSchemaHandle } from './handle/core.schema-handle';
 import { FieldGroup } from '../field/field-group';
 
+import { ConvertOptions } from '@piying/valibot-visit';
+import { PiCommonConfig, FormBuilder } from '../builder-base';
+
+export type DefaultFieldConvertOptions<
+  Handle extends new (...args: any) => BaseSchemaHandle<any>,
+> = {
+  builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
+  handle?: Handle;
+};
+export type FieldConvertOptions = SetOptional<ConvertOptions, 'handle'> & {
+  fieldGlobalConfig?: PiCommonConfig;
+};
+export type FieldConvertViewOptions = FieldConvertOptions & {
+  injector: Injector;
+};
 export const PI_INPUT_OPTIONS_TOKEN = new InjectionToken<
-  () => SetOptional<CoreOptionsWithoutInjector, 'builder'>
+  () => FieldConvertOptions
 >('PI_INPUT_OPTIONS');
 export const PI_INPUT_SCHEMA_TOKEN = new InjectionToken<
   () => v.BaseSchema<any, any, any>
 >('PI_INPUT_SCHEMA');
-export type CoreOptionsWithoutInjector = SetOptional<CoreOptions, 'injector'>;
-export type ConvertFactoryOptions = SetOptional<
-  CoreOptionsWithoutInjector,
-  'builder'
->;
-export type ConvertOptions = SetOptional<ConvertFactoryOptions, 'handle'>;
 
 /** 创建 convertToField 函数的工厂 */
-export function createConvertToField(
-  defaultOptions: SetRequired<Partial<CoreOptions>, 'builder'>,
+export function createConvertToField<
+  Handle extends new (...args: any) => BaseSchemaHandle<any>,
+>(
+  defaultOptions: DefaultFieldConvertOptions<Handle>,
   defaultInjector?: Injector,
 ) {
   return <T extends v.BaseSchema<any, any, any>>(
     schema: () => T,
     parent?: Injector,
-    options?: () => ConvertFactoryOptions | undefined,
+    options?: () => FieldConvertOptions | undefined,
     providers?: Provider[],
   ) => {
     const parent2 = (parent ?? defaultInjector)!;
@@ -91,8 +98,7 @@ export function createConvertToField(
 
     return convertCore(
       schema(),
-      (item: AnyCoreSchemaHandle) => {
-        // todo
+      (item) => {
         injector.get(options2.builder).buildRoot({
           field: item,
           resolvedField$: buildOptions.resolvedField$,
@@ -101,7 +107,7 @@ export function createConvertToField(
       },
       {
         ...options2,
-        handle: options2?.handle ?? (CoreSchemaHandle as any),
+        handle: options2.handle ?? CoreSchemaHandle,
         additionalData: {
           defaultWrapperMetadataGroup: options2.fieldGlobalConfig?.wrappers,
           injector,

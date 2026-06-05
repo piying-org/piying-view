@@ -7,3 +7,5 @@ allowBuilds:
   less: true
   lmdb: true
   msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - '@piying/valibot-visit@1.3.14'
