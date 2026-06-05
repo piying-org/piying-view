@@ -20,7 +20,7 @@
       ],
     },
     "sourceMap": true,
-    "inlineSourceMap": true
+    "rootDir": "./"
   },
   "include": [
     "src/**/*.ts",

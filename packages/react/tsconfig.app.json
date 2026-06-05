@@ -30,7 +30,8 @@
         "../../dist/view-core"
       ],
     },
-    "sourceMap": true
+    "sourceMap": true,
+    "rootDir": "./"
   },
   "include": [
     "src"
