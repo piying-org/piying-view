@@ -1,33 +1,10 @@
-import {
-  AnyCoreSchemaHandle,
-  CoreSchemaHandle,
-} from './handle/core.schema-handle';
+import { CoreSchemaHandle } from './handle/core.schema-handle';
 
-import { convertCore, ConvertOptions } from '@piying/valibot-visit';
-import {
-  computed,
-  DestroyableInjector,
-  DestroyRef,
-  Injector,
-  signal,
-} from '@angular/core';
-import {
-  PI_FORM_BUILDER_OPTIONS_TOKEN,
-  PI_VIEW_CONFIG_TOKEN,
-  PiCommonConfig,
-  PiResolvedCommonViewFieldConfig,
-  FormBuilder,
-  FormBuilderOptions,
-  PI_CONTEXT_TOKEN,
-} from '../builder-base';
-import { FieldGroup } from '../field/field-group';
+import { ConvertOptions } from '@piying/valibot-visit';
+import { DestroyableInjector } from '@angular/core';
+import { PiCommonConfig, FormBuilder } from '../builder-base';
 import { SetOptional } from '../util';
-import {
-  FindConfigFactory,
-  FindConfigToken,
-} from '../builder-base/find-config';
-import { BaseMetadata } from 'valibot';
-import * as v from 'valibot';
+
 /** 转换参数 */
 export type CoreOptions = SetOptional<
   ConvertOptions<typeof CoreSchemaHandle<any, any>>,
@@ -37,67 +14,3 @@ export type CoreOptions = SetOptional<
   builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
   fieldGlobalConfig?: PiCommonConfig;
 };
-export function convert<
-  RESULT extends Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>,
->(obj: v.BaseSchema<any, any, any>, options: CoreOptions) {
-  const buildOptions: FormBuilderOptions<RESULT> = {
-    form$$: computed<FieldGroup>(
-      () => buildOptions.resolvedField$()?.form.control as any,
-    ),
-    resolvedField$: signal(undefined as any),
-    context: options.context,
-  };
-  const injector = Injector.create({
-    providers: [
-      {
-        provide: PI_FORM_BUILDER_OPTIONS_TOKEN,
-        useValue: buildOptions,
-      },
-      {
-        provide: PI_VIEW_CONFIG_TOKEN,
-        useValue: options.fieldGlobalConfig,
-      },
-      {
-        provide: PI_CONTEXT_TOKEN,
-        useValue: options.context,
-      },
-      { provide: FindConfigToken, useFactory: FindConfigFactory },
-      options.builder,
-    ],
-    parent: options.injector,
-  });
-  options.injector.get(DestroyRef).onDestroy(() => {
-    injector.destroy();
-  });
-  return convertCore(
-    obj,
-    (item: AnyCoreSchemaHandle) => {
-      // todo
-      injector.get(options.builder).buildRoot({
-        field: item,
-        resolvedField$: buildOptions.resolvedField$,
-      });
-      return buildOptions.resolvedField$();
-    },
-    {
-      ...options,
-      handle: options?.handle ?? (CoreSchemaHandle as any),
-      additionalData: {
-        defaultWrapperMetadataGroup: options.fieldGlobalConfig?.wrappers,
-        injector,
-      },
-      defaultMetadataActionsGroup: Object.keys(
-        options.fieldGlobalConfig?.types ?? {},
-      ).reduce(
-        (obj, item) => {
-          const { actions } = options.fieldGlobalConfig!.types![item];
-          if (actions) {
-            obj[item] = actions;
-          }
-          return obj;
-        },
-        {} as Record<string, BaseMetadata<any>[]>,
-      ),
-    },
-  );
-}

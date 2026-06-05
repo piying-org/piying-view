@@ -28,9 +28,7 @@ export class PiyingFieldOutletDirective {
   injector = inject(Injector);
   field$$ = computed(() => {
     const keyPath = this.keyPath();
-    return keyPath
-      ? this.fieldTemplate().get(keyPath)
-      : this.fieldTemplate()!;
+    return keyPath ? this.fieldTemplate().get(keyPath) : this.fieldTemplate()!;
   });
 
   constructor() {
