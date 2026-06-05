@@ -11,27 +11,29 @@ import { SetOptional, SetRequired } from '../util';
 import type { _PiResolvedCommonViewFieldConfig } from '../builder-base';
 
 export const PI_INPUT_OPTIONS_TOKEN = new InjectionToken<
-  Signal<SetOptional<CoreOptionsWithoutInjector, 'builder'>>
+  () => SetOptional<CoreOptionsWithoutInjector, 'builder'>
 >('PI_INPUT_OPTIONS');
 export const PI_INPUT_SCHEMA_TOKEN = new InjectionToken<
-  Signal<v.BaseSchema<any, any, any>>
+  () => v.BaseSchema<any, any, any>
 >('PI_INPUT_SCHEMA');
-export const PI_INPUT_MODEL_TOKEN = new InjectionToken<Signal<any>>(
+export const PI_INPUT_MODEL_TOKEN = new InjectionToken<() => any>(
   'PI_INPUT_MODEL',
 );
-type CoreOptionsWithoutInjector = Omit<CoreOptions, 'injector'>;
-
+export type CoreOptionsWithoutInjector = SetOptional<CoreOptions, 'injector'>;
+export type ConvertFactoryOptions = SetOptional<
+  CoreOptionsWithoutInjector,
+  'builder'
+>;
+export type ConvertOptions = SetOptional<ConvertFactoryOptions, 'handle'>;
 /** 创建 convertToField 函数的工厂 */
 export function createConvertToField(
   defaultOptions: SetRequired<Partial<CoreOptions>, 'builder'>,
 ) {
   return <T extends v.BaseSchema<any, any, any>>(
-    schema: Signal<T>,
+    schema: () => T,
     parent: Injector,
-    model?: Signal<v.InferInput<T>>,
-    options?: Signal<
-      SetOptional<CoreOptionsWithoutInjector, 'builder'> | undefined
-    >,
+    model?: () => v.InferInput<T>,
+    options?: () => ConvertFactoryOptions | undefined,
     providers?: Provider[],
   ) => {
     const injector = Injector.create({

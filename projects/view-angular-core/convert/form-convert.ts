@@ -28,6 +28,7 @@ import {
 } from '../builder-base/find-config';
 import { BaseMetadata } from 'valibot';
 import * as v from 'valibot';
+/** 转换参数 */
 export type CoreOptions = SetOptional<
   ConvertOptions<typeof CoreSchemaHandle<any, any>>,
   'handle'

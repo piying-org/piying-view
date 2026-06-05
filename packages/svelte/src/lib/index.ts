@@ -8,5 +8,6 @@ export * from './type';
 export * from './token';
 export * from './builder';
 export * from './svelte-schema';
+export * from './util/convert-wrapper.svelte';
 export * from './util/use-control-value-accessor.svelte';
 export * from './util/signal-convert.svelte';

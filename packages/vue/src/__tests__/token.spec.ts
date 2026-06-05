@@ -22,9 +22,12 @@ describe('token', () => {
       setComponent(Token),
       actions.outputs.patch({
         tokenChange: (event: any) => {
-          expect(event.options.value).ok;
-          expect(event.schema.value).ok;
+          expect(event.options).ok;
+          expect(event.schema).ok;
           expect(event.model).ok;
+          event.options()
+          event.schema()
+          event.model()
           check = true;
         },
       }),

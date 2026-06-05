@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as v from 'valibot';
-import { convert, type PiResolvedCommonViewFieldConfig } from '@piying/view-core';
+import { type ConvertOptions, type PiResolvedCommonViewFieldConfig } from '@piying/view-core';
 import { computed, inject, provide, shallowRef, watch } from 'vue';
 import {
   ChangeDetectionScheduler,
@@ -10,22 +10,15 @@ import {
   untracked,
   type EffectRef,
 } from 'static-injector';
-import { VueSchemaHandle } from '../vue-schema';
-import { VueFormBuilder } from '../builder';
-import {
-  InjectorToken,
-  PI_INPUT_MODEL_TOKEN,
-  PI_INPUT_OPTIONS_TOKEN,
-  PI_INPUT_SCHEMA_TOKEN,
-  PI_VIEW_FIELD_TOKEN,
-} from '../token';
+import { InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
 import FieldTemplate from './field-template.vue';
 import type { Injector, R3Injector } from 'static-injector';
 import { initListen } from '@piying/view-core';
+import { convertToField } from '../util/convert-wrapper.ts';
 const inputs = defineProps<{
-  schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
+  schema: v.BaseSchema<any, any, any>;
   modelValue?: any;
-  options: { injector?: Injector; [name: string]: any };
+  options: ConvertOptions;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
@@ -44,18 +37,6 @@ const rootInjector = computed(
     }),
 );
 provide(InjectorToken, rootInjector);
-provide(
-  PI_INPUT_OPTIONS_TOKEN,
-  computed(() => inputs.options as any),
-);
-provide(
-  PI_INPUT_SCHEMA_TOKEN,
-  computed(() => inputs.schema),
-);
-provide(
-  PI_INPUT_MODEL_TOKEN,
-  computed(() => inputs.modelValue),
-);
 
 const initResult =
   shallowRef<[Omit<PiResolvedCommonViewFieldConfig<any, any>, 'define'>, R3Injector]>();
@@ -67,12 +48,12 @@ watch(
       subInjector.destroy();
     });
 
-    const field = convert(inputs.schema as any, {
-      ...inputs.options,
-      handle: VueSchemaHandle as any,
-      builder: VueFormBuilder,
-      injector: subInjector,
-    });
+    const field = convertToField(
+      () => inputs.schema,
+      subInjector,
+      () => inputs.modelValue,
+      () => inputs.options,
+    );
     initResult.value = [field, subInjector] as const;
   },
   { immediate: true },

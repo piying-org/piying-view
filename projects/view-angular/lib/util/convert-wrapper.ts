@@ -1,13 +1,9 @@
-import { Injector, Signal } from '@angular/core';
 import {
   _PiResolvedCommonViewFieldConfig,
   createConvertToField,
 } from '@piying/view-angular-core';
 import { AngularFormBuilder } from '../builder';
 import { NgSchemaHandle } from '../schema/ng-schema';
-
-import { NgConvertOptions } from '../type/builder-type';
-import * as v from 'valibot';
 
 const DefaultConvertOptions = {
   builder: AngularFormBuilder,

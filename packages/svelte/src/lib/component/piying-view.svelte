@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as v from 'valibot';
-	import { convert } from '@piying/view-core';
+	import type { ConvertOptions } from '@piying/view-core';
 	import {
 		ChangeDetectionScheduler,
 		ChangeDetectionSchedulerImpl,
@@ -11,22 +11,15 @@
 	} from 'static-injector';
 	import type { Injector } from 'static-injector';
 	import { getContext, setContext } from 'svelte';
-	import {
-		InjectorToken,
-		PI_INPUT_MODEL_TOKEN,
-		PI_INPUT_OPTIONS_TOKEN,
-		PI_INPUT_SCHEMA_TOKEN,
-		PI_VIEW_FIELD_TOKEN
-	} from '../token';
-	import { SvelteSchemaHandle } from '../svelte-schema';
-	import { SvelteFormBuilder } from '../builder';
+	import { InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
 	import FieldTemplate from './field-template.svelte';
 	import { initListen } from '@piying/view-core';
+	import { convertToField } from '../util/convert-wrapper.svelte';
 	let inputs: {
-		schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
+		schema: v.BaseSchema<any, any, any>;
 		model?: any;
 		modelChange?: (value: any) => void;
-		options: { injector?: Injector; builder?: any; [name: string]: any };
+		options: ConvertOptions;
 	} = $props();
 	const maybeParentField = getContext<PI_VIEW_FIELD_TOKEN>(PI_VIEW_FIELD_TOKEN);
 	const rootInjector = $derived.by(() => {
@@ -44,10 +37,8 @@
 		);
 	});
 
-	setContext(InjectorToken, () => rootInjector);
-	setContext(PI_INPUT_OPTIONS_TOKEN, () => inputs.options);
-	setContext(PI_INPUT_SCHEMA_TOKEN, () => inputs.schema);
-	setContext(PI_INPUT_MODEL_TOKEN, () => inputs.model);
+	setContext(InjectorToken, () => rootInjector!);
+
 	let injectorDispose: (() => any) | undefined;
 
 	const [field, subInjector] = $derived.by(() => {
@@ -57,12 +48,12 @@
 			subInjector.destroy();
 			injectorDispose = undefined;
 		};
-		const field = convert(inputs.schema as any, {
-			...inputs.options,
-			handle: SvelteSchemaHandle as any,
-			builder: SvelteFormBuilder,
-			injector: subInjector
-		});
+		const field = convertToField(
+			() => inputs.schema,
+			subInjector,
+			() => inputs.model,
+			() => inputs.options
+		);
 		return [field, subInjector];
 	});
 	$effect.pre(() => {
