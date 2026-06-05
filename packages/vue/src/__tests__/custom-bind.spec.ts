@@ -3,9 +3,7 @@ import { describe, it, expect } from 'vitest';
 import * as v from 'valibot';
 import { createComponent } from './util/create-component.ts';
 import { markRaw, nextTick, shallowRef } from 'vue';
-import InputsTest from './component/inputs-test.vue';
-import { rawConfig } from '../action/index.ts';
-import { actions, NFCSchema } from '@piying/view-core';
+import { actions } from '@piying/view-core';
 import { getField } from './util/actions.ts';
 import type { PiResolvedViewFieldConfig } from '../type/group.ts';
 import { delay } from './util/delay.ts';
@@ -16,7 +14,7 @@ import HybridGroup from './component/hybrid-group.vue';
 
 describe('custom-bind', () => {
   it('直接绑定', async () => {
-    let field = convertToField(() => v.string());
+    const field = convertToField(() => v.string());
     const instance = mount(InputCustomBind, {
       props: {
         field: markRaw(field),
@@ -40,7 +38,7 @@ describe('custom-bind', () => {
     const schema = v.pipe(
       v.object({
         k1: v.pipe(v.string(), getField(field1$)),
-        k2: v.pipe(v.string(), actions.class.top('mode2'),getField(field2$)),
+        k2: v.pipe(v.string(), actions.class.top('mode2'), getField(field2$)),
       }),
     );
     const value = shallowRef();
@@ -53,18 +51,18 @@ describe('custom-bind', () => {
         },
       },
     });
-    let list = instance.findAll('input');
+    const list = instance.findAll('input');
     expect(list.length).eq(2);
     const el1 = instance.find('.mode1') as DOMWrapper<HTMLInputElement>;
     el1.setValue('inputValue1');
     expect(el1.element.value).eq('inputValue1');
-    let field1 = await field1$.promise;
+    const field1 = await field1$.promise;
     expect(field1.form.control!.value).eq('inputValue1');
     const el2 = instance.find('.mode2') as DOMWrapper<HTMLInputElement>;
     el2.setValue('inputValue2');
     expect(el2.element.value).eq('inputValue2');
-    let field2 = await field2$.promise;
+    const field2 = await field2$.promise;
     expect(field2.form.control!.value).eq('inputValue2');
-    expect(instance.find('.mode1-wrapper')).ok
+    expect(instance.find('.mode1-wrapper')).ok;
   });
 });

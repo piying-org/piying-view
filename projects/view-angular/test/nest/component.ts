@@ -6,7 +6,7 @@ import {
   input,
 } from '@angular/core';
 
-import {  PiyingView } from '@piying/view-angular';
+import { PiyingView } from '@piying/view-angular';
 import { Nest1Service } from './nest1.service';
 import { PI_INPUT_OPTIONS_TOKEN } from '@piying/view-angular-core';
 

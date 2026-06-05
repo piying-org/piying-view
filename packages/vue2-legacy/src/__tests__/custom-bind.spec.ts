@@ -8,13 +8,13 @@ import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { delay } from './util/delay';
 import { convertToField } from '../util/convert-wrapper';
-import { Wrapper, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import InputCustomBind from './component/input-custom-bind.vue';
 import HybridGroup from './component/hybrid-group.vue';
 import Vue2 from 'vue';
 describe('custom-bind', () => {
   it('直接绑定', async () => {
-    let field = convertToField(() => v.string());
+    const field = convertToField(() => v.string());
     const TestContainer = Vue2.component('TestContainer', {
       props: {},
       render(h, hack) {
@@ -61,17 +61,17 @@ describe('custom-bind', () => {
         },
       },
     });
-    let list = instance.findAll('input');
+    const list = instance.findAll('input');
     expect(list.length).eq(2);
     const el1 = instance.find<HTMLInputElement>('.mode1');
     el1.setValue('inputValue1');
     expect(el1.element.value).eq('inputValue1');
-    let field1 = await field1$.promise;
+    const field1 = await field1$.promise;
     expect(field1.form.control!.value).eq('inputValue1');
     const el2 = instance.find<HTMLInputElement>('.mode2');
     el2.setValue('inputValue2');
     expect(el2.element.value).eq('inputValue2');
-    let field2 = await field2$.promise;
+    const field2 = await field2$.promise;
     expect(field2.form.control!.value).eq('inputValue2');
     expect(instance.find('.mode1-wrapper')).ok;
   });

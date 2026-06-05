@@ -1,7 +1,11 @@
-import { type _PiResolvedCommonViewFieldConfig, createConvertToField } from '@piying/view-core';
+import { createConvertToField } from '@piying/view-core';
 import { ReactFormBuilder } from '../builder';
 import { ReactSchemaHandle } from '../schema-handle';
-import { ChangeDetectionScheduler, ChangeDetectionSchedulerImpl, createRootInjector } from 'static-injector';
+import {
+  ChangeDetectionScheduler,
+  ChangeDetectionSchedulerImpl,
+  createRootInjector,
+} from 'static-injector';
 
 const DefaultConvertOptions = {
   builder: ReactFormBuilder,

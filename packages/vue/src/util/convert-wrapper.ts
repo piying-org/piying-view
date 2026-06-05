@@ -1,7 +1,11 @@
-import { type _PiResolvedCommonViewFieldConfig, createConvertToField } from '@piying/view-core';
+import { createConvertToField } from '@piying/view-core';
 import { VueFormBuilder } from '../builder';
 import { VueSchemaHandle } from '../vue-schema';
-import { ChangeDetectionScheduler, ChangeDetectionSchedulerImpl, createRootInjector } from 'static-injector';
+import {
+  ChangeDetectionScheduler,
+  ChangeDetectionSchedulerImpl,
+  createRootInjector,
+} from 'static-injector';
 
 const DefaultConvertOptions = {
   builder: VueFormBuilder,

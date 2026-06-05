@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import * as v from 'valibot';
 import { createComponent } from './util/create-component';
-import { actions, NFCSchema } from '@piying/view-core';
+import { actions } from '@piying/view-core';
 import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '../src/type/group';
 import { delay } from './util/delay';
@@ -14,7 +14,7 @@ import { setInputValue } from './util/event';
 
 describe('custom-bind', () => {
   it('直接绑定', async () => {
-    let field = convertToField(() => v.string());
+    const field = convertToField(() => v.string());
     const { container } = render(() => <InputCustomBind field={field} />);
     await delay();
     const inputEl = container.querySelector('input') as HTMLInputElement;
@@ -57,12 +57,12 @@ describe('custom-bind', () => {
     const el1 = instance.container.querySelector<HTMLInputElement>('.mode1')!;
     fireEvent.change(el1, { target: { value: 'inputValue1' } });
     await delay();
-    let field1 = await field1$.promise;
+    const field1 = await field1$.promise;
     expect(field1.form.control!.value).eq('inputValue1');
     const el2 = instance.container.querySelector<HTMLInputElement>('.mode2')!;
     setInputValue(el2, 'inputValue2');
     await delay();
-    let field2 = await field2$.promise;
+    const field2 = await field2$.promise;
     expect(field2.form.control!.value).eq('inputValue2');
 
     expect(instance.container.querySelector('.mode1-wrapper')).toBeTruthy();

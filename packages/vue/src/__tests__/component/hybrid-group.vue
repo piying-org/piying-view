@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue';
-import { PI_VIEW_FIELD_TOKEN, signalToRef } from '../../index';
+import { PI_VIEW_FIELD_TOKEN } from '../../index';
 import { Field, PiyingFieldTemplate } from '@piying/view-vue';
 
 const field = inject(PI_VIEW_FIELD_TOKEN)!;

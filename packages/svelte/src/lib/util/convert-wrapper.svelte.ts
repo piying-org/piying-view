@@ -1,11 +1,15 @@
-import { type _PiResolvedCommonViewFieldConfig, createConvertToField } from '@piying/view-core';
+import { createConvertToField } from '@piying/view-core';
 import { SvelteFormBuilder } from '../builder';
 import { SvelteSchemaHandle } from '../svelte-schema';
-import { ChangeDetectionScheduler, ChangeDetectionSchedulerImpl, createRootInjector } from 'static-injector';
+import {
+	ChangeDetectionScheduler,
+	ChangeDetectionSchedulerImpl,
+	createRootInjector
+} from 'static-injector';
 
 const DefaultConvertOptions = {
 	builder: SvelteFormBuilder,
-	handle: SvelteSchemaHandle,
+	handle: SvelteSchemaHandle
 };
 
 /**
@@ -17,8 +21,8 @@ export const convertToField = createConvertToField(
 		providers: [
 			{
 				provide: ChangeDetectionScheduler,
-				useClass: ChangeDetectionSchedulerImpl,
-			},
-		],
-	}),
+				useClass: ChangeDetectionSchedulerImpl
+			}
+		]
+	})
 );

@@ -1,4 +1,3 @@
-import type { Injector } from 'static-injector';
 import type { PiResolvedViewFieldConfig } from './type/group';
 
 export const InjectorToken = Symbol();

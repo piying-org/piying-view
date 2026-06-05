@@ -18,21 +18,16 @@ import { NgComponentOutlet } from './hook/ng_component_outlet';
 import {
   PiViewConfig,
   PiResolvedViewFieldConfig,
-  PI_INPUT_OPTIONS_TOKEN,
-  PI_INPUT_SCHEMA_TOKEN,
   PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
 } from './type';
 
 import { NgTemplateOutlet } from '@angular/common';
 import {
-  convert,
   FieldArray,
   FieldControl,
   FieldGroup,
   initListen,
 } from '@piying/view-angular-core';
-import { AngularFormBuilder } from './builder';
-import { NgSchemaHandle } from './schema/ng-schema';
 import { NgConvertOptions } from './type/builder-type';
 import type { SetOptional } from '@piying/view-angular-core';
 import * as v from 'valibot';
@@ -103,11 +98,7 @@ export class PiyingView implements OnChanges {
       parent: this.#injector,
     });
     this.#builderInjector = envInjector;
-    const result = convertToField(
-      this.schema,
-      envInjector,
-      this.options,
-    );
+    const result = convertToField(this.schema, envInjector, this.options);
     this.resolvedField$.set(result);
     return result;
   }

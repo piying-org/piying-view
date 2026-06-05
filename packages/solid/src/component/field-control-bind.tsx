@@ -43,11 +43,7 @@ export function Field(props: FieldControlBindProps) {
     if (!isFieldControl(control)) {
       throw new Error(`🏷️ fieldControl❗`);
     }
-    disposeRef = createViewControlLink(
-      () => control,
-      cva,
-      field.injector,
-    );
+    disposeRef = createViewControlLink(() => control, cva, field.injector);
   });
 
   onCleanup(() => {

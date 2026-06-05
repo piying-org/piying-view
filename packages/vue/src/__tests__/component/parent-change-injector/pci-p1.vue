@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { InjectorToken, PI_VIEW_FIELD_TOKEN, PiyingView } from '@piying/view-vue';
+import { PI_VIEW_FIELD_TOKEN, PiyingView } from '@piying/view-vue';
 import { computed, inject } from 'vue';
 import * as v from 'valibot';
 import { actions, NFCSchema, PI_INPUT_OPTIONS_TOKEN, setComponent } from '@piying/view-core';

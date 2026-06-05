@@ -1,10 +1,4 @@
-import {
-  DestroyRef,
-  InjectionToken,
-  Injector,
-  Provider,
-  Signal,
-} from '@angular/core';
+import { DestroyRef, InjectionToken, Injector, Provider } from '@angular/core';
 import { convert, CoreOptions } from './form-convert';
 import * as v from 'valibot';
 import { SetOptional, SetRequired } from '../util';
@@ -33,7 +27,7 @@ export function createConvertToField(
     options?: () => ConvertFactoryOptions | undefined,
     providers?: Provider[],
   ) => {
-    let parent2 = (parent ?? defaultInjector)!;
+    const parent2 = (parent ?? defaultInjector)!;
     const injector = Injector.create({
       providers: [
         { provide: PI_INPUT_OPTIONS_TOKEN, useValue: options },

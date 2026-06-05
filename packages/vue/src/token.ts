@@ -1,5 +1,5 @@
 import type { Injector } from 'static-injector';
 import type { ComputedRef, InjectionKey } from 'vue';
-import type { PiResolvedViewFieldConfig, PiViewConfig } from './type/group';
+import type { PiResolvedViewFieldConfig } from './type/group';
 export const InjectorToken: InjectionKey<ComputedRef<Injector>> = Symbol();
 export const PI_VIEW_FIELD_TOKEN: InjectionKey<ComputedRef<PiResolvedViewFieldConfig>> = Symbol();

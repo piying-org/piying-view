@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  PI_INPUT_OPTIONS_TOKEN,
-  PI_INPUT_SCHEMA_TOKEN,
-} from '@piying/view-core';
+import { PI_INPUT_OPTIONS_TOKEN, PI_INPUT_SCHEMA_TOKEN } from '@piying/view-core';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-vue2-legacy';
 import { inject } from 'vue';
 

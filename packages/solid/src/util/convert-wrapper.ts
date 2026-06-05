@@ -1,7 +1,4 @@
-import {
-  type _PiResolvedCommonViewFieldConfig,
-  createConvertToField,
-} from '@piying/view-core';
+import { createConvertToField } from '@piying/view-core';
 import { SolidFormBuilder } from '../builder';
 import { SolidSchemaHandle } from '../schema-handle';
 import {

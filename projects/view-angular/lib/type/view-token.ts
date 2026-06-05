@@ -1,11 +1,6 @@
 /** component */
 
-import {
-  InjectionToken,
-  Signal,
-  EventEmitter,
-  TemplateRef,
-} from '@angular/core';
+import { InjectionToken, EventEmitter, TemplateRef } from '@angular/core';
 import { DynamicComponentConfig } from './component';
 
 import { PI_VIEW_FIELD_TOKEN as PVFT } from '@piying/view-angular-core';

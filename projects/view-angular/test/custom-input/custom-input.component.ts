@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BaseControl } from '../../lib/component/form/control.base.component';
 
@@ -7,7 +7,11 @@ import { BaseControl } from '../../lib/component/form/control.base.component';
   standalone: true,
   imports: [FormsModule],
   providers: [
-    { provide: NG_VALUE_ACCESSOR, multi: true, useExisting: CustomInputComponent },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: CustomInputComponent,
+    },
   ],
   template: ``,
 })

@@ -8,8 +8,6 @@ import {
 import { createViewControlLink, FieldControl } from '@piying/view-angular-core';
 import { InteropNgControl } from './interop_ng_control';
 
-
-
 @Directive({})
 export class FieldControlBase implements OnDestroy {
   fieldControl$$!: Signal<FieldControl>;

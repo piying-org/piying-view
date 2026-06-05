@@ -2,7 +2,7 @@
 import type { _PiResolvedCommonViewFieldConfig } from '@piying/view-core';
 import { Field } from '@piying/view-vue';
 
-let props = defineProps<{ field: _PiResolvedCommonViewFieldConfig }>();
+const props = defineProps<{ field: _PiResolvedCommonViewFieldConfig }>();
 </script>
 
 <template>

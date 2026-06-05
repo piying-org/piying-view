@@ -1,7 +1,4 @@
-import {
-  _PiResolvedCommonViewFieldConfig,
-  createConvertToField,
-} from '@piying/view-angular-core';
+import { createConvertToField } from '@piying/view-angular-core';
 import { AngularFormBuilder } from '../builder';
 import { NgSchemaHandle } from '../schema/ng-schema';
 

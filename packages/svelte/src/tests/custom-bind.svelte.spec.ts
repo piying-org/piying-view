@@ -7,14 +7,14 @@ import { getField } from './util/actions';
 import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
 import { delay } from './util/delay';
 import { convertToField } from '@piying/view-svelte';
-import { render, fireEvent } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import InputCustomBind from './component/input-custom-bind.svelte';
 import HybridGroup from './component/hybrid-group.svelte';
 import { setInputValue } from './util/event';
 
 describe('custom-bind', () => {
 	it('直接绑定', async () => {
-		let field = convertToField(() => v.string());
+		const field = convertToField(() => v.string());
 		const { container } = render(InputCustomBind, {
 			props: { field }
 		});
@@ -53,13 +53,13 @@ describe('custom-bind', () => {
 		const el1 = instance.container.querySelector<HTMLInputElement>('.mode1')!;
 		setInputValue(el1, 'inputValue1');
 		await delay();
-		let field1 = await field1$.promise;
+		const field1 = await field1$.promise;
 
 		expect(field1.form.control!.value).eq('inputValue1');
 		const el2 = instance.container.querySelector<HTMLInputElement>('.mode2')!;
 		setInputValue(el2, 'inputValue2');
 		await delay();
-		let field2 = await field2$.promise;
+		const field2 = await field2$.promise;
 		expect(field2.form.control!.value).eq('inputValue2');
 
 		expect(instance.container.querySelector('.mode1-wrapper')).toBeTruthy();

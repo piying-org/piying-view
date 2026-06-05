@@ -2,9 +2,7 @@ import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { CustomBindComponent } from './component';
 import { provideZonelessChangeDetection } from '@angular/core';
 import * as v from 'valibot';
-import { actions } from '@piying/view-angular-core';
 import { htmlInput } from '../util/input';
-import { skip } from 'rxjs';
 import { getField } from '@piying/view-angular-core/test';
 import { PiResolvedViewFieldConfig } from '../../lib/type';
 describe('Group1Component', () => {
@@ -32,8 +30,8 @@ describe('Group1Component', () => {
       v.pipe(v.object({ k1: v.string() }), getField(field2$)),
     );
     fixture.detectChanges();
-    let field1 = await field1$.promise;
-    let field2 = await field2$.promise;
+    const field1 = await field1$.promise;
+    const field2 = await field2$.promise;
     expect(instance).toBeTruthy();
     const mode1Input = fixture.nativeElement.querySelector('.mode1');
     expect(mode1Input).toBeTruthy();
