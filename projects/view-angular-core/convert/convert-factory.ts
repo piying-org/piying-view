@@ -16,9 +16,6 @@ export const PI_INPUT_OPTIONS_TOKEN = new InjectionToken<
 export const PI_INPUT_SCHEMA_TOKEN = new InjectionToken<
   () => v.BaseSchema<any, any, any>
 >('PI_INPUT_SCHEMA');
-export const PI_INPUT_MODEL_TOKEN = new InjectionToken<() => any>(
-  'PI_INPUT_MODEL',
-);
 export type CoreOptionsWithoutInjector = SetOptional<CoreOptions, 'injector'>;
 export type ConvertFactoryOptions = SetOptional<
   CoreOptionsWithoutInjector,
@@ -32,7 +29,6 @@ export function createConvertToField(
   return <T extends v.BaseSchema<any, any, any>>(
     schema: () => T,
     parent: Injector,
-    model?: () => v.InferInput<T>,
     options?: () => ConvertFactoryOptions | undefined,
     providers?: Provider[],
   ) => {
@@ -40,7 +36,6 @@ export function createConvertToField(
       providers: [
         { provide: PI_INPUT_OPTIONS_TOKEN, useValue: options },
         { provide: PI_INPUT_SCHEMA_TOKEN, useValue: schema },
-        { provide: PI_INPUT_MODEL_TOKEN, useValue: model },
         ...(providers ?? []),
       ],
       parent,

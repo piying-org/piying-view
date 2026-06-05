@@ -20,7 +20,6 @@ import {
   PiResolvedViewFieldConfig,
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
-  PI_INPUT_MODEL_TOKEN,
   PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
 } from './type';
 
@@ -107,7 +106,6 @@ export class PiyingView implements OnChanges {
     const result = convertToField(
       this.schema,
       envInjector,
-      this.model,
       this.options,
     );
     this.resolvedField$.set(result);

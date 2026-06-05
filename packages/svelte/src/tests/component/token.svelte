@@ -1,9 +1,5 @@
 <script lang="ts">
-	import {
-		PI_INPUT_MODEL_TOKEN,
-		PI_INPUT_OPTIONS_TOKEN,
-		PI_INPUT_SCHEMA_TOKEN
-	} from '@piying/view-core';
+	import { PI_INPUT_OPTIONS_TOKEN, PI_INPUT_SCHEMA_TOKEN } from '@piying/view-core';
 	import { getContext } from 'svelte';
 	import { PI_VIEW_FIELD_TOKEN } from '@piying/view-svelte';
 
@@ -13,8 +9,7 @@
 
 	dProps.tokenChange({
 		options: field().injector.get(PI_INPUT_OPTIONS_TOKEN),
-		schema: field().injector.get(PI_INPUT_SCHEMA_TOKEN),
-		model: field().injector.get(PI_INPUT_MODEL_TOKEN)
+		schema: field().injector.get(PI_INPUT_SCHEMA_TOKEN)
 	});
 </script>
 

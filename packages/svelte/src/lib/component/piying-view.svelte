@@ -51,7 +51,6 @@
 		const field = convertToField(
 			() => inputs.schema,
 			subInjector,
-			() => inputs.model,
 			() => inputs.options
 		);
 		return [field, subInjector];

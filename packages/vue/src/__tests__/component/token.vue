@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  PI_INPUT_MODEL_TOKEN,
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
 } from '@piying/view-core';
@@ -12,7 +11,6 @@ const field = inject(PI_VIEW_FIELD_TOKEN)!;
 emit('tokenChange', {
   options: field.value.injector.get(PI_INPUT_OPTIONS_TOKEN),
   schema: field.value.injector.get(PI_INPUT_SCHEMA_TOKEN),
-  model: field.value.injector.get(PI_INPUT_MODEL_TOKEN),
 });
 </script>
 

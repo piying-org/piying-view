@@ -56,7 +56,6 @@ export function PiyingView(props: PiyingViewProps) {
     const field = convertToField(
       () => props.schema,
       subInjector,
-      () => props.model,
       () => props.options,
     );
     return [field, subInjector] as const;

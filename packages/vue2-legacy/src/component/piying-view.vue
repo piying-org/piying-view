@@ -51,7 +51,6 @@ watch(
     const field = convertToField(
       () => inputs.schema,
       subInjector,
-      () => inputs.modelValue,
       () => inputs.options,
     );
     initResult.value = [field, subInjector] as const;
