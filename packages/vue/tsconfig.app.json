@@ -13,7 +13,8 @@
         "../../dist/view-core"
       ],
     },
-    "sourceMap": true
+    "sourceMap": true,
+    "rootDir": "./"
   },
   "files": [
     "./src/index.ts"

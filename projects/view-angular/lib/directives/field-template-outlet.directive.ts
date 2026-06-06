@@ -16,11 +16,11 @@ import {
 import { KeyPath } from '@piying/view-angular-core';
 
 @Directive({
-  selector: '[piyingFieldOutlet]',
+  selector: '[fieldTemplate]',
   standalone: true,
 })
 export class PiyingFieldOutletDirective {
-  readonly piyingFieldOutlet = input.required<PiResolvedViewFieldConfig>();
+  readonly fieldTemplate = input.required<PiResolvedViewFieldConfig>();
   readonly keyPath = input<KeyPath>();
   readonly #viewContainerRef = inject(ViewContainerRef);
   #fieldTemplateRef = inject(PI_VIEW_FIELD_TEMPLATE_REF_TOKEN);
@@ -28,9 +28,7 @@ export class PiyingFieldOutletDirective {
   injector = inject(Injector);
   field$$ = computed(() => {
     const keyPath = this.keyPath();
-    return keyPath
-      ? this.piyingFieldOutlet().get(keyPath)
-      : this.piyingFieldOutlet()!;
+    return keyPath ? this.fieldTemplate().get(keyPath) : this.fieldTemplate()!;
   });
 
   constructor() {

@@ -53,7 +53,6 @@ describe('inject', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const output1 = await output1$.promise;
-    expect(output1.model).toEqual(undefined);
     expect(output1.schema).toBe(define);
     expect(output1.options).toBeTruthy();
   });
@@ -82,7 +81,6 @@ describe('inject', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const output1 = await output1$.promise;
-    expect(output1.model).toEqual(undefined);
     expect(output1.schema).toBe(define);
     expect(output1.options).toBeTruthy();
   });

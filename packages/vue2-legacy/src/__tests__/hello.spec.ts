@@ -13,7 +13,7 @@ describe('hello', () => {
     const schema = v.string();
     const value = shallowRef('init');
     const { instance } = await createComponent(schema, value);
-    const inputEl = instance.find('input');
+    const inputEl = instance.find<HTMLInputElement>('input');
     expect(inputEl.element.value).eq('init');
     inputEl.setValue('123');
     expect(inputEl.element.value).eq('123');
@@ -25,7 +25,7 @@ describe('hello', () => {
     const schema = v.pipe(v.string(), setComponent('dynamic'));
     const value = shallowRef('init');
     const { instance } = await createComponent(schema, value);
-    const inputEl = instance.find('input');
+    const inputEl = instance.find<HTMLInputElement>('input');
     expect(inputEl.element.value).eq('init');
     inputEl.setValue('123');
     expect(inputEl.element.value).eq('123');
@@ -39,7 +39,7 @@ describe('hello', () => {
     });
     const value = shallowRef({ k1: 'init' });
     const { instance } = await createComponent(schema, value);
-    const inputEl = instance.find('input');
+    const inputEl = instance.find<HTMLInputElement>('input');
     expect(inputEl.element.value).eq('init');
     inputEl.setValue('123');
     expect(inputEl.element.value).eq('123');
@@ -53,7 +53,7 @@ describe('hello', () => {
     });
     const value = shallowRef({ o1: { k1: 'init' } });
     const { instance } = await createComponent(schema, value);
-    const inputEl = instance.find('input');
+    const inputEl = instance.find<HTMLInputElement>('input');
     expect(inputEl.element.value).eq('init');
     inputEl.setValue('123');
     expect(inputEl.element.value).eq('123');
@@ -65,7 +65,7 @@ describe('hello', () => {
     const schema = v.array(v.string());
     const value = shallowRef(['init']);
     const { instance } = await createComponent(schema, value);
-    const inputEl = instance.find('input');
+    const inputEl = instance.find<HTMLInputElement>('input');
     expect(inputEl.element.value).eq('init');
     inputEl.setValue('123');
     expect(inputEl.element.value).eq('123');
@@ -77,7 +77,7 @@ describe('hello', () => {
     const schema = v.boolean();
     const value = shallowRef(true);
     const { instance } = await createComponent(schema, value);
-    const inputEl = instance.find('input');
+    const inputEl = instance.find<HTMLInputElement>('input');
     expect(inputEl.element.checked).eq(true);
     inputEl.trigger('click');
     inputEl.trigger('change');
@@ -90,7 +90,7 @@ describe('hello', () => {
     const schema = v.picklist(['v1', 'v2']);
     const value = shallowRef('v1');
     const { instance } = await createComponent(schema, value);
-    const el = instance.find('select');
+    const el = instance.find<HTMLSelectElement>('select');
     expect(el.element.value).eq('v1');
     el.setValue('v2');
     expect(el.element.value).eq('v2');
@@ -102,8 +102,8 @@ describe('hello', () => {
     const schema = v.pipe(v.picklist(['v1', 'v2']), setComponent('radio'));
     const value = shallowRef('v1');
     const { instance } = await createComponent(schema, value);
-    const r1El = instance.find('.r1');
-    const r2El = instance.find('.r2');
+    const r1El = instance.find<HTMLInputElement>('.r1');
+    const r2El = instance.find<HTMLInputElement>('.r2');
     expect(r1El.element.checked).eq(true);
     r2El.trigger('click');
     r2El.trigger('change');

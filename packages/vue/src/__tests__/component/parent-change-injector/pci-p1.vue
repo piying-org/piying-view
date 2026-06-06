@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { PI_INPUT_OPTIONS_TOKEN, PiyingView } from '@piying/view-vue';
+import { PI_VIEW_FIELD_TOKEN, PiyingView } from '@piying/view-vue';
 import { computed, inject } from 'vue';
 import * as v from 'valibot';
-import { actions, NFCSchema, setComponent } from '@piying/view-core';
+import { actions, NFCSchema, PI_INPUT_OPTIONS_TOKEN, setComponent } from '@piying/view-core';
 import PciP2 from './pci-p2.vue';
 const inputs = defineProps<{
   inputs: any;
 }>();
-const parentPyOptions$$ = inject(PI_INPUT_OPTIONS_TOKEN)!;
+const field = inject(PI_VIEW_FIELD_TOKEN)!;
+const parentPyOptions$$ = field.value.injector.get(PI_INPUT_OPTIONS_TOKEN)!;
 
 const options = {
-  ...parentPyOptions$$.value,
+  ...parentPyOptions$$(),
   injector: undefined,
 };
 

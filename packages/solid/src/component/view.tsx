@@ -8,25 +8,21 @@ import {
   type EffectRef,
 } from 'static-injector';
 import * as v from 'valibot';
-import {
-  InjectorToken,
-  PI_INPUT_MODEL_TOKEN,
-  PI_INPUT_OPTIONS_TOKEN,
-  PI_INPUT_SCHEMA_TOKEN,
-  PI_VIEW_FIELD_TOKEN,
-} from '../token';
+import { type FieldConvertViewOptions } from '@piying/view-core';
+import { InjectorToken, PI_VIEW_FIELD_TOKEN } from '../token';
 import { PiyingFieldTemplate } from './field-template';
-import { convert, initListen } from '@piying/view-core';
-import { SolidSchemaHandle } from '../schema-handle';
-import { SolidFormBuilder } from '../builder';
+import { initListen } from '@piying/view-core';
+import { convertToField } from '../util/convert-wrapper';
 import { createMemo, onCleanup, useContext } from 'solid-js';
 import { useEffectSync } from '../util';
+
 export interface PiyingViewProps {
-  schema: v.BaseSchema<any, any, any> | v.SchemaWithPipe<any>;
+  schema: v.BaseSchema<any, any, any>;
   model?: any;
   modelChange?: (value: any) => void;
-  options: { injector?: Injector; builder?: any; [name: string]: any };
+  options: FieldConvertViewOptions;
 }
+
 export function PiyingView(props: PiyingViewProps) {
   const maybeParentField = useContext(PI_VIEW_FIELD_TOKEN);
 
@@ -48,6 +44,7 @@ export function PiyingView(props: PiyingViewProps) {
   let injectorDispose: (() => any) | undefined;
 
   const initResult = createMemo(() => {
+    injectorDispose?.();
     const subInjector = createInjector({
       providers: [],
       parent: rootInjector(),
@@ -56,12 +53,11 @@ export function PiyingView(props: PiyingViewProps) {
       subInjector.destroy();
       injectorDispose = undefined;
     };
-    const field = convert(props.schema as any, {
-      ...props.options,
-      handle: SolidSchemaHandle as any,
-      builder: SolidFormBuilder,
-      injector: subInjector,
-    });
+    const field = convertToField(
+      () => props.schema,
+      subInjector,
+      () => props.options,
+    );
     return [field, subInjector] as const;
   });
 
@@ -97,15 +93,9 @@ export function PiyingView(props: PiyingViewProps) {
 
   return (
     <>
-      <PI_INPUT_OPTIONS_TOKEN.Provider value={props.options}>
-        <PI_INPUT_SCHEMA_TOKEN.Provider value={props.schema}>
-          <PI_INPUT_MODEL_TOKEN.Provider value={props.model}>
-            <InjectorToken.Provider value={rootInjector()}>
-              <PiyingFieldTemplate field={field()}></PiyingFieldTemplate>
-            </InjectorToken.Provider>
-          </PI_INPUT_MODEL_TOKEN.Provider>
-        </PI_INPUT_SCHEMA_TOKEN.Provider>
-      </PI_INPUT_OPTIONS_TOKEN.Provider>
+      <InjectorToken.Provider value={rootInjector()}>
+        <PiyingFieldTemplate field={field()}></PiyingFieldTemplate>
+      </InjectorToken.Provider>
     </>
   );
 }

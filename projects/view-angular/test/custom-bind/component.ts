@@ -5,6 +5,7 @@ import {
   inject,
   Injector,
   input,
+  signal,
   untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -27,14 +28,14 @@ export class CustomBindComponent {
   bind1 = computed(() => {
     const schema = this.schema1();
     return untracked(() =>
-      schema ? convertToField(schema, this.injector) : undefined,
+      schema ? convertToField(signal(schema), this.injector) : undefined,
     );
   });
   schema2 = input<v.BaseSchema<any, any, any>>();
   bind2 = computed(() => {
     const schema = this.schema2();
     return untracked(() =>
-      schema ? convertToField(schema, this.injector) : undefined,
+      schema ? convertToField(signal(schema), this.injector) : undefined,
     );
   });
 }

@@ -1,4 +1,9 @@
-<input type="text" class="mode1" [formControl]="field$$()!" [keyPath]="['k1']" />
+<input
+  type="text"
+  class="mode1"
+  [formControl]="field$$()!"
+  [keyPath]="['k1']"
+/>
 <div class="k2-wrapper">
-  <ng-container [piyingFieldOutlet]="field$$()" [keyPath]="['k2']"></ng-container>
+  <ng-container [fieldTemplate]="field$$()" [keyPath]="['k2']"></ng-container>
 </div>

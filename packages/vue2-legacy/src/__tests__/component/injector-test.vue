@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { PI_INPUT_OPTIONS_TOKEN } from '@piying/view-vue2-legacy';
 import { inject } from 'vue';
 import * as v from 'valibot';
-import { actions, NFCSchema, setComponent } from '@piying/view-core';
+import { actions, NFCSchema, PI_INPUT_OPTIONS_TOKEN, setComponent } from '@piying/view-core';
 import InjectorTest2 from './injector-test2.vue';
-import { PiyingView } from '@piying/view-vue2-legacy';
+import { PiyingView, PI_VIEW_FIELD_TOKEN } from '@piying/view-vue2-legacy';
 
 const emit = defineEmits(['tokenChange']);
 
@@ -17,11 +16,13 @@ const schema = v.pipe(
     },
   }),
 );
-const options = inject(PI_INPUT_OPTIONS_TOKEN);
+const field = inject(PI_VIEW_FIELD_TOKEN)!;
+
+const options = field.value.injector.get(PI_INPUT_OPTIONS_TOKEN);
 </script>
 
 <template>
   <div>
-    <piying-view :schema="schema" :options="options"></piying-view>
+    <piying-view :schema="schema" :options="options()"></piying-view>
   </div>
 </template>

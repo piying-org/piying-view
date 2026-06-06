@@ -17,6 +17,8 @@ describe('token', () => {
         tokenChange: (event: any) => {
           expect(event.options).ok;
           expect(event.schema).ok;
+          event.options();
+          event.schema();
           check = true;
         },
       }),

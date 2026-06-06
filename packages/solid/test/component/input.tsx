@@ -18,7 +18,7 @@ export function PiInput(props: PiInputOptions) {
 
   return (
     <>
-      <input type="text" {...textModel()} />
+      <input type="text" {...textModel()} {...props} />
     </>
   );
 }
