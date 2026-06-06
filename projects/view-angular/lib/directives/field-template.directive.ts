@@ -21,13 +21,13 @@ import { KeyPath } from '@piying/view-angular-core';
 })
 export class PiyingFieldTemplateDirective {
   readonly fieldTemplate = input.required<PiResolvedViewFieldConfig>();
-  readonly keyPath = input<KeyPath>();
+  readonly path = input<KeyPath>();
   readonly #viewContainerRef = inject(ViewContainerRef);
   #fieldTemplateRef = inject(PI_VIEW_FIELD_TEMPLATE_REF_TOKEN);
 
   injector = inject(Injector);
   field$$ = computed(() => {
-    const keyPath = this.keyPath();
+    const keyPath = this.path();
     return keyPath ? this.fieldTemplate().get(keyPath) : this.fieldTemplate()!;
   });
 

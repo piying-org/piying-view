@@ -21,16 +21,16 @@ const formControlBinding: Provider = {
 })
 export class PiyingFieldControlBindDirective extends FieldControlBase {
   formControl = input.required<_PiResolvedCommonViewFieldConfig>();
-  keyPath = input<KeyPath>();
+  path = input<KeyPath>();
   field$$ = computed(() => {
-    const keyPath = this.keyPath();
+    const keyPath = this.path();
     return keyPath ? this.formControl().get(keyPath) : this.formControl();
   });
   override fieldControl$$ = computed(() => {
     const control = this.field$$()?.form.control;
     if (!control) {
       throw new Error(
-        `📍 fieldControlBind:[${this.field$$()?.keyPath || ''}]->[${this.keyPath() || ''}]❗`,
+        `📍 fieldControlBind:[${this.field$$()?.keyPath || ''}]->[${this.path() || ''}]❗`,
       );
     }
     if (!isFieldControl(control)) {

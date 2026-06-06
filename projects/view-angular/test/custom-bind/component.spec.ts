@@ -5,7 +5,7 @@ import * as v from 'valibot';
 import { htmlInput } from '../util/input';
 import { getField } from '@piying/view-angular-core/test';
 import { PiResolvedViewFieldConfig } from '../../lib/type';
-describe('Group1Component', () => {
+describe('custom-bind', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CustomBindComponent],
