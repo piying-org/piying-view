@@ -19,7 +19,7 @@ import { KeyPath } from '@piying/view-angular-core';
   selector: '[fieldTemplate]',
   standalone: true,
 })
-export class PiyingFieldOutletDirective {
+export class PiyingFieldDirective {
   readonly fieldTemplate = input.required<PiResolvedViewFieldConfig>();
   readonly keyPath = input<KeyPath>();
   readonly #viewContainerRef = inject(ViewContainerRef);

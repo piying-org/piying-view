@@ -12,5 +12,5 @@ export * from './lib/directives/attributes.directive';
 export * from './lib/directives/events.directive';
 export * from './lib/util/typed-component';
 export * from './lib/directives/field-control-bind.directive';
-export * from './lib/directives/field-template-outlet.directive';
+export * from './lib/directives/field-template.directive';
 export * from './lib/util/convert-wrapper';
