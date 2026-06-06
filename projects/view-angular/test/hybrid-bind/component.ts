@@ -7,7 +7,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import {
   PiyingFieldControlBindDirective,
-  PiyingFieldDirective,
+  PiyingFieldTemplateDirective,
 } from '@piying/view-angular';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
 @Component({
@@ -18,7 +18,7 @@ import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
   imports: [
     FormsModule,
     PiyingFieldControlBindDirective,
-    PiyingFieldDirective,
+    PiyingFieldTemplateDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
