@@ -1,4 +1,4 @@
-import { effect } from 'static-injector';
+import { effect, untracked } from 'static-injector';
 
 import { InjectorToken } from '../token';
 import { useContext, createEffect, createSignal, onCleanup } from 'solid-js';
@@ -12,9 +12,11 @@ export function createSignalConvert<T>(value: () => T) {
     const ref = effect(
       () => {
         const currentValue = value();
-        if (!Object.is(result(), currentValue)) {
-          setResult(() => currentValue!);
-        }
+        untracked(() => {
+          if (!Object.is(result(), currentValue)) {
+            setResult(() => currentValue!);
+          }
+        });
       },
       { injector: injector },
     );

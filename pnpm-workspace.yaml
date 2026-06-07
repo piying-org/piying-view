@@ -9,3 +9,4 @@ allowBuilds:
   msgpackr-extract: true
 minimumReleaseAgeExclude:
   - '@piying/valibot-visit@1.3.14'
+  - static-injector@6.4.0
