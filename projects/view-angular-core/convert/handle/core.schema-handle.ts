@@ -46,16 +46,18 @@ function AnyDefault(
   input: v.BaseSchema<any, any, any>,
   schemahandle: CoreSchemaHandle<any, any>,
 ) {
-  return schemahandle.undefinedable
-    ? v.optional(input)
-    : schemahandle.nullable
-      ? v.nullable(input)
-      : input;
+  return schemahandle.undefinedable || schemahandle.nullable
+    ? v.nullish(input)
+    : schemahandle.undefinedable
+      ? v.optional(input)
+      : schemahandle.nullable
+        ? v.nullable(input)
+        : input;
 }
 const checkOverride = {
-  logicGroup: (schemahandle: CoreSchemaHandle<any, any>) =>
-    v.pipe(AnyDefault(AnyDefine, schemahandle)),
-  array: (schemahandle: CoreSchemaHandle<any, any>) => {
+  logicGroup: (schemahandle: CoreSchemaHandle<any, any>, actions: any[]) =>
+    AnyDefault(v.pipe(AnyDefine, ...actions), schemahandle),
+  array: (schemahandle: CoreSchemaHandle<any, any>, actions: []) => {
     const source = schemahandle.coreSchema as v.TupleSchema<any[], any>;
 
     const length =
@@ -65,34 +67,33 @@ const checkOverride = {
         ? source.items.length
         : undefined;
 
-    return v.pipe(
-      AnyDefault(
-        v.pipe(
-          AnyDefine,
-          v.check((value: any[]) => {
-            if (!Array.isArray(value)) {
-              return false;
-            }
-            if (schemahandle.formConfig.groupMode === 'strict') {
-              return value.length === length;
-            }
-            return true;
-          }),
-          v.transform((value) => {
-            if (
-              schemahandle.formConfig.groupMode === 'default' &&
-              value.length !== length
-            ) {
-              return value.slice(0, length);
-            }
-            return value;
-          }),
-        ),
-        schemahandle,
+    return AnyDefault(
+      v.pipe(
+        AnyDefine,
+        v.check((value: any[]) => {
+          if (!Array.isArray(value)) {
+            return false;
+          }
+          if (schemahandle.formConfig.groupMode === 'strict') {
+            return value.length === length;
+          }
+          return true;
+        }),
+        v.transform((value) => {
+          if (
+            schemahandle.formConfig.groupMode === 'default' &&
+            value.length !== length
+          ) {
+            return value.slice(0, length);
+          }
+          return value;
+        }),
+        ...actions,
       ),
+      schemahandle,
     );
   },
-  group: (schemahandle: CoreSchemaHandle<any, any>) => {
+  group: (schemahandle: CoreSchemaHandle<any, any>, actions: []) => {
     const source = schemahandle.coreSchema as v.ObjectSchema<any, any>;
 
     const keys =
@@ -101,29 +102,27 @@ const checkOverride = {
       schemahandle.formConfig.groupMode !== 'reset'
         ? (Object.keys(source.entries) as unknown as string[])
         : undefined;
-
-    return v.pipe(
-      AnyDefault(
-        v.pipe(
-          AnyDefine,
-          v.check((value) => {
-            if (typeof value !== 'object') {
-              return false;
-            }
-            if (schemahandle.formConfig.groupMode === 'strict') {
-              return Object.keys(value).every((key) => key in source.entries);
-            }
-            return true;
-          }),
-          v.transform((a) => {
-            if (schemahandle.formConfig.groupMode === 'default') {
-              return pick(a, keys!);
-            }
-            return a;
-          }),
-        ),
-        schemahandle,
+    return AnyDefault(
+      v.pipe(
+        AnyDefine,
+        v.check((value) => {
+          if (typeof value !== 'object') {
+            return false;
+          }
+          if (schemahandle.formConfig.groupMode === 'strict') {
+            return Object.keys(value).every((key) => key in source.entries);
+          }
+          return true;
+        }),
+        v.transform((a) => {
+          if (schemahandle.formConfig.groupMode === 'default') {
+            return pick(a, keys!);
+          }
+          return a;
+        }),
+        ...actions,
       ),
+      schemahandle,
     );
   },
 };
@@ -330,20 +329,11 @@ export class CoreSchemaHandle<
       this.defaultValue ?? (this.nullable ? null : undefined);
     if (!this.isObjectControl) {
       if (schema.type === 'intersect' || schema.type === 'union') {
-        this.checkSchema = v.pipe(
-          checkOverride.logicGroup(this),
-          ...this.checkActions,
-        );
+        this.checkSchema = checkOverride.logicGroup(this, this.checkActions);
       } else if (this.isGroup) {
-        this.checkSchema = v.pipe(
-          checkOverride.group(this),
-          ...this.checkActions,
-        );
+        this.checkSchema = checkOverride.group(this, this.checkActions as []);
       } else if (this.isTuple || this.isArray) {
-        this.checkSchema = v.pipe(
-          checkOverride.array(this),
-          ...this.checkActions,
-        );
+        this.checkSchema = checkOverride.array(this, this.checkActions as []);
       }
     }
   }

@@ -23,4 +23,26 @@ describe('validator', () => {
     child!.form.control.viewValueChange('');
     expect(child?.form.control?.errors).toBeTruthy();
   });
+
+  it('定义可选转换', () => {
+    const o1 = v.pipe(
+      v.object({
+        s1: v.pipe(v.string()),
+        s2: v.pipe(v.optional(v.string())),
+      }),
+      v.transform((item) => {
+        expect(item).toBeTruthy();
+        return { ...item, s2: item.s2 ?? item.s1 };
+      }),
+    );
+    let define = v.object({ o1: v.optional(o1) });
+    const resolved = createBuilder(define);
+    resolved.form.root.updateValue({ o1: { s2: undefined } });
+    resolved.get(['o1'])!.form.control!.reset();
+    expect(resolved.form.control!.value).toBeFalsy();
+    resolved.form.root.updateValue({ o1: { s1: '11' } });
+    expect(resolved.form.control!.value).toEqual({
+      o1: { s1: '11', s2: '11' },
+    });
+  });
 });
