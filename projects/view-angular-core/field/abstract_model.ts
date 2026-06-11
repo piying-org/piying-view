@@ -170,13 +170,13 @@ export abstract class AbstractControl<TValue = any> {
   #asyncValidators$$ = computed(() => this.config$().asyncValidators ?? []);
   #undefinedable$$ = computed(() => this.config$().undefinedable);
   #nullable$$ = computed(() => this.config$().nullable);
-  #isOptionalEmpty = computed(() => {
+  isOptionalEmpty = computed(() => {
     if (this.required$$()) {
       return false;
     }
     return (
-      (this.#undefinedable$$() && this.originValue$$() === undefined) ||
-      (this.#nullable$$() && this.originValue$$() === null)
+      (!!this.#undefinedable$$() && this.originValue$$() === undefined) ||
+      (!!this.#nullable$$() && this.originValue$$() === null)
     );
   });
   protected resetIndex$ = signal(0);
@@ -189,7 +189,7 @@ export abstract class AbstractControl<TValue = any> {
         }
         // 请求同级
         this.resetIndex$();
-        if (!this.#isOptionalEmpty()) {
+        if (!this.isOptionalEmpty()) {
           const childrenResult = this.reduceChildren<ValidationErrors2[]>(
             [],
             (child, value, key) => {
@@ -533,7 +533,7 @@ export abstract class AbstractControl<TValue = any> {
       return VALID;
     }
     let childStatus: VALID_STATUS = VALID;
-    if (!this.#isOptionalEmpty()) {
+    if (!this.isOptionalEmpty()) {
       childStatus = this.reduceChildren<VALID_STATUS>(
         VALID,
         (child, value) => {

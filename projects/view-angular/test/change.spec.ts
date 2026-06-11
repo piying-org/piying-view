@@ -450,14 +450,14 @@ describe('change', () => {
       k1: v.optional(v.string()),
       k2: v.optional(v.string('1')),
     });
-    const { fixture, instance, element } = await createSchemaComponent(
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
-      signal({ k2: '1', k1: undefined }),
+      signal({ k2: '1' }),
     );
     await fixture.whenStable();
     fixture.detectChanges();
     expect(instance.changeIndex$()).toEqual(0);
-    instance.model$.set({ k1: '1' });
+    field$$()?.form.root.updateValue({ k1: '1' });
     await fixture.whenStable();
     fixture.detectChanges();
     expect(instance.changeIndex$()).toEqual(1);

@@ -508,4 +508,42 @@ describe('对象', () => {
     const result = createBuilder(obj);
     expect(result.form.root instanceof FieldControl).toBeTrue();
   });
+  it('普通对象-子项可选并为空的时候过滤', () => {
+    const obj = v.optional(
+      v.object({
+        str1: v.optional(v.string()),
+      }),
+    );
+    const result = createBuilder(obj);
+    result.form.root.reset();
+    expect(result.form.root.value).toBe(undefined);
+  });
+  it('普通对象-子项可选并为空的时候过滤-定义默认', () => {
+    const obj = v.pipe(
+      v.optional(
+        v.object({
+          str1: v.optional(v.string()),
+        }),
+      ),
+      formConfig({ emptyValue: {} }),
+    );
+    const result = createBuilder(obj);
+    result.form.root.reset();
+    expect(result.form.root.value).toEqual({});
+  });
+  it('普通数组-子项可选并为空的时候过滤', () => {
+    const obj = v.optional(v.tuple([v.optional(v.string())]));
+    const result = createBuilder(obj);
+    result.form.root.reset();
+    expect(result.form.root.value).toBe(undefined);
+  });
+  it('普通数组-子项可选并为空的时候过滤-定义默认', () => {
+    const obj = v.pipe(
+      v.optional(v.tuple([v.optional(v.string())])),
+      formConfig({ emptyValue: [] }),
+    );
+    const result = createBuilder(obj);
+    result.form.root.reset();
+    expect(result.form.root.value).toEqual([]);
+  });
 });

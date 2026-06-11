@@ -32,7 +32,7 @@ describe('子级解析', () => {
         getField(fields$),
       ),
     });
-    const { fixture, instance, element } = await createSchemaComponent(
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal({
         v1: {
@@ -54,20 +54,21 @@ describe('子级解析', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('.test4-model-value')?.innerHTML).toBe('v1');
+    let filed = field$$()!.get(['v1'])!;
 
-    expect(instance.model$()['v1'].k1).toEqual('v1');
-    expect(instance.model$()['v1'].k2).toEqual(undefined);
-    expect(instance.model$()['v1'].k3).toEqual(undefined);
-    expect(instance.model$()['v1'].k4).toEqual(undefined);
+    expect(filed!.form.control!.value.k1).toEqual('v1');
+    expect(filed!.form.control!.value.k2).toEqual(undefined);
+    expect(filed!.form.control!.value.k3).toEqual(undefined);
+    expect(filed!.form.control!.value.k4).toEqual(undefined);
     const field2 = await fields2$.promise;
     field2.form.control?.updateValue('v2');
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(instance.model$()['v1'].k1).toEqual('v1');
-    expect(instance.model$()['v1'].k2).toEqual(undefined);
-    expect(instance.model$()['v1'].k3).toEqual('v2');
-    expect(instance.model$()['v1'].k4).toEqual(undefined);
+    expect(filed!.form.control!.value.k1).toEqual('v1');
+    expect(filed!.form.control!.value.k2).toEqual(undefined);
+    expect(filed!.form.control!.value.k3).toEqual('v2');
+    expect(filed!.form.control!.value.k4).toEqual(undefined);
     instance.model$.set({
       v1: {
         k1: 'v12',
@@ -83,7 +84,7 @@ describe('子级解析', () => {
     control.filterActivateControl$.set((item, index) => index === 0);
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.model$()['v1']['k1']).toEqual('v12');
+    expect(filed!.form.control!.value).toEqual({ k1: 'v12' });
     // todo get也应该改
     // const queryResult1 = field.get([0, 'k1']);
     // expect(queryResult1).toBeTruthy();
@@ -91,8 +92,7 @@ describe('子级解析', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(instance.model$()['v1']['k3']).toEqual(undefined);
-    expect(instance.model$()['v1']['k4']).toEqual(undefined);
+    expect(filed!.form.control!.value).toEqual(undefined);
     // const queryResult2 = field.get(['k1']);
     // expect(queryResult2).toBe(undefined);
   });
@@ -128,7 +128,7 @@ describe('子级解析', () => {
         getField(fields$),
       ),
     });
-    const { fixture, instance, element } = await createSchemaComponent(
+    const { fixture, instance, element, field$$ } = await createSchemaComponent(
       signal(define),
       signal({
         v1: {
@@ -150,22 +150,21 @@ describe('子级解析', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('.test4-model-value')?.innerHTML).toBe('v1');
-
-    expect(instance.model$()['v1'].k1).toEqual('v1');
-    expect(instance.model$()['v1'].k2).toEqual(undefined);
-    expect(instance.model$()['v1'].k3).toEqual(undefined);
-    expect(instance.model$()['v1'].k4).toEqual(undefined);
+    let filed = field$$()!.get(['v1']);
+    expect(filed!.form.control!.value.k1).toEqual('v1');
+    expect(filed!.form.control!.value.k2).toEqual(undefined);
+    expect(filed!.form.control!.value.k3).toEqual(undefined);
+    expect(filed!.form.control!.value.k4).toEqual(undefined);
 
     const field2 = await fields2$.promise;
 
     field2.form.control?.updateValue('v2');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.model$()['v1'].k1).toEqual('v1');
-    expect(instance.model$()['v1'].k2).toEqual(undefined);
-    expect(instance.model$()['v1'].k3).toEqual('v2');
-    expect(instance.model$()['v1'].k4).toEqual(undefined);
-    // expect(instance.model$()).toEqual({ v1: { k1: 'v1', k3: 'v2' } });
+    expect(filed!.form.control!.value.k1).toEqual('v1');
+    expect(filed!.form.control!.value.k2).toEqual(undefined);
+    expect(filed!.form.control!.value.k3).toEqual('v2');
+    expect(filed!.form.control!.value.k4).toEqual(undefined);
     instance.model$.set({
       v1: {
         k1: 'v12',
@@ -178,20 +177,14 @@ describe('子级解析', () => {
     expect(field2.form.control?.value).toBe(undefined);
     const field = await fields$.promise;
     const control = field.form.control as FieldLogicGroup;
-
     control.filterActivateControl$.set((item, index) => index === 0);
-
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.model$()['v1']['k1']).toEqual('v12');
+    expect(filed!.form.control!.value).toEqual({ k1: 'v12' });
     control.filterActivateControl$.set((item, index) => index === 1);
-
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(instance.model$()['v1']['k1']).toEqual(undefined);
-
-    expect(instance.model$()['v1']['k3']).toEqual(undefined);
-    expect(instance.model$()['v1']['k4']).toEqual(undefined);
+    expect(field.form.control!.value).toEqual(undefined);
   });
 
   it('intersect-二层交叉', async () => {

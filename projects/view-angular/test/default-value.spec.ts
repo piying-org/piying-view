@@ -29,7 +29,7 @@ describe('默认值', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(instance.model$()).toEqual({ v1: undefined });
+    expect(instance.model$()).toEqual({});
   });
   it('有值,但是null', async () => {
     const fields$ = Promise.withResolvers<PiResolvedViewFieldConfig>();

@@ -56,7 +56,9 @@ export class FieldGroup<
       result = this._reduceChildren(
         { ...this.resetValue$() },
         (acc, control, key) => {
-          acc[key] = control.getRawValue(mode);
+          if (!control.isOptionalEmpty()) {
+            acc[key] = control.getRawValue(mode);
+          }
           return acc;
         },
       );
@@ -64,7 +66,11 @@ export class FieldGroup<
       result = this._reduceChildren(
         { ...this.resetValue$() },
         (acc, control, key) => {
-          if (control && control.shouldInclude$$()) {
+          if (
+            control &&
+            control.shouldInclude$$() &&
+            !control.isOptionalEmpty()
+          ) {
             acc[key] = control.value;
           }
           return acc;
@@ -74,7 +80,11 @@ export class FieldGroup<
       result = this._reduceChildren(
         { ...this.resetValue$() },
         (acc, control, key) => {
-          if (control && control.shouldEmitValue$$()) {
+          if (
+            control &&
+            control.shouldEmitValue$$() &&
+            !control.isOptionalEmpty()
+          ) {
             acc[key] = control.getRawValue(mode);
           }
           return acc;

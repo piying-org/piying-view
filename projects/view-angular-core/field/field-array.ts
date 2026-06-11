@@ -62,12 +62,18 @@ export class FieldArray<
     let list: any[] = [];
     if (mode === ValueType.allPartialValid) {
       this._reduceChildren(list, (acc, control, key) => {
-        acc[key] = control.getRawValue(mode);
+        if (!control.isOptionalEmpty()) {
+          acc[key] = control.getRawValue(mode);
+        }
         return acc;
       });
     } else if (mode === ValueType.valid) {
       this._reduceChildren(list, (acc, control, name) => {
-        if (control && control.shouldInclude$$()) {
+        if (
+          control &&
+          control.shouldInclude$$() &&
+          !control.isOptionalEmpty()
+        ) {
           list.push(control.value$$());
         } else if (this.#deletionMode$$() === 'shrink') {
           return list;
@@ -78,7 +84,11 @@ export class FieldArray<
       });
     } else if (mode === ValueType.partialValid) {
       this._reduceChildren(list, (acc, control, name) => {
-        if (control && control.shouldEmitValue$$()) {
+        if (
+          control &&
+          control.shouldEmitValue$$() &&
+          !control.isOptionalEmpty()
+        ) {
           list.push(control.getRawValue(mode));
         } else if (this.#deletionMode$$() === 'shrink') {
           return list;
