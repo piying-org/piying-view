@@ -10,13 +10,15 @@ import {
   ViewSlots,
   AsyncObjectSignal,
   ViewEvents,
+  ViewModels,
+  ComponentData,
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */
 export interface RawDirectiveOutputs {
   [name: string]: (event: any) => void;
 }
 
-export interface DynamicComponentConfig {
+export type DynamicComponentConfig = {
   type:
     | Type<any>
     | LazyImport<Type<any>>
@@ -24,14 +26,10 @@ export interface DynamicComponentConfig {
     | LazyImport<NgComponentDefine>
     | LazyMarkType<Type<any>>
     | LazyMarkType<NgComponentDefine>;
-  inputs: AsyncObjectSignal<ViewInputs>;
-  outputs: AsyncObjectSignal<ViewOutputs>;
-  attributes: AsyncObjectSignal<ViewAttributes>;
-  events: AsyncObjectSignal<ViewEvents>;
-  slots: AsyncObjectSignal<ViewSlots>;
+
   directives: DirectiveConfig[];
   injector?: Injector;
-}
+} & ComponentData;
 
 /** 解析后组件已经加载 ngcomponentoutlet */
 export type NgResolvedComponentDefine2 = Omit<NgResolvedComponentDefine1, ''>;

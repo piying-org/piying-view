@@ -34,6 +34,7 @@ import {
   ViewEvents,
   RawCoreWrapperConfig,
   ViewSlots,
+  ViewModels,
 } from '../../builder-base';
 import { FieldFormConfig } from '../../field/type';
 import { KeyPath } from '../../util';
@@ -131,6 +132,7 @@ export class CoreSchemaHandle<
   RESOLVED_FN extends () => any,
 > extends BaseSchemaHandle<Self> {
   inputs: ViewInputs = {};
+  models: ViewModels = {};
   outputs: ViewOutputs = {};
   attributes: ViewAttributes = {};
   events: ViewEvents = {};

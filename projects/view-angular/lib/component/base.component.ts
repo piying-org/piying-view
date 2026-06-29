@@ -17,8 +17,10 @@ import {
   signal,
   Signal,
   TemplateRef,
+  twoWayBinding,
   untracked,
   ViewContainerRef,
+  WritableSignal,
 } from '@angular/core';
 import { ComponentRawType } from '../type';
 import {
@@ -40,6 +42,7 @@ import {
 import {
   ViewAttributes,
   ViewInputs,
+  ViewModels,
   ViewOutputs,
   getLazyImport,
   isLazyMark,
@@ -56,6 +59,14 @@ function createInputsBind(inputs?: Signal<ViewInputs | undefined>) {
       key,
       computed(() => inputs()![key]),
     ),
+  );
+}
+function createModelsBind(models?: Signal<ViewModels | undefined>) {
+  if (!models?.()) {
+    return [];
+  }
+  return Object.keys(models()!).map((key) =>
+    twoWayBinding(key, models()![key]),
   );
 }
 function createOutputsBind(outputs?: () => ViewOutputs | undefined) {
@@ -137,6 +148,7 @@ export class BaseComponent {
    */
   #inputCache!: {
     inputs?: Signal<Record<string, any>>;
+    models?: Signal<Record<string, WritableSignal<any>>>;
     directiveList?: (Signal<Record<string, any>> | undefined)[];
   };
   #configUpdate$ = signal(0);
@@ -187,6 +199,10 @@ export class BaseComponent {
           this.#configUpdate$();
           return this.#componentConfig!.inputs!() ?? EmptyOBJ;
         }),
+        models: computed(() => {
+          this.#configUpdate$();
+          return this.#componentConfig!.models!() ?? EmptyOBJ;
+        }),
 
         directiveList: this.#componentConfig?.directives?.map(
           (config, index) =>
@@ -234,6 +250,7 @@ export class BaseComponent {
         bindings: [
           ...createInputsBind(this.#inputCache.inputs),
           ...createOutputsBind(componentConfig.outputs),
+          ...createModelsBind(this.#inputCache.models),
         ],
         directives: [
           ...(componentConfig.directives ?? []).map((item, index) => ({

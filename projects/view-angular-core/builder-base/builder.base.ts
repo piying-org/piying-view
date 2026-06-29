@@ -119,6 +119,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         ? field.type
         : this.#findConfig.findComponentConfig(field.type);
     const inputs = asyncObjectSignal(field.inputs);
+    const models = asyncObjectSignal(field.models);
     const outputs = asyncObjectSignal(field.outputs);
     const attributes = asyncObjectSignal(field.attributes);
     const events = asyncObjectSignal(field.events);
@@ -199,6 +200,9 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       get inputs() {
         return resolvedConfig.define?.().inputs;
       },
+      get models() {
+        return resolvedConfig.define?.().models;
+      },
       get outputs() {
         return resolvedConfig.define?.().outputs;
       },
@@ -219,6 +223,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             attributes,
             events,
             slots,
+            models,
           })
         : undefined,
       wrappers: this.#wrapperToSignal(field.wrappers, injector),
@@ -510,6 +515,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             outputs: asyncObjectSignal(item.outputs),
             events: asyncObjectSignal(item.events),
             slots: asyncObjectSignal(item.slots),
+            models: asyncObjectSignal(item.models),
           },
           {
             pipe: pipe(

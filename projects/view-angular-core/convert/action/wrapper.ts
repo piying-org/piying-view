@@ -14,21 +14,19 @@ import { mergeHooksFn } from './hook';
 import { Signal } from '@angular/core';
 import { FindConfigToken } from '../../builder-base/find-config';
 import { map, pipe } from 'rxjs';
-import { ConfigAction, CustomDataSymbol } from './input-common';
+import { ChangeKey, ConfigAction, CustomDataSymbol } from './input-common';
 import {
   AsyncObjectSignal,
   asyncObjectSignal,
 } from '../../util/create-async-object-signal';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
+type WrapperChangeKey = Exclude<ChangeKey, 'props'>;
 function createSetOrPatchWrappersFn(isPatch?: boolean) {
   return <T>(
     wrappers: (
       | SetOptional<
-          SetUnWrapper$<
-            CoreWrapperConfig,
-            'inputs' | 'outputs' | 'attributes' | 'events' | 'slots'
-          >,
-          'inputs' | 'outputs' | 'attributes' | 'events' | 'slots'
+          SetUnWrapper$<CoreWrapperConfig, WrapperChangeKey>,
+          WrapperChangeKey
         >
       | string
     )[],
@@ -50,6 +48,7 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
             attributes: {},
             events: {},
             slots: {},
+            models: {},
           };
           rawField.wrappers.push(define);
           defaultActions.forEach((item) => {
@@ -84,6 +83,7 @@ function createSetOrPatchWrappersFn(isPatch?: boolean) {
             attributes: wrapperItem.attributes ?? {},
             events: wrapperItem.events ?? {},
             slots: wrapperItem.slots ?? {},
+            models: wrapperItem.slots ?? {},
           });
         }
       });
@@ -149,6 +149,7 @@ function patchAsyncWrapper<T>(
               inputs: asyncObjectSignal({}),
               outputs: asyncObjectSignal({}),
               slots: asyncObjectSignal({}),
+              models: asyncObjectSignal({}),
             } as CoreWrapperConfig,
             {
               pipe: pipe(

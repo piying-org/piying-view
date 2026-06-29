@@ -5,22 +5,24 @@ import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
 import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
-import { KeyPath, Wrapper$, LazyImport } from '../../util';
+import { KeyPath, Wrapper$, LazyImport, SetOptional } from '../../util';
 import { CombineSignal } from '../../util/create-combine-signal';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
-
+export type ComponentData = {
+  inputs: AsyncObjectSignal<ViewInputs>;
+  outputs: AsyncObjectSignal<ViewOutputs>;
+  attributes: AsyncObjectSignal<ViewAttributes>;
+  events: AsyncObjectSignal<ViewEvents>;
+  slots: AsyncObjectSignal<ViewSlots>;
+  models: AsyncObjectSignal<ViewModels>;
+};
 /** 解析后define使用 */
 export type CoreResolvedComponentDefine = {
   type: any;
-  inputs?: AsyncObjectSignal<ViewInputs>;
-  outputs?: AsyncObjectSignal<ViewOutputs>;
-  attributes?: AsyncObjectSignal<ViewAttributes>;
-  events?: AsyncObjectSignal<ViewEvents>;
-  slots?: AsyncObjectSignal<ViewSlots>;
-};
+} & Partial<ComponentData>;
 
 export interface HookConfig<RESOLVED_FIELD> {
   /** 配置刚被解析 */
@@ -75,6 +77,7 @@ export type PiResolvedCommonViewFieldConfig<
   readonly define?: WritableSignal<Define>;
 } & Readonly<Pick<AnyCoreSchemaHandle, 'priority' | 'alias' | 'providers'>> & {
     readonly inputs: AsyncObjectSignal<ViewInputs>;
+    readonly models: AsyncObjectSignal<ViewModels>;
     readonly outputs: AsyncObjectSignal<ViewOutputs>;
     readonly attributes: AsyncObjectSignal<ViewAttributes>;
     readonly events: AsyncObjectSignal<ViewEvents>;
@@ -95,6 +98,7 @@ export interface FormBuilderOptions<T> {
 }
 
 export type ViewInputs = Record<string, any>;
+export type ViewModels = Record<string, WritableSignal<any>>;
 export type ViewOutputs = Record<string, (...args: any[]) => any>;
 export type ViewAttributes = Record<string, any>;
 export type ViewEvents = Record<string, (event: Event) => any>;
@@ -108,12 +112,9 @@ export type RawCoreWrapperConfig = {
   outputs: ViewOutputs;
   events: ViewEvents;
   slots: ViewSlots;
+  models: ViewModels;
 };
+
 export type CoreWrapperConfig = {
   type: string | any | LazyImport<any>;
-  inputs: AsyncObjectSignal<ViewInputs>;
-  outputs: AsyncObjectSignal<ViewOutputs>;
-  attributes: AsyncObjectSignal<ViewAttributes>;
-  events: AsyncObjectSignal<ViewEvents>;
-  slots: AsyncObjectSignal<ViewSlots>;
-};
+} & ComponentData;

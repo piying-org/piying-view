@@ -4,6 +4,7 @@ export function getComponentCheckConfig(a: DynamicComponentConfig) {
   return {
     ...a,
     inputs: Object.keys(a.inputs()).join(','),
+    models: Object.keys(a.models()).join(','),
     directives: a.directives
       ? a.directives.map((config) => ({
           ...config,
