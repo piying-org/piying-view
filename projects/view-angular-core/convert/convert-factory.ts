@@ -31,7 +31,7 @@ export type DefaultFieldConvertOptions<
   builder: typeof FormBuilder<CoreSchemaHandle<any, any>>;
   handle?: Handle;
 };
-export type FieldConvertOptions = SetOptional<ConvertOptions, 'handle'> & {
+export type FieldConvertOptions = SetOptional<ConvertOptions<typeof CoreSchemaHandle<any, any>>, 'handle'> & {
   fieldGlobalConfig?: PiCommonConfig;
 };
 export type FieldConvertViewOptions = FieldConvertOptions & {
