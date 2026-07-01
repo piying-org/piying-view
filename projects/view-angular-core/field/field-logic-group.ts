@@ -1,10 +1,10 @@
-import { AbstractControl } from './abstract_model';
+import { AbstractControl, ValueEvent } from './abstract_model';
 import { FieldArray } from './field-array';
 import { computed, signal, untracked } from '@angular/core';
 import { LogicType, UpdateType, ValueType } from './type';
 import { deepEqual } from 'fast-equals';
 import { toObservable } from '../util';
-import { merge, switchMap } from 'rxjs';
+import { merge, Observable, switchMap } from 'rxjs';
 // 切换索引后,理论上应该触发下值变更,否则不知道值是什么
 export class FieldLogicGroup extends FieldArray {
   protected override skipValuePath = true;
@@ -49,17 +49,27 @@ export class FieldLogicGroup extends FieldArray {
 
     return [];
   });
-  #childrenOb$$ = toObservable(this.activatedChildren, this.activatedChildren);
-  override valueEvent$$ = this.#childrenOb$$.pipe(
-    switchMap(() => {
-      let list = this.activatedChildren();
-      return merge(
-        ...list.map((item) => {
-          return item[1].valueEvent$$;
+  #valueEvent$$: Observable<ValueEvent> | undefined;
+  override get valueEvent$$() {
+    return (
+      this.#valueEvent$$ ??
+      (this.#valueEvent$$ = toObservable(
+        this.activatedChildren,
+        this.activatedChildren,
+        {
+          injector: this.injector,
+        },
+      ).pipe(
+        switchMap((list) => {
+          return merge(
+            ...list.map((item) => {
+              return item[1].valueEvent$$;
+            }),
+          );
         }),
-      );
-    }),
-  );
+      ))
+    );
+  }
   #getValue(mode: ValueType) {
     let controls;
     switch (mode) {

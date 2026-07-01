@@ -1,10 +1,10 @@
 import { computed, signal, untracked } from '@angular/core';
 
-import { AbstractControl } from './abstract_model';
+import { AbstractControl, ValueEvent } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
 import { ValueType } from './type';
 import { toObservable } from '../util';
-import { map, merge, skip, Subject, switchMap } from 'rxjs';
+import { map, merge, Observable, skip, Subject, switchMap } from 'rxjs';
 
 export class FieldGroup<
   TControl extends { [K in keyof TControl]: AbstractControl<any> } = any,
@@ -34,17 +34,23 @@ export class FieldGroup<
       yield [key, children[key]] as [string, AbstractControl];
     }
   }
-  #childrenOb$$ = toObservable(this.children$$, this.children$$);
-  override valueEvent$$ = this.#childrenOb$$.pipe(
-    switchMap(() => {
-      let list = this.children$$();
-      return merge(
-        ...Object.values(list).map((item) => {
-          return item.valueEvent$$;
+  #valueEvent$$: Observable<ValueEvent> | undefined;
+  override get valueEvent$$() {
+    return (
+      this.#valueEvent$$ ??
+      (this.#valueEvent$$ = toObservable(this.children$$, this.children$$, {
+        injector: this.injector,
+      }).pipe(
+        switchMap((list) => {
+          return merge(
+            ...Object.values(list).map((item) => {
+              return item.valueEvent$$;
+            }),
+          );
         }),
-      );
-    }),
-  );
+      ))
+    );
+  }
   removeRestControl(key: string): void {
     if (!this.resetControls$()[key]) {
       return;

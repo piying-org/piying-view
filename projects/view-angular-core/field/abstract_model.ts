@@ -110,7 +110,7 @@ export abstract class AbstractControl<TValue = any> {
     const result = this.#schemaCheck$$();
     return result.success ? result.output : value;
   });
-  abstract valueEvent$$: Observable<ValueEvent>;
+  abstract get valueEvent$$(): Observable<ValueEvent>;
   /** 通用的子级,用于查询之类 */
   children$$?: Signal<
     | {
