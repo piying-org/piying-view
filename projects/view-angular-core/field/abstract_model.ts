@@ -82,6 +82,10 @@ export const InitPendingValue = {
   change: false,
   value: undefined,
 };
+export enum ValueEvent {
+  view = 'view',
+  model = 'model',
+}
 export abstract class AbstractControl<TValue = any> {
   protected skipValuePath?: boolean;
   pendingStatus = signal(InitPendingValue);
@@ -106,7 +110,7 @@ export abstract class AbstractControl<TValue = any> {
     const result = this.#schemaCheck$$();
     return result.success ? result.output : value;
   });
-
+  abstract valueEvent$$: Observable<ValueEvent>;
   /** 通用的子级,用于查询之类 */
   children$$?: Signal<
     | {

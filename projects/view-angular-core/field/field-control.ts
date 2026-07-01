@@ -6,7 +6,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 
-import { AbstractControl } from './abstract_model';
+import { AbstractControl, ValueEvent } from './abstract_model';
 import { deepEqual } from 'fast-equals';
 import { Subject } from 'rxjs';
 
@@ -14,7 +14,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
   #viewIndex = 0;
   /** 视图变化时model值不变也要更新view */
   private viewIndex$ = signal(0);
-
+  override valueEvent$$ = new Subject<ValueEvent>();
   /** model输入值 */
   modelValue$: WritableSignal<TValue | undefined> = signal(undefined);
   private modelValueToViewValueOrigin$$ = computed(() => {
@@ -60,6 +60,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     this.markAllAsDirty();
     this.#viewIndex++;
     this.originValue$$.set(this.transformToModel(value, this));
+    this.valueEvent$$.next(ValueEvent.view);
   }
 
   /** view变更 */
@@ -78,6 +79,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
       this.#viewIndex++;
       this.viewIndex$.set(this.#viewIndex);
       this.resetIndex$.update((a) => a + 1);
+      this.valueEvent$$.next(ValueEvent.model);
       return;
     }
     if (this.valid && deepEqual(value, this.value$$())) {
@@ -86,6 +88,7 @@ export class FieldControl<TValue = any> extends AbstractControl<TValue> {
     this.modelValue$.set(value);
     this.originValue$$.set(value);
     this.viewIndex$.set(this.#viewIndex);
+    this.valueEvent$$.next(ValueEvent.model);
   }
 
   override emitSubmit(): void {

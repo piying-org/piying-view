@@ -3,6 +3,8 @@ import { computed, signal, untracked } from '@angular/core';
 import { AbstractControl } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
 import { ValueType } from './type';
+import { toObservable } from '../util';
+import { merge, switchMap } from 'rxjs';
 
 export class FieldArray<
   TControl extends AbstractControl<any> = any,
@@ -32,6 +34,18 @@ export class FieldArray<
       yield [index, children[index]] as [number, AbstractControl];
     }
   }
+  #childrenOb$$ = toObservable(this.children$$, this.children$$);
+  override valueEvent$$ = this.#childrenOb$$.pipe(
+    switchMap(() => {
+      let list = this.children$$();
+      return merge(
+        ...list.map((item) => {
+          return item.valueEvent$$;
+        }),
+      );
+    }),
+  );
+
   removeRestControl(key: number): void {
     if (!this.resetControls$()[key]) {
       return;

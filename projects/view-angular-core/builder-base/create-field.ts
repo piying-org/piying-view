@@ -29,11 +29,23 @@ export function createField(
     FieldClass = FieldControl;
   }
   let control;
+
   if (isRoot) {
-    control = new (FieldClass as any)(
-      field.checkSchema ?? field.sourceSchema,
-      injector,
-    ) as AbstractControl;
+    let injector2 = Injector.create({
+      providers: [
+        {
+          provide: FieldClass,
+          useFactory: () => {
+            return new (FieldClass as any)(
+              field.checkSchema ?? field.sourceSchema,
+              injector,
+            ) as AbstractControl;
+          },
+        },
+      ],
+      parent: injector,
+    });
+    control = injector2.get<AbstractControl>(FieldClass as any);
     if (isFieldLogicGroup(control)) {
       control.type.set(field.isLogicAnd ? 'and' : 'or');
     }
@@ -41,10 +53,21 @@ export function createField(
   } else {
     control = parentForm.get([key]);
     if (!control) {
-      control = new (FieldClass as any)(
-        field.checkSchema ?? field.sourceSchema,
-        injector,
-      ) as AbstractControl;
+      let injector2 = Injector.create({
+        providers: [
+          {
+            provide: FieldClass,
+            useFactory: () => {
+              return new (FieldClass as any)(
+                field.checkSchema ?? field.sourceSchema,
+                injector,
+              ) as AbstractControl;
+            },
+          },
+        ],
+        parent: injector,
+      });
+      control = injector2.get<AbstractControl>(FieldClass as any);
       if (isFieldLogicGroup(control)) {
         control.type.set(field.isLogicAnd ? 'and' : 'or');
       }

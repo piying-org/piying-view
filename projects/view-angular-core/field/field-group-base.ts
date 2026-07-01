@@ -1,8 +1,9 @@
 import { signal } from '@angular/core';
 
-import { AbstractControl } from './abstract_model';
+import { AbstractControl, ValueEvent } from './abstract_model';
 import { deepEqual } from 'fast-equals';
 import { UpdateType } from './type';
+import { Observable } from 'rxjs';
 
 export class FieldGroupbase extends AbstractControl {
   /** @internal */
@@ -12,7 +13,7 @@ export class FieldGroupbase extends AbstractControl {
   resetValue$ = signal<any>(undefined);
   /** @internal */
   protected submitIndex$ = signal(0);
-
+  override valueEvent$$!: Observable<ValueEvent>;
   /** @internal */
   protected _updateValue(value: any, type: UpdateType) {
     const viewValue =
