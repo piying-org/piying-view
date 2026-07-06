@@ -4,7 +4,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "../../dist/view-vue2-legacy",
-    "noEmit": false
+    "noEmit": false,
+    "rootDir": "./src"
   },
   "files": [
     "./src/index.ts"
