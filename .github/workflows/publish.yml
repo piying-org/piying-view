@@ -31,7 +31,7 @@ jobs:
 
       - run: pnpm i
       - run: npx playwright install --with-deps
-      - run: npm run build
+      - run: npm run build:core
       - run: npm run test:ci
       - run: npm run build
       - run: npm run publish-only

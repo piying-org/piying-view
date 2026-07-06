@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
-import solid from 'vite-plugin-solid'
+import solid from 'vite-plugin-solid';
 import path from 'path';
+import { playwright } from '@vitest/browser-playwright';
 
 export default defineConfig({
   plugins: [solid()],
@@ -8,7 +9,7 @@ export default defineConfig({
     cache: false,
     browser: {
       enabled: true,
-      provider: 'playwright',
+      provider: playwright(),
       instances: [{ browser: 'chromium' }],
     },
     alias: {

@@ -1,6 +1,7 @@
 import { mergeConfig, defineConfig } from 'vitest/config';
 import viteConfig from './vite.config';
 import path from 'node:path';
+import { playwright } from '@vitest/browser-playwright';
 
 export default mergeConfig(
   viteConfig,
@@ -10,7 +11,7 @@ export default mergeConfig(
       name: 'browser',
       browser: {
         enabled: true,
-        provider: 'playwright',
+        provider: playwright(),
         instances: [{ browser: 'chromium' }],
         ui: true,
       },
