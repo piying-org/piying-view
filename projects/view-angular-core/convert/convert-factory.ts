@@ -9,6 +9,7 @@ import {
 import * as v from 'valibot';
 import { SetOptional } from '../util';
 import {
+  _PiResolvedCommonViewFieldConfig,
   FormBuilderOptions,
   PI_CONTEXT_TOKEN,
   PI_FORM_BUILDER_OPTIONS_TOKEN,
@@ -63,7 +64,7 @@ export function createConvertToField<
       ...options?.(),
     };
 
-    const buildOptions: FormBuilderOptions<any> = {
+    const buildOptions: FormBuilderOptions<_PiResolvedCommonViewFieldConfig> = {
       form$$: computed<FieldGroup>(
         () => buildOptions.resolvedField$()?.form.control as any,
       ),
