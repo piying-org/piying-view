@@ -2,7 +2,7 @@ import * as v from 'valibot';
 
 import { createBuilder } from './util/create-builder';
 
-import { firstValueFrom, skip } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ValueEvent } from '../field/abstract_model';
 import { FieldControl } from '../field/field-control';
 
@@ -21,7 +21,7 @@ describe('valueEvent', () => {
   it('group', async () => {
     const obj = v.object({ k1: v.string() });
     const field = createBuilder(obj);
-    let k1Field = field.get(['k1'])!;
+    const k1Field = field.get(['k1'])!;
     let result = firstValueFrom(field.form.control!.valueEvent$$);
     k1Field.form.control!.updateValue('1');
     expect(await result).toEqual(ValueEvent.model);
@@ -33,7 +33,7 @@ describe('valueEvent', () => {
     const obj = v.array(v.string());
     const field = createBuilder(obj);
     field.action.set('1');
-    let k1Field = field.children!()![0];
+    const k1Field = field.children!()![0];
     let result = firstValueFrom(field.form.control!.valueEvent$$);
     k1Field.form.control!.updateValue('1');
     expect(await result).toEqual(ValueEvent.model);
@@ -44,7 +44,7 @@ describe('valueEvent', () => {
   it('logic-group', async () => {
     const obj = v.intersect([v.object({ k1: v.string() })]);
     const field = createBuilder(obj);
-    let k1Field = field.get([0, 'k1'])!;
+    const k1Field = field.get([0, 'k1'])!;
     let result = firstValueFrom(field.form.control!.valueEvent$$);
     k1Field.form.control!.updateValue('1');
     expect(await result).toEqual(ValueEvent.model);

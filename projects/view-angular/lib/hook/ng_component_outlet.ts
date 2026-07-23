@@ -1,111 +1,16 @@
-import {
-  computed,
-  Directive,
-  inject,
-  Injector,
-  input,
-  OnChanges,
-  OnDestroy,
-  ViewContainerRef,
-} from '@angular/core';
-import { PiResolvedViewFieldConfig, NgResolvedWraaperConfig } from '../type';
-import {
-  DynamicComponentConfig,
-  NgResolvedComponentDefine2,
-} from '../type/component';
-import { BaseComponent } from '../component/base.component';
-import { DirectiveConfig } from '../component/dynamic-define.component';
-import { asyncObjectSignal } from '@piying/view-angular-core';
-import { FieldControlDirective } from '../directives/field-control.directive';
-import { ChainedInjector } from './chained_injector';
+import { computed, Directive, Injector, input } from '@angular/core';
+import { PiResolvedViewFieldConfig } from '../type';
+
+import { DynamicCreateDirective } from './dynamic-create';
 
 @Directive({
   selector: '[ngComponentOutlet]',
   standalone: true,
 })
-export class NgComponentOutlet<T = any>
-  extends BaseComponent
-  implements OnChanges, OnDestroy
-{
+export class NgComponentOutlet<T = any> extends DynamicCreateDirective {
   /** 输入 */
-  ngComponentOutlet = input.required<NgResolvedComponentDefine2>();
-
-  /** 包裹用 */
-  ngComponentOutletWrappers = input<NgResolvedWraaperConfig[]>();
-  ngComponentOutletDirectives =
-    input<PiResolvedViewFieldConfig['directives']>();
-
-  ngComponentOutletField = input.required<PiResolvedViewFieldConfig>();
-  #viewContainerRef = inject(ViewContainerRef);
-  // 这里感觉会在非发射时出现多次输入?
-
+  ngComponentOutlet = input.required<PiResolvedViewFieldConfig>();
   ngComponentOutletInjector = input.required<Injector>();
-  override index = 0;
-  #injector$$ = computed(
-    () =>
-      new ChainedInjector(
-        this.ngComponentOutletField().injector,
-        this.ngComponentOutletInjector(),
-      ),
-  );
-  /** 控件用 */
-  #ngComponentOutletFormControl$ = computed(() => {
-    const field = this.ngComponentOutletField();
-    return field.fixedChildren || field.restChildren
-      ? undefined
-      : this.ngComponentOutletField().form.control;
-  });
-  #formControlDirectiveConfig$$ = computed(() => {
-    const fieldControl = this.#ngComponentOutletFormControl$();
-    return fieldControl
-      ? ({
-          type: FieldControlDirective,
-          inputs: asyncObjectSignal({ fieldControl: fieldControl }),
-        } as DirectiveConfig)
-      : undefined;
-  });
-  #directiveConfigList$$ = computed(() => {
-    const directivesInputs = this.ngComponentOutletDirectives();
-    const formConfig = this.#formControlDirectiveConfig$$();
-    return formConfig
-      ? [...(directivesInputs?.() ?? []), formConfig]
-      : directivesInputs?.();
-  });
-  #componentConfig$$ = computed(() => {
-    const define = this.ngComponentOutlet();
-    const directives = this.#directiveConfigList$$();
-    return {
-      ...define!,
-      directives: directives,
-    } as DynamicComponentConfig;
-  });
-  #componentList$$ = computed(() => {
-    const componentConfig = this.#componentConfig$$();
-    const list = [
-      ...(this.ngComponentOutletWrappers() ?? []),
-      componentConfig,
-    ] as DynamicComponentConfig[];
-    list[0].injector = this.#injector$$();
-    return list;
-  });
-
-  #lastList?: DynamicComponentConfig[];
-  ngOnChanges() {
-    //todo 变更时的一些检测,相同时应该不处理
-    const list = this.#componentList$$();
-    if (!this.#lastList) {
-      const field = this.ngComponentOutletField();
-      field.hooks?.beforeCreateComponent?.(field);
-      this.createComponent(list, this.#viewContainerRef);
-    } else if (this.#lastList !== list) {
-      this.update(list);
-    }
-    // 监听输入/输出变更,重新进行赋值
-
-    this.#lastList = list;
-  }
-
-  ngOnDestroy() {
-    this.destroyComponentFn?.();
-  }
+  override field = computed(() => this.ngComponentOutlet());
+  override inputInjector = computed(() => this.ngComponentOutletInjector());
 }

@@ -1,10 +1,7 @@
 <ng-template #fieldTemplate let-field let-injector="injector">
   @if (field.define && !field.renderConfig()?.hidden) {
     <ng-container
-      [ngComponentOutlet]="field.define()"
-      [ngComponentOutletWrappers]="field.wrappers()"
-      [ngComponentOutletField]="field"
-      [ngComponentOutletDirectives]="field.directives"
+      [ngComponentOutlet]="field"
       [ngComponentOutletInjector]="injector ?? injector3$$()"
     ></ng-container>
   }

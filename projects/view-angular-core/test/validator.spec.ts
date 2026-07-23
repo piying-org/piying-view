@@ -35,7 +35,7 @@ describe('validator', () => {
         return { ...item, s2: item.s2 ?? item.s1 };
       }),
     );
-    let define = v.object({ o1: v.optional(o1) });
+    const define = v.object({ o1: v.optional(o1) });
     const resolved = createBuilder(define);
     resolved.form.root.updateValue({ o1: { s2: undefined } });
     resolved.get(['o1'])!.form.control!.reset();

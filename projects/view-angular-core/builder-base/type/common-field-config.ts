@@ -5,7 +5,7 @@ import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
 import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
-import { KeyPath, Wrapper$, LazyImport, SetOptional } from '../../util';
+import { KeyPath, Wrapper$, LazyImport } from '../../util';
 import { CombineSignal } from '../../util/create-combine-signal';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {

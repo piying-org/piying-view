@@ -1,48 +1,29 @@
 import {
-  effect,
   inject,
   Injector,
   ViewContainerRef,
   Directive,
   input,
-  untracked,
   computed,
 } from '@angular/core';
 
-import {
-  PI_VIEW_FIELD_TEMPLATE_REF_TOKEN,
-  PiResolvedViewFieldConfig,
-} from '../type';
+import { PiResolvedViewFieldConfig } from '../type';
 import { KeyPath } from '@piying/view-angular-core';
+import { DynamicCreateDirective } from '../hook/dynamic-create';
 
 @Directive({
   selector: '[fieldTemplate]',
   standalone: true,
 })
-export class PiyingFieldTemplateDirective {
+export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
   readonly fieldTemplate = input.required<PiResolvedViewFieldConfig>();
   readonly path = input<KeyPath>();
-  readonly #viewContainerRef = inject(ViewContainerRef);
-  #fieldTemplateRef = inject(PI_VIEW_FIELD_TEMPLATE_REF_TOKEN);
 
   injector = inject(Injector);
   field$$ = computed(() => {
     const keyPath = this.path();
     return keyPath ? this.fieldTemplate().get(keyPath) : this.fieldTemplate()!;
   });
-
-  constructor() {
-    effect((fn) => {
-      const targetField = this.field$$();
-      untracked(() => {
-        fn(() => {
-          this.#viewContainerRef.clear();
-        });
-        this.#viewContainerRef.createEmbeddedView(this.#fieldTemplateRef, {
-          $implicit: targetField,
-          injector: this.injector,
-        });
-      });
-    });
-  }
+  override field = computed(() => this.field$$()!);
+  override inputInjector = computed(() => this.injector);
 }

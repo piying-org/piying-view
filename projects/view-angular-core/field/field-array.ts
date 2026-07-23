@@ -41,13 +41,7 @@ export class FieldArray<
       (this.#valueEvent$$ = toObservable(this.children$$, this.children$$, {
         injector: this.injector,
       }).pipe(
-        switchMap((list) => {
-          return merge(
-            ...list.map((item) => {
-              return item.valueEvent$$;
-            }),
-          );
-        }),
+        switchMap((list) => merge(...list.map((item) => item.valueEvent$$))),
       ))
     );
   }

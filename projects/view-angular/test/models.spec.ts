@@ -4,7 +4,6 @@ import { actions, NFCSchema } from '@piying/view-angular-core';
 
 import { createSchemaComponent } from './util/create-component';
 import { setComponent } from '@piying/view-angular-core';
-import { Test1Component } from './test1/test1.component';
 import { Models1Component } from './models1/component';
 
 describe('models', () => {
@@ -25,7 +24,7 @@ describe('models', () => {
     fixture.detectChanges();
     const el = element.querySelector<HTMLElement>('.btn1')!;
     el.click();
-    expect(a()).toEqual(1)
+    expect(a()).toEqual(1);
   });
   it('model', async () => {
     const a = signal(0);
@@ -44,6 +43,6 @@ describe('models', () => {
     fixture.detectChanges();
     const el = element.querySelector<HTMLElement>('.btn2')!;
     el.click();
-    expect(a()).toEqual(1)
+    expect(a()).toEqual(1);
   });
 });

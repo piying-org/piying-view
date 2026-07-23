@@ -31,16 +31,15 @@ export function createField(
   let control;
 
   if (isRoot) {
-    let injector2 = Injector.create({
+    const injector2 = Injector.create({
       providers: [
         {
           provide: FieldClass,
-          useFactory: () => {
-            return new (FieldClass as any)(
+          useFactory: () =>
+            new (FieldClass as any)(
               field.checkSchema ?? field.sourceSchema,
               injector,
-            ) as AbstractControl;
-          },
+            ) as AbstractControl,
         },
       ],
       parent: injector,
@@ -53,16 +52,15 @@ export function createField(
   } else {
     control = parentForm.get([key]);
     if (!control) {
-      let injector2 = Injector.create({
+      const injector2 = Injector.create({
         providers: [
           {
             provide: FieldClass,
-            useFactory: () => {
-              return new (FieldClass as any)(
+            useFactory: () =>
+              new (FieldClass as any)(
                 field.checkSchema ?? field.sourceSchema,
                 injector,
-              ) as AbstractControl;
-            },
+              ) as AbstractControl,
           },
         ],
         parent: injector,

@@ -4,7 +4,7 @@ import { AbstractControl, ValueEvent } from './abstract_model';
 import { FieldGroupbase } from './field-group-base';
 import { ValueType } from './type';
 import { toObservable } from '../util';
-import { map, merge, Observable, skip, Subject, switchMap } from 'rxjs';
+import { merge, Observable, switchMap } from 'rxjs';
 
 export class FieldGroup<
   TControl extends { [K in keyof TControl]: AbstractControl<any> } = any,
@@ -41,13 +41,9 @@ export class FieldGroup<
       (this.#valueEvent$$ = toObservable(this.children$$, this.children$$, {
         injector: this.injector,
       }).pipe(
-        switchMap((list) => {
-          return merge(
-            ...Object.values(list).map((item) => {
-              return item.valueEvent$$;
-            }),
-          );
-        }),
+        switchMap((list) =>
+          merge(...Object.values(list).map((item) => item.valueEvent$$)),
+        ),
       ))
     );
   }

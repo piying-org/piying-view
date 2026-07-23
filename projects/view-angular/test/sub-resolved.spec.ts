@@ -54,7 +54,7 @@ describe('子级解析', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('.test4-model-value')?.innerHTML).toBe('v1');
-    let filed = field$$()!.get(['v1'])!;
+    const filed = field$$()!.get(['v1'])!;
 
     expect(filed!.form.control!.value.k1).toEqual('v1');
     expect(filed!.form.control!.value.k2).toEqual(undefined);
@@ -150,7 +150,7 @@ describe('子级解析', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('.test4-model-value')?.innerHTML).toBe('v1');
-    let filed = field$$()!.get(['v1']);
+    const filed = field$$()!.get(['v1']);
     expect(filed!.form.control!.value.k1).toEqual('v1');
     expect(filed!.form.control!.value.k2).toEqual(undefined);
     expect(filed!.form.control!.value.k3).toEqual(undefined);

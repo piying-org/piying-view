@@ -60,13 +60,7 @@ export class FieldLogicGroup extends FieldArray {
           injector: this.injector,
         },
       ).pipe(
-        switchMap((list) => {
-          return merge(
-            ...list.map((item) => {
-              return item[1].valueEvent$$;
-            }),
-          );
-        }),
+        switchMap((list) => merge(...list.map((item) => item[1].valueEvent$$))),
       ))
     );
   }

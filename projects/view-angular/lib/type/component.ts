@@ -2,15 +2,8 @@ import { Injector, Type } from '@angular/core';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { NgResolvedComponentDefine1 } from './group';
 import {
-  ViewAttributes,
-  ViewInputs,
-  ViewOutputs,
   LazyImport,
   LazyMarkType,
-  ViewSlots,
-  AsyncObjectSignal,
-  ViewEvents,
-  ViewModels,
   ComponentData,
 } from '@piying/view-angular-core';
 /** todo 这个没有支持 */

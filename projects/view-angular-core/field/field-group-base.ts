@@ -13,7 +13,7 @@ export class FieldGroupbase extends AbstractControl {
   resetValue$ = signal<any>(undefined);
   /** @internal */
   protected submitIndex$ = signal(0);
-  override get valueEvent$$():Observable<ValueEvent> {
+  override get valueEvent$$(): Observable<ValueEvent> {
     throw new Error('');
   }
   /** @internal */
