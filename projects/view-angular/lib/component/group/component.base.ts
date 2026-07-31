@@ -11,6 +11,8 @@ export class PiyingViewGroupBase {
   children$$ = computed(() => this.field$$().children!());
   fixedChildren$$ = computed(() => this.field$$().fixedChildren?.() ?? []);
   restChildren$$ = computed(() => this.field$$().restChildren?.() ?? []);
-  fieldTemplateRef = inject(PI_VIEW_FIELD_TEMPLATE_REF_TOKEN);
+  fieldTemplateRef = inject(PI_VIEW_FIELD_TEMPLATE_REF_TOKEN, {
+    optional: true,
+  });
   injector = inject(Injector);
 }
