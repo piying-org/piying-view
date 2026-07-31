@@ -1,3 +1,12 @@
+## 2.13.1 (2026-07-31)
+
+
+### Bug Fixes
+
+* PI_VIEW_FIELD_TEMPLATE_REF_TOKEN optional ([b823f9b](https://github.com/piying-org/piying-view/commit/b823f9bb1da73001b087fbd52d92b09d934ae32b))
+
+
+
 # 2.13.0 (2026-07-23)
 
 
