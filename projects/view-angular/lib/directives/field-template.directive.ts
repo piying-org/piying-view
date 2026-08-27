@@ -1,11 +1,4 @@
-import {
-  inject,
-  Injector,
-  ViewContainerRef,
-  Directive,
-  input,
-  computed,
-} from '@angular/core';
+import { inject, Injector, Directive, input, computed } from '@angular/core';
 
 import { PiResolvedViewFieldConfig } from '../type';
 import { KeyPath } from '@piying/view-angular-core';

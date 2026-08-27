@@ -4,14 +4,20 @@ import { PiResolvedViewFieldConfig } from '../lib/type';
 import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
 import { getField, mergeHooks } from './util/action';
-import { actions, setComponent } from '@piying/view-angular-core';
+import { actions, FieldControl, setComponent } from '@piying/view-angular-core';
 
 import { directives } from '../lib/schema/action/directive';
 import { BehaviorSubject } from 'rxjs';
 import { TestNgControlDirective } from './directive/test-ng-control.directive';
 import { Test1Component } from './test1/test1.component';
 import { InteropNgControl } from '../lib/directives/interop_ng_control';
-import { Validators } from '@angular/forms';
+import {
+  PristineChangeEvent,
+  StatusChangeEvent,
+  TouchedChangeEvent,
+  Validators,
+  ValueChangeEvent,
+} from '@angular/forms';
 describe('指令', () => {
   it('自定义指令', async () => {
     const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
@@ -184,6 +190,83 @@ describe('指令', () => {
     expect(ngControl.statusChanges).toBeTruthy();
     expect(ngControl.hasValidator(Validators.required)).toBeTrue();
     expect(ngControl.hasValidator(1)).toBeFalse();
+  });
+  it('test ngControl events', async () => {
+    const ngControl$ = Promise.withResolvers<InteropNgControl>();
+
+    const define = v.pipe(
+      v.string(),
+      setComponent(Test1Component),
+      directives.patchAsync(TestNgControlDirective, [
+        actions.outputs.patchAsync({
+          dataChange: (field) => (event: any) => {
+            ngControl$.resolve(event);
+          },
+        }),
+      ]),
+    );
+    const { fixture, field$$ } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const ngControl = await ngControl$.promise;
+    const field = await field$$()!;
+    const control = field.form.control! as FieldControl;
+
+    const events: Array<{ type: string; value: any }> = [];
+    const sub = ngControl.events.subscribe((event) => {
+      if (event instanceof TouchedChangeEvent) {
+        events.push({ type: 'touched', value: event.touched });
+      } else if (event instanceof PristineChangeEvent) {
+        events.push({ type: 'pristine', value: event.pristine });
+      } else if (event instanceof StatusChangeEvent) {
+        events.push({ type: 'status', value: event.status });
+      } else if (event instanceof ValueChangeEvent) {
+        events.push({ type: 'value', value: event.value });
+      }
+    });
+    const touchedEvents = events.filter((e) => e.type === 'touched');
+    expect(touchedEvents.length).toBeGreaterThan(0);
+    expect(touchedEvents.at(-1)!.value).toBeFalse();
+    const pristineEvents = events.filter((e) => e.type === 'pristine');
+    expect(pristineEvents.length).toBeGreaterThan(0);
+    expect(pristineEvents.at(-1)!.value).toBeFalse();
+    const valueEvents = events.filter((e) => e.type === 'value');
+    expect(valueEvents.length).toBeGreaterThan(0);
+    expect(valueEvents.at(-1)!.value).toEqual('d1');
+    const statusEvents = events.filter((e) => e.type === 'status');
+    expect(statusEvents.length).toBeGreaterThan(0);
+    expect(statusEvents.at(-1)!.value).toEqual('VALID');
+
+    control.viewValueChange('d2');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(events.filter((e) => e.type === 'value').at(-1)!.value).toEqual(
+      'd2',
+    );
+
+    control.markAsTouched();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(events.filter((e) => e.type === 'touched').at(-1)!.value).toBeTrue();
+
+    control.markAsDirty();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(
+      events.filter((e) => e.type === 'pristine').at(-1)!.value,
+    ).toBeTrue();
+
+    control.disable();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const lastStatus = events.filter((e) => e.type === 'status').at(-1)!;
+    expect(lastStatus.value).toEqual('DISABLED');
+    const lastValue = events.filter((e) => e.type === 'value').at(-1)!;
+    expect(lastValue.value).toEqual('d2');
+    sub.unsubscribe();
   });
 
   it('指令-输入变更', async () => {

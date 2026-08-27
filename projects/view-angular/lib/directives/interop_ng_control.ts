@@ -1,10 +1,17 @@
+import { inject, Injector } from '@angular/core';
 import {
+  ControlEvent,
   NgControl,
+  PristineChangeEvent,
+  StatusChangeEvent,
+  TouchedChangeEvent,
   Validators,
+  ValueChangeEvent,
   type AbstractControl,
   type ValidationErrors,
 } from '@angular/forms';
-import { FieldControl, PENDING } from '@piying/view-angular-core';
+import { FieldControl, PENDING, toObservable } from '@piying/view-angular-core';
+import { combineLatest, map, merge, Observable } from 'rxjs';
 
 export type InteropSharedKeys =
   | 'value'
@@ -87,5 +94,37 @@ export class InteropNgControl extends NgControl {
       return this.field().required$$();
     }
     return false;
+  }
+  #injector = inject(Injector);
+  #event: Observable<ControlEvent> | undefined;
+  get events() {
+    return (
+      this.#event ??
+      (this.#event = merge(
+        toObservable(this.field().touched$$, this.field().touched$$, {
+          injector: this.#injector,
+        }).pipe(map((value) => new TouchedChangeEvent(value, this as any))),
+        toObservable(this.field().dirty$$, this.field().dirty$$, {
+          injector: this.#injector,
+        }).pipe(map((value) => new PristineChangeEvent(value, this as any))),
+        combineLatest([
+          this.field().statusChanges,
+          toObservable(this.field().disabled$$, this.field().disabled$$, {
+            injector: this.#injector,
+          }),
+        ]).pipe(
+          map(
+            (list) =>
+              new StatusChangeEvent(
+                list[1] ? 'DISABLED' : list[0],
+                this as any,
+              ),
+          ),
+        ),
+        this.field().valueChanges.pipe(
+          map((value) => new ValueChangeEvent(value, this as any)),
+        ),
+      ))
+    );
   }
 }
