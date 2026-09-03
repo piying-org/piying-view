@@ -1,6 +1,6 @@
 # props — 通用属性
 
-本文介绍 Props 和 Actions 的 set / patch / mapAsync 方法。
+本文介绍 Props 和 Actions 的 set / patch / patchAsync / remove / mapAsync 方法。
 
 ## actions.props.set — 设置 Props
 
@@ -23,13 +23,38 @@ const schema = v.pipe(v.string(), actions.props.patch({ dataId: '123' }));
 const schema = v.pipe(
   v.string(),
   actions.props.patch({ value: '1' }),
-  actions.inputs.mapAsync((field) => {
+  actions.props.mapAsync((field) => {
     return (value) => ({
       ...value,
       content: field.props()['value'],
     });
   }),
 );
+```
+
+## actions.props.patchAsync — 异步设置 Props
+
+通过字段引用动态创建 Props 值：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.props.patchAsync({
+    dynamicKey: (field) => field.form.control?.value ?? '',
+  }),
+);
+```
+
+## actions.props.remove — 移除 Props 键
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.props.set({ customKey: 'customValue', theme: 'dark' }),
+  actions.props.remove(['theme']),
+);
+
+// 最终 props = { customKey: 'customValue' }
 ```
 
 ## Props 的使用

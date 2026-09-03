@@ -560,7 +560,8 @@ field.restChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>> | undefin
 
 ```typescript
 import * as v from 'valibot';
-import { convert, formConfig } from '@piying/view-angular-core';
+import { convertToField } from '@piying/view-angular';
+import { formConfig } from '@piying/view-angular-core';
 import { firstValueFrom, debounceTime } from 'rxjs';
 
 const schema = v.object({
@@ -575,9 +576,9 @@ const schema = v.object({
   tags: v.optional(v.array(v.string()), []),
 });
 
-const resolved = convert(schema, {
+const resolved = convertToField(() => schema, envInjector, () => ({
   /* options */
-});
+}));
 const root = resolved.form.control!;
 
 // 1. 读取初始值
@@ -622,15 +623,16 @@ console.log(root.disabled); // true
 
 ```typescript
 import * as v from 'valibot';
-import { convert, formConfig, isFieldArray } from '@piying/view-angular-core';
+import { convertToField } from '@piying/view-angular';
+import { formConfig, isFieldArray } from '@piying/view-angular-core';
 
 const schema = v.object({
   items: v.pipe(v.array(v.string()), formConfig({ emptyValue: [] })),
 });
 
-const resolved = convert(schema, {
+const resolved = convertToField(() => schema, envInjector, () => ({
   /* options */
-});
+}));
 const arrayCtrl = resolved.form.control!.get(['items'])!;
 
 if (isFieldArray(arrayCtrl)) {
@@ -655,7 +657,8 @@ if (isFieldArray(arrayCtrl)) {
 
 ```typescript
 import * as v from 'valibot';
-import { convert, formConfig } from '@piying/view-angular-core';
+import { convertToField } from '@piying/view-angular';
+import { formConfig } from '@piying/view-angular-core';
 
 const schema = v.pipe(
   v.number(),
@@ -667,9 +670,9 @@ const schema = v.pipe(
   }),
 );
 
-const resolved = convert(schema, {
+const resolved = convertToField(() => schema, envInjector, () => ({
   /* options */
-});
+}));
 const ctrl = resolved.form.control!;
 
 // modelValue$ 设置原始值

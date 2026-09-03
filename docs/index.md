@@ -22,9 +22,13 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | 文档                                                 | 说明                                                                                                      |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | [5分钟快速上手](getting-started/quick-start.md)      | 安装 → 定义 Schema → 注册组件 → 渲染表单，含自定义 CVA 组件编写方法                                       |
+| [两种使用模式](getting-started/two-modes.md)          | 自动模式（`<piying-view>` 全自动渲染）vs 手动模式（`convertToField` + `[formControl]`/`[fieldTemplate]` 绑定），边界划分与代码解析 |
 | [核心概念](getting-started/core-concept.md)          | Valibot Schema → CoreSchemaHandle → FormBuilder → Component Tree 的三阶段解析链与数据流（toView/toModel） |
 | [Options 配置](getting-started/options-config.md)    | PiyingView 组件 `options` 属性详解：context 上下文、fieldGlobalConfig 全局类型/包装器映射、自定义 Builder |
 | [框架差异](getting-started/framework-differences.md) | Angular/Vue/React/Solid/Svelte 各框架的 Field Token 获取、CVA 绑定、Signal 转换工具对比                   |
+| [字段模型绑定（React）](adapters/field-model-binding-react.md) | React 的 `use-*Model` 系列 Hook，将原生控件与 CVAA 双向绑定（text/checkbox/number/radio/range/select） |
+| [字段模型绑定（Solid）](adapters/field-model-binding-solid.md) | Solid 的 `use-*Model` 系列 Hook，返回 `createMemo` 信号，需 `()` 调用 |
+| [Vue 强类型组件](adapters/vue-typed-component.md) | Vue 的 `typedComponent` 强类型 setComponent 封装，基于组件 props 推导 inputs 类型（含 nfcComponent） |
 | [JSON Schema 支持](getting-started/jsonschema.md)    | `jsonSchemaToValibot()` 自动转换函数，支持 Draft-04/07/2020-12，含类型映射表和限制说明                    |
 
 ### 📖 业务场景 (Scenarios)
@@ -49,11 +53,22 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 > **注意**：Actions 的逻辑定义（Schema 层面）在所有框架中相同，只有组件渲染部分因框架而异。以下 API 参考以 Angular 为主，其他框架作为补充说明。
 
+**框架包 API：**
+
+| 文档                                  | 说明                                                                                                      |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [Angular](api/angular.md)             | `@piying/view-angular` 公开 API：PiyingView/PiyingViewGroup/BaseControl/InsertFieldDirective/Token/typedComponent/actions.directives |
+| [Vue](adapters/vue.md)                | `@piying/view-vue` + `@piying/view-vue2-legacy` 适配包 API：PiyingView/Field/useControlValueAccessor/signalToRef/typedComponent/VueSchemaHandle |
+| [React](adapters/react.md)            | `@piying/view-react` 适配包 API：Token/useControlValueAccessor/useSignalToRef/useEffectSync/use-*Model/ReactSchemaHandle |
+| [Solid](adapters/solid.md)            | `@piying/view-solid` 适配包 API：Token/useControlValueAccessor/createSignalConvert/useEffectSync/use-*Model/SolidSchemaHandle |
+| [Svelte](adapters/svelte.md)          | `@piying/view-svelte` 适配包 API：PiyingView/Field/signalToState/useControlValueAccessor/SvelteSchemaHandle |
+
 | 文档                                                        | 说明                                                                                                                                                                                |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [setComponent](api/setComponent.md)                         | `setComponent` Action 完整 API：字符串引用（通过 fieldGlobalConfig.types）vs 直接传组件类，含内置类型名 key 映射表                                                                  |
 | [inputs](api/inputs.md)                                     | `actions.inputs` 组件输入属性设置：set（覆盖）、patch（合并）、remove（移除），为字段组件传递 @Input() 值                                                                           |
 | [outputs](api/outputs.md)                                   | `actions.outputs` 组件输出事件设置：set/patch/remove/patchAsync（动态创建），绑定自定义事件处理器到字段                                                                             |
+| [models](api/models.md)                                     | `actions.models` 双向绑定模型设置：set/patch/remove/patchAsync/mapAsync，将外部 Signal 绑定到组件 model 输入/输出对                                                                 |
 | [events](api/events.md)                                     | `actions.events.patchAsync` 原生 DOM 事件声明式绑定，click/keydown 等事件处理                                                                                                       |
 | [attributes](api/attributes.md)                             | `actions.attributes` HTML 原生属性设置：set/patch/remove/patchAsync，含 attributes vs inputs 区别表、ARIA/data-\* 属性                                                              |
 | [CSS class](api/css-class.md)                               | `actions.class` CSS Class 设置：topClass（最外层容器）/ bottomClass（底部错误信息等区域）                                                                                           |
@@ -66,7 +81,8 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [fieldGlobalConfig](api/global-config.md)                   | `fieldGlobalConfig` types/wrappers 全局配置结构 + Actions 合并规则（全局在前）+ Component Type 查找优先级体系                                                                       |
 | [Hooks 生命周期](api/hooks.md)                              | `actions.hooks` Hook 生命周期管理：merge(依次执行多个)/patch(覆盖同名)/remove/set，Hook 注册与执行顺序详解                                                                          |
 | [Providers 服务注入](api/providers.md)                      | `actions.providers` 将业务服务注入字段组件 Injector：set(覆盖)/patch(追加)/change(函数式变换)，含 inject() 使用示例                                                                 |
-| [Props 通用属性](api/props.md)                              | `actions.props` 通用属性键配置：set(覆盖)/patch(合并)/mapAsync(动态映射)，组件通过 field.props() 访问，vs Attributes/Inputs/Outputs 语义区分                                        |
+| [Props 通用属性](api/props.md)                              | `actions.props` 通用属性键配置：set(覆盖)/patch(合并)/patchAsync(异步)/remove(移除)/mapAsync(动态映射)，组件通过 field.props() 访问，vs Attributes/Inputs/Outputs 语义区分        |
+| [核心工具函数](api/core-utils.md)                            | `combineSignal`/`observableSignal`/`asyncObjectSignal` 等核心信号工具函数 |
 
 ---
 
@@ -75,6 +91,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | 主题       | 链接                                            |
 | ---------- | ----------------------------------------------- |
 | 安装使用   | [5分钟快速上手](getting-started/quick-start.md) |
+| 两种模式   | [两种使用模式](getting-started/two-modes.md)     |
 | 理解原理   | [核心概念](getting-started/core-concept.md)     |
 | 基本字段   | [基础字段定义](scenarios/basic-field.md)        |
 | 动态控制   | [动态字段控制](scenarios/dynamic-fields.md)     |

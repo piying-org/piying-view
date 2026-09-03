@@ -1,5 +1,7 @@
 # 核心概念：从 Schema 到 View
 
+> 💡 本文介绍的是两种使用模式**共享的底层解析链**。具体到「如何渲染」，分为自动模式（`<piying-view>` 全自动）与手动模式（`convertToField` + 指令手动绑定），边界见 [两种使用模式](two-modes.md)。
+
 本文介绍 Piying-View 的核心工作流程，帮助你理解数据如何从 Valibot Schema 转换为 UI 视图。
 
 ## 架构概述
@@ -86,20 +88,19 @@ const schema = v.object({
 
 ## 2. CoreSchemaHandle（核心处理句柄）
 
-Schema 被传入 `convert()` 函数后，Piying-View 遍历 Schema 树，为每个节点创建 `CoreSchemaHandle`。此句柄负责：
+Schema 被传入 `convertToField()` 函数后，Piying-View 遍历 Schema 树，为每个节点创建 `CoreSchemaHandle`。此句柄负责：
 
 - **解析 Actions**：将 `setComponent`、`inputs`、`outputs`、`attributes`、`wrappers` 等 Action 转换为内部数据
 - **收集元信息**：优先级（priority）、路径（keyPath/fullPath）、别名（alias）
 - **应用 Hook**：处理 `mergeHooks`、`patchHooks` 等生命周期回调
 
 ```typescript
-import { convert } from '@piying/view-angular-core';
+import { convertToField } from '@piying/view-angular';
 
-const handle = convert(schema, {
-  injector,
+const field = convertToField(() => schema, injector, () => ({
   fieldGlobalConfig: { types, wrappers },
   context: myContext,
-});
+}));
 ```
 
 ### Action 解析过程
@@ -156,7 +157,7 @@ v.pipe(
 - **生命周期管理**：注入器销毁、`allFieldsResolved` hook 批量调用
 
 ```typescript
-// convert() 函数内部的调用链
+// convertToField() 函数内部的调用链
 const injector = Injector.create({
   providers: [
     { provide: PI_FORM_BUILDER_OPTIONS_TOKEN, useValue: buildOptions },
@@ -216,7 +217,7 @@ Field Control 树构建完成后，Piying-View 根据 `type` 映射动态渲染�
 ### Angular 中的渲染过程
 
 1. **PiyingView** 接收 `schema`、`model`、`options`
-2. 调用 `convert()` 构建 Field Control 树
+2. 调用 `convertToField()` 构建 Field Control 树
 3. **InsertFieldDirective** 遍历 Field Control，为每个控件创建组件实例
 4. 使用 `NgComponentOutlet` 动态挂载用户注册的组件
 

@@ -26,6 +26,8 @@
 
 ## Angular 示例
 
+> 💡 **先分清两种模式**：本文展示的是**自动模式**（`<piying-view>` 组件 + Schema 全自动渲染）。还有一种**手动模式**（`convertToField` + `[formControl]`/`[fieldTemplate]` 手动绑定）。两种模式边界不同，详见 [两种使用模式](two-modes.md)。
+
 本指南介绍如何在 Angular 项目中安装并使用 Piying-View 渲染第一个表单。
 
 ## 安装
@@ -165,6 +167,7 @@ export class InputComponent extends BaseControl {}
 
 ## 下一步
 
+- 了解 [两种使用模式](two-modes.md) — 自动模式 vs 手动模式的边界划分
 - 了解 [核心概念](core-concept.md) — Schema 是如何转换为视图的
 - 查看 [基础字段定义](../scenarios/basic-field.md) — setComponent / formConfig 的详细用法
 - 了解 [Options 配置](options-config.md) — context / fieldGlobalConfig / builder 入门讲解

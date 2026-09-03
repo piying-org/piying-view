@@ -83,8 +83,10 @@ const schema = v.object({
 | `v.boolean()`   | `'boolean'`         |
 | `v.object()`    | `'object'`          |
 | `v.array()`     | `'array'`           |
-| `v.intersect()` | `'intersect-group'` |
+| `v.intersect()` | `'intersect'`       |
 | `v.record()`    | `'record'`          |
+
+> **注意**：`'intersect-group'` 不是 `v.intersect()` 的默认 key。只有当 `v.intersect()` 配合 `asVirtualGroup()` 使用时，类型才会变为 `'intersect-group'`（见 [asControl / asVirtualGroup](../scenarios/as-control-group.md)）。
 
 因此以下代码中，`name` 字段会查找 `types['string']`：
 

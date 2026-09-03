@@ -164,13 +164,15 @@ schema 中 setComponent('key') + actions
 
 ### 模式一：最小配置（仅组件映射）
 
+> **注意**：`types` 的值必须是 `{ type: Component }` 对象格式，不能直接传组件类。
+
 ```typescript
 options = {
   fieldGlobalConfig: {
     types: {
-      string: TextInputComponent,
-      number: TextInputComponent,
-      object: PiyingViewGroup,
+      string: { type: TextInputComponent },
+      number: { type: TextInputComponent },
+      object: { type: PiyingViewGroup },
     },
   },
 };

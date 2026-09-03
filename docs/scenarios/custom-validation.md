@@ -239,7 +239,7 @@ Piying-View 的 FieldControl 提供标准接口访问验证状态：
 | ------------------ | ------------------------------------------ | -------------------------------- |
 | `control.errors`   | `ValidationErrors2[] \| null`              | 当前所有错误（Valibot + 自定义） |
 | `control.valid`    | `boolean`                                  | 是否所有验证都通过               |
-| `control.status`   | `'VALID' \| 'INVALID' \| 'PENDING'`        | 验证状态（包括异步验证中）       |
+| `control.status$$()` | `'VALID' \| 'INVALID' \| 'PENDING'`   | 验证状态（包括异步验证中）       |
 | `control.dirty`    | `boolean`                                  | 值是否被修改过                   |
 | `control.touched`  | `boolean`                                  | 是否被聚焦过                     |
 | `control.pristine` | `boolean`                                  | 是否未被修改过                   |

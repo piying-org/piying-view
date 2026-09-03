@@ -206,13 +206,17 @@ const schema = v.object({
 
 ```typescript
 import { disableWhen } from '@piying/view-angular-core';
+import { map } from 'rxjs';
 
 const schema = v.object({
   isActive: v.boolean(),
   name: v.pipe(
     v.string(),
     disableWhen({
-      listen: (fn) => fn({ list: [['..', 'isActive']].pipe(map((item) => !item.list[0][0])) }),
+      listen: (fn) =>
+        fn({ list: [['..', 'isActive']] }).pipe(
+          map((item) => !item.list[0]), // isActive 为 false 时禁用
+        ),
     }),
   ),
 });
