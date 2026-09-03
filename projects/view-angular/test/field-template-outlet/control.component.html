@@ -1,0 +1,17 @@
+<div class="wrap">
+  <input
+    type="text"
+    class="mode1"
+    [formControl]="bind()"
+    #formControl="formControl"
+  />
+  <div class="valibot-issue" [textContent]="formControl.valibotIssueSummary$$()"></div>
+  <div class="summary-count">{{ formControl.summaryList$$().length }}</div>
+  <div class="summary-list">
+    @for (item of formControl.summaryList$$(); track trackFn($index)) {
+      <div class="summary-item">
+        {{ item.valibotIssueSummary }}
+      </div>
+    }
+  </div>
+</div>

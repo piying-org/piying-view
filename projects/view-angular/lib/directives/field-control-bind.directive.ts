@@ -3,6 +3,7 @@ import { computed, Directive, inject, input, Provider } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import {
   _PiResolvedCommonViewFieldConfig,
+  errorSummary,
   isFieldControl,
   KeyPath,
 } from '@piying/view-angular-core';
@@ -37,5 +38,12 @@ export class PiyingFieldControlBindDirective extends FieldControlBase {
       throw new Error(`🏷️ fieldControl❗`);
     }
     return control;
+  });
+
+  summaryList$$ = computed(() => {
+    return errorSummary(this.field$$()?.form.control);
+  });
+  valibotIssueSummary$$ = computed(() => {
+    return this.summaryList$$().map((item) => item.valibotIssueSummary!).filter(Boolean).join('\n');
   });
 }

@@ -1,12 +1,13 @@
 import { inject, Injector, Directive, input, computed } from '@angular/core';
 
 import { PiResolvedViewFieldConfig } from '../type';
-import { KeyPath } from '@piying/view-angular-core';
+import { errorSummary, KeyPath } from '@piying/view-angular-core';
 import { DynamicCreateDirective } from '../hook/dynamic-create';
 
 @Directive({
   selector: '[fieldTemplate]',
   standalone: true,
+  exportAs: 'fieldTemplate',
 })
 export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
   readonly fieldTemplate = input.required<PiResolvedViewFieldConfig>();
@@ -19,4 +20,11 @@ export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
   });
   override field = computed(() => this.field$$()!);
   override inputInjector = computed(() => this.injector);
+
+  summaryList$$ = computed(() => {
+    return errorSummary(this.field$$()?.form.control);
+  });
+  valibotIssueSummary$$ = computed(() => {
+    return this.summaryList$$().map((item) => item.valibotIssueSummary!).filter(Boolean).join('\n');;
+  });
 }

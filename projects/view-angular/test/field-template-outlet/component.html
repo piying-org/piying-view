@@ -1,0 +1,15 @@
+<div class="wrap">
+  <ng-container
+    [fieldTemplate]="bind()"
+    #fieldTemplate="fieldTemplate"
+  ></ng-container>
+  <div class="valibot-issue" [textContent]="fieldTemplate.valibotIssueSummary$$()"></div>
+  <div class="summary-count">{{ fieldTemplate.summaryList$$().length }}</div>
+  <div class="summary-list">
+    @for (item of fieldTemplate.summaryList$$(); track trackFn($index)) {
+      <div class="summary-item">
+        {{ item.valibotIssueSummary }}
+      </div>
+    }
+  </div>
+</div>
