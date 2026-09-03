@@ -1,6 +1,7 @@
 import {
   computed,
   DestroyRef,
+  inject,
   InjectionToken,
   Injector,
   Provider,
@@ -61,7 +62,7 @@ export function createConvertToField<
     options?: () => FieldConvertOptions | undefined,
     providers?: Provider[],
   ) => {
-    const parent2 = (parent ?? defaultInjector)!;
+    const parent2 = parent ?? defaultInjector ?? inject(Injector);
     const options2 = {
       ...defaultOptions,
       ...options?.(),
