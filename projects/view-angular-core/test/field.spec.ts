@@ -32,7 +32,7 @@ describe('field', () => {
     expect(result.form.control.value$$()).toEqual(['v1']);
     result.form.control?.updateValue([1]);
     expect(result.form.control.errors).toBeTruthy();
-    expect(result.form.control.value$$()).not.toEqual([1]);
+    expect(result.form.control.value$$() as any).not.toEqual([1]);
   });
   it('control', async () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();

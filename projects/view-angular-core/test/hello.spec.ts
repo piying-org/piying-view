@@ -55,7 +55,7 @@ describe('hello', () => {
     expect(field.form.control?.originValue$$()).toBe('d1');
     expect(field.form.control?.value$$()).toBe(undefined);
     expect(field.form.control?.errors).toBeTruthy();
-    expect(result.form.control?.value$$()).toBe(undefined);
+    expect(result.form.control?.value$$() as any).toBe(undefined);
   });
   it('transform', async () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();

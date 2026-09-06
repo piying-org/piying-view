@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
+import * as v from 'valibot';
 import {
   _PiResolvedCommonViewFieldConfig,
   createConvertToField,
   FormBuilder,
 } from '@piying/view-angular-core';
-import { SchemaOrPipe } from '@piying/valibot-visit';
 import { createInjector } from './injector';
 @Injectable()
 class TestFormBuilder extends FormBuilder<any> {}
-export function createBuilder(
-  obj: SchemaOrPipe,
+export function createBuilder<T extends v.BaseSchema<any, any, any>>(
+  obj: T,
   options?: {
     context?: any;
     handle?: any;
@@ -70,5 +70,5 @@ export function createBuilder(
       },
     }),
   );
-  return result as _PiResolvedCommonViewFieldConfig;
+  return result as _PiResolvedCommonViewFieldConfig<v.InferOutput<T>>;
 }

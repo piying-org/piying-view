@@ -286,9 +286,9 @@ describe('对象', () => {
     const list = createBuilder(obj);
     list.form.root.updateValue({ key1: '2' });
 
-    expect(list.form.root.value).toEqual({ key1: '2' });
+    expect(list.form.root.value as any).toEqual({ key1: '2' });
     list.form.root.reset();
-    expect(list.form.root.value).toEqual({ key1: '1' });
+    expect(list.form.root.value as any).toEqual({ key1: '1' });
   });
   it('object default value', async () => {
     const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
@@ -493,7 +493,7 @@ describe('对象', () => {
     assertFieldGroup(resolved.form.control);
     resolved.form.control.updateValue({ o1: { k1: 1, k2: '2' } });
     expect(resolved.form.control.valid).toEqual(false);
-    expect(resolved.form.control.value).toEqual(undefined);
+    expect(resolved.form.control.value as any).toEqual(undefined);
   });
 
   it('optional', () => {
@@ -544,6 +544,6 @@ describe('对象', () => {
     );
     const result = createBuilder(obj);
     result.form.root.reset();
-    expect(result.form.root.value).toEqual([]);
+    expect(result.form.root.value as any).toEqual([]);
   });
 });

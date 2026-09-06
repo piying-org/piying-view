@@ -7,8 +7,9 @@ import { toObservable } from '../util';
 import { merge, Observable, switchMap } from 'rxjs';
 
 export class FieldGroup<
+  TValue = any,
   TControl extends { [K in keyof TControl]: AbstractControl<any> } = any,
-> extends FieldGroupbase {
+> extends FieldGroupbase<TValue> {
   override originValue$$ = computed<any>(() => {
     if (this.updateOn$$() === 'submit') {
       this.submitIndex$();

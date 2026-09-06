@@ -61,7 +61,7 @@ export function createConvertToField<
     parent?: Injector,
     options?: () => FieldConvertOptions | undefined,
     providers?: Provider[],
-  ) => {
+  ): _PiResolvedCommonViewFieldConfig<v.InferOutput<T>> => {
     const parent2 = parent ?? defaultInjector ?? inject(Injector);
     const options2 = {
       ...defaultOptions,
@@ -108,7 +108,9 @@ export function createConvertToField<
           field: item,
           resolvedField$: buildOptions.resolvedField$,
         });
-        return buildOptions.resolvedField$();
+        return buildOptions.resolvedField$() as _PiResolvedCommonViewFieldConfig<
+          v.InferOutput<T>
+        >;
       },
       {
         ...options2,

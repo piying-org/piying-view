@@ -136,6 +136,6 @@ describe('raw-value', () => {
     result.form.root!.updateValue({ o2: { l1: '111' } });
     const value = result.form.root.getRawValue(1);
     expect(JSON.parse(JSON.stringify(value))).toEqual({ o2: { l1: '111' } });
-    expect(result.form.root.value).toEqual(undefined);
+    expect(result.form.root.value as any).toEqual(undefined);
   });
 });

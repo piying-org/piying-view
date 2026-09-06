@@ -7,8 +7,9 @@ import { toObservable } from '../util';
 import { merge, Observable, switchMap } from 'rxjs';
 
 export class FieldArray<
+  TValue = any,
   TControl extends AbstractControl<any> = any,
-> extends FieldGroupbase {
+> extends FieldGroupbase<TValue> {
   #deletionMode$$ = computed(() => this.config$().deletionMode ?? 'shrink');
 
   override originValue$$ = computed<any>(() => {

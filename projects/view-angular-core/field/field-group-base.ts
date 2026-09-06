@@ -5,7 +5,7 @@ import { deepEqual } from 'fast-equals';
 import { UpdateType } from './type';
 import { Observable } from 'rxjs';
 
-export class FieldGroupbase extends AbstractControl {
+export class FieldGroupbase<TValue = any> extends AbstractControl<TValue> {
   /** @internal */
   protected getResetValue(value: any[] = []) {}
   /** @internal */

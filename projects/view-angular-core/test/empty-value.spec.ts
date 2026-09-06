@@ -11,7 +11,7 @@ describe('empty value', () => {
     const resolved = createBuilder(obj);
     resolved.form.control!.updateValue({ a: 6 });
     expect(resolved.form.control?.errors).toBeTruthy();
-    expect(resolved.form.control?.value$$()).toEqual({});
+    expect(resolved.form.control?.value$$() as any).toEqual({});
   });
   it('array', () => {
     const obj = v.pipe(
@@ -21,6 +21,6 @@ describe('empty value', () => {
     const resolved = createBuilder(obj);
     resolved.form.control!.updateValue([6]);
     expect(resolved.form.control?.errors).toBeTruthy();
-    expect(resolved.form.control?.value$$()).toEqual([]);
+    expect(resolved.form.control?.value$$() as any).toEqual([]);
   });
 });

@@ -6,7 +6,7 @@ import { deepEqual } from 'fast-equals';
 import { toObservable } from '../util';
 import { merge, Observable, switchMap } from 'rxjs';
 // 切换索引后,理论上应该触发下值变更,否则不知道值是什么
-export class FieldLogicGroup extends FieldArray {
+export class FieldLogicGroup<TValue = any> extends FieldArray<TValue> {
   protected override skipValuePath = true;
   activateIndex$ = signal(0);
   type = signal<LogicType>('and');

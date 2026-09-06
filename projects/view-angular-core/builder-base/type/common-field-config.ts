@@ -38,6 +38,7 @@ export interface HookConfig<RESOLVED_FIELD> {
 export type PiResolvedCommonViewFieldConfig<
   SelfResolvedFn extends () => any,
   Define,
+  Value = any,
 > = {
   readonly hooks: HookConfig<ReturnType<SelfResolvedFn>>;
   // 额外
@@ -52,9 +53,9 @@ export type PiResolvedCommonViewFieldConfig<
   restChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   parent: ReturnType<SelfResolvedFn>;
   readonly form: {
-    readonly control?: FieldGroup | FieldArray | FieldControl | FieldLogicGroup;
+    readonly control?: FieldGroup<Value> | FieldArray<Value> | FieldControl<Value> | FieldLogicGroup<Value>;
     readonly parent: FieldGroup | FieldArray | FieldLogicGroup;
-    readonly root: FieldGroup | FieldArray | FieldControl | FieldLogicGroup;
+    readonly root: FieldGroup<Value> | FieldArray<Value> | FieldControl<Value> | FieldLogicGroup<Value>;
   };
   /** 仅用来开发时debug使用 */
   readonly origin: any;
@@ -86,10 +87,12 @@ export type PiResolvedCommonViewFieldConfig<
   } & Readonly<
     Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
   >;
-export type _PiResolvedCommonViewFieldConfig = PiResolvedCommonViewFieldConfig<
-  () => _PiResolvedCommonViewFieldConfig,
-  CoreResolvedComponentDefine
->;
+export type _PiResolvedCommonViewFieldConfig<Value = any> =
+  PiResolvedCommonViewFieldConfig<
+    () => _PiResolvedCommonViewFieldConfig<any>,
+    CoreResolvedComponentDefine,
+    Value
+  >;
 
 export interface FormBuilderOptions<T> {
   form$$: Signal<FieldGroup>;

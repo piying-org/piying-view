@@ -82,7 +82,7 @@ describe('array', () => {
     );
     const result = createBuilder(obj);
     result.form.control!.updateValue([0, 'v2']);
-    expect(result.form.control!.value).toEqual([undefined, 'v2']);
+    expect(result.form.control!.value as any).toEqual([undefined, 'v2']);
   });
   it('length', async () => {
     const obj = v.pipe(v.array(v.string()));
@@ -218,7 +218,7 @@ describe('array', () => {
     expect(result.form.control.value).toEqual([1, 2, 3]);
     result.form.control.markAllAsDirty();
     result.form.control.updateValue(undefined);
-    expect(result.form.control.value).toEqual(undefined);
+    expect(result.form.control.value as any).toEqual(undefined);
   });
   it('array groupValueSchema', async () => {
     const obj = v.array(v.number());
