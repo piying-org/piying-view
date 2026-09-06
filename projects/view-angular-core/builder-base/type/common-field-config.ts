@@ -35,10 +35,68 @@ export interface HookConfig<RESOLVED_FIELD> {
   afterCreateComponent?: (field: RESOLVED_FIELD) => void;
 }
 
+/** 去掉 keyPath 的第一个元素 */
+type RestPath<Path extends KeyPath> = Path extends [any, ...infer R]
+  ? R extends KeyPath
+    ? R
+    : []
+  : [];
+
+/**
+ * 根据 keyPath 递归提取对应字段的值类型。
+ * Value: 当前字段值类型; RootValue: 根级字段值类型; ParentValue: 父级字段值类型。
+ * - '#' 从根级开始; '..' 从父级开始(单级退回)。
+ */
+type GetPathValue<
+  Value,
+  RootValue,
+  ParentValue,
+  Path extends KeyPath,
+> = Path extends []
+  ? Value
+  : Path[0] extends '#'
+    ? GetPathValue<RootValue, RootValue, any, RestPath<Path>>
+    : Path[0] extends '..'
+      ? GetPathValue<ParentValue, RootValue, any, RestPath<Path>>
+      : Path[0] extends `@${string}`
+        ? any
+        : Path extends [infer K, ...infer Rest]
+          ? K extends keyof Value
+            ? Rest extends KeyPath
+              ? GetPathValue<Value[K], RootValue, Value, Rest>
+              : Value[K]
+            : any
+          : any;
+
+/** 返回字段的父级值类型: 普通路径的父级是路径倒数第二个 key 的值; 特殊路径无法推导为 any */
+type GetParentValue<Value, ParentValue, Path extends KeyPath> = Path extends []
+  ? ParentValue
+  : Path[0] extends '#' | '..' | `@${string}`
+    ? any
+    : Path extends [infer K, ...infer Rest]
+      ? Rest extends KeyPath
+        ? Rest extends []
+          ? Value
+          : K extends keyof Value
+            ? GetParentValue<Value[K], ParentValue, Rest>
+            : any
+        : any
+      : any;
+
+/** get 的返回字段完整类型(携带正确的 RootValue/ParentValue) */
+type GetResult<Value, RootValue, ParentValue, Path extends KeyPath> =
+  _PiResolvedCommonViewFieldConfig<
+    GetPathValue<Value, RootValue, ParentValue, Path>,
+    RootValue,
+    GetParentValue<Value, ParentValue, Path>
+  >;
+
 export type PiResolvedCommonViewFieldConfig<
   SelfResolvedFn extends () => any,
   Define,
   Value = any,
+  RootValue = Value,
+  ParentValue = any,
 > = {
   readonly hooks: HookConfig<ReturnType<SelfResolvedFn>>;
   // 额外
@@ -64,13 +122,13 @@ export type PiResolvedCommonViewFieldConfig<
   /** 外部传入引用 */
   readonly context?: any;
   arrayChild?: CoreSchemaHandle<any, any>;
-  get: (
-    keyPath: KeyPath,
+  get: <K extends KeyPath>(
+    keyPath: [...K],
     aliasNotFoundFn?: (
       name: string,
       field: PiResolvedCommonViewFieldConfig<any, any>,
     ) => PiResolvedCommonViewFieldConfig<any, any>,
-  ) => ReturnType<SelfResolvedFn> | undefined;
+  ) => GetResult<Value, RootValue, ParentValue, K> | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
@@ -87,12 +145,17 @@ export type PiResolvedCommonViewFieldConfig<
   } & Readonly<
     Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
   >;
-export type _PiResolvedCommonViewFieldConfig<Value = any> =
-  PiResolvedCommonViewFieldConfig<
-    () => _PiResolvedCommonViewFieldConfig<any>,
-    CoreResolvedComponentDefine,
-    Value
-  >;
+export type _PiResolvedCommonViewFieldConfig<
+  Value = any,
+  RootValue = Value,
+  ParentValue = any,
+> = PiResolvedCommonViewFieldConfig<
+  () => _PiResolvedCommonViewFieldConfig<any>,
+  CoreResolvedComponentDefine,
+  Value,
+  RootValue,
+  ParentValue
+>;
 
 export interface FormBuilderOptions<T> {
   form$$: Signal<FieldGroup>;

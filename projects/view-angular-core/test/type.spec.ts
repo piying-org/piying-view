@@ -39,6 +39,98 @@ async function makeKeyField<Value = any>(
 }
 
 describe('强类型推断', () => {
+  it('get([key]) 强类型返回对应字段', () => {
+    const result = createBuilder(v.object({ key1: v.string() }));
+    const key1Field = result.get(['key1']);
+    // 运行时: 字段应能查询到
+    expect(key1Field).toBeDefined();
+    if (key1Field) {
+      // get(['key1']) 应返回 value 类型为 string 的字段
+      const value = key1Field.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error get(['key1']) 的 value 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+  });
+
+  it('get([a, b]) 嵌套强类型返回对应字段', () => {
+    const result = createBuilder(
+      v.object({ a: v.object({ b: v.string() }) }),
+    );
+    const bField = result.get(['a', 'b']);
+    expect(bField).toBeDefined();
+    if (bField) {
+      const value = bField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error get(['a','b']) 的 value 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+  });
+
+  it('get([#]) 返回根级字段(强类型)', () => {
+    const result = createBuilder(v.object({ key1: v.string() }));
+    const key1Field = result.get(['key1']);
+    expect(key1Field).toBeDefined();
+    if (key1Field) {
+      // 从子级调用 get(['#']) 返回根级字段
+      const rootField = key1Field.get(['#']);
+      expect(rootField).toBeDefined();
+      if (rootField) {
+        // 根级 value 类型 = {key1: string}
+        const value = rootField.form.control!.value;
+        let xxx: { key1: string } = value;
+        const equal: Equal<typeof value, { key1: string }> = true;
+        // @ts-expect-error 根级 value 不是 number
+        let wrong: number = value;
+        expect(equal).toBe(true);
+      }
+    }
+  });
+
+  it('get([#, key]) 从根级查询子字段(强类型)', () => {
+    const result = createBuilder(v.object({ key1: v.string() }));
+    const key1Field = result.get(['key1']);
+    if (key1Field) {
+      // 从子级 get(['#', 'key1']) 等价于从根级查询 key1
+      const rootKey1 = key1Field.get(['#', 'key1']);
+      expect(rootKey1).toBeDefined();
+      if (rootKey1) {
+        const value = rootKey1.form.control!.value;
+        let xxx: string = value;
+        const equal: Equal<typeof value, string> = true;
+        // @ts-expect-error 根级 key1 的 value 不是 number
+        let wrong: number = value;
+        expect(equal).toBe(true);
+      }
+    }
+  });
+
+  it('get([..]) 退回父级字段(强类型)', () => {
+    const result = createBuilder(
+      v.object({ a: v.object({ b: v.string() }) }),
+    );
+    const bField = result.get(['a', 'b']);
+    expect(bField).toBeDefined();
+    if (bField) {
+      // 从 b 字段 get(['..']) 退回父级 a 字段
+      const parentField = bField.get(['..']);
+      expect(parentField).toBeDefined();
+      if (parentField) {
+        // 父级 a 的 value 类型 = {b: string}
+        const value = parentField.form.control!.value;
+        let xxx: { b: string } = value;
+        const equal: Equal<typeof value, { b: string }> = true;
+        // @ts-expect-error 父级 a 的 value 不是 string
+        let wrong: string = value;
+        expect(equal).toBe(true);
+      }
+    }
+  });
+
   it('根对象: form.control.value 精确推断为对象类型', () => {
     const result = createBuilder(v.object({ key1: v.string() }));
     const value = result.form.control!.value;
