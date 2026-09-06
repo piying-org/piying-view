@@ -12,6 +12,7 @@ import { SetOptional } from '../util';
 import {
   _PiResolvedCommonViewFieldConfig,
   FormBuilderOptions,
+  InferAliasMap,
   PI_CONTEXT_TOKEN,
   PI_FORM_BUILDER_OPTIONS_TOKEN,
   PI_VIEW_CONFIG_TOKEN,
@@ -61,7 +62,12 @@ export function createConvertToField<
     parent?: Injector,
     options?: () => FieldConvertOptions | undefined,
     providers?: Provider[],
-  ): _PiResolvedCommonViewFieldConfig<v.InferOutput<T>> => {
+  ): _PiResolvedCommonViewFieldConfig<
+    v.InferOutput<T>,
+    v.InferOutput<T>,
+    any,
+    InferAliasMap<T>
+  > => {
     const parent2 = parent ?? defaultInjector ?? inject(Injector);
     const options2 = {
       ...defaultOptions,
@@ -109,7 +115,10 @@ export function createConvertToField<
           resolvedField$: buildOptions.resolvedField$,
         });
         return buildOptions.resolvedField$() as _PiResolvedCommonViewFieldConfig<
-          v.InferOutput<T>
+          v.InferOutput<T>,
+          v.InferOutput<T>,
+          any,
+          InferAliasMap<T>
         >;
       },
       {

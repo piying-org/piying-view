@@ -3,6 +3,7 @@ import { of, map, pipe as rxPipe } from 'rxjs';
 import {
   _PiResolvedCommonViewFieldConfig,
   formConfig,
+  setAlias,
 } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { getField } from './util/action';
@@ -128,6 +129,37 @@ describe('强类型推断', () => {
         let wrong: string = value;
         expect(equal).toBe(true);
       }
+    }
+  });
+
+  it('get([@alias]) 通过别名返回对应字段(强类型)', () => {
+    const result = createBuilder(
+      v.object({
+        key1: v.pipe(v.string(), setAlias('a')),
+        key2: v.pipe(v.number(), setAlias('b')),
+      }),
+    );
+    // get(['@a']) 返回别名为 'a' 的字段(key1), value 类型 string
+    const aField = result.get(['@a']);
+    expect(aField).toBeDefined();
+    if (aField) {
+      const value = aField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error @a 的 value 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+    // get(['@b']) 返回别名为 'b' 的字段(key2), value 类型 number
+    const bField = result.get(['@b']);
+    expect(bField).toBeDefined();
+    if (bField) {
+      const value = bField.form.control!.value;
+      let xxx: number = value;
+      const equal: Equal<typeof value, number> = true;
+      // @ts-expect-error @b 的 value 不是 string
+      let wrong: string = value;
+      expect(equal).toBe(true);
     }
   });
 

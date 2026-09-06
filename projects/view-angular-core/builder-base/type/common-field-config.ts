@@ -1,4 +1,5 @@
 import { Injector, Signal, WritableSignal } from '@angular/core';
+import * as v from 'valibot';
 
 import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
@@ -42,6 +43,56 @@ type RestPath<Path extends KeyPath> = Path extends [any, ...infer R]
     : []
   : [];
 
+/* ---------- 别名(@alias) 强类型支持 ---------- */
+type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
+  x: infer R,
+) => void
+  ? R
+  : never;
+
+/** 在 schema 中查找第一个 setAlias 的别名 */
+type FindAlias<S> = S extends { alias: infer Al }
+  ? Al
+  : S extends { pipe: infer P extends readonly any[] }
+    ? FindAliasInPipe<P>
+    : S extends { entries: infer E extends Record<string, any> }
+      ? FindAliasInEntries<E>
+      : never;
+type FindAliasInPipe<P extends readonly any[]> = P extends readonly [
+  infer A,
+  ...infer R,
+]
+  ? A extends { alias: infer Al }
+    ? Al
+    : FindAliasInPipe<R>
+  : never;
+type FindAliasInEntries<E extends Record<string, any>> = {
+  [K in keyof E]: FindAlias<E[K]>;
+}[keyof E];
+
+/** 提取字段输出类型(非 schema 时兜底为 any) */
+type FieldOutput<F> = F extends v.BaseSchema<unknown, unknown, any>
+  ? v.InferOutput<F>
+  : any;
+
+/** 提取单个字段的别名映射: { [别名]: 字段value类型 } */
+type ExtractFieldMap<F> = FindAlias<F> extends infer Al
+  ? Al extends string
+    ? { [key in Al]: FieldOutput<F> }
+    : {}
+  : {};
+
+/** 从 root schema 递归提取所有别名 -> 字段类型 映射(any/unknown 及未覆盖的 schema 类型返回 {}) */
+export type InferAliasMap<S> = unknown extends S
+  ? {}
+  : S extends { entries: infer E extends Record<string, any> }
+    ? UnionToIntersection<{ [K in keyof E]: ExtractFieldMap<E[K]> }[keyof E]>
+    : S extends { pipe: infer P extends readonly any[] }
+      ? InferAliasMap<P[0]>
+      : S extends { options: infer O extends readonly any[] }
+        ? UnionToIntersection<InferAliasMap<O[number]>>
+        : {};
+
 /**
  * 根据 keyPath 递归提取对应字段的值类型。
  * Value: 当前字段值类型; RootValue: 根级字段值类型; ParentValue: 父级字段值类型。
@@ -51,19 +102,28 @@ type GetPathValue<
   Value,
   RootValue,
   ParentValue,
+  AliasMap,
   Path extends KeyPath,
 > = Path extends []
   ? Value
   : Path[0] extends '#'
-    ? GetPathValue<RootValue, RootValue, any, RestPath<Path>>
+    ? GetPathValue<RootValue, RootValue, any, AliasMap, RestPath<Path>>
     : Path[0] extends '..'
-      ? GetPathValue<ParentValue, RootValue, any, RestPath<Path>>
-      : Path[0] extends `@${string}`
-        ? any
+      ? GetPathValue<ParentValue, RootValue, any, AliasMap, RestPath<Path>>
+      : Path[0] extends `@${infer Al}`
+        ? Al extends keyof AliasMap
+          ? GetPathValue<
+              AliasMap[Al],
+              RootValue,
+              any,
+              AliasMap,
+              RestPath<Path>
+            >
+          : any
         : Path extends [infer K, ...infer Rest]
           ? K extends keyof Value
             ? Rest extends KeyPath
-              ? GetPathValue<Value[K], RootValue, Value, Rest>
+              ? GetPathValue<Value[K], RootValue, Value, AliasMap, Rest>
               : Value[K]
             : any
           : any;
@@ -83,12 +143,13 @@ type GetParentValue<Value, ParentValue, Path extends KeyPath> = Path extends []
         : any
       : any;
 
-/** get 的返回字段完整类型(携带正确的 RootValue/ParentValue) */
-type GetResult<Value, RootValue, ParentValue, Path extends KeyPath> =
+/** get 的返回字段完整类型(携带正确的 RootValue/ParentValue/AliasMap) */
+type GetResult<Value, RootValue, ParentValue, AliasMap, Path extends KeyPath> =
   _PiResolvedCommonViewFieldConfig<
-    GetPathValue<Value, RootValue, ParentValue, Path>,
+    GetPathValue<Value, RootValue, ParentValue, AliasMap, Path>,
     RootValue,
-    GetParentValue<Value, ParentValue, Path>
+    GetParentValue<Value, ParentValue, Path>,
+    AliasMap
   >;
 
 export type PiResolvedCommonViewFieldConfig<
@@ -97,6 +158,7 @@ export type PiResolvedCommonViewFieldConfig<
   Value = any,
   RootValue = Value,
   ParentValue = any,
+  AliasMap = {},
 > = {
   readonly hooks: HookConfig<ReturnType<SelfResolvedFn>>;
   // 额外
@@ -128,7 +190,7 @@ export type PiResolvedCommonViewFieldConfig<
       name: string,
       field: PiResolvedCommonViewFieldConfig<any, any>,
     ) => PiResolvedCommonViewFieldConfig<any, any>,
-  ) => GetResult<Value, RootValue, ParentValue, K> | undefined;
+  ) => GetResult<Value, RootValue, ParentValue, AliasMap, K> | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
@@ -149,12 +211,14 @@ export type _PiResolvedCommonViewFieldConfig<
   Value = any,
   RootValue = Value,
   ParentValue = any,
+  AliasMap = {},
 > = PiResolvedCommonViewFieldConfig<
   () => _PiResolvedCommonViewFieldConfig<any>,
   CoreResolvedComponentDefine,
   Value,
   RootValue,
-  ParentValue
+  ParentValue,
+  AliasMap
 >;
 
 export interface FormBuilderOptions<T> {

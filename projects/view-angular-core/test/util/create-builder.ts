@@ -4,6 +4,7 @@ import {
   _PiResolvedCommonViewFieldConfig,
   createConvertToField,
   FormBuilder,
+  InferAliasMap,
 } from '@piying/view-angular-core';
 import { createInjector } from './injector';
 @Injectable()
@@ -70,5 +71,10 @@ export function createBuilder<T extends v.BaseSchema<any, any, any>>(
       },
     }),
   );
-  return result as _PiResolvedCommonViewFieldConfig<v.InferOutput<T>>;
+  return result as _PiResolvedCommonViewFieldConfig<
+    v.InferOutput<T>,
+    v.InferOutput<T>,
+    any,
+    InferAliasMap<T>
+  >;
 }
