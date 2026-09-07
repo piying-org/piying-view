@@ -1,13 +1,22 @@
 import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
-import { PiResolvedViewFieldConfig } from '../lib/type';
+import {
+  NgDirectiveConfig,
+  PiResolvedViewFieldConfig,
+} from '../lib/type';
 import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
 import { getField, mergeHooks } from './util/action';
-import { actions, FieldControl, setComponent } from '@piying/view-angular-core';
+import {
+  actions,
+  asyncObjectSignal,
+  FieldControl,
+  setComponent,
+} from '@piying/view-angular-core';
 
 import { directives } from '../lib/schema/action/directive';
 import { BehaviorSubject } from 'rxjs';
+import { By } from '@angular/platform-browser';
 import { TestNgControlDirective } from './directive/test-ng-control.directive';
 import { Test1Component } from './test1/test1.component';
 import { InteropNgControl } from '../lib/directives/interop_ng_control';
@@ -289,5 +298,86 @@ describe('指令', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(element.querySelector('#id2')).toBeTruthy();
+  });
+  it('指令不变,输入参数变,指令内部数据跟随变化', async () => {
+    const inputs = signal('id1');
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      directives.patchAsync(D1Directive, [
+        actions.inputs.patchAsync({ id: () => inputs }),
+      ]),
+    );
+    const { fixture, element } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // 获取指令实例并验证初始输入值
+    const directive = fixture.debugElement
+      .query(By.directive(D1Directive))
+      .injector.get(D1Directive);
+    expect(directive.id()).toEqual('id1');
+
+    // 改变输入参数
+    inputs.set('id2');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // 指令实例未被重建(指令不变),但内部数据跟随更新
+    const directive2 = fixture.debugElement
+      .query(By.directive(D1Directive))
+      .injector.get(D1Directive);
+    expect(directive2).toBe(directive);
+    expect(directive.id()).toEqual('id2');
+    expect(element.querySelector('.d1')?.id).toEqual('id2');
+  });
+
+  it('hook 动态添加/移除指令', async () => {
+    const field$ = Promise.withResolvers<PiResolvedViewFieldConfig>();
+    const makeDirective = () =>
+      signal<NgDirectiveConfig>({
+        type: D1Directive,
+        inputs: asyncObjectSignal({}),
+        outputs: asyncObjectSignal({}),
+        attributes: asyncObjectSignal({}),
+        events: asyncObjectSignal({}),
+        model: asyncObjectSignal({}),
+      });
+    const define = v.pipe(
+      v.string(),
+      setComponent('test1'),
+      getField(field$),
+      mergeHooks({
+        allFieldsResolved(field) {
+          field$.resolve(field);
+          // 通过 hook 动态添加指令
+          field.directives!.add(makeDirective());
+        },
+      }),
+    );
+    const { fixture, element } = await createSchemaComponent(
+      signal(define),
+      signal('d1'),
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    // 指令已生效
+    expect(element.querySelector('.d1')).toBeTruthy();
+
+    const field = await field$.promise;
+    // 动态移除指令
+    field.directives!.clean();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('.d1')).toBeFalsy();
+
+    // 动态重新添加指令
+    field.directives!.add(makeDirective());
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('.d1')).toBeTruthy();
   });
 });
