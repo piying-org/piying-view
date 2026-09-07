@@ -123,6 +123,20 @@ export function createPatchAsyncPropertyFn<
     });
 }
 
+export function createSetOrPatchCreateOptionsFn(isPatch?: boolean) {
+  return <T>(value: any) =>
+    rawConfig<T>((rawField) => {
+      if (isPatch) {
+        rawField.createOptions = {
+          ...(rawField.createOptions ?? {}),
+          ...value,
+        };
+      } else {
+        rawField.createOptions = value;
+      }
+    });
+}
+
 export function createSetOrPatchPropertyFn<
   InputData extends Record<string, any> = Record<string, any>,
 >(key: ChangeKey, isPatch?: boolean) {
@@ -269,5 +283,9 @@ export const __actions = {
     patchAsync: createPatchAsyncPropertyFn('props'),
     remove: createRemovePropertyFn('props'),
     mapAsync: createMapAsyncPropertyFn('props'),
+  },
+  createOptions: {
+    patch: createSetOrPatchCreateOptionsFn(true),
+    set: createSetOrPatchCreateOptionsFn(false),
   },
 };

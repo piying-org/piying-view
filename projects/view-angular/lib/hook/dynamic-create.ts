@@ -60,11 +60,12 @@ export abstract class DynamicCreateDirective extends BaseComponent {
   });
   #componentList$$ = computed(() => {
     const componentConfig = this.#componentConfig$$();
+    const { createOptions, ...restCompConfig } = componentConfig;
     const list = [
       ...(this.#wrappers() ?? []),
-      componentConfig,
+      restCompConfig,
     ] as DynamicComponentConfig[];
-    list[0].injector = this.#injector$$();
+    list[0] = { ...list[0], injector: this.#injector$$(), createOptions };
     return list;
   });
 

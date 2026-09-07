@@ -137,6 +137,8 @@ export class CoreSchemaHandle<
   attributes: ViewAttributes = {};
   events: ViewEvents = {};
   slots: ViewSlots = {};
+  /** 创建组件时的额外配置,由各前端框架确定泛型 */
+  createOptions?: any;
   wrappers: RawCoreWrapperConfig[] = [];
   override props: ViewProps = {};
   alias?: string;

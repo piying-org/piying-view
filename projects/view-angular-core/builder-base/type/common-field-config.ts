@@ -12,13 +12,15 @@ import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {
   hidden?: boolean;
 }
-export type ComponentData = {
+export type ComponentData<T = any> = {
   inputs: AsyncObjectSignal<ViewInputs>;
   outputs: AsyncObjectSignal<ViewOutputs>;
   attributes: AsyncObjectSignal<ViewAttributes>;
   events: AsyncObjectSignal<ViewEvents>;
   slots: AsyncObjectSignal<ViewSlots>;
   models: AsyncObjectSignal<ViewModels>;
+  /** 创建组件时的额外配置,由各前端框架确定泛型,但是仅顶层使用 */
+  createOptions?: AsyncObjectSignal<T>;
 };
 /** 解析后define使用 */
 export type CoreResolvedComponentDefine = {

@@ -11,6 +11,11 @@ export interface RawDirectiveOutputs {
   [name: string]: (event: any) => void;
 }
 
+/** 创建组件时的额外配置,由 angular 框架确定 */
+export type NgComponentCreateOptions = {
+  hostElement?: Element;
+};
+
 export type DynamicComponentConfig = {
   type:
     | Type<any>
@@ -22,7 +27,7 @@ export type DynamicComponentConfig = {
 
   directives: DirectiveConfig[];
   injector?: Injector;
-} & ComponentData;
+} & ComponentData<NgComponentCreateOptions>;
 
 /** 解析后组件已经加载 ngcomponentoutlet */
 export type NgResolvedComponentDefine2 = Omit<NgResolvedComponentDefine1, ''>;

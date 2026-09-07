@@ -244,6 +244,7 @@ export class BaseComponent {
         );
         projectableNodes = viewRefList.map((item) => item?.rootNodes ?? []);
       }
+      const hostElement = componentConfig.createOptions?.()?.hostElement;
       const componentRef = createComponent(componentDefine.component, {
         elementInjector: injector,
         environmentInjector: injector.get(EnvironmentInjector),
@@ -268,6 +269,7 @@ export class BaseComponent {
               ]),
         ],
         projectableNodes: projectableNodes,
+        ...(hostElement ? { hostElement } : {}),
       });
       this.componentRef = componentRef;
       this.fieldComponentInstance = componentRef.instance;
@@ -275,7 +277,10 @@ export class BaseComponent {
       this.fieldDirectiveRefList = (componentConfig.directives ?? []).map(
         (item) => componentRef.injector.get(item.type),
       );
-      if (COMPONENT_VERSION === 2) {
+      if (hostElement && hostElement.isConnected) {
+        this.#app.attachView(componentRef.hostView);
+        componentRef.changeDetectorRef.detectChanges();
+      } else if (COMPONENT_VERSION === 2) {
         const templateRef = (
           componentRef.instance as { templateRef: Signal<TemplateRef<any>> }
         ).templateRef();

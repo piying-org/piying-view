@@ -224,6 +224,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
             events,
             slots,
             models,
+            createOptions: asyncObjectSignal(field.createOptions),
           })
         : undefined,
       wrappers: this.#wrapperToSignal(field.wrappers, injector),
