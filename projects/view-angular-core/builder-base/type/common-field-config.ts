@@ -93,64 +93,155 @@ export type InferAliasMap<S> = unknown extends S
         ? UnionToIntersection<InferAliasMap<O[number]>>
         : {};
 
+/* ---------- schema 导航(支持 intersect/union 数字下标及对象/数组) ---------- */
+/** 从 schema 中按 key 取子 schema(支持对象/数组/pipe/optional 等包裹) */
+type SubSchema<S, K> = unknown extends S
+  ? any
+  : S extends { item: infer T }
+    ? K extends number
+      ? T
+      : never
+    : S extends { entries: infer E extends Record<string, any> }
+      ? K extends keyof E
+        ? E[K]
+        : never
+      : S extends { pipe: infer P extends readonly any[] }
+        ? SubSchema<P[0], K>
+        : S extends { wrapped: infer W }
+          ? SubSchema<W, K>
+          : never;
+
+/** 从 intersect/union schema 中按数字下标取成员 schema */
+type ItemSchema<S, I> = unknown extends S
+  ? any
+  : S extends { options: infer O extends readonly any[] }
+    ? I extends number
+      ? O[I]
+      : never
+    : S extends { pipe: infer P extends readonly any[] }
+      ? ItemSchema<P[0], I>
+      : S extends { wrapped: infer W }
+        ? ItemSchema<W, I>
+        : never;
+
 /**
- * 根据 keyPath 递归提取对应字段的值类型。
- * Value: 当前字段值类型; RootValue: 根级字段值类型; ParentValue: 父级字段值类型。
- * - '#' 从根级开始; '..' 从父级开始(单级退回)。
+ * 根据 keyPath 递归解析出 [value 类型, schema]。
+ * Value: 当前字段值类型; Schema: 当前字段 schema。
+ * RootValue/RootSchema: 根级; ParentValue/ParentSchema: 父级。
+ * - '#' 从根级开始; '..' 从父级开始(单级退回); '@alias' 通过别名查询。
  */
+type Resolve<
+  Value,
+  Schema,
+  RootValue,
+  RootSchema,
+  ParentValue,
+  ParentSchema,
+  AliasMap,
+  Path extends KeyPath,
+> = Path extends []
+  ? [Value, Schema]
+  : Path[0] extends '#'
+    ? Resolve<RootValue, RootSchema, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
+    : Path[0] extends '..'
+      ? Resolve<ParentValue, ParentSchema, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
+      : Path[0] extends `@${infer Al}`
+        ? Al extends keyof AliasMap
+          ? Resolve<AliasMap[Al], any, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
+          : [any, any]
+        : Path extends [infer K, ...infer Rest]
+          ? Rest extends KeyPath
+            ? K extends keyof Value
+              ? Resolve<Value[K], SubSchema<Schema, K>, RootValue, RootSchema, Value, Schema, AliasMap, Rest>
+              : K extends number
+                ? Resolve<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, RootValue, RootSchema, Value, Schema, AliasMap, Rest>
+                : [any, any]
+            : K extends keyof Value
+              ? [Value[K], SubSchema<Schema, K>]
+              : K extends number
+                ? [FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>]
+                : [any, any]
+          : [any, any];
+
+/** 解析路径末端的 value 类型 */
 type GetPathValue<
+  Value,
+  Schema,
+  RootValue,
+  RootSchema,
+  ParentValue,
+  ParentSchema,
+  AliasMap,
+  Path extends KeyPath,
+> = Resolve<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>[0];
+
+/** 解析路径末端的 schema */
+type GetPathSchema<
+  Value,
+  Schema,
+  RootValue,
+  RootSchema,
+  ParentValue,
+  ParentSchema,
+  AliasMap,
+  Path extends KeyPath,
+> = Resolve<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>[1];
+
+/** 返回字段的父级值类型: 普通路径的父级是路径倒数第二个 key 的值; 特殊路径无法推导为 any */
+type GetParentValue<Value, Schema, ParentValue, Path extends KeyPath> =
+  Path extends []
+    ? ParentValue
+    : Path[0] extends '#' | '..' | `@${string}`
+      ? any
+      : Path extends [infer K, ...infer Rest]
+        ? Rest extends KeyPath
+          ? Rest extends []
+            ? Value
+            : K extends keyof Value
+              ? GetParentValue<Value[K], SubSchema<Schema, K>, ParentValue, Rest>
+              : K extends number
+                ? GetParentValue<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, ParentValue, Rest>
+                : any
+          : any
+        : any;
+
+/** 返回字段的父级 schema */
+type GetParentSchema<Value, Schema, ParentSchema, Path extends KeyPath> =
+  Path extends []
+    ? ParentSchema
+    : Path[0] extends '#' | '..' | `@${string}`
+      ? any
+      : Path extends [infer K, ...infer Rest]
+        ? Rest extends KeyPath
+          ? Rest extends []
+            ? Schema
+            : K extends keyof Value
+              ? GetParentSchema<Value[K], SubSchema<Schema, K>, ParentSchema, Rest>
+              : K extends number
+                ? GetParentSchema<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, ParentSchema, Rest>
+                : any
+          : any
+        : any;
+
+/** get 的返回字段完整类型(携带正确的 RootValue/ParentValue/AliasMap/Schema) */
+type GetResult<
   Value,
   RootValue,
   ParentValue,
   AliasMap,
+  Schema,
+  RootSchema,
+  ParentSchema,
   Path extends KeyPath,
-> = Path extends []
-  ? Value
-  : Path[0] extends '#'
-    ? GetPathValue<RootValue, RootValue, any, AliasMap, RestPath<Path>>
-    : Path[0] extends '..'
-      ? GetPathValue<ParentValue, RootValue, any, AliasMap, RestPath<Path>>
-      : Path[0] extends `@${infer Al}`
-        ? Al extends keyof AliasMap
-          ? GetPathValue<
-              AliasMap[Al],
-              RootValue,
-              any,
-              AliasMap,
-              RestPath<Path>
-            >
-          : any
-        : Path extends [infer K, ...infer Rest]
-          ? K extends keyof Value
-            ? Rest extends KeyPath
-              ? GetPathValue<Value[K], RootValue, Value, AliasMap, Rest>
-              : Value[K]
-            : any
-          : any;
-
-/** 返回字段的父级值类型: 普通路径的父级是路径倒数第二个 key 的值; 特殊路径无法推导为 any */
-type GetParentValue<Value, ParentValue, Path extends KeyPath> = Path extends []
-  ? ParentValue
-  : Path[0] extends '#' | '..' | `@${string}`
-    ? any
-    : Path extends [infer K, ...infer Rest]
-      ? Rest extends KeyPath
-        ? Rest extends []
-          ? Value
-          : K extends keyof Value
-            ? GetParentValue<Value[K], ParentValue, Rest>
-            : any
-        : any
-      : any;
-
-/** get 的返回字段完整类型(携带正确的 RootValue/ParentValue/AliasMap) */
-type GetResult<Value, RootValue, ParentValue, AliasMap, Path extends KeyPath> =
-  _PiResolvedCommonViewFieldConfig<
-    GetPathValue<Value, RootValue, ParentValue, AliasMap, Path>,
-    RootValue,
-    GetParentValue<Value, ParentValue, Path>,
-    AliasMap
-  >;
+> = _PiResolvedCommonViewFieldConfig<
+  GetPathValue<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
+  RootValue,
+  GetParentValue<Value, Schema, ParentValue, Path>,
+  AliasMap,
+  GetPathSchema<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
+  RootSchema,
+  GetParentSchema<Value, Schema, ParentSchema, Path>
+>;
 
 export type PiResolvedCommonViewFieldConfig<
   SelfResolvedFn extends () => any,
@@ -159,6 +250,9 @@ export type PiResolvedCommonViewFieldConfig<
   RootValue = Value,
   ParentValue = any,
   AliasMap = {},
+  Schema = any,
+  RootSchema = Schema,
+  ParentSchema = any,
 > = {
   readonly hooks: HookConfig<ReturnType<SelfResolvedFn>>;
   // 额外
@@ -190,7 +284,7 @@ export type PiResolvedCommonViewFieldConfig<
       name: string,
       field: PiResolvedCommonViewFieldConfig<any, any>,
     ) => PiResolvedCommonViewFieldConfig<any, any>,
-  ) => GetResult<Value, RootValue, ParentValue, AliasMap, K> | undefined;
+  ) => GetResult<Value, RootValue, ParentValue, AliasMap, Schema, RootSchema, ParentSchema, K> | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
@@ -212,13 +306,19 @@ export type _PiResolvedCommonViewFieldConfig<
   RootValue = Value,
   ParentValue = any,
   AliasMap = {},
+  Schema = any,
+  RootSchema = Schema,
+  ParentSchema = any,
 > = PiResolvedCommonViewFieldConfig<
   () => _PiResolvedCommonViewFieldConfig<any>,
   CoreResolvedComponentDefine,
   Value,
   RootValue,
   ParentValue,
-  AliasMap
+  AliasMap,
+  Schema,
+  RootSchema,
+  ParentSchema
 >;
 
 export interface FormBuilderOptions<T> {

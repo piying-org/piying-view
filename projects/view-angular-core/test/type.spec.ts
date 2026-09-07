@@ -72,6 +72,195 @@ describe('强类型推断', () => {
     }
   });
 
+  it('get 经过数组下标(数字) 强类型返回对象元素字段', () => {
+    const result = createBuilder(
+      v.object({
+        key1: v.array(v.object({ sub: v.string() })),
+      }),
+    );
+    // 先设置数组值, 触发数组元素(restChildren)构建
+    result.form.control?.updateValue({ key1: [{ sub: 'x' }] });
+    // 中间一级是数组, 通过数字下标 0 定位元素再取 sub
+    const subField = result.get(['key1', 0, 'sub']);
+    expect(subField).toBeDefined();
+    if (subField) {
+      const value = subField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error 数组元素字段 sub 的 value 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+  });
+
+  it('get 数组下标(数字) 强类型返回数组元素', () => {
+    const result = createBuilder(
+      v.object({ tags: v.array(v.string()) }),
+    );
+    // 先设置数组值, 触发数组元素(restChildren)构建
+    result.form.control?.updateValue({ tags: ['a'] });
+    // 通过数字下标 0 取数组元素
+    const tagField = result.get(['tags', 0]);
+    expect(tagField).toBeDefined();
+    if (tagField) {
+      const value = tagField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error 数组元素 value 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+  });
+
+  it('get 存在 intersect 层: 通过数字下标取成员字段(强类型)', () => {
+    const result = createBuilder(
+      v.object({
+        key1: v.intersect([
+          v.object({ a: v.string() }),
+          v.object({ b: v.number() }),
+        ]),
+      }),
+    );
+    // 先设置值, 触发字段构建
+    result.form.control?.updateValue({ key1: { a: 'x', b: 1 } });
+    // intersect 层的成员按数字下标 0/1 存放, 再进入成员对象取字段
+    const aField = result.get(['key1', 0, 'a']);
+    expect(aField).toBeDefined();
+    if (aField) {
+      const value = aField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      const notAny: IsAny<typeof value> = false;
+      // @ts-expect-error intersect 第 0 个成员的 a 字段是 string 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+      expect(notAny).toBe(false);
+    }
+    const bField = result.get(['key1', 1, 'b']);
+    expect(bField).toBeDefined();
+    if (bField) {
+      const value = bField.form.control!.value;
+      let xxx: number = value;
+      const equal: Equal<typeof value, number> = true;
+      const notAny: IsAny<typeof value> = false;
+      // @ts-expect-error intersect 第 1 个成员的 b 字段是 number 不是 string
+      let wrong: string = value;
+      expect(equal).toBe(true);
+      expect(notAny).toBe(false);
+    }
+  });
+
+  it('get 多层 intersect: 数字下标逐层取字段(强类型)', () => {
+    const result = createBuilder(
+      v.object({
+        key1: v.intersect([
+          v.intersect([v.object({ a: v.string() })]),
+          v.object({ b: v.number() }),
+        ]),
+      }),
+    );
+    result.form.control?.updateValue({ key1: { a: 'x', b: 1 } });
+    // key1(intersect) -> 0(内层 intersect) -> 0(对象) -> a
+    const aField = result.get(['key1', 0, 0, 'a']);
+    expect(aField).toBeDefined();
+    if (aField) {
+      const value = aField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error 多层 intersect 内层 a 是 string 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+    // key1(intersect) -> 1(对象) -> b
+    const bField = result.get(['key1', 1, 'b']);
+    expect(bField).toBeDefined();
+    if (bField) {
+      const value = bField.form.control!.value;
+      let xxx: number = value;
+      const equal: Equal<typeof value, number> = true;
+      // @ts-expect-error 多层 intersect 外层 b 是 number 不是 string
+      let wrong: string = value;
+      expect(equal).toBe(true);
+    }
+  });
+
+  it('get intersect 包 union: 数字下标跨层取字段(强类型)', () => {
+    const result = createBuilder(
+      v.object({
+        key1: v.intersect([
+          v.union([v.object({ a: v.string() }), v.object({ c: v.boolean() })]),
+          v.object({ b: v.number() }),
+        ]),
+      }),
+    );
+    result.form.control?.updateValue({ key1: { a: 'x', b: 1 } });
+    // key1(intersect) -> 0(union) -> 0(对象) -> a
+    const aField = result.get(['key1', 0, 0, 'a']);
+    expect(aField).toBeDefined();
+    if (aField) {
+      const value = aField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error intersect-union 内层 a 是 string 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+    // key1(intersect) -> 0(union) -> 1(对象) -> c
+    const cField = result.get(['key1', 0, 1, 'c']);
+    expect(cField).toBeDefined();
+    if (cField) {
+      const value = cField.form.control!.value;
+      let xxx: boolean = value;
+      const equal: Equal<typeof value, boolean> = true;
+      // @ts-expect-error intersect-union 内层 c 是 boolean 不是 string
+      let wrong: string = value;
+      expect(equal).toBe(true);
+    }
+    // key1(intersect) -> 1(对象) -> b
+    const bField = result.get(['key1', 1, 'b']);
+    expect(bField).toBeDefined();
+    if (bField) {
+      const value = bField.form.control!.value;
+      let xxx: number = value;
+      const equal: Equal<typeof value, number> = true;
+      // @ts-expect-error intersect-union 外层 b 是 number 不是 string
+      let wrong: string = value;
+      expect(equal).toBe(true);
+    }
+  });
+
+  it('get 根级 intersect 包 union: 数字下标取字段(强类型)', () => {
+    const result = createBuilder(
+      v.intersect([
+        v.union([v.object({ d: v.number() })]),
+        v.object({ e: v.string() }),
+      ]),
+    );
+    result.form.control?.updateValue({ d: 1, e: 'y' });
+    // 根(intersect) -> 0(union) -> 0(对象) -> d
+    const dField = result.get([0, 0, 'd']);
+    expect(dField).toBeDefined();
+    if (dField) {
+      const value = dField.form.control!.value;
+      let xxx: number = value;
+      const equal: Equal<typeof value, number> = true;
+      // @ts-expect-error 根级 intersect-union 的 d 是 number 不是 string
+      let wrong: string = value;
+      expect(equal).toBe(true);
+    }
+    // 根(intersect) -> 1(对象) -> e
+    const eField = result.get([1, 'e']);
+    expect(eField).toBeDefined();
+    if (eField) {
+      const value = eField.form.control!.value;
+      let xxx: string = value;
+      const equal: Equal<typeof value, string> = true;
+      // @ts-expect-error 根级 intersect-union 的 e 是 string 不是 number
+      let wrong: number = value;
+      expect(equal).toBe(true);
+    }
+  });
+
   it('get([#]) 返回根级字段(强类型)', () => {
     const result = createBuilder(v.object({ key1: v.string() }));
     const key1Field = result.get(['key1']);

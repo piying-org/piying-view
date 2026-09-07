@@ -75,6 +75,9 @@ export function createBuilder<T extends v.BaseSchema<any, any, any>>(
     v.InferOutput<T>,
     v.InferOutput<T>,
     any,
-    InferAliasMap<T>
+    InferAliasMap<T>,
+    T,
+    T,
+    any
   >;
 }

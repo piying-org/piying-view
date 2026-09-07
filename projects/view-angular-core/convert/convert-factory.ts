@@ -66,7 +66,10 @@ export function createConvertToField<
     v.InferOutput<T>,
     v.InferOutput<T>,
     any,
-    InferAliasMap<T>
+    InferAliasMap<T>,
+    T,
+    T,
+    any
   > => {
     const parent2 = parent ?? defaultInjector ?? inject(Injector);
     const options2 = {
@@ -118,7 +121,10 @@ export function createConvertToField<
           v.InferOutput<T>,
           v.InferOutput<T>,
           any,
-          InferAliasMap<T>
+          InferAliasMap<T>,
+          T,
+          T,
+          any
         >;
       },
       {
