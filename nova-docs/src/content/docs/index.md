@@ -13,29 +13,28 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 - **包装器系统**：用户自定义 Wrapper 包裹任意字段，支持 V1/V2 两种模板语法
 - **全局配置体系**：`fieldGlobalConfig` 统一管理默认类型、包装器和 Actions
 
+> 💡 **框架专属提示**：本文档按「通用」与「框架专属」划分。**通用文档**（入门使用、业务场景、API 参考）中的 Actions 逻辑在所有框架中一致；**Angular 专属**目录则仅针对 Angular 框架特有的 API 与指令。
+
 ---
 
 ## 目录结构
 
 ### 🚀 入门使用 (Getting Started)
 
-从零开始了解 Piying-View，帮助你快速上手。
+从零开始了解 Piying-View，帮助你快速上手。以下文档的 Actions 逻辑在所有框架中一致，仅以 Angular 为例展示。
 
 | 文档                                                 | 说明                                                                                                      |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [5分钟快速上手](/getting-started/quick-start/)      | 安装 → 定义 Schema → 注册组件 → 渲染表单，含自定义 CVA 组件编写方法                                       |
+| [5分钟快速上手](/getting-started/quick-start/)      | 安装（含各框架安装命令）→ 定义 Schema → 注册组件 → 渲染表单，含自定义 CVA 组件编写方法                       |
 | [两种使用模式](/getting-started/two-modes/)          | 自动模式（`<piying-view>` 全自动渲染）vs 手动模式（`convertToField` + `[formControl]`/`[fieldTemplate]` 绑定），边界划分与代码解析 |
 | [核心概念](/getting-started/core-concept/)          | Valibot Schema → CoreSchemaHandle → FormBuilder → Component Tree 的三阶段解析链与数据流（toView/toModel） |
 | [Options 配置](/getting-started/options-config/)    | PiyingView 组件 `options` 属性详解：context 上下文、fieldGlobalConfig 全局类型/包装器映射、自定义 Builder |
 | [框架差异](/getting-started/framework-differences/) | Angular/Vue/React/Solid/Svelte 各框架的 Field Token 获取、CVA 绑定、Signal 转换工具对比                   |
-| [字段模型绑定（React）](/adapters/field-model-binding-react/) | React 的 `use-*Model` 系列 Hook，将原生控件与 CVAA 双向绑定（text/checkbox/number/radio/range/select） |
-| [字段模型绑定（Solid）](/adapters/field-model-binding-solid/) | Solid 的 `use-*Model` 系列 Hook，返回 `createMemo` 信号，需 `()` 调用 |
-| [Vue 强类型组件](/adapters/vue-typed-component/) | Vue 的 `typedComponent` 强类型 setComponent 封装，基于组件 props 推导 inputs 类型（含 nfcComponent） |
 | [JSON Schema 支持](/getting-started/jsonschema/)    | `jsonSchemaToValibot()` 自动转换函数，支持 Draft-04/07/2020-12，含类型映射表和限制说明                    |
 
 ### 📖 业务场景 (Scenarios)
 
-按常见业务场景组织，每个场景都有经过验证的完整示例。
+按常见业务场景组织，每个场景都有经过验证的完整示例（Actions 逻辑通用，跨框架一致）。
 
 | 文档                                                          | 说明                                                                                                            |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -51,15 +50,12 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 ### 🔧 API 参考 (API Reference)
 
-所有 Actions、配置项和工具函数的详细参考文档。
-
-> **注意**：Actions 的逻辑定义（Schema 层面）在所有框架中相同，只有组件渲染部分因框架而异。以下 API 参考以 Angular 为主，其他框架作为补充说明。
+所有 Actions、配置项和工具函数的详细参考文档，逻辑定义在所有框架中相同。其中 Wrappers、Control API、Providers 等均为通用能力，其他框架可用对应机制（如 `static-injector`）。
 
 **框架包 API：**
 
 | 文档                                  | 说明                                                                                                      |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [Angular](/api/angular/)             | `@piying/view-angular` 公开 API：PiyingView/PiyingViewGroup/BaseControl/InsertFieldDirective/Token/typedComponent/actions.directives |
 | [Vue](/adapters/vue/)                | `@piying/view-vue` + `@piying/view-vue2-legacy` 适配包 API：PiyingView/Field/useControlValueAccessor/signalToRef/typedComponent/VueSchemaHandle |
 | [React](/adapters/react/)            | `@piying/view-react` 适配包 API：Token/useControlValueAccessor/useSignalToRef/useEffectSync/use-*Model/ReactSchemaHandle |
 | [Solid](/adapters/solid/)            | `@piying/view-solid` 适配包 API：Token/useControlValueAccessor/createSignalConvert/useEffectSync/use-*Model/SolidSchemaHandle |
@@ -76,15 +72,29 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [CSS class](/api/css-class/)                               | `actions.class` CSS Class 设置：topClass（最外层容器）/ bottomClass（底部错误信息等区域）                                                                                           |
 | [Layout metadata](/api/layout/)                            | `layout` Action：priority 排序权重 + keyPath 查询表达式（'#'/'..'/'@alias'），Intersect + Layout 配合改变字段排列                                                                   |
 | [hideWhen / disableWhen / valueChange](/api/hide-disable/) | hideWhen/disableWhen/valueChange/outputChange 完整 API 签名、listenFields 数组机制、skipInitValue、生命周期时机说明                                                                 |
-| [Wrappers 包装器](/api/wrappers/)                          | `actions.wrappers` set/patchAsync/remove + Wrapper 组件编写指南（V1/V2 模板对比、InsertFieldDirective 用法）                                                                        |
 | [路径查询](/api/path-querying/)                            | KeyPath 类型定义、field.get() 用法：`['..']`(父级开始)/`'#'`(根字段开始)/`'@alias'`(别名定位)、命名冲突处理规则                                                                     |
 | [FieldFormConfig](/api/field-config/)                      | `FieldFormConfig` 完整字段参考：renderConfig vs hideWhen、transformer/pipe/validators/updateOn/deletionMode/rawConfig                                                               |
-| [Control API](/api/control-api/)                           | FieldControl/AbstractControl 完整参考：获取 Control、值 API(updateValue/reset/viewValueChange)、状态 API(disabled/touched/dirty)、FieldArray API(length/controls/removeRestControl) |
 | [fieldGlobalConfig](/api/global-config/)                   | `fieldGlobalConfig` types/wrappers 全局配置结构 + Actions 合并规则（全局在前）+ Component Type 查找优先级体系                                                                       |
 | [Hooks 生命周期](/api/hooks/)                              | `actions.hooks` Hook 生命周期管理：merge(依次执行多个)/patch(覆盖同名)/remove/set，Hook 注册与执行顺序详解                                                                          |
-| [Providers 服务注入](/api/providers/)                      | `actions.providers` 将业务服务注入字段组件 Injector：set(覆盖)/patch(追加)/change(函数式变换)，含 inject() 使用示例                                                                 |
 | [Props 通用属性](/api/props/)                              | `actions.props` 通用属性键配置：set(覆盖)/patch(合并)/patchAsync(异步)/remove(移除)/mapAsync(动态映射)，组件通过 field.props() 访问，vs Attributes/Inputs/Outputs 语义区分        |
-| [核心工具函数](/api/core-utils/)                            | `combineSignal`/`observableSignal`/`asyncObjectSignal` 等核心信号工具函数 |
+| [核心工具函数](/api/core-utils/)                            | `combineSignal`/`observableSignal`/`asyncObjectSignal` 等核心信号工具函数                                                                                                         |
+| [Wrappers 包装器](/api/wrappers/)                          | `actions.wrappers` set/patchAsync/remove + Wrapper 组件编写指南（V1/V2 模板对比、InsertFieldDirective 用法），各框架通用                                                             |
+| [Control API](/api/control-api/)                           | FieldControl/AbstractControl 完整参考：获取 Control、值 API(updateValue/reset/viewValueChange)、状态 API(disabled/touched/dirty)、FieldArray API(length/controls/removeRestControl) |
+| [Providers 服务注入](/api/providers/)                      | `actions.providers` 将业务服务注入字段组件 Injector：set(覆盖)/patch(追加)/change(函数式变换)，Angular 用 inject()、其他框架用 static-injector                                          |
+
+### 🅰️ Angular 专属
+
+以下文档仅针对 **Angular 框架**（`@piying/view-angular`）特有的 API 与指令，其他框架无对应机制。
+
+| 文档                                                        | 说明                                                                                                                                                                                |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [API 索引](/angular/api/)                                  | `@piying/view-angular` 公开 API 索引，链接到各组件 / 指令 / Token / 工具函数独立文档                                                                                                |
+| [组件](/angular/components/)                               | PiyingView 根组件、PiyingViewGroup 组容器、PiyingViewGroupBase 基类                                                                                                                 |
+| [指令](/angular/directives/)                               | InsertFieldDirective、PiyingFieldTemplateDirective、PiyingFieldControlBindDirective、AttributesDirective / EventsDirective                                                            |
+| [字段指令配置](/angular/field-directives/)              | Angular 指令配置（`actions.directives`）：指令实例稳定（输入跟随变化）、运行时动态 add/clean 指令                                             |
+| [Token](/angular/tokens/)                                  | PI_VIEW_FIELD_TOKEN、PI_VIEW_FIELD_TEMPLATE_REF_TOKEN、PI_COMPONENT_REF_TOKEN 等注入标记                                                                                             |
+| [工具函数](/angular/tools/)                                | typedComponent / nfcComponent、convertToField、NgSchemaHandle / AngularFormBuilder、actions.directives                                                                                |
+| [BaseControl](/angular/base-control/)                       | 实现 ControlValueAccessor 的字段控件基类                                                                                                                                             |
 
 ---
 

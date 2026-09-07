@@ -44,7 +44,6 @@ export default defineConfig({
         {
           label: 'API 参考',
           items: [
-            { label: 'Angular', link: '/api/angular/' },
             { label: 'setComponent', link: '/api/setcomponent/' },
             { label: 'inputs', link: '/api/inputs/' },
             { label: 'outputs', link: '/api/outputs/' },
@@ -54,15 +53,27 @@ export default defineConfig({
             { label: 'CSS class', link: '/api/css-class/' },
             { label: 'Layout metadata', link: '/api/layout/' },
             { label: 'hideWhen / disableWhen / valueChange', link: '/api/hide-disable/' },
-            { label: 'Wrappers 包装器', link: '/api/wrappers/' },
             { label: '路径查询', link: '/api/path-querying/' },
             { label: 'FieldFormConfig', link: '/api/field-config/' },
-            { label: 'Control API', link: '/api/control-api/' },
             { label: 'fieldGlobalConfig', link: '/api/global-config/' },
             { label: 'Hooks 生命周期', link: '/api/hooks/' },
-            { label: 'Providers 服务注入', link: '/api/providers/' },
             { label: 'Props 通用属性', link: '/api/props/' },
             { label: '核心工具函数', link: '/api/core-utils/' },
+            { label: 'Wrappers 包装器', link: '/api/wrappers/' },
+            { label: 'Control API', link: '/api/control-api/' },
+            { label: 'Providers 服务注入', link: '/api/providers/' },
+          ],
+        },
+        {
+          label: 'Angular 专属',
+          items: [
+            { label: 'API 索引', link: '/angular/api/' },
+            { label: '组件', link: '/angular/components/' },
+            { label: '指令', link: '/angular/directives/' },
+            { label: '字段指令配置', link: '/angular/field-directives/' },
+            { label: 'Token', link: '/angular/tokens/' },
+            { label: '工具函数', link: '/angular/tools/' },
+            { label: 'BaseControl', link: '/angular/base-control/' },
           ],
         },
         {
