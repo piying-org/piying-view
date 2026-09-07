@@ -61,7 +61,7 @@ const componentRef = directive.injector.get(PI_COMPONENT_REF_TOKEN);
 expect(componentRef.instance).toBeInstanceOf(Test1Component); // ✅
 ```
 
-> 该 Token 的指令配置使用场景见 [字段指令配置](/angular/field-directives/)。
+> 该 Token 的指令配置使用场景见 [字段指令配置](angular/field-directives/)。
 
 ## 内部 Token（@internal）
 
@@ -75,6 +75,6 @@ expect(componentRef.instance).toBeInstanceOf(Test1Component); // ✅
 
 ## 相关文档
 
-- [组件](/angular/components/) — 组件如何注入字段配置
-- [指令](/angular/directives/) — 指令如何获取组件引用
-- [Angular API 参考](/angular/api/) — 全部公开 API 索引
+- [组件](angular/components/) — 组件如何注入字段配置
+- [指令](angular/directives/) — 指令如何获取组件引用
+- [Angular API 参考](angular/api/) — 全部公开 API 索引

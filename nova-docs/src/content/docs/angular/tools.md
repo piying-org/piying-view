@@ -73,9 +73,9 @@ const schema = v.pipe(
 
 `actions = { ...coreActions, directives }`，其中 `directives` 提供 `set` / `patch` / `patchAsync` / `remove`。
 
-详细使用见 [字段指令配置](/angular/field-directives/)。
+详细使用见 [字段指令配置](angular/field-directives/)。
 
 ## 相关文档
 
-- [Angular API 参考](/angular/api/) — 全部公开 API 索引
-- [字段指令配置](/angular/field-directives/) — 指令配置详细行为
+- [Angular API 参考](angular/api/) — 全部公开 API 索引
+- [字段指令配置](angular/field-directives/) — 指令配置详细行为

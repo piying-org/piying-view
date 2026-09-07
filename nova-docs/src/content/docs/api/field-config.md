@@ -531,6 +531,6 @@ const schema = v.object({
 
 ## 下一步
 
-- [API: global-config](/api/global-config/) — fieldGlobalConfig 全局配置优先级体系
-- [场景: 值转换与联动](/scenarios/value-transform/) — transformer / pipe 实战
-- [场景: 数组高级用法](/scenarios/array-advanced/) — deletionMode / groupMode 实战
+- [API: global-config](api/global-config/) — fieldGlobalConfig 全局配置优先级体系
+- [场景: 值转换与联动](scenarios/value-transform/) — transformer / pipe 实战
+- [场景: 数组高级用法](scenarios/array-advanced/) — deletionMode / groupMode 实战

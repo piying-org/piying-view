@@ -78,6 +78,6 @@ expect(Object.keys(resolved.outputs())).toEqual(['blur']);
 
 ## 下一步
 
-- [API: events](/api/events/) — DOM 事件处理
-- [API: inputs](/api/inputs/) — 组件输入属性设置
-- [API: Wrappers](/api/wrappers/) — Wrapper 包装器完整指南
+- [API: events](api/events/) — DOM 事件处理
+- [API: inputs](api/inputs/) — 组件输入属性设置
+- [API: Wrappers](api/wrappers/) — Wrapper 包装器完整指南

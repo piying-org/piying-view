@@ -299,7 +299,7 @@ bind = computed(() =>
 
 ## 下一步
 
-- [快速上手](/getting-started/quick-start/) — 自动模式完整示例
-- [核心概念](/getting-started/core-concept/) — Schema → Field → Component 解析链
-- [Angular API 参考](/angular/api/) — `PiyingView` / `PiyingFieldControlBindDirective` / `PiyingFieldTemplateDirective` / `convertToField`
-- [Control API](/api/control-api/) — `field.form.control` 控件操作
+- [快速上手](getting-started/quick-start/) — 自动模式完整示例
+- [核心概念](getting-started/core-concept/) — Schema → Field → Component 解析链
+- [Angular API 参考](angular/api/) — `PiyingView` / `PiyingFieldControlBindDirective` / `PiyingFieldTemplateDirective` / `convertToField`
+- [Control API](api/control-api/) — `field.form.control` 控件操作

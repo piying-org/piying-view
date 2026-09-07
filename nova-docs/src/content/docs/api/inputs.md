@@ -69,6 +69,6 @@ expect(resolved.inputs()).toEqual({ maxLength: 50, disabled: false });
 
 ## 下一步
 
-- [API: outputs](/api/outputs/) — 组件输出事件设置
-- [API: attributes](/api/attributes/) — HTML Attributes 设置
-- [API: Wrappers](/api/wrappers/) — Wrapper 包装器完整指南
+- [API: outputs](api/outputs/) — 组件输出事件设置
+- [API: attributes](api/attributes/) — HTML Attributes 设置
+- [API: Wrappers](api/wrappers/) — Wrapper 包装器完整指南

@@ -1,9 +1,11 @@
-import { defineConfig } from 'astro/config'
-import starlight from '@astrojs/starlight'
-import starlightThemeNova from 'starlight-theme-nova'
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import starlightThemeNova from 'starlight-theme-nova';
+
+const base = '/piying-view/';
 
 export default defineConfig({
-  base: '/piying-view',
+  base,
   integrations: [
     starlight({
       title: 'Piying-View 文档',
@@ -23,7 +25,10 @@ export default defineConfig({
             { label: '两种使用模式', link: '/getting-started/two-modes/' },
             { label: '核心概念', link: '/getting-started/core-concept/' },
             { label: 'Options 配置', link: '/getting-started/options-config/' },
-            { label: '框架差异', link: '/getting-started/framework-differences/' },
+            {
+              label: '框架差异',
+              link: '/getting-started/framework-differences/',
+            },
             { label: 'JSON Schema 支持', link: '/getting-started/jsonschema/' },
           ],
         },
@@ -32,13 +37,22 @@ export default defineConfig({
           items: [
             { label: '基础字段定义', link: '/scenarios/basic-field/' },
             { label: '复杂 Schema 结构', link: '/scenarios/complex-schema/' },
-            { label: 'asControl / asVirtualGroup', link: '/scenarios/as-control-group/' },
+            {
+              label: 'asControl / asVirtualGroup',
+              link: '/scenarios/as-control-group/',
+            },
             { label: '动态字段控制', link: '/scenarios/dynamic-fields/' },
             { label: '值转换与联动', link: '/scenarios/value-transform/' },
             { label: '自定义验证', link: '/scenarios/custom-validation/' },
             { label: '数组高级用法', link: '/scenarios/array-advanced/' },
-            { label: 'Record Schema 动态对象组', link: '/scenarios/record-dynamic-group/' },
-            { label: '综合示例：完整业务表单', link: '/scenarios/complete-example/' },
+            {
+              label: 'Record Schema 动态对象组',
+              link: '/scenarios/record-dynamic-group/',
+            },
+            {
+              label: '综合示例：完整业务表单',
+              link: '/scenarios/complete-example/',
+            },
           ],
         },
         {
@@ -52,7 +66,10 @@ export default defineConfig({
             { label: 'attributes', link: '/api/attributes/' },
             { label: 'CSS class', link: '/api/css-class/' },
             { label: 'Layout metadata', link: '/api/layout/' },
-            { label: 'hideWhen / disableWhen / valueChange', link: '/api/hide-disable/' },
+            {
+              label: 'hideWhen / disableWhen / valueChange',
+              link: '/api/hide-disable/',
+            },
             { label: '路径查询', link: '/api/path-querying/' },
             { label: 'FieldFormConfig', link: '/api/field-config/' },
             { label: 'fieldGlobalConfig', link: '/api/global-config/' },
@@ -83,12 +100,26 @@ export default defineConfig({
             { label: 'React', link: '/adapters/react/' },
             { label: 'Solid', link: '/adapters/solid/' },
             { label: 'Svelte', link: '/adapters/svelte/' },
-            { label: '字段模型绑定（React）', link: '/adapters/field-model-binding-react/' },
-            { label: '字段模型绑定（Solid）', link: '/adapters/field-model-binding-solid/' },
+            {
+              label: '字段模型绑定（React）',
+              link: '/adapters/field-model-binding-react/',
+            },
+            {
+              label: '字段模型绑定（Solid）',
+              link: '/adapters/field-model-binding-solid/',
+            },
             { label: 'Vue 强类型组件', link: '/adapters/vue-typed-component/' },
           ],
         },
       ],
+      head: [
+        {
+          tag: 'base',
+          attrs: {
+            href: base,
+          },
+        },
+      ],
     }),
   ],
-})
+});

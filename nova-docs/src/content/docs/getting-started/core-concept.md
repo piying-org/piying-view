@@ -4,7 +4,7 @@ title: "核心概念：从 Schema 到 View"
 
 
 
-> 💡 本文介绍的是两种使用模式**共享的底层解析链**。具体到「如何渲染」，分为自动模式（`<piying-view>` 全自动）与手动模式（`convertToField` + 指令手动绑定），边界见 [两种使用模式](/getting-started/two-modes/)。
+> 💡 本文介绍的是两种使用模式**共享的底层解析链**。具体到「如何渲染」，分为自动模式（`<piying-view>` 全自动）与手动模式（`convertToField` + 指令手动绑定），边界见 [两种使用模式](getting-started/two-modes/)。
 
 本文介绍 Piying-View 的核心工作流程，帮助你理解数据如何从 Valibot Schema 转换为 UI 视图。
 
@@ -301,6 +301,6 @@ view value → pipe(toModel) → transformer.toModel → originValue$$ → v.tra
 
 ## 下一步
 
-- [Options 配置](/getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
-- [fieldGlobalConfig API](/api/global-config/) — types/wrappers 优先级体系完整参考
-- [基础字段定义](/scenarios/basic-field/) — 实战：使用 setComponent / formConfig
+- [Options 配置](getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
+- [fieldGlobalConfig API](api/global-config/) — types/wrappers 优先级体系完整参考
+- [基础字段定义](scenarios/basic-field/) — 实战：使用 setComponent / formConfig

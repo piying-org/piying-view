@@ -58,6 +58,6 @@ const schema = v.object({
 
 ## 下一步
 
-- [API: attributes](/api/attributes/) — HTML Attributes 设置
-- [API: layout](/api/layout/) — keyPath / priority 调整布局
-- [API: hideWhen/disableWhen/valueChange](/api/hide-disable/) — 动态控制
+- [API: attributes](api/attributes/) — HTML Attributes 设置
+- [API: layout](api/layout/) — keyPath / priority 调整布局
+- [API: hideWhen/disableWhen/valueChange](api/hide-disable/) — 动态控制

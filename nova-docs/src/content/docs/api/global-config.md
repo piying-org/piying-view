@@ -232,10 +232,10 @@ options = {
 
 ## 入门阅读
 
-- [Options 配置详解](/getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
+- [Options 配置详解](getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
 
 ## 下一步
 
-- [场景: asControl / asVirtualGroup](/scenarios/as-control-group/) — Group 视为独立控件
-- [API: setComponent](/api/setcomponent/) — 组件设置详解
-- [5分钟快速上手](/getting-started/quick-start/) — 从零开始搭建
+- [场景: asControl / asVirtualGroup](scenarios/as-control-group/) — Group 视为独立控件
+- [API: setComponent](api/setcomponent/) — 组件设置详解
+- [5分钟快速上手](getting-started/quick-start/) — 从零开始搭建

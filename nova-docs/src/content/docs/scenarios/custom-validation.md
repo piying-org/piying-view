@@ -1,8 +1,6 @@
 ---
-title: "自定义验证"
+title: '自定义验证'
 ---
-
-
 
 本文介绍如何在 Piying-View 中使用自定义验证器，包括同步和异步验证。
 
@@ -48,18 +46,18 @@ const schema = v.object({
 
 ```typescript
 interface ValidatorFn {
-  (control: AbstractControl): 
-    | ValidationErrorsLegacy      // 旧格式：{ [key: string]: any }
-    | ValidationErrors2[]          // 新格式：结构化错误数组
+  (control: AbstractControl):
+    | ValidationErrorsLegacy // 旧格式：{ [key: string]: any }
+    | ValidationErrors2[] // 新格式：结构化错误数组
     | null
     | undefined;
 }
 
 // ValidationErrors2 是一个联合类型，包括：
 type ValidationErrors2 =
-  | { kind: 'valibot'; metadata: v.BaseIssue<unknown>[] }  // Valibot 校验失败
-  | { kind: 'error'; metadata: Error }                      // 异常捕获
-  | { kind: string; metadata?: any; message?: string };     // 自定义错误
+  | { kind: 'valibot'; metadata: v.BaseIssue<unknown>[] } // Valibot 校验失败
+  | { kind: 'error'; metadata: Error } // 异常捕获
+  | { kind: string; metadata?: any; message?: string }; // 自定义错误
 ```
 
 **返回值说明：**
@@ -108,8 +106,8 @@ Piying-View 同时支持 Valibot 内置验证和自定义验证器，两者**并
 ```typescript
 const schema = v.object({
   email: v.pipe(
-    v.string(),                                    // Valibot: 类型检查
-    v.email('邮箱格式不正确'),                    // Valibot: 邮箱格式验证
+    v.string(), // Valibot: 类型检查
+    v.email('邮箱格式不正确'), // Valibot: 邮箱格式验证
     formConfig({
       validators: [
         (control) => {
@@ -239,14 +237,14 @@ const schema = v.object({
 
 Piying-View 的 FieldControl 提供标准接口访问验证状态：
 
-| 属性               | 类型                                       | 说明                             |
-| ------------------ | ------------------------------------------ | -------------------------------- |
-| `control.errors`   | `ValidationErrors2[] \| null`              | 当前所有错误（Valibot + 自定义） |
-| `control.valid`    | `boolean`                                  | 是否所有验证都通过               |
-| `control.status$$()` | `'VALID' \| 'INVALID' \| 'PENDING'`   | 验证状态（包括异步验证中）       |
-| `control.dirty`    | `boolean`                                  | 值是否被修改过                   |
-| `control.touched`  | `boolean`                                  | 是否被聚焦过                     |
-| `control.pristine` | `boolean`                                  | 是否未被修改过                   |
+| 属性                 | 类型                                | 说明                             |
+| -------------------- | ----------------------------------- | -------------------------------- |
+| `control.errors`     | `ValidationErrors2[] \| null`       | 当前所有错误（Valibot + 自定义） |
+| `control.valid`      | `boolean`                           | 是否所有验证都通过               |
+| `control.status$$()` | `'VALID' \| 'INVALID' \| 'PENDING'` | 验证状态（包括异步验证中）       |
+| `control.dirty`      | `boolean`                           | 值是否被修改过                   |
+| `control.touched`    | `boolean`                           | 是否被聚焦过                     |
+| `control.pristine`   | `boolean`                           | 是否未被修改过                   |
 
 **新格式错误访问示例：**
 
@@ -261,9 +259,10 @@ if (control.errors) {
     }
   }
 }
+```
 
 ## 下一步
 
-- [数组高级用法](/scenarios/array-advanced/) — deletionMode / groupMode
-- [API: FieldFormConfig](/api/field-config/) — validators / asyncValidators 配置详解
-- [综合示例：完整业务表单](/scenarios/complete-example/)
+- [数组高级用法](scenarios/array-advanced/) — deletionMode / groupMode
+- [API: FieldFormConfig](api/field-config/) — validators / asyncValidators 配置详解
+- [综合示例：完整业务表单](scenarios/complete-example/)

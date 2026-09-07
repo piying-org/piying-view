@@ -136,5 +136,5 @@ const schema = v.object({
 
 ## 下一步
 
-- [动态字段控制](/scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange 实战场景
-- [API: Layout metadata](/api/layout/) — keyPath / priority 调整 intersect 布局
+- [动态字段控制](scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange 实战场景
+- [API: Layout metadata](api/layout/) — keyPath / priority 调整 intersect 布局

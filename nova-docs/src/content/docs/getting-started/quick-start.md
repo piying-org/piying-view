@@ -28,7 +28,7 @@ title: "快速上手"
 
 ## Angular 示例
 
-> 💡 **先分清两种模式**：本文展示的是**自动模式**（`<piying-view>` 组件 + Schema 全自动渲染）。还有一种**手动模式**（`convertToField` + `[formControl]`/`[fieldTemplate]` 手动绑定）。两种模式边界不同，详见 [两种使用模式](/getting-started/two-modes/)。
+> 💡 **先分清两种模式**：本文展示的是**自动模式**（`<piying-view>` 组件 + Schema 全自动渲染）。还有一种**手动模式**（`convertToField` + `[formControl]`/`[fieldTemplate]` 手动绑定）。两种模式边界不同，详见 [两种使用模式](getting-started/two-modes/)。
 
 本指南介绍如何在 Angular 项目中安装并使用 Piying-View 渲染第一个表单。
 
@@ -154,7 +154,7 @@ export class InputComponent extends BaseControl {}
 - `[(ngModel)]="value$"` — 双向绑定，Piying-View 通过 `NG_VALUE_ACCESSOR` 自动设置值并监听变更
 - `disabled$()` — 读取禁用状态
 
-> **提示**：`setComponent`、`formConfig` 等 Actions 的用法详见 [基础字段定义](/scenarios/basic-field/)；[API: setComponent](/api/setcomponent/) — 包含字符串引用与直接传组件类的完整对比。
+> **提示**：`setComponent`、`formConfig` 等 Actions 的用法详见 [基础字段定义](scenarios/basic-field/)；[API: setComponent](api/setcomponent/) — 包含字符串引用与直接传组件类的完整对比。
 
 运行 `ng serve`，打开浏览器访问页面，你会看到一个包含 name、age、email 三个字段的表单。输入数据时，`model` signal 的值会同步更新；
 
@@ -169,8 +169,8 @@ export class InputComponent extends BaseControl {}
 
 ## 下一步
 
-- 了解 [两种使用模式](/getting-started/two-modes/) — 自动模式 vs 手动模式的边界划分
-- 了解 [核心概念](/getting-started/core-concept/) — Schema 是如何转换为视图的
-- 查看 [基础字段定义](/scenarios/basic-field/) — setComponent / formConfig 的详细用法
-- 了解 [Options 配置](/getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
-- 查看 [fieldGlobalConfig API](/api/global-config/) — types/wrappers 优先级体系完整参考
+- 了解 [两种使用模式](getting-started/two-modes/) — 自动模式 vs 手动模式的边界划分
+- 了解 [核心概念](getting-started/core-concept/) — Schema 是如何转换为视图的
+- 查看 [基础字段定义](scenarios/basic-field/) — setComponent / formConfig 的详细用法
+- 了解 [Options 配置](getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
+- 查看 [fieldGlobalConfig API](api/global-config/) — types/wrappers 优先级体系完整参考

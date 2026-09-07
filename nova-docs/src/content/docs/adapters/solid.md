@@ -140,7 +140,7 @@ const field = convertToField(() => schema, envInjector, () => options);
 
 ## use-*Model 绑定 Hook
 
-将原生控件与 `cvaa` 双向绑定。详见 [字段模型绑定](/adapters/field-model-binding-solid/)：
+将原生控件与 `cvaa` 双向绑定。详见 [字段模型绑定](adapters/field-model-binding-solid/)：
 
 | Hook                    | 目标控件            |
 | ----------------------- | ------------------- |
@@ -176,6 +176,6 @@ import { PiResolvedViewFieldConfig } from '@piying/view-solid';
 
 ## 下一步
 
-- [字段模型绑定](/adapters/field-model-binding-solid/) — use-*Model 详解
-- [框架差异](/getting-started/framework-differences/) — 各框架 CVA / Signal 对比
-- [基础字段定义](/scenarios/basic-field/) — setComponent / formConfig
+- [字段模型绑定](adapters/field-model-binding-solid/) — use-*Model 详解
+- [框架差异](getting-started/framework-differences/) — 各框架 CVA / Signal 对比
+- [基础字段定义](scenarios/basic-field/) — setComponent / formConfig

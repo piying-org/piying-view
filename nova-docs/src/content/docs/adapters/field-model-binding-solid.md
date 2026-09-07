@@ -4,7 +4,7 @@ title: "字段组件模型绑定（Solid）"
 
 Solid 包 `@piying/view-solid` 提供了 `use-*Model` 系列 Hook，用于将原生表单控件与 Piying-View 的 `ControlValueAccessorAdapter`（CVAA）绑定。这些 Hook 返回 `createMemo` 计算信号，使用时需调用 `()` 展开。
 
-> **与 React 的差异：** Solid 版本的 `use-*Model` 均返回 `createMemo` 结果，需调用 `()`；且 `compositionMode` 参数为函数 `() => boolean`。React 版本返回普通对象、`compositionMode` 为布尔值，详见 [React 版本](/adapters/field-model-binding-react/)。
+> **与 React 的差异：** Solid 版本的 `use-*Model` 均返回 `createMemo` 结果，需调用 `()`；且 `compositionMode` 参数为函数 `() => boolean`。React 版本返回普通对象、`compositionMode` 为布尔值，详见 [React 版本](adapters/field-model-binding-react/)。
 
 ## 前置：获取 CVAA
 
@@ -136,7 +136,7 @@ export function InputText(props: PiInputOptions) {
 
 ## 下一步
 
-- [Solid API](/adapters/solid/) — `@piying/view-solid` 完整 API
-- [React 版本](/adapters/field-model-binding-react/) — React 的 `use-*Model` 签名
-- [框架差异](/getting-started/framework-differences/) — 各框架的 CVA 绑定与 Signal 转换工具对比
-- [基础字段定义](/scenarios/basic-field/) — setComponent / formConfig 用法
+- [Solid API](adapters/solid/) — `@piying/view-solid` 完整 API
+- [React 版本](adapters/field-model-binding-react/) — React 的 `use-*Model` 签名
+- [框架差异](getting-started/framework-differences/) — 各框架的 CVA 绑定与 Signal 转换工具对比
+- [基础字段定义](scenarios/basic-field/) — setComponent / formConfig 用法

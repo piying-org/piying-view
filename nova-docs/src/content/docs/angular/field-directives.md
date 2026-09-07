@@ -6,7 +6,7 @@ title: "字段指令配置"
 
 > ⚠️ **区分两类指令**：
 > - 本文讲的是**指令配置**——你通过 `actions.directives` 把自定义指令（如 `D1Directive`）附加到字段组件上；
-> - 而 `PiyingFieldTemplateDirective`（`[fieldTemplate]`）是库内置暴露给用户的手动模式绑定指令，属于另一类，详见 [Angular API 参考](/angular/api/)。
+> - 而 `PiyingFieldTemplateDirective`（`[fieldTemplate]`）是库内置暴露给用户的手动模式绑定指令，属于另一类，详见 [Angular API 参考](angular/api/)。
 
 ## 指令实例稳定 — 输入跟随变化
 
@@ -76,9 +76,9 @@ const define = v.pipe(
 
 > `field.directives` 提供 `add`（追加）与 `clean`（清空）等操作，适用于按业务状态开关指令（如权限校验、水印、埋点）等场景。
 
-> 💡 在指令中获取附加字段的组件引用，可注入 `PI_COMPONENT_REF_TOKEN`，详见 [Token](/angular/tokens/)。
+> 💡 在指令中获取附加字段的组件引用，可注入 `PI_COMPONENT_REF_TOKEN`，详见 [Token](angular/tokens/)。
 
 ## 相关文档
 
-- [Angular 包 API 参考](/angular/api/) — 指令配置、Token 完整参考（含 `PiyingFieldTemplateDirective` 的 `onInit` 输入）
-- [Wrappers 包装器](/api/wrappers/) — Wrapper 与组件解析关系
+- [Angular 包 API 参考](angular/api/) — 指令配置、Token 完整参考（含 `PiyingFieldTemplateDirective` 的 `onInit` 输入）
+- [Wrappers 包装器](api/wrappers/) — Wrapper 与组件解析关系

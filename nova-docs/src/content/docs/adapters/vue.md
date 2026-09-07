@@ -26,7 +26,7 @@ import { PiyingView } from '@piying/view-vue';
 
 ### PiyingFieldTemplate
 
-> 🧭 **手动模式**：属于 [两种使用模式](/getting-started/two-modes/) 中的模式二（手动绑定）。`PiyingView` 是自动模式入口，而 `PiyingFieldTemplate` / `PiyingFieldControlBind` / `convertToField` 是手动模式的手动绑定工具。
+> 🧭 **手动模式**：属于 [两种使用模式](getting-started/two-modes/) 中的模式二（手动绑定）。`PiyingView` 是自动模式入口，而 `PiyingFieldTemplate` / `PiyingFieldControlBind` / `convertToField` 是手动模式的手动绑定工具。
 
 渲染单个字段模板，通过 `field` / `path` 定位（模板内部仍全自动渲染）：
 
@@ -117,7 +117,7 @@ const outputs = signalToRef(() => field.value.outputs());
 
 ### typedComponent — 强类型 setComponent
 
-详见 [Vue 强类型组件](/adapters/vue-typed-component/)。
+详见 [Vue 强类型组件](adapters/vue-typed-component/)。
 
 ```typescript
 import { typedComponent } from '@piying/view-vue';
@@ -138,7 +138,7 @@ const schema = v.object({
 
 ### convertToField — Schema 转换
 
-> 🧭 **手动模式**：`convertToField` 是手动模式的核心入口，返回 `field` 后需用 `PiyingFieldControlBind` / `PiyingFieldTemplate` 手动绑定渲染位置。自动模式中 `PiyingView` 会在内部自动调用它，无需手动使用。详见 [两种使用模式](/getting-started/two-modes/)。
+> 🧭 **手动模式**：`convertToField` 是手动模式的核心入口，返回 `field` 后需用 `PiyingFieldControlBind` / `PiyingFieldTemplate` 手动绑定渲染位置。自动模式中 `PiyingView` 会在内部自动调用它，无需手动使用。详见 [两种使用模式](getting-started/two-modes/)。
 
 ```typescript
 import { convertToField } from '@piying/view-vue';
@@ -202,6 +202,6 @@ const copy = clone(originalObj);
 
 ## 下一步
 
-- [Vue 强类型组件](/adapters/vue-typed-component/) — typedComponent 详解
-- [框架差异](/getting-started/framework-differences/) — Vue 的 Field Token / CVA 绑定
-- [基础字段定义](/scenarios/basic-field/) — setComponent / formConfig
+- [Vue 强类型组件](adapters/vue-typed-component/) — typedComponent 详解
+- [框架差异](getting-started/framework-differences/) — Vue 的 Field Token / CVA 绑定
+- [基础字段定义](scenarios/basic-field/) — setComponent / formConfig

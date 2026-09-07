@@ -109,6 +109,6 @@ const schema = v.object({
 
 ## 下一步
 
-- [API: CSS class](/api/css-class/) — CSS Class 设置
-- [API: layout](/api/layout/) — keyPath / priority 调整布局
-- [API: inputs](/api/inputs/) — 组件输入属性设置
+- [API: CSS class](api/css-class/) — CSS Class 设置
+- [API: layout](api/layout/) — keyPath / priority 调整布局
+- [API: inputs](api/inputs/) — 组件输入属性设置

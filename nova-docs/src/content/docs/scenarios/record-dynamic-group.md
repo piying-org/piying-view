@@ -123,6 +123,6 @@ const schema = v.object({
 
 ## 下一步
 
-- [综合示例：完整业务表单](/scenarios/complete-example/) — 结合所有知识点的实战示例
-- [API: Layout metadata](/api/layout/) — keyPath / priority 调整布局
-- [API: Wrappers](/api/wrappers/) — Wrapper 包装器设置
+- [综合示例：完整业务表单](scenarios/complete-example/) — 结合所有知识点的实战示例
+- [API: Layout metadata](api/layout/) — keyPath / priority 调整布局
+- [API: Wrappers](api/wrappers/) — Wrapper 包装器设置

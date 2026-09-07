@@ -60,5 +60,5 @@ const schema3 = v.pipe(
 
 ## 下一步
 
-- [API: wrappers](/api/wrappers/) — Wrapper 包装器完整指南（编写、V1/V2 语法）
-- [API: global-config](/api/global-config/) — types/wrappers 全局配置优先级
+- [API: wrappers](api/wrappers/) — Wrapper 包装器完整指南（编写、V1/V2 语法）
+- [API: global-config](api/global-config/) — types/wrappers 全局配置优先级

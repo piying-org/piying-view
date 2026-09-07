@@ -239,5 +239,5 @@ const schema = v.object({
 
 ## 相关文档
 
-- [动态字段控制场景](/scenarios/dynamic-fields/) — hideWhen/disableWhen/valueChange 实战用法和常见联动场景
-- [综合示例](/scenarios/complete-example/) — 结合所有知识点的完整业务表单
+- [动态字段控制场景](scenarios/dynamic-fields/) — hideWhen/disableWhen/valueChange 实战用法和常见联动场景
+- [综合示例](scenarios/complete-example/) — 结合所有知识点的完整业务表单

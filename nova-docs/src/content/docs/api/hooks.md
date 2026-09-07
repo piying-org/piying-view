@@ -100,5 +100,5 @@ const schema = v.pipe(
 
 ## 下一步
 
-- [API: props](/api/props/) — 通用属性配置
-- [API: providers](/api/providers/) — 注入业务服务
+- [API: props](api/props/) — 通用属性配置
+- [API: providers](api/providers/) — 注入业务服务

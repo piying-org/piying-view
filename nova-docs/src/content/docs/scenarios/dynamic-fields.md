@@ -6,7 +6,7 @@ title: "动态字段控制 — 场景与实战"
 
 本文介绍如何使用 `hideWhen`、`disableWhen` 和 `valueChange` 实现字段的动态控制和联动。
 
-> **API 参考**：类型签名、参数说明等详细信息请见 [hideWhen / disableWhen / valueChange API](/api/hide-disable/)。
+> **API 参考**：类型签名、参数说明等详细信息请见 [hideWhen / disableWhen / valueChange API](api/hide-disable/)。
 
 ## hideWhen — 条件隐藏
 
@@ -85,7 +85,7 @@ const schema = v.object({
 | 功能     | 仅控制 disabled    | 同时控制 hidden + disabled     |
 | 适用场景 | 字段可见但不可编辑 | 字段不可见且不可编辑           |
 
-详见 [API: disableWhen](/api/hide-disable/#disablewhen---类型签名)。
+详见 [API: disableWhen](api/hide-disable/#disablewhen---类型签名)。
 
 ## valueChange — 自定义联动
 
@@ -107,7 +107,7 @@ const schema = v.object({
 });
 ```
 
-详见 [API: valueChange](/api/hide-disable/#valuechange---类型签名)。
+详见 [API: valueChange](api/hide-disable/#valuechange---类型签名)。
 
 ## 常见联动场景
 
@@ -237,6 +237,6 @@ const fullSchema = v.object({
 
 ## 下一步
 
-- [API: hideWhen / disableWhen / valueChange](/api/hide-disable/) — 完整的 API 参考
-- [值转换与联动](/scenarios/value-transform/) — transformer(toModel/toView)
-- [综合示例：完整业务表单](/scenarios/complete-example/)
+- [API: hideWhen / disableWhen / valueChange](api/hide-disable/) — 完整的 API 参考
+- [值转换与联动](scenarios/value-transform/) — transformer(toModel/toView)
+- [综合示例：完整业务表单](scenarios/complete-example/)

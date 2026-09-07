@@ -80,5 +80,5 @@ export class MyGroupComponent extends PiyingViewGroupBase {
 
 ## 相关文档
 
-- [指令](/angular/directives/) — 字段模板、控件绑定等指令
-- [Angular API 参考](/angular/api/) — 全部公开 API 索引
+- [指令](angular/directives/) — 字段模板、控件绑定等指令
+- [Angular API 参考](angular/api/) — 全部公开 API 索引

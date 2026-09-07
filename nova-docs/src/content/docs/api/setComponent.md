@@ -90,7 +90,7 @@ const schema = v.object({
 | `v.intersect()` | `'intersect'`       |
 | `v.record()`    | `'record'`          |
 
-> **注意**：`'intersect-group'` 不是 `v.intersect()` 的默认 key。只有当 `v.intersect()` 配合 `asVirtualGroup()` 使用时，类型才会变为 `'intersect-group'`（见 [asControl / asVirtualGroup](/scenarios/as-control-group/)）。
+> **注意**：`'intersect-group'` 不是 `v.intersect()` 的默认 key。只有当 `v.intersect()` 配合 `asVirtualGroup()` 使用时，类型才会变为 `'intersect-group'`（见 [asControl / asVirtualGroup](scenarios/as-control-group/)）。
 
 因此以下代码中，`name` 字段会查找 `types['string']`：
 
@@ -116,9 +116,9 @@ options = {
 
 ## 下一步
 
-- [API: inputs](/api/inputs/) — 组件输入属性
-- [API: outputs](/api/outputs/) — 组件输出事件
-- [API: events](/api/events/) — DOM 事件处理
-- [API: attributes](/api/attributes/) — HTML Attributes 设置
-- [API: CSS class](/api/css-class/) — CSS Class 设置
-- [API: global-config](/api/global-config/) — 全局类型配置优先级体系
+- [API: inputs](api/inputs/) — 组件输入属性
+- [API: outputs](api/outputs/) — 组件输出事件
+- [API: events](api/events/) — DOM 事件处理
+- [API: attributes](api/attributes/) — HTML Attributes 设置
+- [API: CSS class](api/css-class/) — CSS Class 设置
+- [API: global-config](api/global-config/) — 全局类型配置优先级体系

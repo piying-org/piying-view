@@ -177,9 +177,9 @@ const obj3 = v.object({
 
 ## 路径查询基础
 
-KeyPath 类型定义、`field.get()` 用法 计算规则等基础知识详见 [路径查询 API](/api/path-querying/)。
+KeyPath 类型定义、`field.get()` 用法 计算规则等基础知识详见 [路径查询 API](api/path-querying/)。
 
 ## 下一步
 
-- [API: hideWhen/disableWhen](/api/hide-disable/) — 动态控制可见性/可用性
-- [API: fieldGlobalConfig](/api/global-config/) — 全局配置优先级
+- [API: hideWhen/disableWhen](api/hide-disable/) — 动态控制可见性/可用性
+- [API: fieldGlobalConfig](api/global-config/) — 全局配置优先级

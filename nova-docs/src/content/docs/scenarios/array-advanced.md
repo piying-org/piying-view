@@ -208,5 +208,5 @@ field.action.remove(0); // 删除索引 0
 
 ## 下一步
 
-- [Record Schema 动态对象组](/scenarios/record-dynamic-group/) — 动态键值对表单
-- [API: FieldFormConfig](/api/field-config/) — deletionMode / groupMode / emptyValue 配置详解
+- [Record Schema 动态对象组](scenarios/record-dynamic-group/) — 动态键值对表单
+- [API: FieldFormConfig](api/field-config/) — deletionMode / groupMode / emptyValue 配置详解

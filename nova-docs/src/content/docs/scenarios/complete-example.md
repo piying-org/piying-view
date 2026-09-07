@@ -294,6 +294,6 @@ flowchart LR
 
 ## 下一步
 
-- [API: setComponent](/api/setcomponent/) — 组件设置详解
-- [API: inputs](/api/inputs/)、[API: outputs](/api/outputs/) — 组件输入输出设置
-- [API: hideWhen/disableWhen/valueChange](/api/hide-disable/) — 动态控制 API
+- [API: setComponent](api/setcomponent/) — 组件设置详解
+- [API: inputs](api/inputs/)、[API: outputs](api/outputs/) — 组件输入输出设置
+- [API: hideWhen/disableWhen/valueChange](api/hide-disable/) — 动态控制 API

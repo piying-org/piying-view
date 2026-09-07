@@ -24,6 +24,6 @@ const schema = v.pipe(
 
 ## 下一步
 
-- [API: inputs](/api/inputs/) — 组件输入属性设置
-- [API: outputs](/api/outputs/) — 组件输出事件设置
-- [API: Wrappers](/api/wrappers/) — Wrapper 包装器完整指南
+- [API: inputs](api/inputs/) — 组件输入属性设置
+- [API: outputs](api/outputs/) — 组件输出事件设置
+- [API: Wrappers](api/wrappers/) — Wrapper 包装器完整指南

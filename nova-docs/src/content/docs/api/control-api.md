@@ -706,7 +706,7 @@ console.log(ctrl.value); // 25.5（数字）
 
 ## 相关文档
 
-- [FieldFormConfig](/api/field-config/) — 字段表单配置详解
-- [路径查询](/api/path-querying/) — keyPath、get() 用法速查
-- [自定义验证](/scenarios/custom-validation/) — validators / asyncValidators 场景示例
-- [值转换与联动](/scenarios/value-transform/) — transformer 使用指南
+- [FieldFormConfig](api/field-config/) — 字段表单配置详解
+- [路径查询](api/path-querying/) — keyPath、get() 用法速查
+- [自定义验证](scenarios/custom-validation/) — validators / asyncValidators 场景示例
+- [值转换与联动](scenarios/value-transform/) — transformer 使用指南

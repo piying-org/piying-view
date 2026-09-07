@@ -51,7 +51,7 @@ const schema = v.object({
 ```
 
 ## 2. fieldGlobalConfig（全局配置）
-- 查看 [fieldGlobalConfig](/api/global-config/) — types/wrappers actions、优先级体系、合并规则详解
+- 查看 [fieldGlobalConfig](api/global-config/) — types/wrappers actions、优先级体系、合并规则详解
 
 `fieldGlobalConfig` 是最核心的配置项，包含 `types` 和 `wrappers` 两部分。
 
@@ -92,7 +92,7 @@ options = {
 
 在 `types` 或 `wrappers` 中配置 `actions` 后，这些 Actions 会作为该类型/包装器的**默认 Actions**，与用户 Schema 中定义的 Actions **数组合并**。详见：
 
-- [fieldGlobalConfig API 完整参考](/api/global-config/) — types/wrappers actions、优先级体系、合并规则
+- [fieldGlobalConfig API 完整参考](api/global-config/) — types/wrappers actions、优先级体系、合并规则
 
 ## 3. builder（自定义 Builder）
 
@@ -132,5 +132,5 @@ options = {
 
 ## 下一步
 
-- 查看 [fieldGlobalConfig API](/api/global-config/) — types/wrappers actions、优先级体系、合并规则详解
-- 查看 [setComponent API](/api/setcomponent/) — 如何在 Schema 级别指定组件
+- 查看 [fieldGlobalConfig API](api/global-config/) — types/wrappers actions、优先级体系、合并规则详解
+- 查看 [setComponent API](api/setcomponent/) — 如何在 Schema 级别指定组件

@@ -2,7 +2,7 @@
 title: "BaseControl — 表单控件基类"
 ---
 
-实现 `ControlValueAccessor` 的基类，用于编写字段控件组件（见 [快速上手](/getting-started/quick-start/)）：
+实现 `ControlValueAccessor` 的基类，用于编写字段控件组件（见 [快速上手](getting-started/quick-start/)）：
 
 ```typescript
 import { BaseControl } from '@piying/view-angular';
@@ -38,5 +38,5 @@ export class InputComponent extends BaseControl {}
 
 ## 相关文档
 
-- [快速上手](/getting-started/quick-start/) — 使用 BaseControl 编写控件的完整示例
-- [Angular API 参考](/angular/api/) — 全部公开 API 索引
+- [快速上手](getting-started/quick-start/) — 使用 BaseControl 编写控件的完整示例
+- [Angular API 参考](angular/api/) — 全部公开 API 索引

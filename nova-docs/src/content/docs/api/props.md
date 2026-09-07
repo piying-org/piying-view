@@ -69,5 +69,5 @@ Props 是配置中的通用属性键，可以在当前组件和包装器中使�
 
 ## 下一步
 
-- [API: providers](/api/providers/) — 注入业务服务
-- [API: field-config](/api/field-config/) — disabled/emptyValue/deletionMode 等配置详解
+- [API: providers](api/providers/) — 注入业务服务
+- [API: field-config](api/field-config/) — disabled/emptyValue/deletionMode 等配置详解

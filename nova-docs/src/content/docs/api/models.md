@@ -144,6 +144,6 @@ const schema = v.pipe(
 
 ## 下一步
 
-- [API: inputs](/api/inputs/) — 组件输入属性设置（单向）
-- [API: outputs](/api/outputs/) — 组件输出事件设置
-- [API: props](/api/props/) — 通用属性配置
+- [API: inputs](api/inputs/) — 组件输入属性设置（单向）
+- [API: outputs](api/outputs/) — 组件输出事件设置
+- [API: props](api/props/) — 通用属性配置

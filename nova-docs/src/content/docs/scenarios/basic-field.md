@@ -206,7 +206,7 @@ const schema = v.object({
 });
 ```
 
-结合动态控制（见 [动态字段控制场景](/scenarios/dynamic-fields/) / [API 参考](/api/hide-disable/)）：
+结合动态控制（见 [动态字段控制场景](scenarios/dynamic-fields/) / [API 参考](api/hide-disable/)）：
 
 ```typescript
 import { disableWhen } from '@piying/view-angular-core';
@@ -294,6 +294,6 @@ export class BasicFieldExampleComponent {
 
 ## 下一步
 
-- [复杂 Schema 结构](/scenarios/complex-schema/) — object / array / tuple / record / intersect / union
-- [动态字段控制](/scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange 实战场景
-- [API: formConfig 配置详解](/api/field-config/)
+- [复杂 Schema 结构](scenarios/complex-schema/) — object / array / tuple / record / intersect / union
+- [动态字段控制](scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange 实战场景
+- [API: formConfig 配置详解](api/field-config/)

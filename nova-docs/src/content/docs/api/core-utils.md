@@ -134,6 +134,6 @@ value$.disconnect('k1');
 
 ## 下一步
 
-- [核心概念](/getting-started/core-concept/) — Schema → Field → Component 解析链
-- [Control API](/api/control-api/) — 表单控件值/状态/验证 API
-- [FieldFormConfig](/api/field-config/) — 字段表单配置
+- [核心概念](getting-started/core-concept/) — Schema → Field → Component 解析链
+- [Control API](api/control-api/) — 表单控件值/状态/验证 API
+- [FieldFormConfig](api/field-config/) — 字段表单配置

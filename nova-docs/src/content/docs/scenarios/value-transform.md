@@ -275,6 +275,6 @@ flowchart LR
 
 ## 下一步
 
-- [自定义验证](/scenarios/custom-validation/) — validators / asyncValidators
-- [数组高级用法](/scenarios/array-advanced/) — deletionMode / groupMode
-- [API: FieldFormConfig](/api/field-config/) — transformer / pipe 配置详解
+- [自定义验证](scenarios/custom-validation/) — validators / asyncValidators
+- [数组高级用法](scenarios/array-advanced/) — deletionMode / groupMode
+- [API: FieldFormConfig](api/field-config/) — transformer / pipe 配置详解

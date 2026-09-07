@@ -4,7 +4,7 @@ title: "字段组件模型绑定（React）"
 
 React 包 `@piying/view-react` 提供了 `use-*Model` 系列 Hook，用于将原生表单控件与 Piying-View 的 `ControlValueAccessorAdapter`（CVAA）绑定。这些 Hook 返回可直接展开（spread）到原生控件的属性对象，免去手写值/事件绑定的样板代码。
 
-> React 版本的 `use-*Model` 返回普通对象，直接 `{...model}` 展开即可。Solid 版本签名不同（返回 `createMemo` 计算信号），详见 [Solid 版本](/adapters/field-model-binding-solid/)。
+> React 版本的 `use-*Model` 返回普通对象，直接 `{...model}` 展开即可。Solid 版本签名不同（返回 `createMemo` 计算信号），详见 [Solid 版本](adapters/field-model-binding-solid/)。
 
 ## 前置：获取 CVAA
 
@@ -144,7 +144,7 @@ export function InputText(props: PiInputOptions) {
 
 ## 下一步
 
-- [React API](/adapters/react/) — `@piying/view-react` 完整 API
-- [Solid 版本](/adapters/field-model-binding-solid/) — Solid 的 `use-*Model` 签名差异
-- [框架差异](/getting-started/framework-differences/) — 各框架的 CVA 绑定与 Signal 转换工具对比
-- [基础字段定义](/scenarios/basic-field/) — setComponent / formConfig 用法
+- [React API](adapters/react/) — `@piying/view-react` 完整 API
+- [Solid 版本](adapters/field-model-binding-solid/) — Solid 的 `use-*Model` 签名差异
+- [框架差异](getting-started/framework-differences/) — 各框架的 CVA 绑定与 Signal 转换工具对比
+- [基础字段定义](scenarios/basic-field/) — setComponent / formConfig 用法

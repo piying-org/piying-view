@@ -132,6 +132,6 @@ const typeDefine = typedComponent({
 
 ## 下一步
 
-- [框架差异](/getting-started/framework-differences/) — Vue 的 Field Token / CVA 绑定
-- [基础字段定义](/scenarios/basic-field/) — setComponent / formConfig 用法
-- [API: setComponent](/api/setcomponent/) — 组件设置详解
+- [框架差异](getting-started/framework-differences/) — Vue 的 Field Token / CVA 绑定
+- [基础字段定义](scenarios/basic-field/) — setComponent / formConfig 用法
+- [API: setComponent](api/setcomponent/) — 组件设置详解

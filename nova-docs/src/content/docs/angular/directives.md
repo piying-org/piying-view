@@ -4,7 +4,7 @@ title: "指令 — 字段模板 / 控件绑定等"
 
 本文介绍 `@piying/view-angular` 提供的指令：`InsertFieldDirective`、`PiyingFieldTemplateDirective`、`PiyingFieldControlBindDirective`、`AttributesDirective` / `EventsDirective`。
 
-> ⚠️ 这里是指**库内置暴露给用户**的指令。若你关心如何通过 `actions.directives` 把**自定义指令**附加到字段，请见 [字段指令配置](/angular/field-directives/)。
+> ⚠️ 这里是指**库内置暴露给用户**的指令。若你关心如何通过 `actions.directives` 把**自定义指令**附加到字段，请见 [字段指令配置](angular/field-directives/)。
 
 ## InsertFieldDirective
 
@@ -102,5 +102,5 @@ import { AttributesDirective, EventsDirective } from '@piying/view-angular';
 
 ## 相关文档
 
-- [组件](/angular/components/) — PiyingView / PiyingViewGroup
-- [Angular API 参考](/angular/api/) — 全部公开 API 索引
+- [组件](angular/components/) — PiyingView / PiyingViewGroup
+- [Angular API 参考](angular/api/) — 全部公开 API 索引

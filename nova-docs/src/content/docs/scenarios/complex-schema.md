@@ -82,7 +82,7 @@ const schema = v.object({
 });
 ```
 
-Piying-View 将 `record` 映射为特殊的 Group，键由用户动态添加。详见 [Record Schema 动态对象组](/scenarios/record-dynamic-group/)。
+Piying-View 将 `record` 映射为特殊的 Group，键由用户动态添加。详见 [Record Schema 动态对象组](scenarios/record-dynamic-group/)。
 
 ## Intersect（交叉类型）
 
@@ -168,6 +168,6 @@ const schema = v.object({
 
 ## 下一步
 
-- [asControl / asVirtualGroup](/scenarios/as-control-group/) — Group 视为独立控件、Intersect 子级作为虚拟 group
-- [动态字段控制](/scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange 实战场景
-- [API: Layout metadata](/api/layout/) — keyPath / priority 调整布局
+- [asControl / asVirtualGroup](scenarios/as-control-group/) — Group 视为独立控件、Intersect 子级作为虚拟 group
+- [动态字段控制](scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange 实战场景
+- [API: Layout metadata](api/layout/) — keyPath / priority 调整布局
