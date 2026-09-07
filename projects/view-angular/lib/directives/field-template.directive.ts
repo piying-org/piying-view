@@ -12,7 +12,7 @@ import { DynamicCreateDirective } from '../hook/dynamic-create';
 export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
   readonly fieldTemplate = input.required<PiResolvedViewFieldConfig>();
   readonly path = input<KeyPath>();
-
+  onInit = input<(field: PiResolvedViewFieldConfig) => void>();
   injector = inject(Injector);
   field$$ = computed<PiResolvedViewFieldConfig | undefined>(() => {
     const keyPath = this.path();
@@ -21,6 +21,7 @@ export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
   override field = computed(() => this.field$$()!);
   override inputInjector = computed(() => this.injector);
 
+  #initialized = false;
   summaryList$$ = computed(() => {
     return errorSummary(this.field$$()?.form.control);
   });
@@ -30,4 +31,12 @@ export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
       .filter(Boolean)
       .join('\n');
   });
+  override ngOnChanges(): void {
+    let field;
+    if (!this.#initialized && (field = this.field$$())) {
+      this.#initialized = true;
+      this.onInit()?.(field);
+    }
+    super.ngOnChanges();
+  }
 }
