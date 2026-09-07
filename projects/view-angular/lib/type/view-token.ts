@@ -1,6 +1,11 @@
 /** component */
 
-import { InjectionToken, EventEmitter, TemplateRef } from '@angular/core';
+import {
+  InjectionToken,
+  EventEmitter,
+  TemplateRef,
+  ComponentRef,
+} from '@angular/core';
 import { DynamicComponentConfig } from './component';
 
 import { PI_VIEW_FIELD_TOKEN as PVFT } from '@piying/view-angular-core';
@@ -29,3 +34,6 @@ export const PI_COMPONENT_LIST_LISTEN = new InjectionToken<
 export const PI_VIEW_FIELD_TEMPLATE_REF_TOKEN = new InjectionToken<
   TemplateRef<any>
 >('PI_VIEW_TEMPLATE_REF');
+export const PI_COMPONENT_REF_TOKEN = new InjectionToken<ComponentRef<any>>(
+  'PI_COMPONENT_REF',
+);

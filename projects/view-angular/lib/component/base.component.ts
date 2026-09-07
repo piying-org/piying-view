@@ -37,6 +37,7 @@ import {
   PI_COMPONENT_INDEX,
   PI_COMPONENT_LIST,
   PI_COMPONENT_LIST_LISTEN,
+  PI_COMPONENT_REF_TOKEN,
   PI_VIEW_FIELD_TOKEN,
 } from '../type/view-token';
 import {
@@ -223,6 +224,7 @@ export class BaseComponent {
           { provide: PI_COMPONENT_LIST, useValue: list },
           { provide: PI_COMPONENT_INDEX, useValue: index + 1 },
           { provide: PI_COMPONENT_LIST_LISTEN, useValue: this.#eventEmitter },
+          { provide: PI_COMPONENT_REF_TOKEN, useFactory: () => componentRef },
         ],
         parent: componentConfig.injector ?? viewContainerRef.injector,
       });
