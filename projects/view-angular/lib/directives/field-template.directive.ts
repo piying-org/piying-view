@@ -14,7 +14,7 @@ export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
   readonly path = input<KeyPath>();
 
   injector = inject(Injector);
-  field$$ = computed(() => {
+  field$$ = computed<PiResolvedViewFieldConfig | undefined>(() => {
     const keyPath = this.path();
     return keyPath ? this.fieldTemplate().get(keyPath) : this.fieldTemplate()!;
   });
@@ -25,6 +25,9 @@ export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
     return errorSummary(this.field$$()?.form.control);
   });
   valibotIssueSummary$$ = computed(() => {
-    return this.summaryList$$().map((item) => item.valibotIssueSummary!).filter(Boolean).join('\n');;
+    return this.summaryList$$()
+      .map((item) => item.valibotIssueSummary!)
+      .filter(Boolean)
+      .join('\n');
   });
 }
