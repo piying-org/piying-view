@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight'
 import starlightThemeNova from 'starlight-theme-nova'
 
 export default defineConfig({
+  base: '/piying-view',
   integrations: [
     starlight({
       title: 'Piying-View 文档',
