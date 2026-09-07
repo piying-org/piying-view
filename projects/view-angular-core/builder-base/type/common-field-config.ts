@@ -324,7 +324,7 @@ export type PiResolvedCommonViewFieldConfig<
   parent: ReturnType<SelfResolvedFn>;
   readonly form: {
     readonly control?: SchemaToControl<Schema, Value>;
-    readonly parent: FieldGroup | FieldArray | FieldLogicGroup;
+    readonly parent: SchemaToControl<ParentSchema, ParentValue>;
     readonly root: SchemaToControl<RootSchema, RootValue>;
   };
   /** 仅用来开发时debug使用 */

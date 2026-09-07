@@ -810,4 +810,31 @@ describe('控件类型细分(control)', () => {
     expect(v4).toEqual({ o1: 'a' });
     expect(v5).toEqual({ o1: 'a' });
   });
+
+  it('parent 属性按父级 schema 细分', () => {
+    // 对象子字段: 父级为 FieldGroup<{key1:string}>
+    const objResult = createBuilder(v.object({ key1: v.string() }));
+    const objField = objResult.get(['key1'])!;
+    type ObjParent = typeof objField.form.parent;
+    const equalObj: Equal<ObjParent, FieldGroup<{ key1: string }>> = true;
+    assertFieldGroup(objField.form.parent);
+    expect(equalObj).toBe(true);
+
+    // 嵌套子字段: 父级为 FieldGroup<{b:string}>
+    const nested = createBuilder(v.object({ a: v.object({ b: v.string() }) }));
+    const bField = nested.get(['a', 'b'])!;
+    type NestedParent = typeof bField.form.parent;
+    const equalNested: Equal<NestedParent, FieldGroup<{ b: string }>> = true;
+    assertFieldGroup(bField.form.parent);
+    expect(equalNested).toBe(true);
+
+    // 数组元素: 父级为 FieldArray<string[]>
+    const arrResult = createBuilder(v.object({ tags: v.array(v.string()) }));
+    arrResult.form.control?.updateValue({ tags: ['a'] });
+    const tagField = arrResult.get(['tags', 0])!;
+    type ArrParent = typeof tagField.form.parent;
+    const equalArr: Equal<ArrParent, FieldArray<string[]>> = true;
+    assertFieldArray(tagField.form.parent);
+    expect(equalArr).toBe(true);
+  });
 });
