@@ -599,17 +599,16 @@ describe('强类型推断', () => {
           // schema 输出为 string
           v.string(),
           getField(field$),
-          formConfig({
-            // pipe.toModel 类型被 formConfig 强制为 schema 输入 string
-            pipe: { toModel: rxPipe(map((x) => String(x))) },
-            // transformer.toModel 产出 string 才能通过 schema 校验
+          formConfig<string>({
+            pipe: {
+              toModel: rxPipe(map((x) => Number(x))) as any,
+            },
             transformer: { toModel: (x) => String(x) },
           }),
         ),
       );
       const value = field.form.control!.value;
       // 最终类型 = schema 输出 = string
-      // (即便 transformer 产出其他类型, schema 会拒绝它, 类型仍是 schema 输出)
       let xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error 最终类型是 string 不是 number
