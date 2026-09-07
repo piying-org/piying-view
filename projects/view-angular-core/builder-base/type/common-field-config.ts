@@ -243,6 +243,62 @@ type GetResult<
   GetParentSchema<Value, Schema, ParentSchema, Path>
 >;
 
+/* ---------- 控件类型细分(control 类型) ---------- */
+/** 判断 pipe 中是否包含指定 action type */
+type HasPipeAction<P extends readonly any[], T extends string> =
+  P extends readonly [infer A, ...infer Rest]
+    ? A extends { type: T }
+      ? true
+      : HasPipeAction<Rest, T>
+    : false;
+/** schema 是否配置了 asControl(强制作为 FieldControl) */
+type IsAsControl<S> = S extends { pipe: infer P extends readonly any[] }
+  ? HasPipeAction<P, 'asControl'>
+  : false;
+/** schema 是否配置了 asVirtualGroup(强制作为 FieldGroup) */
+type IsAsVirtualGroup<S> = S extends {
+  pipe: infer P extends readonly any[];
+}
+  ? HasPipeAction<P, 'asVirtualGroup'>
+  : false;
+/** 递归解包 pipe/wrapped 得到核心 schema */
+type CoreSchemaOf<S> = unknown extends S
+  ? any
+  : [S] extends [never]
+    ? any
+    : S extends { pipe: infer P extends readonly any[] }
+      ? CoreSchemaOf<P[0]>
+      : S extends { wrapped: infer W }
+        ? CoreSchemaOf<W>
+        : S;
+/** 根据核心 schema 与原始 schema 推断控件类型 */
+type SchemaControlOf<C, S, V> = C extends { type: 'array' | 'tuple' }
+  ? FieldArray<V>
+  : C extends { type: 'intersect' }
+    ? IsAsVirtualGroup<S> extends true
+      ? FieldGroup<V>
+      : FieldLogicGroup<V>
+    : C extends { type: 'union' }
+      ? FieldLogicGroup<V>
+      : C extends {
+            type:
+              | 'object'
+              | 'loose_object'
+              | 'strict_object'
+              | 'object_with_rest'
+              | 'record';
+          }
+        ? IsAsControl<S> extends true
+          ? FieldControl<V>
+          : FieldGroup<V>
+        : FieldControl<V>;
+/** 根据 schema 推断对应表单控件类型 */
+type SchemaToControl<S, V> = unknown extends S
+  ? FieldGroup<V> | FieldArray<V> | FieldControl<V> | FieldLogicGroup<V>
+  : [S] extends [never]
+    ? FieldGroup<V> | FieldArray<V> | FieldControl<V> | FieldLogicGroup<V>
+    : SchemaControlOf<CoreSchemaOf<S>, S, V>;
+
 export type PiResolvedCommonViewFieldConfig<
   SelfResolvedFn extends () => any,
   Define,
@@ -267,9 +323,9 @@ export type PiResolvedCommonViewFieldConfig<
   restChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   parent: ReturnType<SelfResolvedFn>;
   readonly form: {
-    readonly control?: FieldGroup<Value> | FieldArray<Value> | FieldControl<Value> | FieldLogicGroup<Value>;
+    readonly control?: SchemaToControl<Schema, Value>;
     readonly parent: FieldGroup | FieldArray | FieldLogicGroup;
-    readonly root: FieldGroup<Value> | FieldArray<Value> | FieldControl<Value> | FieldLogicGroup<Value>;
+    readonly root: SchemaToControl<RootSchema, RootValue>;
   };
   /** 仅用来开发时debug使用 */
   readonly origin: any;

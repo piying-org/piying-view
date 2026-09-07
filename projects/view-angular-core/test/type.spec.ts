@@ -2,12 +2,23 @@ import * as v from 'valibot';
 import { of, map, pipe as rxPipe } from 'rxjs';
 import {
   _PiResolvedCommonViewFieldConfig,
+  asControl,
+  asVirtualGroup,
   formConfig,
   setAlias,
+  FieldArray,
+  FieldControl,
+  FieldGroup,
+  FieldLogicGroup,
 } from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { getField } from './util/action';
-import { assertFieldControl } from './util/is-field';
+import {
+  assertFieldArray,
+  assertFieldControl,
+  assertFieldGroup,
+  assertFieldLogicGroup,
+} from './util/is-field';
 
 /** 类型工具: 判断是否为 any */
 type IsAny<T> = 0 extends 1 & T ? true : false;
@@ -26,14 +37,11 @@ type Equal<A, B> =
 /** 构建一个 key1 字段并返回解析后的 field */
 async function makeKeyField<Value = any>(
   fieldSchema: (
-    field$: PromiseWithResolvers<
-      _PiResolvedCommonViewFieldConfig<Value>
-    >,
+    field$: PromiseWithResolvers<_PiResolvedCommonViewFieldConfig<Value>>,
   ) => v.BaseSchema<any, any, any>,
 ) {
-  const field$ = Promise.withResolvers<
-    _PiResolvedCommonViewFieldConfig<Value>
-  >();
+  const field$ =
+    Promise.withResolvers<_PiResolvedCommonViewFieldConfig<Value>>();
   const result = createBuilder(v.object({ key1: fieldSchema(field$) }));
   result.form.control?.updateValue({ key1: '5' });
   return await field$.promise;
@@ -57,9 +65,7 @@ describe('强类型推断', () => {
   });
 
   it('get([a, b]) 嵌套强类型返回对应字段', () => {
-    const result = createBuilder(
-      v.object({ a: v.object({ b: v.string() }) }),
-    );
+    const result = createBuilder(v.object({ a: v.object({ b: v.string() }) }));
     const bField = result.get(['a', 'b']);
     expect(bField).toBeDefined();
     if (bField) {
@@ -94,9 +100,7 @@ describe('强类型推断', () => {
   });
 
   it('get 数组下标(数字) 强类型返回数组元素', () => {
-    const result = createBuilder(
-      v.object({ tags: v.array(v.string()) }),
-    );
+    const result = createBuilder(v.object({ tags: v.array(v.string()) }));
     // 先设置数组值, 触发数组元素(restChildren)构建
     result.form.control?.updateValue({ tags: ['a'] });
     // 通过数字下标 0 取数组元素
@@ -300,9 +304,7 @@ describe('强类型推断', () => {
   });
 
   it('get([..]) 退回父级字段(强类型)', () => {
-    const result = createBuilder(
-      v.object({ a: v.object({ b: v.string() }) }),
-    );
+    const result = createBuilder(v.object({ a: v.object({ b: v.string() }) }));
     const bField = result.get(['a', 'b']);
     expect(bField).toBeDefined();
     if (bField) {
@@ -429,9 +431,8 @@ describe('强类型推断', () => {
   });
 
   it('getField捕获的子字段: 推断单个字段类型', async () => {
-    const field$ = Promise.withResolvers<
-      _PiResolvedCommonViewFieldConfig<string>
-    >();
+    const field$ =
+      Promise.withResolvers<_PiResolvedCommonViewFieldConfig<string>>();
     const obj = v.object({
       key1: v.pipe(v.string(), getField(field$)),
     });
@@ -448,14 +449,12 @@ describe('强类型推断', () => {
   });
 
   it('getField捕获的group子字段: 推断子对象类型', async () => {
-    const field$ = Promise.withResolvers<
-      _PiResolvedCommonViewFieldConfig<{ sub: number }>
-    >();
+    const field$ =
+      Promise.withResolvers<
+        _PiResolvedCommonViewFieldConfig<{ sub: number }>
+      >();
     const obj = v.object({
-      key1: v.pipe(
-        v.object({ sub: v.number() }),
-        getField(field$),
-      ),
+      key1: v.pipe(v.object({ sub: v.number() }), getField(field$)),
     });
     const result = createBuilder(obj);
     result.form.control?.updateValue({ key1: { sub: 1 } });
@@ -468,9 +467,8 @@ describe('强类型推断', () => {
   });
 
   it('formConfig pipe.toModel 不影响最终输出类型(以schema为准)', async () => {
-    const field$ = Promise.withResolvers<
-      _PiResolvedCommonViewFieldConfig<string>
-    >();
+    const field$ =
+      Promise.withResolvers<_PiResolvedCommonViewFieldConfig<string>>();
     const obj = v.object({
       key1: v.pipe(
         v.string(),
@@ -493,9 +491,8 @@ describe('强类型推断', () => {
   });
 
   it('transformer.toModel 不影响最终输出类型(以schema为准)', async () => {
-    const field$ = Promise.withResolvers<
-      _PiResolvedCommonViewFieldConfig<string>
-    >();
+    const field$ =
+      Promise.withResolvers<_PiResolvedCommonViewFieldConfig<string>>();
     const obj = v.object({
       key1: v.pipe(
         v.string(),
@@ -676,5 +673,141 @@ describe('强类型推断', () => {
       // pipe.toModel: '5' -> '5'; transformer.toModel: '5' -> '5'; v.transform: Number('5') = 5
       expect(field.form.control.value).toBe(5);
     });
+  });
+});
+
+describe('控件类型细分(control)', () => {
+  it('v.string() => FieldControl', () => {
+    const result = createBuilder(v.string());
+    const ctrl = result.form.control;
+    type C = NonNullable<typeof ctrl>;
+    // 根级 schema 精确: 必须为 FieldControl<string>
+    const equal: Equal<C, FieldControl<string>> = true;
+    assertFieldControl(result.form.control);
+    expect(equal).toBe(true);
+  });
+
+  it('v.array(v.string()) => FieldArray', () => {
+    const result = createBuilder(v.array(v.string()));
+    const ctrl = result.form.control;
+    type C = NonNullable<typeof ctrl>;
+    const equal: Equal<C, FieldArray<string[]>> = true;
+    assertFieldArray(result.form.control);
+    expect(equal).toBe(true);
+  });
+
+  it('v.pipe(v.object({o1}), asControl()) => FieldControl', () => {
+    const result = createBuilder(
+      v.pipe(v.object({ o1: v.string() }), asControl()),
+    );
+    const ctrl = result.form.control;
+    type C = NonNullable<typeof ctrl>;
+    // 即使底层是 object, 配置 asControl 后仍为 FieldControl
+    const equal: Equal<C, FieldControl<{ o1: string }>> = true;
+    assertFieldControl(result.form.control);
+    expect(equal).toBe(true);
+  });
+
+  it('v.pipe(v.intersect([...]), asVirtualGroup()) => FieldGroup', () => {
+    const result = createBuilder(
+      v.pipe(v.intersect([v.object({ o1: v.string() })]), asVirtualGroup()),
+    );
+    const ctrl = result.form.control;
+    type C = NonNullable<typeof ctrl>;
+    // 配置 asVirtualGroup 后 intersect 变为 FieldGroup
+    const equal: Equal<C, FieldGroup<{ o1: string }>> = true;
+    assertFieldGroup(result.form.control);
+    expect(equal).toBe(true);
+  });
+
+  it('v.intersect([...]) => FieldLogicGroup', () => {
+    const result = createBuilder(v.intersect([v.object({ o1: v.string() })]));
+    const ctrl = result.form.control;
+    type C = NonNullable<typeof ctrl>;
+    // 无 asVirtualGroup 时 intersect 为 FieldLogicGroup
+    const equal: Equal<C, FieldLogicGroup<{ o1: string }>> = true;
+    assertFieldLogicGroup(result.form.control);
+    expect(equal).toBe(true);
+  });
+
+  it('根 object 与 union 也按 schema 细分', () => {
+    // 根为 object => FieldGroup
+    const objResult = createBuilder(v.object({ key1: v.string() }));
+    type ObjCtrl = NonNullable<typeof objResult.form.control>;
+    const equalObj: Equal<ObjCtrl, FieldGroup<{ key1: string }>> = true;
+    assertFieldGroup(objResult.form.control);
+    expect(equalObj).toBe(true);
+
+    // 根为 union => FieldLogicGroup
+    const unionResult = createBuilder(v.union([v.string(), v.number()]));
+    type UnionCtrl = NonNullable<typeof unionResult.form.control>;
+    const equalUnion: Equal<UnionCtrl, FieldLogicGroup<string | number>> = true;
+    assertFieldLogicGroup(unionResult.form.control);
+    expect(equalUnion).toBe(true);
+  });
+
+  it('root 属性按根 schema 细分', () => {
+    const result = createBuilder(v.object({ key1: v.string() }));
+    const field = result.get(['key1'])!;
+    const root = field.form.root;
+    type RootCtrl = typeof root;
+    // 子字段的 root 仍是根级 FieldGroup<{key1:string}>
+    const equal: Equal<RootCtrl, FieldGroup<{ key1: string }>> = true;
+    assertFieldGroup(field.form.root);
+    expect(equal).toBe(true);
+  });
+
+  it('get 子字段 value 类型按 schema 细分(与演示一致)', () => {
+    const result = createBuilder(
+      v.object({
+        // FieldControl
+        k1: v.string(),
+        // FieldArray
+        k2: v.array(v.string()),
+        // FieldControl
+        k3: v.pipe(v.object({ o1: v.string() }), asControl()),
+        // FieldGroup
+        k4: v.pipe(
+          v.intersect([v.object({ o1: v.string() })]),
+          asVirtualGroup(),
+        ),
+        // FieldLogicGroup
+        k5: v.intersect([v.object({ o1: v.string() })]),
+      }),
+    );
+    // 初始化值, 触发字段构建
+    result.form.control?.updateValue({
+      k1: 'x',
+      k2: ['a'],
+      k3: { o1: 'a' },
+      k4: { o1: 'a' },
+      k5: { o1: 'a' },
+    });
+    const k1 = result.get(['k1'])!;
+    let v1: string = k1.form.control!.value;
+    // @ts-expect-error k1 的 value 不是 number
+    let w1: number = k1.form.control!.value;
+
+    const k2 = result.get(['k2'])!;
+    let v2: string[] = k2.form.control!.value;
+
+    const k3 = result.get(['k3'])!;
+    let v3: { o1: string } = k3.form.control!.value;
+    // @ts-expect-error k3 的 value 不是 string
+    let w3: string = k3.form.control!.value;
+
+    const k4 = result.get(['k4'])!;
+    let v4: { o1: string } = k4.form.control!.value;
+
+    const k5 = result.get(['k5'])!;
+    let v5: { o1: string } = k5.form.control!.value;
+    // @ts-expect-error k5 的 value 不是 number
+    let w5: number = k5.form.control!.value;
+
+    expect(v1).toBe('x');
+    expect(v2).toEqual(['a']);
+    expect(v3).toEqual({ o1: 'a' });
+    expect(v4).toEqual({ o1: 'a' });
+    expect(v5).toEqual({ o1: 'a' });
   });
 });
