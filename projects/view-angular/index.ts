@@ -14,3 +14,4 @@ export * from './lib/util/typed-component';
 export * from './lib/directives/field-control-bind.directive';
 export * from './lib/directives/field-template.directive';
 export * from './lib/util/convert-wrapper';
+export * from './lib/component/base.component'

@@ -10,14 +10,14 @@ import {
 } from '@angular/core';
 import { PiResolvedViewFieldConfig } from '../type';
 import { DynamicComponentConfig } from '../type/component';
-import { BaseComponent } from '../component/base.component';
+import { PiyingCreateComponentBase } from '../component/base.component';
 import { DirectiveConfig } from '../component/dynamic-define.component';
 import { asyncObjectSignal } from '@piying/view-angular-core';
 import { FieldControlDirective } from '../directives/field-control.directive';
 import { ChainedInjector } from './chained_injector';
 
 @Directive({})
-export abstract class DynamicCreateDirective extends BaseComponent {
+export abstract class DynamicCreateDirective extends PiyingCreateComponentBase {
   abstract field: Signal<PiResolvedViewFieldConfig>;
   abstract inputInjector: Signal<Injector>;
   override index = 0;

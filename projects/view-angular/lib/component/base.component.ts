@@ -120,7 +120,7 @@ function deepEqualObject(
 }
 const EmptyOBJ = {};
 @Directive()
-export class BaseComponent {
+export class PiyingCreateComponentBase {
   /** 第一次默认为空 */
   protected index = inject(PI_COMPONENT_INDEX, { optional: true }) ?? 0!;
 

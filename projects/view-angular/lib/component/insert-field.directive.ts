@@ -8,14 +8,14 @@ import {
 } from '@angular/core';
 import { PI_COMPONENT_LIST_LISTEN, PI_COMPONENT_LIST } from '../type';
 import { ComponentVersion, DynamicComponentConfig } from '../type/component';
-import { BaseComponent } from './base.component';
+import { PiyingCreateComponentBase } from './base.component';
 import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
 
 @Directive({
   selector: '[insertField]',
   exportAs: 'insertField',
 })
-export class InsertFieldDirective extends BaseComponent {
+export class InsertFieldDirective extends PiyingCreateComponentBase {
   insertFieldSlots = input<Record<string, TemplateRef<any>>>();
   insertFieldAttributes = input<Record<string, any>>();
   #viewContainerRef = inject(ViewContainerRef);
