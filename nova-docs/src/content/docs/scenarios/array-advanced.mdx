@@ -2,9 +2,14 @@
 title: "数组高级用法"
 ---
 
-
+import LivePreview from '../../../components/LivePreview.astro';
+import { ArrayDemoComponent } from '../../../components/array-demo.component.ts';
 
 本文介绍 Piying-View 中数组的高级特性：增删改操作、deletionMode、groupMode 等。
+
+<LivePreview path="src/components/array-demo.component.ts">
+  <ArrayDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
 
 ## 数组基本操作
 

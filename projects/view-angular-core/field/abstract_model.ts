@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 
 import { FieldFormConfig$, ValueType } from './type';
-import { SchemaOrPipe } from '@piying/valibot-visit';
+import type { SchemaOrPipe } from '@piying/valibot-visit';
 import * as v from 'valibot';
 import { Observable } from 'rxjs';
 import {

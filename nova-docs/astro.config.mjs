@@ -1,14 +1,36 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightThemeNova from 'starlight-theme-nova';
+import mdx from '@astrojs/mdx';
+import angular from '@analogjs/astro-angular';
+import tailwindcss from '@tailwindcss/vite';
 
 const base = '/piying-view/';
 
 export default defineConfig({
+  output: 'static',
   base,
+  vite: {
+    plugins: [tailwindcss()],
+  },
   integrations: [
+    mdx(),
+    angular({
+      useAngularHydration: false,
+      vite: {
+        transformFilter: (_code, id) => {
+          return (
+            id.includes('src/components') ||
+            id.includes('view-angular') ||
+            id.includes('node_modules')
+          );
+        },
+        tsconfig: './tsconfig.app.json',
+      },
+    }),
     starlight({
       title: 'Piying-View 文档',
+      customCss: ['./src/styles/global.css'],
       plugins: [
         starlightThemeNova({
           nav: [
@@ -30,6 +52,10 @@ export default defineConfig({
               link: '/getting-started/framework-differences/',
             },
             { label: 'JSON Schema 支持', link: '/getting-started/jsonschema/' },
+            {
+              label: 'Astro 集成 Angular Demo',
+              link: '/getting-started/astro-angular-demo/',
+            },
           ],
         },
         {

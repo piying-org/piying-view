@@ -1,5 +1,18 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types/**/*", "src/**/*"],
-  "exclude": []
+  "include": [
+    ".astro/types/**/*",
+    "src/**/*"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "paths": {
+      "@piying/view-angular-core": [
+        "../projects/view-angular-core/index.ts"
+      ],
+      "@piying/view-angular": [
+        "../projects/view-angular/index.ts"
+      ],
+    }
+  }
 }

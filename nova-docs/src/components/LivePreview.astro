@@ -1,0 +1,99 @@
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import CodeFile from 'starlight-theme-nova/components/CodeFile.astro';
+import { CodeTabItem, CodeTabs } from 'starlight-theme-nova/components';
+import { globSync } from 'tinyglobby';
+import { basename, extname } from 'node:path';
+import { readFile } from 'node:fs/promises';
+
+interface Props {
+  /**
+   * 单个文件路径或 glob 模式（相对项目根目录）。
+   * 例如 `src/components/hello.component.ts` 或 `src/components/*.ts`
+   */
+  path?: string;
+  /**
+   * 包含匹配的 glob 模式，支持数组。优先级高于 `path`
+   */
+  include?: string | string[];
+  /**
+   * 排除匹配的 glob 模式，支持数组
+   */
+  exclude?: string | string[];
+  /**
+   * 预览 tab 的标签，默认「预览」
+   */
+  previewLabel?: string;
+  /**
+   * 代码 tab 的标签，默认「代码」
+   */
+  codeLabel?: string;
+}
+
+const { path, include, exclude, previewLabel = '预览', codeLabel = '代码' } = Astro.props;
+
+// 解析包含模式
+let patterns: string[];
+if (include) {
+  patterns = Array.isArray(include) ? include : [include];
+} else if (path) {
+  patterns = [path];
+} else {
+  throw new Error('LivePreview 需要提供 path 或 include 属性');
+}
+
+const ignore = exclude ? (Array.isArray(exclude) ? exclude : [exclude]) : undefined;
+
+// 匹配源码文件（相对项目根）
+const files = globSync(patterns, { ignore }).filter((f) => !f.startsWith('node_modules/'));
+
+if (files.length === 0) {
+  throw new Error(`LivePreview 未找到匹配的文件：${patterns.join(', ')}`);
+}
+
+// 从扩展名推断代码语言
+function getLang(file: string) {
+  const ext = extname(file).replace('.', '');
+  return ext || 'plaintext';
+}
+
+// 多个文件时读取内容用于代码 tab
+const fileContents =
+  files.length > 1
+    ? await Promise.all(
+        files.map(async (file) => ({
+          file,
+          code: await readFile(file, 'utf-8'),
+        })),
+      )
+    : [];
+---
+
+<div class="live-preview">
+  <Tabs>
+    <TabItem label={previewLabel}>
+      <slot name="preview" />
+    </TabItem>
+    <TabItem label={codeLabel}>
+      {files.length === 1 ? (
+        <CodeFile path={files[0]} />
+      ) : (
+        <CodeTabs>
+          {fileContents.map(({ file, code }) => (
+            <CodeTabItem label={basename(file)} lang={getLang(file)} code={code} />
+          ))}
+        </CodeTabs>
+      )}
+    </TabItem>
+  </Tabs>
+</div>
+
+<style>
+  .live-preview {
+    margin: 1.5rem 0;
+  }
+
+  .live-preview :global(starlight-tabs [data-nova-code-container]) {
+    border-radius: 0;
+  }
+</style>

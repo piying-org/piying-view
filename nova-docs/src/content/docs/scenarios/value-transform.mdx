@@ -2,9 +2,14 @@
 title: "值转换与联动"
 ---
 
-
+import LivePreview from '../../../components/LivePreview.astro';
+import { ValueTransformDemoComponent } from '../../../components/value-transform-demo.component.ts';
 
 本文介绍如何使用 `transformer` 和 Valibot 的 `transform` Action 实现视图层与模型层的值转换。
+
+<LivePreview path="src/components/value-transform-demo.component.ts">
+  <ValueTransformDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
 
 ## Transformer（toModel / toView）
 

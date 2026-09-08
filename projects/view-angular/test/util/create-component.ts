@@ -15,7 +15,7 @@ import {
   FieldControl,
   FieldGroup,
 } from '@piying/view-angular-core';
-import { SchemaOrPipe } from '@piying/valibot-visit';
+import type{ SchemaOrPipe } from '@piying/valibot-visit';
 import { PiyingViewGroup } from '@piying/view-angular';
 import { CustomInputComponent } from '../custom-input/custom-input.component';
 

@@ -18,7 +18,7 @@ import {
   MetadataAction,
   ObjectSchema,
   Schema,
-  SchemaOrPipe,
+  type SchemaOrPipe,
   TupleSchema,
   UnionSchema,
   VoidSchema,

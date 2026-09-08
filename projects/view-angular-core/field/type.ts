@@ -6,7 +6,7 @@ import {
   ValidatorFn,
 } from './abstract_model';
 import type { Observable, UnaryFunction } from 'rxjs';
-import { BaseSchema } from 'valibot';
+import type{ BaseSchema } from 'valibot';
 
 export type DisabledValueStrategy = 'reserve' | 'delete';
 export interface FieldTransformerConfig {

@@ -2,9 +2,14 @@
 title: "asControl / asVirtualGroup"
 ---
 
-
+import LivePreview from '../../../components/LivePreview.astro';
+import { AsControlGroupDemoComponent } from '../../../components/as-control-group-demo.component.ts';
 
 本文介绍 `asControl()` 和 `asVirtualGroup()` 如何改变 Group/Intersect 类型的默认行为。
+
+<LivePreview path="src/components/as-control-group-demo.component.ts">
+  <AsControlGroupDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
 
 ## asControl — 将 Group 视为独立控件
 
