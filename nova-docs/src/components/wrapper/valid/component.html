@@ -1,0 +1,10 @@
+@let field = field$$();
+<div [class]="classStatus$$()" class="flex flex-col gap-2">
+  <ng-container insertField></ng-container>
+  @if (
+    field$$().props()['forceShowError'] ||
+    (field.form.control?.errors && isChangedStatus$$())
+  ) {
+    <div class="text-error">{{ errorStr$$() }}</div>
+  }
+</div>

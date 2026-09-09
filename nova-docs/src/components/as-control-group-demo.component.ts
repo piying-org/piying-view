@@ -8,11 +8,12 @@ import {
 import * as v from 'valibot';
 import { InputFCC } from '@piying-lib/angular-daisyui/field-control';
 import { setComponent } from '@piying/view-angular-core';
+import { FieldGlobalConfig } from './define';
 
 @Component({
   selector: 'as-control-group-demo',
   standalone: true,
-  template: ` <piying-view [schema]="schema"></piying-view> `,
+  template: ` <piying-view [schema]="schema" [options]="options"></piying-view> `,
   imports: [PiyingView],
 })
 export class AsControlGroupDemoComponent {
@@ -46,4 +47,5 @@ export class AsControlGroupDemoComponent {
     }),
     setComponent(PiyingViewGroup),
   );
+  options = { fieldGlobalConfig: FieldGlobalConfig };
 }

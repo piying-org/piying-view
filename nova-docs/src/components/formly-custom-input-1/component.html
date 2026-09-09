@@ -1,0 +1,7 @@
+<input
+  [type]="field().props()['title'] ?? 'text'"
+  [ngModel]="value$()"
+  (ngModelChange)="valueChange($event)"
+  class="border border-solid"
+  (blur)="touchedChange()"
+/>

@@ -1,0 +1,136 @@
+---
+title: "类型映射 — 定义即表单"
+---
+
+import SchemaPreview from '../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
+
+本文展示「定义即表单」的核心能力：一个 Valibot 类型定义，会自动渲染为对应的表单控件。下面每个示例的**定义**都会渲染出一个可交互的**表单**。
+
+所有渲染依赖全局字段配置 `FieldGlobalConfig`（`string`/`number`/`boolean`/`picklist` 等隐式类型映射到对应控件），通过 `options` 传入：
+
+```typescript
+import { PresetDefine } from '@piying-lib/angular-daisyui/preset';
+
+export const FieldGlobalConfig = PresetDefine;
+
+options = { fieldGlobalConfig: FieldGlobalConfig };
+```
+
+## 控件类型
+
+大部分 Valibot 类型会被解析为表单控件，以下为常用类型映射。
+
+### string → 文本输入
+
+<SchemaPreview definition="src/components/definition/type-string.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="string" />
+</SchemaPreview>
+
+### number → 数字输入
+
+<SchemaPreview definition="src/components/definition/type-number.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="number" />
+</SchemaPreview>
+
+### boolean → 复选框
+
+<SchemaPreview definition="src/components/definition/type-boolean.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="boolean" />
+</SchemaPreview>
+
+### picklist → 下拉选择
+
+<SchemaPreview definition="src/components/definition/type-picklist.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="picklist" />
+</SchemaPreview>
+
+## 表单组类型
+
+`v.object()` 定义的对象会渲染为一个表单组，自动包含所有子字段。
+
+### object → 表单组
+
+<SchemaPreview definition="src/components/definition/type-object.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object" />
+</SchemaPreview>
+
+### looseObject → 保留未定义键值
+
+`v.looseObject()` 会保留未在 Schema 中显式定义的键值：
+
+<SchemaPreview definition="src/components/definition/loose-object.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="looseObject" />
+</SchemaPreview>
+
+### objectWithRest → 部分固定 + 部分可添加
+
+`v.objectWithRest()` 部分键值固定，其余键值按指定类型可动态添加：
+
+<SchemaPreview definition="src/components/definition/object-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="objectWithRest" />
+</SchemaPreview>
+
+### record → 动态键值对
+
+`v.record()` 无固定键值，键值全部可动态添加（目前仅支持 key 为 string 类型）：
+
+<SchemaPreview definition="src/components/definition/record.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record" />
+</SchemaPreview>
+
+## 表单数组类型
+
+以下类型会被解析为表单数组。
+
+### array → 动态数组
+
+`v.array()` 定义会渲染为可动态增删的数组：
+
+<SchemaPreview definition="src/components/definition/type-array.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array" />
+</SchemaPreview>
+
+### tuple / strictTuple → 固定长度数组
+
+`v.tuple()` 固定数组项，不可添加，超过长度自动过滤：
+
+<SchemaPreview definition="src/components/definition/tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="tuple" />
+</SchemaPreview>
+
+### looseTuple → 固定长度且保留多余项
+
+`v.looseTuple()` 固定数组项，不可添加，超过长度时保留：
+
+<SchemaPreview definition="src/components/definition/loose-tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="looseTuple" />
+</SchemaPreview>
+
+### tupleWithRest → 部分固定 + 部分可添加
+
+`v.tupleWithRest()` 部分数组项固定，其余按指定类型可动态添加：
+
+<SchemaPreview definition="src/components/definition/tuple-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="tupleWithRest" />
+</SchemaPreview>
+
+## 默认值
+
+`v.optional()` 的第二个参数即为默认值，渲染后直接填入表单：
+
+<SchemaPreview definition="src/components/definition/default-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="default" />
+</SchemaPreview>
+
+## 嵌套定义
+
+使用 `v.object()` 可进行多级数据结构定义，自动嵌套渲染为子表单组：
+
+<SchemaPreview definition="src/components/definition/nested-object.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="nested" />
+</SchemaPreview>
+
+## 更多类型
+
+> 更多类型请参考 [Valibot API](https://valibot.dev/api/)。自定义类型可使用 `custom`。

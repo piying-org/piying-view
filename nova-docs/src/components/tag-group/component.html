@@ -1,0 +1,22 @@
+<div class="tabs tabs-border">
+  @for (field of field$$().children!(); track field.id || $index) {
+    @let label = field.props()['title'] || 'Tab' + ($index + 1);
+    <input
+      type="radio"
+      [name]="name"
+      class="tab"
+      [attr.aria-label]="label"
+      [checked]="$first"
+      [disabled]="
+        stepsLike() &&
+        !$first &&
+        field$$().children!()[$index - 1].form.control?.invalid
+      "
+    />
+    <div class="tab-content border-base-300 bg-base-100 p-10">
+      <ng-container
+        *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: field }"
+      ></ng-container>
+    </div>
+  }
+</div>

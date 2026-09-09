@@ -8,14 +8,11 @@ import {
 } from '@angular/core';
 import { DynamicComponentConfig } from './component';
 
-import { PI_VIEW_FIELD_TOKEN as PVFT } from '@piying/view-angular-core';
+export { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
 export {
   PI_INPUT_OPTIONS_TOKEN,
   PI_INPUT_SCHEMA_TOKEN,
 } from '@piying/view-angular-core';
-
-/** wrapper中可以使用,已解析的配置 */
-export const PI_VIEW_FIELD_TOKEN = PVFT;
 
 /**
  * @internal

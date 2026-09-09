@@ -1,0 +1,82 @@
+---
+title: "组件使用"
+---
+
+import SchemaPreview from '../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
+
+本文介绍如何在 Piying-View 中定义和使用组件，包括创建多个组件、非表单控件、属性操作、事件输出、上下文等。
+
+## 组件类型
+
+| 类型     | 说明                                 |
+| -------- | ------------------------------------ |
+| 普通组件 | 没有实现 ControlValueAccessor 的组件 |
+| 控件控件 | 实现 ControlValueAccessor 的表单控件 |
+| 普通分组 | 可包含子组件的容器组件               |
+| 逻辑分组 | anyOf/oneOf 等逻辑组合               |
+
+## 创建多个组件
+
+默认提供基础的 object 组件，用来展示内部子组件，也可自定义显示方式或增加包装器。
+
+<SchemaPreview definition="src/components/definition/component-use.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="component-use" />
+</SchemaPreview>
+
+- **基础 object 组件**：`v.object({ k1: v.string(), k2: v.number() })` 默认展示内部子组件
+- **自定义显示**：通过 `setComponent('fieldset')` 修改为 fieldset 分组展示
+- **增加包装器**：通过 `actions.wrappers.set(['label'])` 添加标签，`v.minValue(10)` 添加验证
+
+## 非表单控件组件
+
+默认情况下，Valibot 的强类型定义使所有输入默认为表单控件。若需定义为非表单控件，可使用 `NFCSchema`（`v.optional(v.void())`），使用后必须用 `setComponent` 手动指定组件：
+
+<SchemaPreview definition="src/components/definition/nfc.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="nfc" />
+</SchemaPreview>
+
+> `NFCSchema`：`NonFieldControlSchema`，用于定义非表单控件。
+
+## 属性操作与事件输出
+
+通过 `actions.inputs` 设置输入属性，并通过 `outputChange` 监听事件输出：
+
+<SchemaPreview definition="src/components/definition/action.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="action" />
+</SchemaPreview>
+
+- **静态属性**：`actions.inputs.set({ input1: 1 })` 直接设置输入值
+- **动态变更**：`actions.inputs.patchAsync({ input1: async (field) => 1 })` 支持 Promise/Observable/Signal
+- **事件输出**：`outputChange` 同时监听多个组件、多个输出，再根据逻辑关系处理
+
+## 上下文
+
+通过传入 `context` 使得组件可以通过上下文动态获取参数：
+
+<SchemaPreview definition="src/components/definition/context.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="context" />
+</SchemaPreview>
+
+## 高级自定义
+
+所有设置操作都基于 `rawConfig` 封装，`rawConfig` 允许修改底层设置，方便开发者自行定义：
+
+<SchemaPreview definition="src/components/definition/raw.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="raw" />
+</SchemaPreview>
+
+## 无标签组件（Angular selectorless）
+
+使用指定的语法可以实现无自定义选择器（组件只投影内容，不产生宿主标签）：
+
+<SchemaPreview definition="src/components/definition/selectorless.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="selectorless" />
+</SchemaPreview>
+
+## 下一步
+
+- 了解 [基础字段定义](scenarios/basic-field/) — setComponent / formConfig 的详细用法
+- 了解 [API: inputs](api/inputs/) — 输入属性操作
+- 了解 [API: outputs](api/outputs/) — 事件输出
+- 了解 [API: 核心工具函数](api/core-utils/) — rawConfig 等底层封装

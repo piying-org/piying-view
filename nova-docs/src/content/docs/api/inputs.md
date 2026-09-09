@@ -48,6 +48,54 @@ const schema = v.pipe(
 // 最终 inputs = { maxLength: 50 }
 ```
 
+## actions.inputs.patchAsync — 动态设置（异步）
+
+支持返回 `Promise` / `Observable` / `Signal` / 普通值，常用于异步获取数据：
+
+```typescript
+import { actions } from '@piying/view-angular-core';
+import { BehaviorSubject } from 'rxjs';
+
+// 普通值
+v.pipe(NFCSchema, setComponent('button'), actions.inputs.patchAsync({ content: () => '1' }));
+
+// Observable（定时更新）
+v.pipe(
+  NFCSchema,
+  setComponent('button'),
+  actions.inputs.patchAsync({
+    content: () => {
+      const ob = new BehaviorSubject(0);
+      const id = setInterval(() => {
+        ob.next(ob.value + 1);
+        if (ob.value === 10) {
+          clearInterval(id);
+        }
+      }, 500);
+      return ob;
+    },
+  }),
+);
+```
+
+## actions.inputs.mapAsync — 映射输入值
+
+接收 `field` 参数，返回一个转换函数对所有输入值进行映射：
+
+```typescript
+v.pipe(
+  NFCSchema,
+  setComponent('button'),
+  actions.props.patch({ value: '1' }),
+  actions.inputs.mapAsync((field) => {
+    return (value) => ({
+      ...value,
+      content: field.props()['value'], // 从 props 读取动态值
+    });
+  }),
+);
+```
+
 ## 完整验证示例
 
 ### Inputs 操作链

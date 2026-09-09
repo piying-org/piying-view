@@ -1,0 +1,8 @@
+@if (data()?.['schema']) {
+  <piying-view
+    [schema]="schema$$()"
+    [options]="options"
+    [model]="model$$()"
+    (modelChange)="valueChange($event)"
+  ></piying-view>
+}

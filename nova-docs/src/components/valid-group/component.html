@@ -1,0 +1,21 @@
+<fieldset
+  class="fieldset bg-base-200 border-base-300 rounded-box border p-4 w-full"
+>
+  @if (field().props()['title']; as title) {
+    <legend class="fieldset-legend">{{ title }}</legend>
+  }
+  @for (field of field$$().children!(); track field.id || $index) {
+    @if (field.props()['title']) {
+      <label class="label">{{ field.props()['title'] }}</label>
+    }
+    <div
+      [class.pi-valid]="field.form.control && field.form.control.valid"
+      [class.pi-invalid]="field.form.control && field.form.control.invalid"
+      [class.pi-pristine]="field.form.control && field.form.control.pristine"
+    >
+      <ng-container
+        *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: field }"
+      ></ng-container>
+    </div>
+  }
+</fieldset>

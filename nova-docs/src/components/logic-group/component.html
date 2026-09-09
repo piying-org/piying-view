@@ -1,0 +1,43 @@
+@let type = field$$().props()['type'];
+@if (type === 'anyOf') {
+  <app-select
+    [options]="list()"
+    [multiple]="true"
+    [(ngModel)]="selectAny$"
+    (ngModelChange)="anyOfChange()"
+    class="h-[80px] block"
+  ></app-select>
+  <div class="flex flex-col gap-4">
+    @for (item of field$$().children!(); track $index) {
+      @if (selectAny$().includes($index)) {
+        <ng-container
+          *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: item }"
+        ></ng-container>
+      }
+    }
+  </div>
+} @else if (type === 'oneOf') {
+  <app-select
+    [options]="list()"
+    [(ngModel)]="selectOr$"
+    class="block"
+    (ngModelChange)="oneOfChange()"
+  ></app-select>
+  <div class="flex flex-col gap-4">
+    @for (item of field$$().children!(); track $index) {
+      @if (selectOr$() === $index) {
+        <ng-container
+          *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: item }"
+        ></ng-container>
+      }
+    }
+  </div>
+} @else {
+  @for (item of field$$().children!(); track $index) {
+    @if (!item.renderConfig().hidden) {
+      <ng-container
+        *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: item }"
+      ></ng-container>
+    }
+  }
+}

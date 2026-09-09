@@ -4,6 +4,12 @@ import starlightThemeNova from 'starlight-theme-nova';
 import mdx from '@astrojs/mdx';
 import angular from '@analogjs/astro-angular';
 import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import starlightThemeNova from 'starlight-theme-nova';
+import mdx from '@astrojs/mdx';
+import angular from '@analogjs/astro-angular';
+import tailwindcss from '@tailwindcss/vite';
 
 const base = '/piying-view/';
 
@@ -52,15 +58,21 @@ export default defineConfig({
               link: '/getting-started/framework-differences/',
             },
             { label: 'JSON Schema 支持', link: '/getting-started/jsonschema/' },
-            {
-              label: 'Astro 集成 Angular Demo',
-              link: '/getting-started/astro-angular-demo/',
-            },
+            // {
+            //   label: 'Astro 集成 Angular Demo',
+            //   link: '/getting-started/astro-angular-demo/',
+            // },
           ],
         },
         {
           label: '业务场景',
           items: [
+            {
+              label: '类型映射（定义即表单）',
+              link: '/scenarios/type-mapping/',
+            },
+            { label: '表单使用', link: '/scenarios/form-use/' },
+            { label: '组件使用', link: '/scenarios/component-use/' },
             { label: '基础字段定义', link: '/scenarios/basic-field/' },
             { label: '复杂 Schema 结构', link: '/scenarios/complex-schema/' },
             {

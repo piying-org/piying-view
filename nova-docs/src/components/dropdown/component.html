@@ -1,0 +1,17 @@
+<div tabindex="0" role="button" class="btn m-1" #el>{{ selected$$() }}</div>
+<ul
+  tabindex="0"
+  class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm flex flex-col gap-2"
+>
+  @for (item of options(); track $index) {
+    <li>
+      <button
+        class="btn"
+        [disabled]="item.disabled"
+        (click)="optionSelected(item, el)"
+      >
+        {{ item.label }}
+      </button>
+    </li>
+  }
+</ul>

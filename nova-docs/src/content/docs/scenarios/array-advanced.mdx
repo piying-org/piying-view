@@ -3,7 +3,9 @@ title: "数组高级用法"
 ---
 
 import LivePreview from '../../../components/LivePreview.astro';
+import SchemaPreview from '../../../components/SchemaPreview.astro';
 import { ArrayDemoComponent } from '../../../components/array-demo.component.ts';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
 
 本文介绍 Piying-View 中数组的高级特性：增删改操作、deletionMode、groupMode 等。
 
@@ -210,6 +212,57 @@ const obj = v.object({
 field.action.set('11', 1); // 在索引 1 设置 '11'
 field.action.remove(0); // 删除索引 0
 ```
+
+## 过滤组
+
+自定义创建表单组控制内部表单的显示（大量字段时可使用 `filterGroup` 过滤组件）：
+
+<SchemaPreview definition="src/components/definition/filter-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="filter-group" />
+</SchemaPreview>
+
+```typescript
+const schema = v.pipe(
+  v.object(
+    new Array(100)
+      .fill(undefined)
+      .map((item, i) => v.pipe(v.string(), v.title(`SearchTitle${i}`)))
+      .reduce((obj, item, i) => {
+        obj[`k${i}`] = item;
+        return obj;
+      }, Object.create({})),
+  ),
+  setComponent('filterGroup'),
+);
+```
+
+> `filterGroup` 是一个自定义分组组件，用于控制大量内部字段的显示过滤。
+
+## 滚动组
+
+使用 `defer` 动态创建控件，配合 `scrollGroup` 组件实现大量字段的滚动懒加载：
+
+<SchemaPreview definition="src/components/definition/scroll-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="scroll-group" />
+</SchemaPreview>
+
+```typescript
+const schema = v.pipe(
+  v.object(
+    new Array(100)
+      .fill(undefined)
+      .map((item, i) => v.pipe(v.string(), v.title(`title${i}`)))
+      .reduce((obj, item, i) => {
+        obj[`k${i}`] = item;
+        return obj;
+      }, Object.create({})),
+  ),
+  setComponent('scrollGroup'),
+  actions.inputs.set({ scrollHeight: 500, placeholerHeight: 20 }),
+);
+```
+
+> `scrollGroup` 是一个自定义分组组件，用于大量字段的滚动懒加载渲染。
 
 ## 下一步
 

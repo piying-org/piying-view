@@ -1,0 +1,12 @@
+<fieldset
+  class="fieldset bg-base-200 border-base-300 rounded-box border p-4 w-full"
+>
+  @if (field().props()['title']; as title) {
+    <legend class="fieldset-legend">{{ title }}</legend>
+  }
+  @for (field of field$$().children!(); track field.id || $index) {
+    <ng-container
+      *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: field }"
+    ></ng-container>
+  }
+</fieldset>

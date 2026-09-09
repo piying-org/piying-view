@@ -3,7 +3,9 @@ title: '自定义验证'
 ---
 
 import LivePreview from '../../../components/LivePreview.astro';
+import SchemaPreview from '../../../components/SchemaPreview.astro';
 import { CustomValidationDemoComponent } from '../../../components/custom-validation-demo.component.ts';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
 
 本文介绍如何在 Piying-View 中使用自定义验证器，包括同步和异步验证。
 
@@ -240,6 +242,29 @@ const schema = v.object({
 });
 ```
 
+## 分组验证
+
+也可以使用 group 只在专门的组中进行验证，通过 `validGroup` 组件包裹需要验证的字段：
+
+<SchemaPreview definition="src/components/definition/valid-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="valid-group" />
+</SchemaPreview>
+
+```typescript
+const schema = v.pipe(
+  v.object({
+    k1: v.string(),
+    k2: v.pipe(
+      v.string(),
+      v.check((value) => value === 'k2-value'),
+    ),
+  }),
+  setComponent('validGroup'),
+);
+```
+
+> `validGroup` 是一个自定义分组组件，仅对组内字段进行验证并集中显示错误。
+
 ## 验证错误处理
 
 Piying-View 的 FieldControl 提供标准接口访问验证状态：
@@ -267,6 +292,47 @@ if (control.errors) {
   }
 }
 ```
+
+## 两种验证方式对比
+
+Piying-View 支持两种验证方式，二者**并行执行**：
+
+| 验证方式     | 说明                            | 特点                               |
+| ------------ | ------------------------------- | ---------------------------------- |
+| Valibot 验证 | 在 Valibot 解析阶段进行，先执行 | 只能验证自身，无法以上下文值验证     |
+| 控件自带验证 | 在 Valibot 验证成功后执行       | 可访问父级，根据其他字段值判断      |
+
+```ts
+// Valibot 内置验证
+v.pipe(v.string(), v.minLength(5));
+
+// 自定义验证
+v.pipe(
+  v.string(),
+  v.check((value) => value === 'k2-value', 'should input k2-value'),
+);
+```
+
+**验证顺序**：
+
+1. **Valibot 验证**（先执行）
+2. **控件自带验证**（后执行）
+
+## Valibot 验证国际化
+
+Valibot 提供了预制的国际化支持，可按浏览器语言加载对应语言包：
+
+```ts
+import '@valibot/i18n/zh-CN';
+import { setGlobalConfig } from 'valibot';
+
+const browserLanguage = navigator.language;
+if (browserLanguage.startsWith('zh')) {
+  setGlobalConfig({ lang: 'zh-CN' });
+}
+```
+
+> 控件自带验证的国际化需要在需要显示异常信息的包装器、组件上自行实现。
 
 ## 下一步
 

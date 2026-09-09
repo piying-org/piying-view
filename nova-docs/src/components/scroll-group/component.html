@@ -1,0 +1,19 @@
+<div
+  class="flex flex-col gap-2 overflow-auto"
+  [style.height]="scrollHeight() + 'px'"
+>
+  @for (field of field$$().children!(); track field.id || $index) {
+    @defer (on viewport) {
+      <div class="flex flex-col gap-2">
+        @if (field.props()['title']) {
+          <label class="label">{{ field.props()['title'] }}</label>
+        }
+        <ng-container
+          *ngTemplateOutlet="fieldTemplateRef; context: { $implicit: field }"
+        ></ng-container>
+      </div>
+    } @placeholder {
+      <div [style.height]="placeholerHeight() + 'px'"></div>
+    }
+  }
+</div>

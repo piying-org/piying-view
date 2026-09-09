@@ -5,14 +5,5 @@
     "src/**/*"
   ],
   "exclude": [],
-  "compilerOptions": {
-    "paths": {
-      "@piying/view-angular-core": [
-        "../projects/view-angular-core/index.ts"
-      ],
-      "@piying/view-angular": [
-        "../projects/view-angular/index.ts"
-      ],
-    }
-  }
+  "compilerOptions": {}
 }

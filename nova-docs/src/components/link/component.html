@@ -1,0 +1,24 @@
+@switch (type()) {
+  @case ('img') {
+    @if (href()) {
+      <a [routerLink]="href()" class="btn btn-ghost btn-circle">
+        <img [src]="imgLink()" class="w-4 h-4" />
+      </a>
+    } @else if (externalLink()) {
+      <a
+        [href]="externalLink()"
+        class="btn btn-ghost btn-circle"
+        target="_blank"
+      >
+        <img [src]="imgLink()" class="w-4 h-4" />
+      </a>
+    }
+  }
+  @default {
+    @if (href()) {
+      <a [routerLink]="href()" class="btn">{{ label() }}</a>
+    } @else if (externalLink()) {
+      <a [href]="externalLink()" class="btn" target="_blank">{{ label() }}</a>
+    }
+  }
+}

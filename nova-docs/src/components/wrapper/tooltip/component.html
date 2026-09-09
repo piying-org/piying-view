@@ -1,0 +1,7 @@
+<div
+  class="tooltip-bottom"
+  [attr.data-tip]="field$$().props()['description']"
+  [class.tooltip]="!!field$$().props()['description']"
+>
+  <ng-container insertField></ng-container>
+</div>

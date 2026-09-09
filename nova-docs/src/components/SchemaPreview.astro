@@ -1,0 +1,47 @@
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import CodeFile from 'starlight-theme-nova/components/CodeFile.astro';
+
+interface Props {
+  /**
+   * 定义文件路径（相对项目根），代码 tab 仅展示该文件中的「定义」。
+   * 例如 `src/components/definition/type-string.definition.ts`
+   */
+  definition: string;
+  /**
+   * 预览 tab 的标签，默认「预览」
+   */
+  previewLabel?: string;
+  /**
+   * 定义 tab 的标签，默认「定义」
+   */
+  codeLabel?: string;
+}
+
+const { definition, previewLabel = '预览', codeLabel = '定义' } = Astro.props;
+
+if (!definition) {
+  throw new Error('SchemaPreview 需要提供 definition 属性');
+}
+---
+
+<div class="schema-preview">
+  <Tabs>
+    <TabItem label={previewLabel}>
+      <slot name="preview" />
+    </TabItem>
+    <TabItem label={codeLabel}>
+      <CodeFile path={definition} />
+    </TabItem>
+  </Tabs>
+</div>
+
+<style>
+  .schema-preview {
+    margin: 1.5rem 0;
+  }
+
+  .schema-preview :global(starlight-tabs [data-nova-code-container]) {
+    border-radius: 0;
+  }
+</style>

@@ -1,0 +1,63 @@
+<ng-template #templateRef>
+  @if (hasChild$$()) {
+    <fieldset
+      class="fieldset bg-base-200 border-base-300 rounded-box border p-4 w-full"
+    >
+      <legend class="fieldset-legend">
+        {{ field$$().props()['title'] ?? field$$().keyPath?.join('.') }}
+      </legend>
+      <ng-template #fieldItem let-field="field">
+        @if (!field.renderConfig().hidden) {
+          <ng-container
+            *ngTemplateOutlet="
+              fieldTemplateRef;
+              context: { $implicit: field }
+            "
+          ></ng-container>
+        }
+      </ng-template>
+
+      <div [class]="wrapperClass()">
+        @for (field of field$$().fixedChildren!(); track field.id || $index) {
+          <ng-container
+            *ngTemplateOutlet="fieldItem; context: { field }"
+          ></ng-container>
+        }
+
+        @if (field$$().restChildren?.(); as restChildren) {
+          <div class="divider">Rest</div>
+          @for (field of restChildren; track field.id || $index) {
+            <div class="flex items-center gap-2">
+              <ng-container
+                *ngTemplateOutlet="fieldItem; context: { field }"
+              ></ng-container>
+              <button
+                class="btn btn-circle btn-soft btn-error"
+                (click)="remove($index)"
+              >
+                <mat-icon>remove</mat-icon>
+              </button>
+            </div>
+          }
+          <div class="flex items-center w-full gap-4">
+            @if (isGroup$$()) {
+              <input
+                type="text"
+                [(ngModel)]="addKey$"
+                class="input"
+                placeholder="Rest Key"
+              />
+            }
+            <button
+              class="btn flex-1"
+              (click)="add()"
+              [disabled]="isGroup$$() && !addKey$()"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    </fieldset>
+  }
+</ng-template>

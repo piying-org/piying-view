@@ -1,0 +1,39 @@
+<ul class="steps">
+  @for (field of field$$().children!(); track field.id || $index) {
+    @let label1 = field.props()['title'] || 'Tab' + ($index + 1);
+    <li
+      class="step step-primary"
+      [class.step-primary]="field.form.control?.valid"
+    >
+      {{ label1 }}
+    </li>
+  }
+</ul>
+<div class="flex flex-col gap-4">
+  <ng-container
+    *ngTemplateOutlet="
+      fieldTemplateRef;
+      context: { $implicit: activatedItem$$() }
+    "
+  ></ng-container>
+  <div class="flex gap-2 items-center">
+    @if (activatedIndex$() !== 0) {
+      <button
+        class="btn btn-primary"
+        [disabled]="activatedItem$$().form.control?.invalid"
+        (click)="toPrev()"
+      >
+        Back
+      </button>
+    }
+    @if (activatedIndex$() + 1 !== field$$().children!().length) {
+      <button
+        class="btn btn-primary"
+        [disabled]="activatedItem$$().form.control?.invalid"
+        (click)="toNext()"
+      >
+        Next
+      </button>
+    }
+  </div>
+</div>

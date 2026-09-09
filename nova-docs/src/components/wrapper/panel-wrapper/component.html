@@ -1,0 +1,12 @@
+<div
+  class="rounded-box flex flex-col bg-base-300 border-transparent border-solid border-[1px] overflow-hidden"
+>
+  <div class="bg-base-300">
+    <label class="label">
+      {{ field$$().props()['title'] }}
+    </label>
+  </div>
+  <div class="p-2 bg-base-100">
+    <ng-container insertField></ng-container>
+  </div>
+</div>

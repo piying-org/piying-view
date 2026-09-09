@@ -3,7 +3,9 @@ title: "asControl / asVirtualGroup"
 ---
 
 import LivePreview from '../../../components/LivePreview.astro';
+import SchemaPreview from '../../../components/SchemaPreview.astro';
 import { AsControlGroupDemoComponent } from '../../../components/as-control-group-demo.component.ts';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
 
 本文介绍 `asControl()` 和 `asVirtualGroup()` 如何改变 Group/Intersect 类型的默认行为。
 
@@ -120,6 +122,65 @@ const schema2 = v.pipe(v.intersect([v.object({ name: v.string() }), v.object({ a
 | 使用后行为 | 作为单个 FieldControl        | 普通的 FieldGroup  |
 | 返回类型   | `FieldControl`               | `FieldGroup`       |
 | 典型用途   | 将嵌套对象整体传给一个自定义组件 | 修改表单类型       |
+
+## 字段分组（tabs）
+
+`v.intersect()` + `asVirtualGroup()` 可以进行多级虚拟组，配合 `tabs` 组件实现标签页分组：
+
+<SchemaPreview definition="src/components/definition/tabs-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="tabs-group" />
+</SchemaPreview>
+
+```typescript
+import { asVirtualGroup } from '@piying/view-angular-core';
+
+const schema = v.pipe(
+  v.intersect([
+    v.pipe(
+      v.object({
+        k1: v.optional(v.string()),
+        k2: v.optional(v.string()),
+      }),
+      v.title('tab1'),
+    ),
+    v.pipe(
+      v.object({
+        k3: v.optional(v.string()),
+        k4: v.optional(v.string()),
+      }),
+      v.title('tab2'),
+    ),
+  ]),
+  setComponent('tabs'),
+  asVirtualGroup(),
+);
+```
+
+## 布局移动
+
+在保证数据结构正常的前提下，可通过 `layout()` 将字段移动到指定位置（`priority` 数字越小越靠前，`keyPath` 可引用 `setAlias` 设置的别名）：
+
+<SchemaPreview definition="src/components/definition/layout.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="layout" />
+</SchemaPreview>
+
+```typescript
+import { layout, setAlias } from '@piying/view-angular-core';
+
+const schema = v.pipe(
+  v.intersect([
+    v.pipe(v.object({}), setComponent(PiyingViewGroup), setAlias('ly1')),
+    v.pipe(v.object({}), setComponent(PiyingViewGroup), setAlias('ly2')),
+    v.object({
+      input1: v.pipe(v.string(), layout({ keyPath: ['@ly1'] })),
+      input2: v.pipe(v.string(), layout({ keyPath: ['@ly2'], priority: 3 })),
+      input3: v.pipe(v.string(), layout({ keyPath: ['@ly2'], priority: 2 })),
+      input4: v.pipe(v.string(), layout({ keyPath: ['@ly2'], priority: 1 })),
+    }),
+  ]),
+  asVirtualGroup(),
+);
+```
 
 ## 常见组合
 

@@ -126,6 +126,32 @@ value$.disconnect('k1');
 | `Signal`     | 响应式读取，信号变化自动更新           |
 | 普通值       | 立即写入                               |
 
+## condition — 条件执行 Actions
+
+`condition` 根据环境或条件执行不同的 Actions，需要在组件的 options 中配置 `environments`：
+
+```typescript
+import * as v from 'valibot';
+import { condition, rawConfig } from '@piying/view-angular-core';
+
+const schema = v.object({
+  key1: v.pipe(
+    v.string(),
+    condition({
+      environments: ['default'],
+      actions: [
+        rawConfig((item) => {
+          item.inputs = { ...item.inputs, type: 'date' };
+          return item;
+        }),
+      ],
+    }),
+  ),
+});
+```
+
+> `environments` 用于匹配当前环境，匹配成功时执行对应的 `actions`。
+
 ## 其他内部工具
 
 以下工具函数从 `@piying/view-angular-core/util` 导出，供内部实现使用，一般无需直接调用：

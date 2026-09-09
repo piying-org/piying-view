@@ -1,0 +1,31 @@
+<ng-template #templateRef>
+  <div>
+    <div #anchor></div>
+    @let control = field().form.root;
+    @if (control.errors && (control.touched || control.dirty)) {
+      <div>
+        <label class="label">Form Error</label>
+        <pre class="mt-2 text-error">{{ errorStr$$() }}</pre>
+      </div>
+    }
+
+    <div class="flex gap-2 items-center">
+      <input
+        [disabled]="control.invalid && !forceEnableSubmit()"
+        type="submit"
+        class="btn btn-primary"
+        (click)="submit()"
+      />
+
+      <input
+        type="reset"
+        class="btn btn-outline btn-secondary"
+        (click)="resetForm()"
+      />
+
+      <button class="btn btn-outline btn-accent" (click)="saveInit()">
+        Update Intial Values
+      </button>
+    </div>
+  </div>
+</ng-template>
