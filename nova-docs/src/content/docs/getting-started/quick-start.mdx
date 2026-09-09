@@ -3,7 +3,9 @@ title: "快速上手"
 ---
 
 import LivePreview from '../../../components/LivePreview.astro';
+import SchemaPreview from '../../../components/SchemaPreview.astro';
 import { QuickStartDemoComponent } from '../../../components/quick-start-demo.component.ts';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
 
 > **提示**：Actions（`setComponent`、`formConfig` 等）的逻辑定义在所有框架中是相同的。以下各框架的包名和安装命令如下：
 
@@ -49,15 +51,9 @@ pnpm add valibot @piying/view-angular @piying/view-angular-core @angular/core
 
 使用 Valibot 定义表单字段的验证 Schema：
 
-```typescript
-import * as v from 'valibot';
-
-const formSchema = v.object({
-  name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符')),
-  age: v.pipe(v.number(), v.minValue(18, '必须年满 18 岁')),
-  email: v.optional(v.string()),
-});
-```
+<SchemaPreview definition="src/components/definition/quick-start-schema.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="quick-start-schema" />
+</SchemaPreview>
 
 ## 第二步：注册组件类型
 

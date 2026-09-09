@@ -19,34 +19,17 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 默认情况下，Piying-View 会将 `v.object()`、`v.array()` 等容器类型**展开**为子字段的集合：
 
-```typescript
-const schema = v.object({
-  address: v.object({
-    city: v.string(),
-    street: v.string(),
-  }),
-});
-// → address 下的 city 和 street 作为独立字段渲染
-```
+<SchemaPreview definition="src/components/definition/control-group-default.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-default" />
+</SchemaPreview>
 
 ### 使用 asControl
 
 `asControl()` 让 Group/Array 类型的 Schema **不展开**，而是作为一个独立的控件节点：
 
-```typescript
-import * as v from 'valibot';
-import { asControl } from '@piying/view-angular-core';
-
-const schema = v.object({
-  address: v.pipe(
-    v.object({
-      city: v.string(),
-      street: v.string(),
-    }),
-    asControl(), // address 作为一个独立控件，不展开子字段
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/control-group-as-control.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-as-control" />
+</SchemaPreview>
 
 此时 `address` 对应一个 `FieldControl` 而非 `FieldGroup`，整个对象作为单个值处理。
 
@@ -103,15 +86,9 @@ const schema = v.object({
 
 ### 使用 asVirtualGroup
 
-```typescript
-import * as v from 'valibot';
-import { asVirtualGroup } from '@piying/view-angular-core';
-
-const schema = v.intersect([v.object({ name: v.string() }), v.object({ age: v.number() })]);
-
-// 使用 asVirtualGroup：子级作为独立的虚拟 group 处理
-const schema2 = v.pipe(v.intersect([v.object({ name: v.string() }), v.object({ age: v.number() })]), asVirtualGroup());
-```
+<SchemaPreview definition="src/components/definition/control-group-as-virtual.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-as-virtual" />
+</SchemaPreview>
 
 ## asControl vs asVirtualGroup 对比
 
@@ -131,31 +108,6 @@ const schema2 = v.pipe(v.intersect([v.object({ name: v.string() }), v.object({ a
   <SchemaDemoComponent slot="preview" client:only="angular" name="tabs-group" />
 </SchemaPreview>
 
-```typescript
-import { asVirtualGroup } from '@piying/view-angular-core';
-
-const schema = v.pipe(
-  v.intersect([
-    v.pipe(
-      v.object({
-        k1: v.optional(v.string()),
-        k2: v.optional(v.string()),
-      }),
-      v.title('tab1'),
-    ),
-    v.pipe(
-      v.object({
-        k3: v.optional(v.string()),
-        k4: v.optional(v.string()),
-      }),
-      v.title('tab2'),
-    ),
-  ]),
-  setComponent('tabs'),
-  asVirtualGroup(),
-);
-```
-
 ## 布局移动
 
 在保证数据结构正常的前提下，可通过 `layout()` 将字段移动到指定位置（`priority` 数字越小越靠前，`keyPath` 可引用 `setAlias` 设置的别名）：
@@ -163,24 +115,6 @@ const schema = v.pipe(
 <SchemaPreview definition="src/components/definition/layout.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="layout" />
 </SchemaPreview>
-
-```typescript
-import { layout, setAlias } from '@piying/view-angular-core';
-
-const schema = v.pipe(
-  v.intersect([
-    v.pipe(v.object({}), setComponent(PiyingViewGroup), setAlias('ly1')),
-    v.pipe(v.object({}), setComponent(PiyingViewGroup), setAlias('ly2')),
-    v.object({
-      input1: v.pipe(v.string(), layout({ keyPath: ['@ly1'] })),
-      input2: v.pipe(v.string(), layout({ keyPath: ['@ly2'], priority: 3 })),
-      input3: v.pipe(v.string(), layout({ keyPath: ['@ly2'], priority: 2 })),
-      input4: v.pipe(v.string(), layout({ keyPath: ['@ly2'], priority: 1 })),
-    }),
-  ]),
-  asVirtualGroup(),
-);
-```
 
 ## 常见组合
 

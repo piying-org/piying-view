@@ -3,7 +3,9 @@ title: "基础字段定义"
 ---
 
 import LivePreview from '../../../components/LivePreview.astro';
+import SchemaPreview from '../../../components/SchemaPreview.astro';
 import { BasicFieldDemoComponent } from '../../../components/basic-field-demo.component.ts';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
 
 本文介绍如何使用 `setComponent` 和 `formConfig` 定义基础表单字段。
 
@@ -100,20 +102,9 @@ const schema = v.object({
 
 ### 基本用法
 
-```typescript
-import * as v from 'valibot';
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  name: v.pipe(
-    v.string(),
-    formConfig({
-      required: true, // 标记为必填
-      defaultValue: '无名', // 默认值
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/basic-form-config.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-form-config" />
+</SchemaPreview>
 
 ### FieldFormConfig 完整字段
 
@@ -150,34 +141,23 @@ const schema = v.object({
 
 优先使用 Valibot 内置的默认值机制：
 
-```typescript
-// Valibot optional 自带默认值
-const schema = v.object({
-  name: v.optional(v.string(), '默认名称'), // defaultValue = '默认名称'
-});
-```
+<SchemaPreview definition="src/components/definition/basic-default-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-default-value" />
+</SchemaPreview>
 
 也可以通过 `formConfig` 显式设置：
 
-```typescript
-const schema = v.object({
-  age: v.pipe(v.number(), formConfig({ defaultValue: 18 })),
-});
-```
+<SchemaPreview definition="src/components/definition/basic-default-value-form.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-default-value-form" />
+</SchemaPreview>
 
 ### nullable / undefinedable
 
 控制字段是否接受 null 或 undefined：
 
-```typescript
-const schema = v.object({
-  // nullable 允许值为 null
-  name: v.nullable(v.string()),
-
-  // undefinedable 允许值为 undefined
-  email: v.pipe(v.optional(v.string()), formConfig({ undefinedable: true })),
-});
-```
+<SchemaPreview definition="src/components/definition/basic-nullable.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-nullable" />
+</SchemaPreview>
 
 > **提示**：`v.nullable()` 和 `v.optional()` 会自动设置对应标志，通常无需手动配置。
 
@@ -185,75 +165,35 @@ const schema = v.object({
 
 Valibot 的 `v.string()`（无 optional）默认为必填：
 
-```typescript
-const schema = v.object({
-  name: v.pipe(v.string()), // required = true（默认）
-  email: v.optional(v.string()), // required = false
-});
-```
+<SchemaPreview definition="src/components/definition/basic-required.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-required" />
+</SchemaPreview>
 
 手动覆盖：
 
-```typescript
-const schema = v.object({
-  tags: v.pipe(
-    v.array(v.string()),
-    formConfig({ required: true }), // 即使 optional，也标记为必填
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/basic-required-override.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-required-override" />
+</SchemaPreview>
 
 ### disabled — 禁用字段
 
-```typescript
-const schema = v.object({
-  readonlyField: v.pipe(v.string(), formConfig({ disabled: true })),
-});
-```
+<SchemaPreview definition="src/components/definition/basic-disabled.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-disabled" />
+</SchemaPreview>
 
 结合动态控制（见 [动态字段控制场景](scenarios/dynamic-fields/) / [API 参考](api/hide-disable/)）：
 
-```typescript
-import { disableWhen } from '@piying/view-angular-core';
-import { map } from 'rxjs';
-
-const schema = v.object({
-  isActive: v.boolean(),
-  name: v.pipe(
-    v.string(),
-    disableWhen({
-      listen: (fn) =>
-        fn({ list: [['..', 'isActive']] }).pipe(
-          map((item) => !item.list[0]), // isActive 为 false 时禁用
-        ),
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/basic-field-disable-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-field-disable-when" />
+</SchemaPreview>
 
 ## 自定义验证器
 
 通过 `formConfig.validators` 添加自定义同步验证：
 
-```typescript
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  password: v.pipe(
-    v.string(),
-    formConfig({
-      validators: [
-        (control) => {
-          if (control.value.includes('123')) {
-            return { weakPassword: '密码不能包含连续数字' };
-          }
-          return null;
-        },
-      ],
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/basic-validator.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-validator" />
+</SchemaPreview>
 
 ## 完整示例
 

@@ -12300,7 +12300,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.1.0
-      vitest: 4.1.10(@types/node@24.13.3)(@vitest/browser-playwright@4.1.10)(@vitest/ui@4.1.10)(jsdom@26.1.0)(vite@7.3.1(@types/node@24.13.3)(jiti@2.7.0)(less@4.5.1)(lightningcss@1.33.0)(sass@1.101.0)(tsx@4.21.0))
+      vitest: 4.1.10(@types/node@22.19.5)(@vitest/browser-playwright@4.1.10)(@vitest/ui@4.1.10)(jsdom@26.1.0)(vite@7.3.1(@types/node@22.19.5)(jiti@2.6.1)(less@4.5.1)(lightningcss@1.33.0)(sass@1.99.0)(tsx@4.21.0))
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -17550,6 +17550,7 @@ snapshots:
       jsdom: 26.1.0
     transitivePeerDependencies:
       - msw
+    optional: true
 
   void-elements@2.0.1: {}
 

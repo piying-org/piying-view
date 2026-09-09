@@ -3,7 +3,9 @@ title: "值转换与联动"
 ---
 
 import LivePreview from '../../../components/LivePreview.astro';
+import SchemaPreview from '../../../components/SchemaPreview.astro';
 import { ValueTransformDemoComponent } from '../../../components/value-transform-demo.component.ts';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
 
 本文介绍如何使用 `transformer` 和 Valibot 的 `transform` Action 实现视图层与模型层的值转换。
 
@@ -22,60 +24,23 @@ import { ValueTransformDemoComponent } from '../../../components/value-transform
 
 ### toModel — 视图到模型
 
-```typescript
-import * as v from 'valibot';
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  price: v.pipe(
-    v.string(), // 视图层是字符串（"19.99"）
-    formConfig({
-      transformer: {
-        toModel: (value: any) => parseFloat(value), // 存入模型为数字 19.99
-      },
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/transform-to-model.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-to-model" />
+</SchemaPreview>
 
 ### toView — 模型到视图
 
-```typescript
-const schema = v.object({
-  date: v.pipe(
-    v.string(), // 模型层存储 ISO 字符串
-    formConfig({
-      transformer: {
-        toView: (value: any) => new Date(value).toLocaleDateString(), // 视图显示本地化日期
-      },
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/transform-to-view.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-to-view" />
+</SchemaPreview>
 
 ### Pipe（rxjs Observable 管道）
 
 `formConfig.pipe.toModel` 使用 RxJS Observable 进行值转换，支持去抖、过滤等操作：
 
-```typescript
-import { debounceTime, filter, map, pipe } from 'rxjs';
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  search: v.pipe(
-    v.string(),
-    formConfig({
-      pipe: {
-        toModel: pipe(
-          debounceTime(300), // 300ms 去抖
-          filter((v) => v.trim().length > 0), // 过滤空字符串
-          map((v) => v.toLowerCase()), // 转小写
-        ),
-      },
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/transform-pipe.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-pipe" />
+</SchemaPreview>
 
 ### Pipe 验证示例
 
@@ -147,40 +112,23 @@ Valibot 内置的 `v.transform()` 在 Schema 层面进行值转换，Piying-View
 
 ### v.transform — 基本用法
 
-```typescript
-import * as v from 'valibot';
-
-const schema = v.object({
-  age: v.pipe(
-    v.string(), // 视图层字符串
-    v.transform((value) => parseInt(value, 10)), // 转换为数字存入模型
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/transform-basic.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-basic" />
+</SchemaPreview>
 
 ### v.transform — 嵌套对象展平
 
 将嵌套对象展平为单个字段：
 
-```typescript
-const schema = v.object({
-  fullName: v.pipe(
-    v.object({ first: v.string(), last: v.string() }),
-    v.transform((obj) => `${obj.first} ${obj.last}`), // 展平为 "张三"
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/transform-flatten.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-flatten" />
+</SchemaPreview>
 
 ### v.transform — 数组转换
 
-```typescript
-const schema = v.object({
-  tags: v.pipe(
-    v.array(v.string()),
-    v.transform((arr) => arr.join(',')), // ['a', 'b'] → 'a,b'
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/transform-array.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-array" />
+</SchemaPreview>
 
 ## Transformer vs Valibot Transform
 
@@ -194,56 +142,9 @@ const schema = v.object({
 
 ## 完整示例：表单联动
 
-```typescript
-import * as v from 'valibot';
-import { formConfig } from '@piying/view-angular-core';
-import { debounceTime, filter, map, pipe } from 'rxjs';
-
-const schema = v.object({
-  // 搜索框：去抖 + 过滤 + 转小写
-  search: v.pipe(
-    v.string(),
-    formConfig({
-      pipe: {
-        toModel: pipe(
-          debounceTime(300),
-          filter((v) => v.trim().length > 0),
-          map((v) => v.toLowerCase()),
-        ),
-      },
-    }),
-  ),
-
-  // 价格：字符串输入 → 数字存储
-  price: v.pipe(
-    v.string(),
-    formConfig({
-      transformer: {
-        toModel: (value: any) => parseFloat(value),
-        toView: (value: any) => value?.toFixed(2) ?? '0.00',
-      },
-    }),
-  ),
-
-  // 日期：ISO 字符串存储 → 本地化显示
-  birthDate: v.pipe(
-    v.string(),
-    formConfig({
-      transformer: {
-        toView: (value: any) => (value ? new Date(value).toISOString().split('T')[0] : ''),
-      },
-    }),
-  ),
-
-  // 邮箱：使用 Valibot transform 做类型转换
-  score: v.pipe(
-    v.string(),
-    v.transform((v) => parseInt(v, 10)), // Schema 级转换
-    v.minValue(0),
-    v.maxValue(100),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/transform-complete.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-complete" />
+</SchemaPreview>
 
 ## 数据流图
 

@@ -17,39 +17,9 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 `validators` 接受一个验证函数数组，每个验证函数接收 `AbstractControl` 并返回错误或 `null`/`undefined`：
 
-```typescript
-import * as v from 'valibot';
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  password: v.pipe(
-    v.string(),
-    formConfig({
-      validators: [
-        (control) => {
-          // 新格式：返回结构化错误
-          if (control.value.includes('123')) {
-            return [
-              {
-                kind: 'weakPassword',
-                message: '密码不能包含连续数字',
-              },
-            ];
-          }
-          return undefined;
-        },
-        (control) => {
-          // 也可以使用旧格式（向后兼容）
-          if (control.value.length < 8) {
-            return { tooShort: '密码至少 8 个字符' };
-          }
-          return null;
-        },
-      ],
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/validation-sync.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-sync" />
+</SchemaPreview>
 
 ## 验证器函数签名
 
@@ -79,62 +49,17 @@ type ValidationErrors2 =
 
 `asyncValidators` 接受异步验证函数数组，用于网络请求等耗时操作，支持 Promise/Observable/Signal：
 
-```typescript
-import * as v from 'valibot';
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  username: v.pipe(
-    v.string(),
-    formConfig({
-      asyncValidators: [
-        async (control) => {
-          const response = await fetch(`/api/check-username?name=${control.value}`);
-          const available = await response.json();
-          if (!available) {
-            return [
-              {
-                kind: 'usernameTaken',
-                metadata: { value: control.value },
-                message: '用户名已被占用',
-              },
-            ];
-          }
-          return undefined;
-        },
-      ],
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/validation-async.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-async" />
+</SchemaPreview>
 
 ## 验证器与 Valibot 验证的组合
 
 Piying-View 同时支持 Valibot 内置验证和自定义验证器，两者**并行执行**：
 
-```typescript
-const schema = v.object({
-  email: v.pipe(
-    v.string(), // Valibot: 类型检查
-    v.email('邮箱格式不正确'), // Valibot: 邮箱格式验证
-    formConfig({
-      validators: [
-        (control) => {
-          if (control.value.endsWith('.test')) {
-            return [
-              {
-                kind: 'testDomain',
-                message: '不能使用测试域名',
-              },
-            ];
-          }
-          return undefined;
-        },
-      ],
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/validation-combined.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-combined" />
+</SchemaPreview>
 
 Valibot 验证和自定义验证器的错误会合并到 `control.errors` 中：
 
@@ -152,95 +77,21 @@ control.errors = [
 
 比较两个字段是否相等（如密码确认）：
 
-```typescript
-import * as v from 'valibot';
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  password: v.pipe(v.string()),
-  confirmPassword: v.pipe(
-    v.string(),
-    formConfig({
-      validators: [
-        (control) => {
-          const parent = control.root;
-          if (parent.value?.password !== control.value) {
-            return [
-              {
-                kind: 'passwordsNotMatch',
-                message: '两次密码不一致',
-              },
-            ];
-          }
-          return undefined;
-        },
-      ],
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/validation-compare.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-compare" />
+</SchemaPreview>
 
 ### 条件验证（基于其他字段）
 
-```typescript
-const schema = v.object({
-  hasAddress: v.boolean(),
-  address: v.pipe(
-    v.string(),
-    formConfig({
-      validators: [
-        (control) => {
-          const parent = control.root;
-          if (parent.value?.hasAddress && !control.value) {
-            return [
-              {
-                kind: 'conditionalRequired',
-                message: '需要填写地址',
-              },
-            ];
-          }
-          return undefined;
-        },
-      ],
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/validation-conditional.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-conditional" />
+</SchemaPreview>
 
 ### 动态错误信息
 
-```typescript
-const schema = v.object({
-  age: v.pipe(
-    v.number(),
-    formConfig({
-      validators: [
-        (control) => {
-          if (control.value < 0) {
-            return [
-              {
-                kind: 'negative',
-                metadata: { value: control.value },
-                message: `年龄不能为负数（当前: ${control.value}）`,
-              },
-            ];
-          }
-          if (control.value > 150) {
-            return [
-              {
-                kind: 'tooOld',
-                metadata: { value: control.value },
-                message: `年龄不合理（当前: ${control.value}）`,
-              },
-            ];
-          }
-          return undefined;
-        },
-      ],
-    }),
-  ),
-});
-```
+<SchemaPreview definition="src/components/definition/validation-dynamic-error.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-dynamic-error" />
+</SchemaPreview>
 
 ## 分组验证
 
@@ -249,19 +100,6 @@ const schema = v.object({
 <SchemaPreview definition="src/components/definition/valid-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="valid-group" />
 </SchemaPreview>
-
-```typescript
-const schema = v.pipe(
-  v.object({
-    k1: v.string(),
-    k2: v.pipe(
-      v.string(),
-      v.check((value) => value === 'k2-value'),
-    ),
-  }),
-  setComponent('validGroup'),
-);
-```
 
 > `validGroup` 是一个自定义分组组件，仅对组内字段进行验证并集中显示错误。
 

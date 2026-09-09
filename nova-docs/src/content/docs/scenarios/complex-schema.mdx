@@ -3,9 +3,11 @@ title: "复杂 Schema 结构"
 ---
 
 import LivePreview from '../../../components/LivePreview.astro';
+import SchemaPreview from '../../../components/SchemaPreview.astro';
 import { ComplexSchemaDemoComponent } from '../../../components/complex-schema-demo.component.ts';
+import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
 
-本文介绍 Piying-View 支持的 Valibot 复杂 Schema 类型及其对应的视图表现。
+本文介绍 Piying-View 支持的 Valibot 复杂 Schema 类型及其对应的视图表现。每个示例的**定义**都会渲染出一个可交互的**表单**。
 
 <LivePreview path="src/components/complex-schema-demo.component.ts">
   <ComplexSchemaDemoComponent slot="preview" client:only="angular" />
@@ -13,23 +15,13 @@ import { ComplexSchemaDemoComponent } from '../../../components/complex-schema-d
 
 ## Nesting（嵌套对象）
 
-使用 `v.object()` 嵌套定义对象结构：
+使用 `v.object()` 嵌套定义对象结构，Piying-View 会自动将 `object` 类型映射到 Group 组件，递归渲染子字段：
 
-```typescript
-import * as v from 'valibot';
+<SchemaPreview definition="src/components/definition/complex-nesting.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-nesting" />
+</SchemaPreview>
 
-const schema = v.object({
-  user: v.object({
-    name: v.string(),
-    address: v.object({
-      city: v.string(),
-      street: v.string(),
-    }),
-  }),
-});
-```
-
-Piying-View 会自动将 `object` 类型映射到 Group 组件，递归渲染子字段。在 `fieldGlobalConfig.types` 中确保 object 有对应的容器组件：
+在 `fieldGlobalConfig.types` 中确保 object 有对应的容器组件：
 
 ```typescript
 options = {
@@ -43,16 +35,13 @@ options = {
 
 ## Array（数组字段）
 
-使用 `v.array()` 定义列表型字段：
+使用 `v.array()` 定义列表型字段，Piying-View 将 `array` 映射为 `FieldArray`，使用数组容器组件渲染：
 
-```typescript
-const schema = v.object({
-  tags: v.array(v.string()), // string[]
-  scores: v.array(v.number()), // number[]
-});
-```
+<SchemaPreview definition="src/components/definition/complex-array.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-array" />
+</SchemaPreview>
 
-Piying-View 将 `array` 映射为 `FieldArray`，使用数组容器组件渲染。确保注册了 array 类型：
+确保注册了 array 类型：
 
 ```typescript
 options = {
@@ -66,39 +55,29 @@ options = {
 
 ## Tuple（元组字段）
 
-使用 `v.tuple()` 定义固定长度和类型的数组：
+使用 `v.tuple()` 定义固定长度和类型的数组，Piying-View 将 `tuple` 映射为 `FieldArray`，每个位置对应一个子字段：
 
-```typescript
-const schema = v.object({
-  position: v.tuple([v.number(), v.number()]), // [x: number, y: number]
-});
-```
-
-Piying-View 将 `tuple` 映射为 `FieldArray`，每个位置对应一个子字段。
+<SchemaPreview definition="src/components/definition/complex-tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-tuple" />
+</SchemaPreview>
 
 ## Record（动态对象键）
 
-使用 `v.record()` 定义动态键值对：
+使用 `v.record()` 定义动态键值对，Piying-View 将 `record` 映射为特殊的 Group，键由用户动态添加：
 
-```typescript
-const schema = v.object({
-  metadata: v.record(v.string(), v.string()), // Record<string, string>
-  scores: v.record(v.string(), v.number()), // Record<string, number>
-});
-```
+<SchemaPreview definition="src/components/definition/complex-record.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-record" />
+</SchemaPreview>
 
-Piying-View 将 `record` 映射为特殊的 Group，键由用户动态添加。详见 [Record Schema 动态对象组](scenarios/record-dynamic-group/)。
+详见 [Record Schema 动态对象组](scenarios/record-dynamic-group/)。
 
 ## Intersect（交叉类型）
 
-使用 `v.intersect()` 合并多个 object：
+使用 `v.intersect()` 合并多个 object，Piying-View 将 `intersect` 转换为 `FieldLogicGroup`，所有子字段平铺到同一层级：
 
-```typescript
-const schema = v.intersect([v.object({ name: v.string() }), v.object({ age: v.number() })]);
-// → { name: string, age: number }
-```
-
-Piying-View 将 `intersect` 转换为 `FieldLogicGroup`，所有子字段平铺到同一层级。
+<SchemaPreview definition="src/components/definition/complex-intersect.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-intersect" />
+</SchemaPreview>
 
 通过 `layout` 可以调整 `intersect` 中字段的顺序和位置：
 
@@ -110,54 +89,17 @@ const schema = v.intersect([v.pipe(v.object({ name: v.string() }), layout({ prio
 
 ## Union（联合类型）
 
-使用 `v.union()` 定义多个可选类型：
+使用 `v.union()` 定义多个可选类型，Piying-View 将 union 也转换为 `FieldLogicGroup`，用户可以在不同分支间切换：
 
-```typescript
-const schema = v.object({
-  value: v.union([v.string(), v.number()]), // string | number
-});
-```
-
-Piying-View 将 union 也转换为 `FieldLogicGroup`，用户可以在不同分支间切换。
+<SchemaPreview definition="src/components/definition/complex-union.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-union" />
+</SchemaPreview>
 
 ## 复杂组合示例
 
-```typescript
-import * as v from 'valibot';
-import { formConfig, layout } from '@piying/view-angular-core';
-
-const schema = v.object({
-  // 基础字段
-  name: v.string(),
-
-  // 嵌套对象
-  address: v.object({
-    city: v.string(),
-    details: v.object({
-      street: v.string(),
-      zipCode: v.string(),
-    }),
-  }),
-
-  // 数组 + tuple
-  positions: v.array(v.tuple([v.number(), v.number()])),
-
-  // Record 动态键值对
-  metadata: v.record(v.string(), v.string()),
-
-  // Intersect 交叉类型
-  profile: v.intersect([
-    v.pipe(
-      v.object({ bio: v.string() }),
-      layout({ priority: 1 }), // 优先展示
-    ),
-    v.pipe(v.object({ website: v.string() }), layout({ priority: 2 })),
-  ]),
-
-  // Union 联合类型
-  identifier: v.union([v.string(), v.number()]),
-});
-```
+<SchemaPreview definition="src/components/definition/complex-combined.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-combined" />
+</SchemaPreview>
 
 ## Schema 类型 → FieldControl 映射表
 

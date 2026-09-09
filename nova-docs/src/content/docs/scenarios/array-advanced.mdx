@@ -57,15 +57,9 @@ field.form.control.clear(); // 清空所有元素
 
 ### reset — 重置到初始值
 
-```typescript
-const obj = v.pipe(v.optional(v.array(v.string()), ['default1', 'default2']));
-
-field.form.root.updateValue(['a', 'b']);
-expect(field.form.root.value).toEqual(['a', 'b']);
-
-field.form.root.reset(); // 重置为默认值
-expect(field.form.root.value).toEqual(['default1', 'default2']);
-```
+<SchemaPreview definition="src/components/definition/array-reset.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-reset" />
+</SchemaPreview>
 
 ## deletionMode — 删除模式
 
@@ -75,26 +69,17 @@ expect(field.form.root.value).toEqual(['default1', 'default2']);
 
 删除元素后，数组长度自动缩短：
 
-```typescript
-const obj = v.pipe(
-  v.array(v.string()),
-  formConfig({ deletionMode: 'shrink' }), // 默认值，可省略
-);
-field.form.control!.updateValue(['a', 'b', 'c']);
-// ['a', 'b', 'c']
-
-// 删除索引 1 → ['a', 'c']（长度从 3 变为 2）
-```
+<SchemaPreview definition="src/components/definition/array-shrink.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-shrink" />
+</SchemaPreview>
 
 ### mark — 标记模式
 
 删除元素后，该位置的值设为 `undefined`，数组长度保持不变：
 
-```typescript
-const obj = v.pipe(v.tuple([v.number(), v.string()]), formConfig({ deletionMode: 'mark' }));
-field.form.control!.updateValue([1, 'v2']);
-// 0 → [undefined, 'v2']（长度仍为 2）
-```
+<SchemaPreview definition="src/components/definition/array-mark.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-mark" />
+</SchemaPreview>
 
 ## groupMode — 组验证模式
 
@@ -113,37 +98,23 @@ field.form.control!.updateValue([1, 'v2']);
 
 ### 自动推导示例
 
-```typescript
-import * as v from 'valibot';
-
-// v.loose_object() 自动解析为 groupMode: 'loose'
-const schema = v.loose_object({ a: v.string() });
-field.form.root.updateValue({ a: '11', extra: 'ignored' });
- // ✅ loose 模式，验证通过
-```
+<SchemaPreview definition="src/components/definition/array-loose.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-loose" />
+</SchemaPreview>
 
 ### 手动覆盖示例
 
-```typescript
-import * as v from 'valibot';
-import { formConfig, asVirtualGroup } from '@piying/view-angular-core';
-
-// intersect + asVirtualGroup 默认需要所有子 schema 通过，可手动配置 loose 模式放松验证
-const schema = v.pipe(v.intersect([v.object({ a: v.string() })]), asVirtualGroup(), formConfig({ groupMode: 'loose' }));
-
-field.form.root.updateValue({ a: '11' });
-// ✅ 宽松模式验证通过
-```
+<SchemaPreview definition="src/components/definition/array-group-mode.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-group-mode" />
+</SchemaPreview>
 
 ### emptyValue — 空值回退
 
 当验证失败时，使用 `emptyValue` 作为回退值：
 
-```typescript
-const obj = v.pipe(v.object({ a: v.pipe(v.number(), v.maxValue(5)) }), formConfig({ emptyValue: {} }));
-
-field.form.control!.viewValueChange({ a: 6 }); // 超出最大值，验证失败
-```
+<SchemaPreview definition="src/components/definition/array-empty-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-empty-value" />
+</SchemaPreview>
 
 ## Array 属性
 
@@ -160,45 +131,21 @@ FieldArray 提供便捷的数组相关属性：
 
 ### Tuple — 固定长度元组
 
-```typescript
-const obj = v.tuple([v.string(), v.number()]);
-// [string, number] → 两个固定位置的字段
-```
+<SchemaPreview definition="src/components/definition/array-tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-tuple" />
+</SchemaPreview>
 
 ### TupleWithRest — 元组 + 可变尾部
 
-```typescript
-const obj = v.pipe(v.tupleWithRest([v.string()], v.number()), setComponent('array'));
-
-field.form.control!.updateValue(['v1', 0, 1]);
-expect(field.fixedChildren?.().length).toEqual(1); // 固定部分：1 个
-expect(field.restChildren?.().length).toEqual(2); // 可变尾部：2 个
-expect(field.form.control!.value).toEqual(['v1', 0, 1]);
-```
+<SchemaPreview definition="src/components/definition/array-tuple-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-tuple-with-rest" />
+</SchemaPreview>
 
 ## 完整示例
 
-```typescript
-import * as v from 'valibot';
-import { formConfig } from '@piying/view-angular-core';
-
-const schema = v.object({
-  // 普通数组 + 标记删除模式
-  tags: v.pipe(v.array(v.string()), formConfig({ deletionMode: 'mark' })),
-
-  // 可选数组 + 默认值
-  scores: v.pipe(v.optional(v.array(v.number()), [0, 0])),
-
-  // 元组（固定位置）
-  position: v.tuple([v.number(), v.number()]),
-
-  // 元组 + 可变尾部
-  coordinates: v.pipe(v.tupleWithRest([v.string()], v.number()), setComponent('array')),
-
-  // 嵌套对象（使用 loose_object 自动解析为 loose 模式）
-  groups: v.pipe(v.array(v.loose_object({ name: v.string() })), v.optional(v.array(v.loose_object({ name: v.string() })), [])),
-});
-```
+<SchemaPreview definition="src/components/definition/array-complete.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-complete" />
+</SchemaPreview>
 
 ## 示例
 
@@ -221,21 +168,6 @@ field.action.remove(0); // 删除索引 0
   <SchemaDemoComponent slot="preview" client:only="angular" name="filter-group" />
 </SchemaPreview>
 
-```typescript
-const schema = v.pipe(
-  v.object(
-    new Array(100)
-      .fill(undefined)
-      .map((item, i) => v.pipe(v.string(), v.title(`SearchTitle${i}`)))
-      .reduce((obj, item, i) => {
-        obj[`k${i}`] = item;
-        return obj;
-      }, Object.create({})),
-  ),
-  setComponent('filterGroup'),
-);
-```
-
 > `filterGroup` 是一个自定义分组组件，用于控制大量内部字段的显示过滤。
 
 ## 滚动组
@@ -245,22 +177,6 @@ const schema = v.pipe(
 <SchemaPreview definition="src/components/definition/scroll-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="scroll-group" />
 </SchemaPreview>
-
-```typescript
-const schema = v.pipe(
-  v.object(
-    new Array(100)
-      .fill(undefined)
-      .map((item, i) => v.pipe(v.string(), v.title(`title${i}`)))
-      .reduce((obj, item, i) => {
-        obj[`k${i}`] = item;
-        return obj;
-      }, Object.create({})),
-  ),
-  setComponent('scrollGroup'),
-  actions.inputs.set({ scrollHeight: 500, placeholerHeight: 20 }),
-);
-```
 
 > `scrollGroup` 是一个自定义分组组件，用于大量字段的滚动懒加载渲染。
 
