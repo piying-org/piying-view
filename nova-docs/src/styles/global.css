@@ -23,25 +23,6 @@
   font-size: calc(var(--spacing) * --value(integer)) !important;
 }
 
-/* Starlight Nova 主题的 Tailwind 集成（深色模式变量、断点、主题色映射等） */
 @import 'starlight-theme-nova/tailwind.css';
 
-/* ===== 自定义样式（可在这里写 Tailwind 指令 / 自定义工具类）===== */
-
-/* 自定义工具类示例 */
-@utility card-shadow {
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
-}
-
-/* 自定义基础层 */
-@layer base {
-  /* 自定义滚动条 */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--sl-color-gray-5);
-    border-radius: 4px;
-  }
-}
+@import 'material-icons/iconfont/filled.css';

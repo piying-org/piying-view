@@ -232,6 +232,9 @@ importers:
       json-formatter-js:
         specifier: ^2.5.23
         version: 2.5.23
+      material-icons:
+        specifier: ^1.13.14
+        version: 1.13.14
       monaco-editor:
         specifier: ^0.56.0
         version: 0.56.0
@@ -6593,6 +6596,9 @@ packages:
     resolution: {integrity: sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==}
     engines: {node: '>= 18'}
     hasBin: true
+
+  material-icons@1.13.14:
+    resolution: {integrity: sha512-kZOfc7xCC0rAT8Q3DQixYAeT+tBqZnxkseQtp2bxBxz7q5pMAC+wmit7vJn1g/l7wRU+HEPq23gER4iPjGs5Cg==}
 
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
@@ -15080,6 +15086,8 @@ snapshots:
       object-visit: 1.0.1
 
   marked@14.0.0: {}
+
+  material-icons@1.13.14: {}
 
   math-intrinsics@1.1.0: {}
 
