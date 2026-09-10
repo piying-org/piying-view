@@ -30,7 +30,6 @@ export default defineConfig({
     angular({
       useAngularHydration: false,
       vite: {
-        // 所有 Angular 代码统一放在 src/angular 下，新增代码无需再扩展此白名单
         transformFilter: (_code, id) => {
           return id.replace(/\\/g, '/').includes('/src/angular/');
         },
