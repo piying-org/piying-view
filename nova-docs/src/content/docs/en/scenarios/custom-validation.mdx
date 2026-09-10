@@ -137,8 +137,8 @@ Piying-View supports two validation styles that **run in parallel**:
 
 | Validation style | Description                    | Characteristics                    |
 | ------------ | ------------------------------- | ---------------------------------- |
-| Valibot validation | Runs during the Valibot parsing phase, first | Can only validate itself, no access to context values |
-| Control-level validation | Runs after Valibot validation succeeds | Can access parents and other field values |
+| Valibot validation | Runs during the Valibot parsing phase | Can only validate itself, no access to context values |
+| Control-level validation | Registered via `formConfig.validators`, runs independently | Can access parents and other field values |
 
 ```ts
 // Valibot built-in validation
@@ -151,10 +151,7 @@ v.pipe(
 );
 ```
 
-**Validation order**:
-
-1. **Valibot validation** (runs first)
-2. **Control-level validation** (runs afterwards)
+**Merging errors**: the two styles run completely independently — one failing never skips the other. `control.errors` lists the custom validator errors first; if Valibot validation fails, a `{ kind: 'valibot', metadata: issues }` error is appended.
 
 ## Internationalising Valibot Validation
 

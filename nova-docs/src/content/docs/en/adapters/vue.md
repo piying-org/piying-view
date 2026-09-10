@@ -148,13 +148,13 @@ const field = convertToField(() => schema, subInjector, () => options);
 
 ### rawConfig — native configuration Action
 
-`rawConfig` is defined once in the core and behaves identically in every framework, just like `actions` and `setComponent`. The Vue package does **not re-export** these Actions; import them from the core package:
+`rawConfig` is defined once in the core and behaves identically in every framework, just like `actions` and `setComponent`. The Vue package does **not re-export** these Actions; import them from the framework-agnostic core package:
 
 ```typescript
-import { rawConfig, setComponent, actions } from '@piying/view-angular-core'; // unified exports from the core package
+import { rawConfig, setComponent, actions } from '@piying/view-core'; // unified exports from the core package
 ```
 
-> **Note**: the `@piying/view-vue` entry does not export `rawConfig` / `actions` / `setComponent`; import them from `@piying/view-angular-core`.
+> **Note**: the `@piying/view-vue` entry does not export `rawConfig` / `actions` / `setComponent`; import them from `@piying/view-core` (the same applies to the React / Solid / Svelte adapter packages).
 
 ## Classes
 
@@ -198,7 +198,7 @@ const copy = clone(originalObj);
 
 `@piying/view-vue` exports: `PiyingView`, `PiyingFieldTemplate`, `PiyingViewGroup`, `PiyingFieldControlBind` (alias `Field`), `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToRef`, `useControlValueAccessor`, `typedComponent`, `convertToField`, `VueSchemaHandle`, `VueFormBuilder`, and the `VueSchema` type.
 
-> **Note**: Actions such as `rawConfig` / `actions` / `setComponent` must be imported from `@piying/view-angular-core`; `@piying/view-vue` does not export them.
+> **Note**: Actions such as `rawConfig` / `actions` / `setComponent` must be imported from `@piying/view-core`; `@piying/view-vue` does not export them.
 
 ## Next Steps
 

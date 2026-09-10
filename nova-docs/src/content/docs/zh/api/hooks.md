@@ -30,6 +30,17 @@ const schema = v.pipe(
 // hook 1 先执行，hook 2 后执行 ✅
 ```
 
+`merge` 还支持第二个参数控制插入位置：`position: 'top'` 插到已有回调之前（先执行），默认 `'bottom'` 追加在后：
+
+```typescript
+actions.hooks.merge(
+  {
+    fieldResolved: (field) => console.log('最先执行'),
+  },
+  { position: 'top' },
+);
+```
+
 ## actions.hooks.patch — 替换 Hook（覆盖）
 
 `actions.hooks.patch` 会**覆盖**之前注册的同名 Hook：

@@ -121,7 +121,8 @@ field.get(['#', 'name']);
 ### 实际示例
 
 ```typescript
-import { v, setAlias } from '@piying/view-angular-core';
+import * as v from 'valibot';
+import { setAlias } from '@piying/view-angular-core';
 
 const schema = v.object({
   // 根级别别名 — 在所有子字段中都可查到

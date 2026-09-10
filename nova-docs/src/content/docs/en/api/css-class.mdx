@@ -1,0 +1,62 @@
+---
+title: "CSS class — Styling"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page explains how to set the CSS classes of a field through `actions.class`.
+
+<SchemaPreview definition="src/angular/components/definition/api-css-class.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="api-css-class" />
+</SchemaPreview>
+
+## The `class` Actions at a glance
+
+| Action | Target |
+| ------ | ------ |
+| `top(className)` | **Outermost container**: the outermost wrapper when wrappers exist; the field component itself otherwise |
+| `bottom(className)` | **The field component itself** (same target as `component`) |
+| `component(className)` | The field component itself |
+| `asyncTop(fn)` | Outermost container (asynchronous, `fn(field)` returns the class) |
+| `asyncBottom(fn)` / `asyncComponent(fn)` | The field component itself (asynchronous, `fn(field)` returns the class) |
+
+> ⚠️ Note: `top` / `bottom` mean "**higher / lower in the wrapping hierarchy**", not a "top / bottom area" on the page. `bottom` applies to the field component itself, while `top` applies to the outermost wrapper that wraps it.
+
+## top — CSS class of the outermost container
+
+```typescript
+import { actions } from '@piying/view-angular-core';
+
+const schema = v.pipe(
+  v.string(),
+  actions.class.top('form-field required'),
+);
+```
+
+## bottom / component — CSS class of the field component itself
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.class.bottom('text-danger'),
+);
+```
+
+## asyncTop / asyncBottom — asynchronous classes
+
+The callback receives `field` and returns the class (plain value / Promise / Observable / Signal are all supported):
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.class.asyncTop((field) => (field.form.control?.valid ? 'is-valid' : 'is-invalid')),
+  actions.class.asyncBottom((field) => (field.form.control?.errors ? 'has-error' : '')),
+);
+```
+
+## Next Steps
+
+- [API: attributes](en/api/attributes/) — setting HTML attributes
+- [API: layout](en/api/layout/) — adjusting layout with keyPath / priority
+- [API: hideWhen/disableWhen/valueChange](en/api/hide-disable/) — dynamic control

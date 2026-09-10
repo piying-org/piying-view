@@ -1,0 +1,62 @@
+---
+title: "CSS class — 样式设置"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+本文介绍如何通过 `actions.class` 设置字段的 CSS class。
+
+<SchemaPreview definition="src/angular/components/definition/api-css-class.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="api-css-class" />
+</SchemaPreview>
+
+## class Action 一览
+
+| 操作 | 作用目标 |
+| ---- | -------- |
+| `top(className)` | **最外层容器**：有 wrapper 时作用于最外层 wrapper；没有 wrapper 时作用于字段组件本身 |
+| `bottom(className)` | **字段组件本身**（与 `component` 是同一个操作） |
+| `component(className)` | 字段组件本身 |
+| `asyncTop(fn)` | 最外层容器（异步，`fn(field)` 返回 class） |
+| `asyncBottom(fn)` / `asyncComponent(fn)` | 字段组件本身（异步，`fn(field)` 返回 class） |
+
+> ⚠️ 注意：`top` / `bottom` 的语义是「**包裹层级上更上 / 更下**」，并不是页面上的「顶部 / 底部区域」。`bottom` 作用于字段组件自身，`top` 作用于包裹它的最外层 wrapper。
+
+## top — 最外层容器的 CSS class
+
+```typescript
+import { actions } from '@piying/view-angular-core';
+
+const schema = v.pipe(
+  v.string(),
+  actions.class.top('form-field required'),
+);
+```
+
+## bottom / component — 字段组件自身的 CSS class
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.class.bottom('text-danger'),
+);
+```
+
+## asyncTop / asyncBottom — 异步设置
+
+回调接收 `field`，返回 class（支持普通值 / Promise / Observable / Signal）：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.class.asyncTop((field) => (field.form.control?.valid ? 'is-valid' : 'is-invalid')),
+  actions.class.asyncBottom((field) => (field.form.control?.errors ? 'has-error' : '')),
+);
+```
+
+## 下一步
+
+- [API: attributes](zh/api/attributes/) — HTML Attributes 设置
+- [API: layout](zh/api/layout/) — keyPath / priority 调整布局
+- [API: hideWhen/disableWhen/valueChange](zh/api/hide-disable/) — 动态控制

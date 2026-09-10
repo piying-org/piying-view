@@ -121,7 +121,8 @@ field.get(['#', 'name']);
 ### Real Examples
 
 ```typescript
-import { v, setAlias } from '@piying/view-angular-core';
+import * as v from 'valibot';
+import { setAlias } from '@piying/view-angular-core';
 
 const schema = v.object({
   // root-level alias — reachable from every child field

@@ -2,9 +2,16 @@
 title: "attributes — Setting HTML Attributes"
 ---
 
-
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page explains how to set the HTML attributes of a field through Actions.
+
+> Attributes are written to the **host element** of the field component via `setAttribute`. In the demo below: hover the input to see `title`; press keys on the keyboard and the log reads `data-role` / `data-length` off the host in real time (`patchAsync` updates with the value).
+
+<SchemaPreview definition="src/angular/components/definition/api-attributes.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="api-attributes" />
+</SchemaPreview>
 
 ## actions.attributes.set — set attribute values
 
@@ -59,6 +66,19 @@ const schema = v.pipe(
   actions.attributes.patchAsync({
     'data-value': (field) => field.form.control?.value ?? '',
   }),
+);
+```
+
+## actions.attributes.top — target the outermost container
+
+`top.set` / `top.patch` write the attributes to the field's **outermost wrapper** (the field itself when there is no wrapper), which is useful for containers rendered by a wrapper, such as cards or fieldsets:
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.wrappers.set(['card']),
+  actions.attributes.top.set({ id: 'my-card' }), // id is set on the card wrapper
+  actions.attributes.top.patch({ 'data-role': 'field-card' }),
 );
 ```
 

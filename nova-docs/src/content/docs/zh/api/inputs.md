@@ -98,10 +98,13 @@ v.pipe(
 
 ## 完整验证示例
 
+> 以下示例节选自单元测试（`createBuilder` 为测试内部工具，非公开 API）。
+
 ### Inputs 操作链
 
 ```typescript
-import { actions } from '@piying/view-angular-core';
+import * as v from 'valibot';
+import { actions, setComponent } from '@piying/view-angular-core';
 
 const obj = v.pipe(
   v.string(),

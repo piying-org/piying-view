@@ -39,6 +39,9 @@ Organised by common business scenario; each one ships a verified, complete examp
 | Document                                                          | Description                                                                                               |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | [Basic Field Definition](en/scenarios/basic-field/)                 | `setComponent` (string reference vs component class), the complete `formConfig` table, Valibot metadata inference, custom validators |
+| [Type Mapping (define equals form)](en/scenarios/type-mapping/) | Automatic mapping from Valibot types to form controls/groups/arrays: string/number/boolean/picklist/object/record/tuple/array, etc. |
+| [Using Forms](en/scenarios/form-use/) | Form usage overview: default values/value listening/layout moving/section disabling/cascading/validation/filter groups/scroll groups |
+| [Using Components](en/scenarios/component-use/) | Component types, non-form controls (NFCSchema), property actions and event outputs, context, advanced customisation with rawConfig |
 | [Complex Schema Structures](en/scenarios/complex-schema/)           | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() mappings and layout priority sorting |
 | [asControl / asVirtualGroup](en/scenarios/as-control-group/)        | `asControl()` treats a nested object as a single control, `asVirtualGroup()` turns Intersect children into a normal Group, with three main scenarios |
 | [Dynamic Field Control](en/scenarios/dynamic-fields/)               | hideWhen (conditional hiding), disableWhen (conditional disabling), valueChange (side-effect-free listening), with payment switching / cascading examples |
@@ -69,7 +72,7 @@ Detailed reference for every Action, configuration item and helper; the logic is
 | [models](en/api/models/)                                            | `actions.models` two-way model binding: set/patch/remove/patchAsync/mapAsync, binding external signals to component model input/output pairs |
 | [events](en/api/events/)                                            | Declarative native DOM event binding through `actions.events.patchAsync`, handling click/keydown and more |
 | [attributes](en/api/attributes/)                                    | `actions.attributes` for native HTML attributes: set/patch/remove/patchAsync, attributes vs inputs comparison, ARIA/data-\* attributes |
-| [CSS class](en/api/css-class/)                                      | `actions.class`: topClass (outermost container) / bottomClass (error message and other bottom areas)  |
+| [CSS class](en/api/css-class/)                                      | `actions.class`: top (outermost wrapper) / bottom・component (the field component itself) / asyncTop・asyncBottom  |
 | [Layout metadata](en/api/layout/)                                   | The `layout` Action: priority weighting + keyPath expressions ('#'/'..'/'@alias'), Intersect + Layout rearranging fields |
 | [hideWhen / disableWhen / valueChange](en/api/hide-disable/)        | Full API signatures of hideWhen/disableWhen/valueChange/outputChange, the listenFields mechanism, skipInitValue, lifecycle timing |
 | [Path Querying](en/api/path-querying/)                              | KeyPath type definition, `field.get()` usage: `['..']` (from the parent) / `'#'` (from the root) / `'@alias'` (alias lookup), naming conflict rules |
@@ -78,7 +81,7 @@ Detailed reference for every Action, configuration item and helper; the logic is
 | [Hooks Lifecycle](en/api/hooks/)                                    | `actions.hooks` lifecycle management: merge (run several in order) / patch (override by name) / remove / set, hook registration and ordering |
 | [Props Generic Properties](en/api/props/)                            | `actions.props` generic property keys: set (replace) / patch (merge) / patchAsync (async) / remove / mapAsync (dynamic mapping), read through field.props(), semantics vs Attributes/Inputs/Outputs |
 | [Core Utilities](en/api/core-utils/)                                 | Core signal helpers such as `combineSignal`/`observableSignal`/`asyncObjectSignal`                       |
-| [Wrappers](en/api/wrappers/)                                        | `actions.wrappers` set/patchAsync/remove + guide to writing wrapper components (V1/V2 templates, InsertFieldDirective usage), generic across frameworks |
+| [Wrappers](en/api/wrappers/)                                        | `actions.wrappers` set/patch/patchAsync/remove/changeAsync + guide to writing wrapper components (V1/V2 templates, InsertFieldDirective usage), generic across frameworks |
 | [Control API](en/api/control-api/)                                  | Complete FieldControl/AbstractControl reference: getting controls, value API (updateValue/reset/viewValueChange), state API (disabled/touched/dirty), FieldArray API (length/controls/removeRestControl) |
 | [Providers](en/api/providers/)                                      | `actions.providers` injects business services into the field component injector: set (replace) / patch (append) / change (functional transform); inject() in Angular, static-injector elsewhere |
 

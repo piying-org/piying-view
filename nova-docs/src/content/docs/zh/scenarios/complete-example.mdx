@@ -33,7 +33,7 @@ export const registerSchema = v.object({
   // === 基本信息 ===
   username: v.pipe(v.string(), v.minLength(2, '用户名至少 2 个字符'), setComponent('input'), formConfig({ required: true })),
 
-  email: v.pipe(v.optional(v.email('请输入有效邮箱')), setComponent('input')),
+  email: v.pipe(v.optional(v.pipe(v.string(), v.email('请输入有效邮箱'))), setComponent('input')),
 
   age: v.pipe(v.number(), v.minValue(18, '必须年满 18 岁'), v.maxValue(120, '年龄输入不合理'), setComponent('number-input'), formConfig({ required: true })),
 

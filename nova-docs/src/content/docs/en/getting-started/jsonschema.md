@@ -230,7 +230,7 @@ Define an `actions` field in the JSON Schema to use the built-in Piying-View Act
 
 ### Custom Actions
 
-Custom actions in the JSON Schema must be registered:
+Custom actions in the JSON Schema must be registered through the second argument of `jsonSchemaToValibot`, `customActions`:
 
 ```json
 {
@@ -242,6 +242,18 @@ Custom actions in the JSON Schema must be registered:
     }
   ]
 }
+```
+
+```typescript
+import * as v from 'valibot';
+import { jsonSchemaToValibot } from '@piying/view-angular-core/adapter';
+
+const schema = jsonSchemaToValibot(jsonSchema, {
+  customActions: {
+    // the key matches actions[].name in the JSON; params are spread as function arguments
+    testTitle: () => v.title('test title'),
+  },
+});
 ```
 
 ## Full Example

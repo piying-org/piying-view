@@ -1,0 +1,22 @@
+---
+title: "events — DOM Event Handling"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+Bind native DOM events with `actions.events.patchAsync`:
+
+> ⚠️ The value of each key is a curried function that **receives `field` and returns the event handler**: `(field) => (event) => {...}` — only the inner function is actually bound to the DOM event. When you don't need `field`, just ignore the first argument (as in `click: (field) => (event) => {...}` below).
+
+> Events are bound to the **host element** of the field component: V1 components support this out of the box; V2 components (`static __version = 2`, selectorless) must set events manually.
+
+<SchemaPreview definition="src/angular/components/definition/events.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="events" />
+</SchemaPreview>
+
+## Next Steps
+
+- [API: inputs](en/api/inputs/) — setting component inputs
+- [API: outputs](en/api/outputs/) — setting component outputs
+- [API: Wrappers](en/api/wrappers/) — complete wrapper guide

@@ -55,7 +55,54 @@ const schema = v.pipe(
 );
 ```
 
+## actions.outputs.merge — stacking event handlers
+
+Unlike `patch`, which **overrides** handlers under the same key, `merge` **stacks** them: both the old and the new handler run (old first):
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.outputs.set({ change: handleChange }),
+  actions.outputs.merge({ change: handleChange2 }), // when change fires, handleChange runs first, then handleChange2
+);
+```
+
+## actions.outputs.mergeAsync — stacking asynchronous event handlers
+
+Curried form `(field) => (...args) => void`; the handler is created dynamically from `field`, after all fields are resolved, and stacked onto the existing ones:
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.outputs.mergeAsync({
+    change: (field) => (value: any) => {
+      console.log('field:', field, 'value:', value);
+    },
+  }),
+);
+```
+
+## actions.outputs.mapAsync — mapping event handlers dynamically
+
+Receives `field` and returns a transform function that maps over all existing outputs:
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.outputs.set({ change: handleChange }),
+  actions.outputs.mapAsync((field) => (outputs) => ({
+    ...outputs,
+    change: (value: any) => {
+      // wrap the original handler with extra logic
+      outputs.change?.(value);
+    },
+  })),
+);
+```
+
 ## Full Validation Example
+
+> The examples below are excerpted from the unit tests (`createBuilder` is an internal test utility, not a public API).
 
 ### Outputs Operation Chain
 
@@ -72,7 +119,7 @@ const obj = v.pipe(
   setComponent('mock-input'),
 );
 
-const resolved = createBuilder(resolved.outputs());
+const resolved = createBuilder(obj);
 expect(Object.keys(resolved.outputs())).toEqual(['blur']);
 ```
 

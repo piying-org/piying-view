@@ -2,6 +2,9 @@
 title: "hideWhen / disableWhen / valueChange — Dynamic Control API Reference"
 ---
 
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
 
 
 This page documents the full API signatures, parameters and implementation details of the three Actions.
@@ -83,6 +86,10 @@ const schema = v.object({
 
 When `enable = false`, `name` is **hidden and disabled at the same time**.
 
+<SchemaPreview definition="src/angular/components/definition/dynamic-hide-disabled.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-disabled" />
+</SchemaPreview>
+
 ## disableWhen — Disabling Fields Dynamically
 
 ### Type Signature
@@ -129,6 +136,10 @@ const schema = v.object({
 });
 ```
 
+<SchemaPreview definition="src/angular/components/definition/dynamic-disable-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-disable-when" />
+</SchemaPreview>
+
 ## valueChange — Value Listening (Side-Effect Free)
 
 ### Type Signature
@@ -164,6 +175,10 @@ const schema = v.object({
   ),
 });
 ```
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-value-change.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-value-change" />
+</SchemaPreview>
 
 ## skipInitValue — Skipping the Initial Emission
 
@@ -208,13 +223,18 @@ This means these three Actions **can only be set up after every field has been r
 ```typescript
 function outputChange<TInput>(
   fn: (
-    input?: OutputChangeFnOptions,
-  ) => Observable<{
-    list: any[];
-    field: _PiResolvedCommonViewFieldConfig;
-  }>,
+    input: (list: {
+      list: KeyPath | undefined; // path of the target field, undefined means the current field itself
+      output: string; // name of the output event to listen to
+    }[]) => Observable<{
+      list: any[];
+      field: _PiResolvedCommonViewFieldConfig;
+      listenFields: _PiResolvedCommonViewFieldConfig[];
+    }>),
 ): RawConfigAction<TInput>;
 ```
+
+> Note: the event handlers are actually merged into the outputs of **the current field itself**; the fields listed in `list` only affect how `listenFields` is mapped.
 
 ### Example: Listening to Component Output Events
 

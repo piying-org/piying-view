@@ -87,13 +87,13 @@ Controls the validation behaviour of Group / Array. `groupMode` is inferred auto
 
 | Schema type                        | Inferred `groupMode` | Description                   |
 | -------------------------------- | ---------------------- | ---------------------------- |
-| `v.object()`                     | `'default'`            | Standard object, checks field completeness |
-| `v.loose_object()`               | `'loose'`              | Loose object, extra keys allowed |
-| `v.strict_object()`              | `'strict'`             | Strict object, extra keys rejected |
-| `v.tuple()`                      | `'default'`            | Fixed-length tuple            |
-| `v.loose_tuple()`                | `'loose'`              | Loose tuple                     |
-| `v.strict_tuple()`               | `'strict'`             | Strict tuple                    |
-| `v.array()` / `v.rest()`         | `'reset'`              | Array / variable tail, resets on value change |
+| `v.object()`                     | `'default'`            | Standard object: filters out undefined extra keys on output |
+| `v.loose_object()`               | `'loose'`              | Loose object: keeps undefined extra keys |
+| `v.strict_object()`              | `'strict'`             | Strict object: validation fails when extra keys exist |
+| `v.tuple()`                      | `'default'`            | Fixed-length tuple: items beyond the length are truncated |
+| `v.loose_tuple()`                | `'loose'`              | Loose tuple: items beyond the length are kept |
+| `v.strict_tuple()`               | `'strict'`             | Strict tuple: validation fails when the length is exceeded |
+| `v.array()` / the rest part of `v.tupleWithRest()` | `'reset'` | Array / variable tail: no fixed-key or length constraint |
 | `v.intersect()` + `asVirtualGroup()` | Configurable     | Equivalent to `v.object()`     |
 
 ### Automatic Inference Example
@@ -108,9 +108,9 @@ Controls the validation behaviour of Group / Array. `groupMode` is inferred auto
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-group-mode" />
 </SchemaPreview>
 
-### emptyValue — Empty Value Fallback
+### emptyValue — Empty Value
 
-When validation fails, `emptyValue` is used as the fallback:
+When the value aggregated by the Group / Array is empty (an empty object / an empty array), `emptyValue` is returned as the final value:
 
 <SchemaPreview definition="src/angular/components/definition/array-empty-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-empty-value" />
@@ -122,7 +122,7 @@ FieldArray exposes convenient array-related properties:
 
 | Property                 | Type             | Description                       |
 | ------------------------ | ---------------- | -------------------------------- |
-| `field.length`           | `number`         | Array length (excluding marked deletions) |
+| `field.length`           | `number`         | Number of current child controls (fixed + dynamic) |
 | `field.controls`         | `FieldControl[]` | Current child controls            |
 | `field.fixedControls$()` | `FieldControl[]` | Fixed child controls (excluding rest children) |
 | `field.resetControls$()` | `FieldControl[]` | All resettable child controls      |
@@ -149,12 +149,16 @@ FieldArray exposes convenient array-related properties:
 
 ## Examples
 
+> The examples below are excerpted from the unit tests (`createBuilder` is an internal test utility, not a public API).
+
 ```typescript
 // Array set + remove
-const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
 const obj = v.object({
-  key1: v.pipe(v.array(v.string()), getField(field$)),
+  key1: v.pipe(v.array(v.string()), setComponent('mock-array')),
 });
+
+const resolved = createBuilder(obj);
+const field = resolved.get(['key1'])!;
 
 field.action.set('11', 1); // set '11' at index 1
 field.action.remove(0); // remove index 0

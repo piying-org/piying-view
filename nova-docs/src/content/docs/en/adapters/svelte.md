@@ -125,7 +125,8 @@ Returns a function that returns the current state value when called (`() => data
 ```svelte
 <script>
   import { convertToField } from '@piying/view-svelte';
-  const field = convertToField(() => schema, envInjector, () => options);
+  // The second argument is an optional parent Injector; the third is options as a getter function
+  const field = convertToField(() => schema, injector /* optional */, () => options);
 </script>
 ```
 

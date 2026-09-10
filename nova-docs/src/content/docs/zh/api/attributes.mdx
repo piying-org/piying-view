@@ -2,9 +2,16 @@
 title: "attributes — HTML 属性设置"
 ---
 
-
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 本文介绍如何通过 Actions 设置字段的 HTML attributes。
+
+> attributes 通过 `setAttribute` 写在字段组件的**宿主元素**上。下方示例：悬停输入框看 `title`；敲击键盘，日志会实时读出宿主上的 `data-role` / `data-length`（`patchAsync` 随值更新）。
+
+<SchemaPreview definition="src/angular/components/definition/api-attributes.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="api-attributes" />
+</SchemaPreview>
 
 ## actions.attributes.set — 设置属性值
 
@@ -59,6 +66,19 @@ const schema = v.pipe(
   actions.attributes.patchAsync({
     'data-value': (field) => field.form.control?.value ?? '',
   }),
+);
+```
+
+## actions.attributes.top — 作用于最外层容器
+
+`top.set` / `top.patch` 把属性写到字段的**最外层 wrapper**（无 wrapper 时为字段自身），常用于由 wrapper 渲染的卡片/fieldset 等容器：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.wrappers.set(['card']),
+  actions.attributes.top.set({ id: 'my-card' }), // id 设在 card wrapper 上
+  actions.attributes.top.patch({ 'data-role': 'field-card' }),
 );
 ```
 

@@ -61,8 +61,9 @@ Inside the Angular component, map type names to components through `fieldGlobalC
 
 ```typescript
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PiyingView, BaseControl, PiyingViewGroup } from '@piying/view-angular';
+import * as v from 'valibot';
 
 // === text input (shared by string / number) ===
 import { forwardRef } from '@angular/core';

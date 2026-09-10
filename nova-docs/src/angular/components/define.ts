@@ -12,6 +12,7 @@ import { JoinItemWC } from './wrapper/join-wrapper/component';
 import { PanelWC } from './wrapper/panel-wrapper/component';
 import { TooltipWC } from './wrapper/tooltip/component';
 import { DemoNFCC } from './demo';
+import { LogNFCC } from './log';
 import { SelectorlessNFCC } from './selector-less';
 import * as FCCGroup from '@piying-lib/angular-daisyui/field-control';
 import { LabelWC } from '@piying-lib/angular-daisyui/wrapper';
@@ -239,6 +240,9 @@ export const FieldGlobalConfig = {
     },
     demo: {
       type: DemoNFCC,
+    },
+    log: {
+      type: LogNFCC,
     },
     'selectorless-demo': {
       type: SelectorlessNFCC,

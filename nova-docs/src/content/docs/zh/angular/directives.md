@@ -8,7 +8,7 @@ title: "指令 — 字段模板 / 控件绑定等"
 
 ## InsertFieldDirective
 
-Wrapper 的字段插入点指令，`selector: '[insertField]'`，`exportAs: 'insertField'`，继承 `BaseComponent`。在 Wrapper 模板中声明插入位置：
+Wrapper 的字段插入点指令，`selector: '[insertField]'`，`exportAs: 'insertField'`，继承 `PiyingCreateComponentBase`。在 Wrapper 模板中声明插入位置：
 
 ```html
 <!-- wrapper.component.html -->

@@ -148,13 +148,13 @@ const field = convertToField(() => schema, subInjector, () => options);
 
 ### rawConfig — 原生配置 Action
 
-`rawConfig` 与 `actions`、`setComponent` 等 Action 一样，逻辑定义在所有框架中相同。Vue 包**不单独导出**这些 Action，需从核心包导入：
+`rawConfig` 与 `actions`、`setComponent` 等 Action 一样，逻辑定义在所有框架中相同。Vue 包**不单独导出**这些 Action，需从框架无关的核心包导入：
 
 ```typescript
-import { rawConfig, setComponent, actions } from '@piying/view-angular-core'; // 核心包统一导出
+import { rawConfig, setComponent, actions } from '@piying/view-core'; // 核心包统一导出
 ```
 
-> **注意**：`@piying/view-vue` 包入口不导出 `rawConfig` / `actions` / `setComponent`，请从 `@piying/view-angular-core` 导入。
+> **注意**：`@piying/view-vue` 包入口不导出 `rawConfig` / `actions` / `setComponent`，请从 `@piying/view-core` 导入（React / Solid / Svelte 适配包同理）。
 
 ## 类
 
@@ -198,7 +198,7 @@ const copy = clone(originalObj);
 
 `@piying/view-vue` 导出：`PiyingView`、`PiyingFieldTemplate`、`PiyingViewGroup`、`PiyingFieldControlBind`（别名 `Field`）、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToRef`、`useControlValueAccessor`、`typedComponent`、`convertToField`、`VueSchemaHandle`、`VueFormBuilder`、`VueSchema` 类型。
 
-> **注意**：`rawConfig` / `actions` / `setComponent` 等 Action 需从 `@piying/view-angular-core` 导入，`@piying/view-vue` 不导出。
+> **注意**：`rawConfig` / `actions` / `setComponent` 等 Action 需从 `@piying/view-core` 导入，`@piying/view-vue` 不导出。
 
 ## 下一步
 

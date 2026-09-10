@@ -98,10 +98,13 @@ v.pipe(
 
 ## Full Validation Example
 
+> The examples below are excerpted from the unit tests (`createBuilder` is an internal test utility, not a public API).
+
 ### Inputs Operation Chain
 
 ```typescript
-import { actions } from '@piying/view-angular-core';
+import * as v from 'valibot';
+import { actions, setComponent } from '@piying/view-angular-core';
 
 const obj = v.pipe(
   v.string(),

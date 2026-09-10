@@ -1,0 +1,22 @@
+---
+title: "events — DOM 事件处理"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+通过 `actions.events.patchAsync` 绑定原生 DOM 事件：
+
+> ⚠️ 每个键的值是一个**接收 `field` 、返回事件处理函数**的柯里化函数：`(field) => (event) => {...}`，内层返回的函数才会真正被绑定到 DOM 事件上；不需要 `field` 时忽略第一个参数即可（示例中的 `click: (field) => (event) => {...}`）。
+
+> 事件绑定在字段组件的**宿主元素**上：V1 组件自动支持；V2（`static __version = 2`，selectorless）组件需要手动设置 events。
+
+<SchemaPreview definition="src/angular/components/definition/events.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="events" />
+</SchemaPreview>
+
+## 下一步
+
+- [API: inputs](zh/api/inputs/) — 组件输入属性设置
+- [API: outputs](zh/api/outputs/) — 组件输出事件设置
+- [API: Wrappers](zh/api/wrappers/) — Wrapper 包装器完整指南

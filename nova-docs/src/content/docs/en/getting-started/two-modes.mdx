@@ -2,6 +2,9 @@
 title: "Two Usage Modes of Piying Forms"
 ---
 
+import LivePreview from '../../../../components/LivePreview.astro';
+import { TwoModesManualDemoComponent } from '../../../../angular/components/two-modes-manual-demo.component.ts';
+
 > ⚠️ **Must-read for beginners**: Piying-View offers **two usage modes**. Both are built on Valibot schemas and `convertToField`, but **their boundaries are completely different**. Make sure you know which one you are using.
 
 | Aspect          | Mode 1: automatic mode (fully automatic rendering)         | Mode 2: manual mode (manual binding)                                                     |
@@ -92,9 +95,10 @@ import * as v from 'valibot';
 export class CustomFormComponent {
   injector = inject(Injector);
 
+  // note: both schema and options must be passed as getter functions
   bind = computed(() =>
     untracked(() =>
-      convertToField(this.schema, this.injector, this.options),
+      convertToField(() => this.schema, this.injector, () => this.options),
     ),
   );
 
@@ -176,7 +180,7 @@ export class MyInputComponent implements ControlValueAccessor {
 
 `PiyingFieldTemplateDirective`, selector `[fieldTemplate]`:
 
-- Inputs: `fieldTemplate` (required, `PiResolvedViewFieldConfig`), `path` (optional `KeyPath`)
+- Inputs: `fieldTemplate` (required, `PiResolvedViewFieldConfig`), `path` (optional `KeyPath`; omit it to render the whole root field)
 - Renders the field's whole component tree (component + wrappers + recursive children) at the current position, **exactly like automatic mode**.
 
 ```html
@@ -195,6 +199,14 @@ export class MyInputComponent implements ControlValueAccessor {
 | ---- | ---- | -------- | -------- |
 | **A. Control binding** | `[formControl]` | The **native control you write** (`<input>`, ...) | You want native controls and a completely custom look while keeping value/validation/disabled |
 | **B. Template insertion** | `[fieldTemplate]` | The component **rendered automatically from metadata** | You want to choose where a field goes while the field component stays schema-driven |
+
+### Minimal Manual Mode Example
+
+Both binding styles together: `k1` uses `[formControl]` to bind a native input (type fewer than 3 characters to see the validation error); `k2` is inserted with `[fieldTemplate]` and rendered automatically from schema metadata:
+
+<LivePreview path="src/angular/components/two-modes-manual-demo.component.ts">
+  <TwoModesManualDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
 
 ---
 
@@ -264,8 +276,11 @@ After calling `convertToField` manually and getting `field`, use `[fieldTemplate
 // component.ts
 import { convertToField } from '@piying/view-angular';
 
+// both schema and options are passed as getter functions so the field rebuilds reactively
 bind = computed(() =>
-  untracked(() => convertToField(this.schema, this.injector, this.options)),
+  untracked(() =>
+    convertToField(() => this.schema, this.injector, () => this.options),
+  ),
 );
 ```
 

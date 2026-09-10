@@ -267,7 +267,6 @@ if (groupControl.touched) {
 | `control.dirty`               | `boolean` (getter) | Whether the value has changed |
 | `control.pristine`            | `boolean` (getter) | Whether the value is untouched |
 | `control.dirty$$()`           | `Signal<boolean>`  | computed; child dirty state bubbles up |
-| `control.selfDirty$()`        | `Signal<boolean>`  | Own dirty state (signal)     |
 | `control.markAsDirty()`       | `() => void`       | Marks as dirty               |
 | `control.markAsPristine()`    | `() => void`       | Marks as pristine            |
 | `control.markAllAsDirty()`    | `() => void`       | Cascades to all children     |
@@ -578,7 +577,7 @@ const schema = v.object({
   tags: v.optional(v.array(v.string()), []),
 });
 
-const resolved = convertToField(() => schema, envInjector, () => ({
+const resolved = convertToField(() => schema, undefined, () => ({
   /* options */
 }));
 const root = resolved.form.control!;
@@ -632,7 +631,7 @@ const schema = v.object({
   items: v.pipe(v.array(v.string()), formConfig({ emptyValue: [] })),
 });
 
-const resolved = convertToField(() => schema, envInjector, () => ({
+const resolved = convertToField(() => schema, undefined, () => ({
   /* options */
 }));
 const arrayCtrl = resolved.form.control!.get(['items'])!;
@@ -672,7 +671,7 @@ const schema = v.pipe(
   }),
 );
 
-const resolved = convertToField(() => schema, envInjector, () => ({
+const resolved = convertToField(() => schema, undefined, () => ({
   /* options */
 }));
 const ctrl = resolved.form.control!;

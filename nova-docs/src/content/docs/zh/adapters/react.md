@@ -142,7 +142,8 @@ useEffectSync(
 ```tsx
 import { convertToField } from '@piying/view-react';
 
-const field = convertToField(() => schema, envInjector, () => options);
+// 第二个参数为可选的父 Injector，第三个参数为取值函数形式的 options
+const field = convertToField(() => schema, injector /* 可选 */, () => options);
 ```
 
 ## use-*Model 绑定 Hook

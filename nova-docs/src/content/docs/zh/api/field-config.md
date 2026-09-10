@@ -342,9 +342,9 @@ override beforeSchemaType(schema: Schema): void {
 }
 ```
 
-### emptyValue — 空值回退
+### emptyValue — 空值
 
-验证失败时回退到 `emptyValue`：
+当 Group / Array 聚合出的值为空（空对象 / 空数组）时，返回 `emptyValue` 作为最终值：
 
 ```typescript
 formConfig({ emptyValue: {} }); // Group
@@ -367,10 +367,10 @@ formConfig({ deletionMode: 'mark' });
 此字段会从 schema 的类型信息中**提取**。
 | 值 | 说明 | schema 元数据来源 |
 | ----------- | ---------------------------- | ---------------------------------------- |
-| `'default'` | 标准验证：所有子字段通过 | `v.object()` / `v.tuple()` |
-| `'loose'` | 宽松验证：部分失败不影响整体 | `v.loose_object()` / `v.loose_tuple()` |
-| `'strict'` | 严格验证：额外检查结构完整性 | `v.strict_object()` / `v.strict_tuple()` |
-| `'reset'` | 重置模式：值变更时重置验证 | `v.array()` / `v.rest()` |
+| `'default'` | 输出时自动过滤未定义的多余键值/超出项 | `v.object()` / `v.tuple()` |
+| `'loose'` | 保留未定义的多余键值/超出项 | `v.loose_object()` / `v.loose_tuple()` |
+| `'strict'` | 存在多余键值/超出项时验证失败 | `v.strict_object()` / `v.strict_tuple()` |
+| `'reset'` | 不做固定键/长度约束，尾部可动态增删 | `v.array()` / `v.tupleWithRest()` 的 rest 部分 |
 
 ```typescript
 // ✅ 元数据自动提取示例

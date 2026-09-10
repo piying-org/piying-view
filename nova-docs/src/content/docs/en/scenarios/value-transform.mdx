@@ -44,8 +44,10 @@ This page shows how to transform values between the view layer and the model lay
 
 ### Pipe Validation Example
 
+> The examples below are excerpted from the unit tests (`createBuilder` / `delay` are internal test utilities, not public APIs; in a real project just build the field with `convertToField`).
+
 ```typescript
-import { debounceTime, pipe } from 'rxjs';
+import { map, pipe } from 'rxjs';
 import { formConfig } from '@piying/view-angular-core';
 
 const obj = v.pipe(
@@ -65,7 +67,7 @@ expect(result.form.control!.value).toEqual('21'); // ✅ toModel transformation 
 ### Pipe Debounce Validation
 
 ```typescript
-import { debounceTime } from 'rxjs';
+import { debounceTime, pipe } from 'rxjs';
 
 const obj = v.pipe(
   v.string(),

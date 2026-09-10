@@ -39,6 +39,9 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | 文档                                                          | 说明                                                                                                            |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | [基础字段定义](zh/scenarios/basic-field/)                      | `setComponent`（字符串引用 vs 直接传组件类）、`formConfig` 完整字段表、Valibot 元数据自动推导、自定义验证器     |
+| [类型映射（定义即表单）](zh/scenarios/type-mapping/) | Valibot 类型→表单控件/表单组/表单数组的自动映射：string/number/boolean/picklist/object/record/tuple/array 等 |
+| [表单使用](zh/scenarios/form-use/) | 表单使用总览：默认值/值监听/布局移动/分区禁用/级联/验证/过滤组/滚动组 |
+| [组件使用](zh/scenarios/component-use/) | 组件类型、非表单控件（NFCSchema）、属性操作与事件输出、上下文、rawConfig 高级自定义 |
 | [复杂 Schema 结构](zh/scenarios/complex-schema/)               | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() 的映射及 layout priority 排序     |
 | [asControl / asVirtualGroup](zh/scenarios/as-control-group/)   | `asControl()` 将嵌套对象整体作为独立控件、`asVirtualGroup()` 让 Intersect 子级作为普通 Group，含三大使用场景    |
 | [动态字段控制](zh/scenarios/dynamic-fields/)                   | hideWhen（条件隐藏）、disableWhen（条件禁用）、valueChange（值监听无副作用），含支付方式切换/级联联动示例       |
@@ -69,7 +72,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [models](zh/api/models/)                                     | `actions.models` 双向绑定模型设置：set/patch/remove/patchAsync/mapAsync，将外部 Signal 绑定到组件 model 输入/输出对                                                                 |
 | [events](zh/api/events/)                                     | `actions.events.patchAsync` 原生 DOM 事件声明式绑定，click/keydown 等事件处理                                                                                                       |
 | [attributes](zh/api/attributes/)                             | `actions.attributes` HTML 原生属性设置：set/patch/remove/patchAsync，含 attributes vs inputs 区别表、ARIA/data-\* 属性                                                              |
-| [CSS class](zh/api/css-class/)                               | `actions.class` CSS Class 设置：topClass（最外层容器）/ bottomClass（底部错误信息等区域）                                                                                           |
+| [CSS class](zh/api/css-class/)                               | `actions.class` CSS Class 设置：top（最外层 wrapper）/ bottom・component（字段组件本身）/ asyncTop・asyncBottom                                                                                           |
 | [Layout metadata](zh/api/layout/)                            | `layout` Action：priority 排序权重 + keyPath 查询表达式（'#'/'..'/'@alias'），Intersect + Layout 配合改变字段排列                                                                   |
 | [hideWhen / disableWhen / valueChange](zh/api/hide-disable/) | hideWhen/disableWhen/valueChange/outputChange 完整 API 签名、listenFields 数组机制、skipInitValue、生命周期时机说明                                                                 |
 | [路径查询](zh/api/path-querying/)                            | KeyPath 类型定义、field.get() 用法：`['..']`(父级开始)/`'#'`(根字段开始)/`'@alias'`(别名定位)、命名冲突处理规则                                                                     |
@@ -78,7 +81,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [Hooks 生命周期](zh/api/hooks/)                              | `actions.hooks` Hook 生命周期管理：merge(依次执行多个)/patch(覆盖同名)/remove/set，Hook 注册与执行顺序详解                                                                          |
 | [Props 通用属性](zh/api/props/)                              | `actions.props` 通用属性键配置：set(覆盖)/patch(合并)/patchAsync(异步)/remove(移除)/mapAsync(动态映射)，组件通过 field.props() 访问，vs Attributes/Inputs/Outputs 语义区分        |
 | [核心工具函数](zh/api/core-utils/)                            | `combineSignal`/`observableSignal`/`asyncObjectSignal` 等核心信号工具函数                                                                                                         |
-| [Wrappers 包装器](zh/api/wrappers/)                          | `actions.wrappers` set/patchAsync/remove + Wrapper 组件编写指南（V1/V2 模板对比、InsertFieldDirective 用法），各框架通用                                                             |
+| [Wrappers 包装器](zh/api/wrappers/)                          | `actions.wrappers` set/patch/patchAsync/remove/changeAsync + Wrapper 组件编写指南（V1/V2 模板对比、InsertFieldDirective 用法），各框架通用                                                             |
 | [Control API](zh/api/control-api/)                           | FieldControl/AbstractControl 完整参考：获取 Control、值 API(updateValue/reset/viewValueChange)、状态 API(disabled/touched/dirty)、FieldArray API(length/controls/removeRestControl) |
 | [Providers 服务注入](zh/api/providers/)                      | `actions.providers` 将业务服务注入字段组件 Injector：set(覆盖)/patch(追加)/change(函数式变换)，Angular 用 inject()、其他框架用 static-injector                                          |
 

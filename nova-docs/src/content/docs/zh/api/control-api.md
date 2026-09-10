@@ -267,7 +267,6 @@ if (groupControl.touched) {
 | `control.dirty`               | `boolean` (getter) | 值是否被修改过              |
 | `control.pristine`            | `boolean` (getter) | 值是否为原始状态（未修改）  |
 | `control.dirty$$()`           | `Signal<boolean>`  | computed，子级 dirty 会冒泡 |
-| `control.selfDirty$()`        | `Signal<boolean>`  | 自身 dirty 状态（signal）   |
 | `control.markAsDirty()`       | `() => void`       | 标记为已修改                |
 | `control.markAsPristine()`    | `() => void`       | 标记为未修改                |
 | `control.markAllAsDirty()`    | `() => void`       | 级联标记所有子级            |
@@ -578,7 +577,8 @@ const schema = v.object({
   tags: v.optional(v.array(v.string()), []),
 });
 
-const resolved = convertToField(() => schema, envInjector, () => ({
+
+const resolved = convertToField(() => schema, undefined, () => ({
   /* options */
 }));
 const root = resolved.form.control!;
@@ -632,7 +632,8 @@ const schema = v.object({
   items: v.pipe(v.array(v.string()), formConfig({ emptyValue: [] })),
 });
 
-const resolved = convertToField(() => schema, envInjector, () => ({
+
+const resolved = convertToField(() => schema, undefined, () => ({
   /* options */
 }));
 const arrayCtrl = resolved.form.control!.get(['items'])!;
@@ -672,7 +673,8 @@ const schema = v.pipe(
   }),
 );
 
-const resolved = convertToField(() => schema, envInjector, () => ({
+
+const resolved = convertToField(() => schema, undefined, () => ({
   /* options */
 }));
 const ctrl = resolved.form.control!;

@@ -55,7 +55,54 @@ const schema = v.pipe(
 );
 ```
 
+## actions.outputs.merge — 叠加事件处理器
+
+与 `patch` 的「覆盖同名键」不同，`merge` 会**叠加**：同一键的新旧处理器都会执行（先旧后新）：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.outputs.set({ change: handleChange }),
+  actions.outputs.merge({ change: handleChange2 }), // change 触发时 handleChange 先执行，再执行 handleChange2
+);
+```
+
+## actions.outputs.mergeAsync — 异步叠加事件处理器
+
+柯里化形式 `(field) => (...args) => void`，在所有字段解析完成后基于 `field` 动态创建处理器并叠加：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.outputs.mergeAsync({
+    change: (field) => (value: any) => {
+      console.log('field:', field, 'value:', value);
+    },
+  }),
+);
+```
+
+## actions.outputs.mapAsync — 动态映射事件处理器
+
+接收 `field`，返回一个转换函数，对已有的全部 outputs 进行映射变换：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.outputs.set({ change: handleChange }),
+  actions.outputs.mapAsync((field) => (outputs) => ({
+    ...outputs,
+    change: (value: any) => {
+      // 包一层逻辑
+      outputs.change?.(value);
+    },
+  })),
+);
+```
+
 ## 完整验证示例
+
+> 以下示例节选自单元测试（`createBuilder` 为测试内部工具，非公开 API）。
 
 ### Outputs 操作链
 
@@ -72,7 +119,7 @@ const obj = v.pipe(
   setComponent('mock-input'),
 );
 
-const resolved = createBuilder(resolved.outputs());
+const resolved = createBuilder(obj);
 expect(Object.keys(resolved.outputs())).toEqual(['blur']);
 ```
 

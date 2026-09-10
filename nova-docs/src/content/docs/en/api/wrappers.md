@@ -31,6 +31,18 @@ const schema2 = v.pipe(
 );
 ```
 
+### patch — append wrappers (keeps existing ones)
+
+`set` clears the list first; `patch` appends to the end of the existing list:
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.wrappers.set(['card']),
+  actions.wrappers.patch(['fieldset']), // result: ['card', 'fieldset']
+);
+```
+
 ### patchAsync — add wrappers asynchronously
 
 Appends a new wrapper to the end of the list, or inserts it at a given index:
@@ -43,6 +55,21 @@ const schema = v.pipe(
 );
 
 // wrappers = ['w2', 'w1']
+```
+
+### changeAsync — modify an existing wrapper
+
+Receives a locator function (its argument is the list of input Signals of the current wrappers; it returns the data source of the target wrapper) and the actions to apply:
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.wrappers.set(['card']),
+  actions.wrappers.changeAsync(
+    (wrappers) => wrappers[0], // locate the first wrapper
+    [actions.inputs.set({ title: 'New title' })],
+  ),
+);
 ```
 
 ### remove — remove wrappers

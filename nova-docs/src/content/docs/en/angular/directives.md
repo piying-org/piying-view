@@ -8,7 +8,7 @@ This page covers the directives provided by `@piying/view-angular`: `InsertField
 
 ## InsertFieldDirective
 
-The field insertion point directive for wrappers, `selector: '[insertField]'`, `exportAs: 'insertField'`, extends `BaseComponent`. Declares where fields are inserted inside a wrapper template:
+The field insertion point directive for wrappers, `selector: '[insertField]'`, `exportAs: 'insertField'`, extends `PiyingCreateComponentBase`. Declares where fields are inserted inside a wrapper template:
 
 ```html
 <!-- wrapper.component.html -->

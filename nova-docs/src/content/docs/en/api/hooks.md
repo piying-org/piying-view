@@ -30,6 +30,17 @@ const schema = v.pipe(
 // hook 1 runs first, hook 2 afterwards
 ```
 
+`merge` also accepts a second argument controlling the insertion position: `position: 'top'` inserts before the existing callbacks (running first); the default `'bottom'` appends after them:
+
+```typescript
+actions.hooks.merge(
+  {
+    fieldResolved: (field) => console.log('runs first'),
+  },
+  { position: 'top' },
+);
+```
+
 ## actions.hooks.patch — replacing a hook (override)
 
 `actions.hooks.patch` **overrides** a previously registered hook with the same name:

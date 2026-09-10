@@ -37,7 +37,8 @@ Converts a Valibot schema into a resolved field configuration:
 ```typescript
 import { convertToField } from '@piying/view-angular';
 
-const field = convertToField(schema, envInjector, options);
+// schema and options must be passed as getter functions
+const field = convertToField(() => schema, injector, () => options);
 ```
 
 It is an instance of `createConvertToField({ builder: AngularFormBuilder, handle: NgSchemaHandle })`.

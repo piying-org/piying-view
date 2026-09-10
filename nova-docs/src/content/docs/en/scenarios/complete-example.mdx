@@ -33,7 +33,7 @@ export const registerSchema = v.object({
   // === basic info ===
   username: v.pipe(v.string(), v.minLength(2, 'Username must be at least 2 characters'), setComponent('input'), formConfig({ required: true })),
 
-  email: v.pipe(v.optional(v.email('Please enter a valid email address')), setComponent('input')),
+  email: v.pipe(v.optional(v.pipe(v.string(), v.email('Please enter a valid email address'))), setComponent('input')),
 
   age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old'), v.maxValue(120, 'This age is not valid'), setComponent('number-input'), formConfig({ required: true })),
 

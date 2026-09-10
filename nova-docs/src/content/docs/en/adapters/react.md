@@ -142,7 +142,8 @@ useEffectSync(
 ```tsx
 import { convertToField } from '@piying/view-react';
 
-const field = convertToField(() => schema, envInjector, () => options);
+// The second argument is an optional parent Injector; the third is options as a getter function
+const field = convertToField(() => schema, injector /* optional */, () => options);
 ```
 
 ## use-*Model Binding Hooks

@@ -31,6 +31,18 @@ const schema2 = v.pipe(
 );
 ```
 
+### patch — 追加包装器（不清空已有）
+
+`set` 会先清空再设置；`patch` 则在已有列表末尾追加：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.wrappers.set(['card']),
+  actions.wrappers.patch(['fieldset']), // 结果：['card', 'fieldset']
+);
+```
+
 ### patchAsync — 异步添加包装器
 
 将新包装器添加到列表末尾，或插入到指定位置：
@@ -43,6 +55,21 @@ const schema = v.pipe(
 );
 
 // wrappers = ['w2', 'w1']
+```
+
+### changeAsync — 修改已有包装器
+
+接收一个定位函数（参数为当前 wrappers 的输入 Signal 列表，返回目标 wrapper 的数据源）和要应用的 actions：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.wrappers.set(['card']),
+  actions.wrappers.changeAsync(
+    (wrappers) => wrappers[0], // 定位第一个 wrapper
+    [actions.inputs.set({ title: '新标题' })],
+  ),
+);
 ```
 
 ### remove — 移除包装器

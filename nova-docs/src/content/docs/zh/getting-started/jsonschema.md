@@ -29,7 +29,7 @@ const valibotSchema = jsonSchemaToValibot(jsonSchema);
 | `number`         | `v.number()`  |
 | `integer`        | `v.integer()` |
 | `boolean`        | `v.boolean()` |
-| `null`           | `v.null()`    |
+| `null`           | `v.null()`   |
 | `any` / 无 type  | `v.any()`     |
 
 ### 约束条件
@@ -230,7 +230,7 @@ Piying-View 根据 JSON Schema 结构自动选择合适的组件渲染策略：
 
 ### 自定义 Actions
 
-如果 JSON Schema 中包含其他自定义的 actions，则需要注册：
+如果 JSON Schema 中包含其他自定义的 actions，则需要通过 `jsonSchemaToValibot` 的第二个参数 `customActions` 注册：
 
 ```json
 {
@@ -242,6 +242,18 @@ Piying-View 根据 JSON Schema 结构自动选择合适的组件渲染策略：
     }
   ]
 }
+```
+
+```typescript
+import * as v from 'valibot';
+import { jsonSchemaToValibot } from '@piying/view-angular-core/adapter';
+
+const schema = jsonSchemaToValibot(jsonSchema, {
+  customActions: {
+    // 名称对应 JSON 中 actions[].name，params 逐个展开为函数参数
+    testTitle: () => v.title('测试标题'),
+  },
+});
 ```
 
 ## 完整示例

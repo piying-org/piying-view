@@ -342,9 +342,9 @@ override beforeSchemaType(schema: Schema): void {
 }
 ```
 
-### emptyValue — empty value fallback
+### emptyValue — empty value
 
-Falls back to `emptyValue` when validation fails:
+When the value aggregated by a Group / Array is empty (an empty object / an empty array), `emptyValue` is returned as the final value:
 
 ```typescript
 formConfig({ emptyValue: {} }); // Group
@@ -367,10 +367,10 @@ formConfig({ deletionMode: 'mark' });
 This field is **extracted** from the schema's type information.
 | Value | Description | schema metadata source |
 | ----------- | ---------------------------- | ---------------------------------------- |
-| `'default'` | Standard validation: all children must pass | `v.object()` / `v.tuple()` |
-| `'loose'` | Loose validation: partial failures do not affect the whole | `v.loose_object()` / `v.loose_tuple()` |
-| `'strict'` | Strict validation: extra structural integrity checks | `v.strict_object()` / `v.strict_tuple()` |
-| `'reset'` | Reset mode: validation resets on value change | `v.array()` / `v.rest()` |
+| `'default'` | Output automatically filters out extra keys/items that are not defined | `v.object()` / `v.tuple()` |
+| `'loose'` | Keeps extra keys/items that are not defined | `v.loose_object()` / `v.loose_tuple()` |
+| `'strict'` | Validation fails when extra keys/items exist | `v.strict_object()` / `v.strict_tuple()` |
+| `'reset'` | No fixed-key/length constraint; the tail can grow and shrink dynamically | the rest part of `v.array()` / `v.tupleWithRest()` |
 
 ```typescript
 // ✅ automatic metadata extraction example

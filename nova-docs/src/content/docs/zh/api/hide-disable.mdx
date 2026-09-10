@@ -2,6 +2,9 @@
 title: "hideWhen / disableWhen / valueChange — 动态控制 API 参考"
 ---
 
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
 
 
 本文介绍三个 Action 的完整 API 签名、参数说明和实现细节。
@@ -83,6 +86,10 @@ const schema = v.object({
 
 当 `enable = false` 时，`name` **同时被隐藏和禁用**。
 
+<SchemaPreview definition="src/angular/components/definition/dynamic-hide-disabled.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-disabled" />
+</SchemaPreview>
+
 ## disableWhen — 动态禁用字段
 
 ### 类型签名
@@ -129,6 +136,10 @@ const schema = v.object({
 });
 ```
 
+<SchemaPreview definition="src/angular/components/definition/dynamic-disable-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-disable-when" />
+</SchemaPreview>
+
 ## valueChange — 值变化监听（无副作用）
 
 ### 类型签名
@@ -164,6 +175,10 @@ const schema = v.object({
   ),
 });
 ```
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-value-change.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-value-change" />
+</SchemaPreview>
 
 ## skipInitValue — 跳过初始值触发
 
@@ -208,13 +223,18 @@ mergeHooksFn(
 ```typescript
 function outputChange<TInput>(
   fn: (
-    input?: OutputChangeFnOptions,
-  ) => Observable<{
-    list: any[];
-    field: _PiResolvedCommonViewFieldConfig;
-  }>,
+    input: (list: {
+      list: KeyPath | undefined; // 目标字段路径，undefined 表示当前字段自身
+      output: string; // 要监听的输出事件名
+    }[]) => Observable<{
+      list: any[];
+      field: _PiResolvedCommonViewFieldConfig;
+      listenFields: _PiResolvedCommonViewFieldConfig[];
+    }>),
 ): RawConfigAction<TInput>;
 ```
+
+> 注意：事件处理器实际上是合并到**当前字段自身**的 outputs 上，`list` 中指定的字段只影响 `listenFields` 的映射关系。
 
 ### 示例：监听组件输出事件
 

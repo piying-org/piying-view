@@ -44,8 +44,10 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 ### Pipe 验证示例
 
+> 以下示例节选自单元测试（`createBuilder` / `delay` 为测试内部工具，非公开 API；实际项目中用 `convertToField` 构建字段即可）。
+
 ```typescript
-import { debounceTime, pipe } from 'rxjs';
+import { map, pipe } from 'rxjs';
 import { formConfig } from '@piying/view-angular-core';
 
 const obj = v.pipe(
@@ -65,7 +67,7 @@ expect(result.form.control!.value).toEqual('21'); // ✅ toModel 转换生效
 ### Pipe 去抖验证
 
 ```typescript
-import { debounceTime } from 'rxjs';
+import { debounceTime, pipe } from 'rxjs';
 
 const obj = v.pipe(
   v.string(),

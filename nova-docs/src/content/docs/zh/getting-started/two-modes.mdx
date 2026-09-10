@@ -2,6 +2,9 @@
 title: "皮影表单的两种使用模式"
 ---
 
+import LivePreview from '../../../../components/LivePreview.astro';
+import { TwoModesManualDemoComponent } from '../../../../angular/components/two-modes-manual-demo.component.ts';
+
 > ⚠️ **新手必读**：Piying-View 提供**两种使用模式**，它们都基于 Valibot Schema 和 `convertToField`，但**边界完全不同**。请务必先分清你使用的是哪一种，避免混淆。
 
 | 对比维度     | 模式一：自动模式（全自动渲染）                      | 模式二：手动模式（手动绑定）                                                              |
@@ -92,9 +95,10 @@ import * as v from 'valibot';
 export class CustomFormComponent {
   injector = inject(Injector);
 
+  // 注意：schema 与 options 都要以「取值函数」形式传入
   bind = computed(() =>
     untracked(() =>
-      convertToField(this.schema, this.injector, this.options),
+      convertToField(() => this.schema, this.injector, () => this.options),
     ),
   );
 
@@ -176,7 +180,7 @@ export class MyInputComponent implements ControlValueAccessor {
 
 `PiyingFieldTemplateDirective`，选择器 `[fieldTemplate]`：
 
-- 输入：`fieldTemplate`（必填，`PiResolvedViewFieldConfig`）、`path`（可选 `KeyPath`）
+- 输入：`fieldTemplate`（必填，`PiResolvedViewFieldConfig`）、`path`（可选 `KeyPath`，不传则渲染整个根字段）
 - 把该字段的整棵组件树（组件 + 包装器 + 递归子字段）**像自动模式一样**渲染在当前位置。
 
 ```html
@@ -195,6 +199,14 @@ export class MyInputComponent implements ControlValueAccessor {
 | ---- | ---- | -------- | -------- |
 | **A. 控件绑定** | `[formControl]` | 你写的**原生控件**（`<input>` 等） | 想用原生控件、完全自定义控件外观，但仍要获得值/验证/禁用能力 |
 | **B. 模板插入** | `[fieldTemplate]` | 库根据元数据**自动渲染的组件** | 想指定字段的摆放位置，但字段组件本身仍由 Schema 决定 |
+
+### 手动模式最小示例
+
+把上面两种方式合在一起：`k1` 用 `[formControl]` 绑定原生 input（输入不足 3 个字符可看到验证错误）；`k2` 用 `[fieldTemplate]` 插入，内部由 Schema 元数据自动渲染：
+
+<LivePreview path="src/angular/components/two-modes-manual-demo.component.ts">
+  <TwoModesManualDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
 
 ---
 
@@ -264,8 +276,11 @@ const schema = v.pipe(
 // component.ts
 import { convertToField } from '@piying/view-angular';
 
+// schema 与 options 均以取值函数形式传入，便于响应式重建
 bind = computed(() =>
-  untracked(() => convertToField(this.schema, this.injector, this.options)),
+  untracked(() =>
+    convertToField(() => this.schema, this.injector, () => this.options),
+  ),
 );
 ```
 

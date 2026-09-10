@@ -85,16 +85,16 @@ field.form.control.clear(); // 清空所有元素
 
 控制 Group / Array 的验证行为。`groupMode` 在解析 schema 时自动推导，无需手动赋值。
 
-| Schema 类型                      | 自动解析的 `groupMode` | 说明                         |
-| -------------------------------- | ---------------------- | ---------------------------- |
-| `v.object()`                     | `'default'`            | 标准对象，校验字段完整性     |
-| `v.loose_object()`               | `'loose'`              | 宽松对象，允许多余字段       |
-| `v.strict_object()`              | `'strict'`             | 严格对象，拒绝多余字段       |
-| `v.tuple()`                      | `'default'`            | 固定长度元组                 |
-| `v.loose_tuple()`                | `'loose'`              | 宽松元组                     |
-| `v.strict_tuple()`               | `'strict'`             | 严格元组                     |
-| `v.array()` / `v.rest()`         | `'reset'`              | 数组/可变尾部，值变更时重置  |
-| `v.intersect()` + `asVirtualGroup()` | 可手动配置         | 等价于`v.object()`           |
+| Schema 类型                      | 自动解析的 `groupMode` | 说明                                       |
+| -------------------------------- | ---------------------- | ------------------------------------------ |
+| `v.object()`                     | `'default'`            | 标准对象：输出时自动过滤未定义的多余键值 |
+| `v.loose_object()`               | `'loose'`              | 宽松对象：保留未定义的多余键值         |
+| `v.strict_object()`              | `'strict'`             | 严格对象：存在多余键值时验证失败       |
+| `v.tuple()`                      | `'default'`            | 固定长度元组：超出长度部分自动截断     |
+| `v.loose_tuple()`                | `'loose'`              | 宽松元组：超出长度部分保留             |
+| `v.strict_tuple()`               | `'strict'`             | 严格元组：超出长度时验证失败           |
+| `v.array()` / `v.tupleWithRest()` 的 rest 部分 | `'reset'` | 数组/可变尾部：不做固定键/长度约束 |
+| `v.intersect()` + `asVirtualGroup()` | 可手动配置         | 等价于 `v.object()`                      |
 
 ### 自动推导示例
 
@@ -108,9 +108,9 @@ field.form.control.clear(); // 清空所有元素
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-group-mode" />
 </SchemaPreview>
 
-### emptyValue — 空值回退
+### emptyValue — 空值
 
-当验证失败时，使用 `emptyValue` 作为回退值：
+当 Group / Array 聚合出的值为空（空对象 / 空数组）时，返回 `emptyValue` 作为最终值：
 
 <SchemaPreview definition="src/angular/components/definition/array-empty-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-empty-value" />
@@ -122,7 +122,7 @@ FieldArray 提供便捷的数组相关属性：
 
 | 属性                     | 类型             | 说明                             |
 | ------------------------ | ---------------- | -------------------------------- |
-| `field.length`           | `number`         | 数组长度（不包含标记删除的）     |
+| `field.length`           | `number`         | 当前子控件数量（固定 + 动态）    |
 | `field.controls`         | `FieldControl[]` | 当前子控件列表                   |
 | `field.fixedControls$()` | `FieldControl[]` | 固定子控件（不含 rest children） |
 | `field.resetControls$()` | `FieldControl[]` | 所有可重置子控件                 |
@@ -149,12 +149,16 @@ FieldArray 提供便捷的数组相关属性：
 
 ## 示例
 
+> 以下示例节选自单元测试（`createBuilder` 为测试内部工具，非公开 API）。
+
 ```typescript
 // Array set + remove
-const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
 const obj = v.object({
-  key1: v.pipe(v.array(v.string()), getField(field$)),
+  key1: v.pipe(v.array(v.string()), setComponent('mock-array')),
 });
+
+const resolved = createBuilder(obj);
+const field = resolved.get(['key1'])!;
 
 field.action.set('11', 1); // 在索引 1 设置 '11'
 field.action.remove(0); // 删除索引 0

@@ -61,8 +61,9 @@ pnpm add valibot @piying/view-angular @piying/view-angular-core @angular/core
 
 ```typescript
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PiyingView, BaseControl, PiyingViewGroup } from '@piying/view-angular';
+import * as v from 'valibot';
 
 // === 输入框（string / number 通用）===
 import { forwardRef } from '@angular/core';

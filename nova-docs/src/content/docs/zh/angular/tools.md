@@ -37,7 +37,8 @@ const schema = v.object({
 ```typescript
 import { convertToField } from '@piying/view-angular';
 
-const field = convertToField(schema, envInjector, options);
+// schema 与 options 需以取值函数形式传入
+const field = convertToField(() => schema, injector, () => options);
 ```
 
 它是 `createConvertToField({ builder: AngularFormBuilder, handle: NgSchemaHandle })` 的实例。

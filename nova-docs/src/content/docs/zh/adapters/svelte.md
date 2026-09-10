@@ -125,7 +125,8 @@ Svelte 通过 `getContext` 获取字段，而非依赖注入：
 ```svelte
 <script>
   import { convertToField } from '@piying/view-svelte';
-  const field = convertToField(() => schema, envInjector, () => options);
+  // 第二个参数为可选的父 Injector，第三个参数为取值函数形式的 options
+  const field = convertToField(() => schema, injector /* 可选 */, () => options);
 </script>
 ```
 
