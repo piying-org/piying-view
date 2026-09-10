@@ -6,6 +6,8 @@ import mdx from '@astrojs/mdx';
 import angular from '@analogjs/astro-angular';
 import tailwindcss from '@tailwindcss/vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { satteri } from '@astrojs/markdown-satteri';
+import mdastBaseLinks from './plugins/mdast-base-links.mjs';
 
 const base = '/piying-view/';
 
@@ -19,8 +21,8 @@ const nav = (zh, en, link) => ({
 
 // 顶部导航：href 由主题原样输出，需要自己拼语言前缀（相对 <base>）
 const navHref = (path) => ({
-  'zh-CN': `zh/${path}`,
-  en: `en/${path}`,
+  'zh-CN': `${base}zh/${path}`,
+  en: `${base}en/${path}`,
 });
 
 // 中文文档已整体迁入 docs/zh/，为旧地址（/api/xxx/）保留跳转
@@ -44,6 +46,9 @@ export default defineConfig({
   output: 'static',
   base,
   redirects: legacyRedirects,
+  markdown: {
+    processor: satteri({ mdastPlugins: [mdastBaseLinks({ base })] }),
+  },
   vite: {
     plugins: [
       tailwindcss(),
@@ -267,14 +272,7 @@ export default defineConfig({
           ],
         },
       ],
-      head: [
-        {
-          tag: 'base',
-          attrs: {
-            href: base,
-          },
-        },
-      ],
+
     }),
   ],
 });

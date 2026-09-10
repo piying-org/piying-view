@@ -239,7 +239,9 @@ const defaultModels: Record<string, unknown> = {
   'form-use-loose-tuple': { list: ['v1', 'v2'] },
   'form-use-tuple-with-rest': { list: ['v1', 'v2'] },
   'form-use-array': { list: ['v1'] },
-  'complex-nesting': { user: { name: '张三', address: { city: '北京', street: '长安街' } } },
+  'complex-nesting': {
+    user: { name: '张三', address: { city: '北京', street: '长安街' } },
+  },
   'complex-array': { tags: ['v1', 'v2'], scores: [1, 2] },
   'complex-tuple': { position: [1, 2] },
   'complex-record': { metadata: { k1: 'v1' }, scores: { s1: 1 } },
@@ -256,7 +258,11 @@ const defaultModels: Record<string, unknown> = {
   'record-translation': { translations: { zh: '你好' } },
   'record-group-key-value': { name: '张三' },
   'record-validation': { metadata: { score: 5 } },
-  'record-complete': { metadata: { k1: 'v1' }, settings: { darkMode: true }, teamMembers: { zhang: { name: '张三', role: '开发' } } },
+  'record-complete': {
+    metadata: { k1: 'v1' },
+    settings: { darkMode: true },
+    teamMembers: { zhang: { name: '张三', role: '开发' } },
+  },
   'basic-form-config': { name: '张三' },
   'basic-default-value': { name: '默认名称' },
   'basic-default-value-form': { age: 18 },
@@ -275,10 +281,19 @@ const defaultModels: Record<string, unknown> = {
   'dynamic-hide-disabled': { enable: true, name: '张三' },
   'dynamic-disable-when': { isActive: true, name: '张三' },
   'dynamic-value-change': { source: '', target: '' },
-  'dynamic-payment': { paymentMethod: 'alipay', alipayAccount: '', wechatAccount: '', cardNumber: '' },
+  'dynamic-payment': {
+    paymentMethod: 'alipay',
+    alipayAccount: '',
+    wechatAccount: '',
+    cardNumber: '',
+  },
   'dynamic-submitted': { isSubmitted: false, name: '张三' },
   'dynamic-cascade': { k1: true, k2: false, k3: true },
-  'dynamic-update-other': { mode: 'data1', o1: { k1: '', k2: '' }, o2: { k3: '', k4: '' } },
+  'dynamic-update-other': {
+    mode: 'data1',
+    o1: { k1: '', k2: '' },
+    o2: { k3: '', k4: '' },
+  },
   'array-reset': ['default1', 'default2'],
   'array-shrink': ['a', 'b', 'c'],
   'array-mark': [1, 'v2'],
@@ -287,7 +302,13 @@ const defaultModels: Record<string, unknown> = {
   'array-empty-value': { a: 5 },
   'array-tuple': ['v1', 2],
   'array-tuple-with-rest': ['v1', 0, 1],
-  'array-complete': { tags: ['a', 'b'], scores: [0, 0], position: [1, 2], coordinates: ['v1', 3], groups: [{ name: '张三' }] },
+  'array-complete': {
+    tags: ['a', 'b'],
+    scores: [0, 0],
+    position: [1, 2],
+    coordinates: ['v1', 3],
+    groups: [{ name: '张三' }],
+  },
   'validation-sync': { password: 'abc123' },
   'validation-async': { username: '' },
   'validation-combined': { email: 'test@test.com' },
@@ -307,10 +328,17 @@ const defaultModels: Record<string, unknown> = {
   'control-group-as-virtual': { name: '张三', age: 25 },
   'transform-complete': { search: '', price: '', birthDate: '', score: '80' },
   'form-use-value-change': { k1: '' },
-  'form-use-disable-when': { enable: true, value: { input1: '', input2: '', input3: '', input4: '' } },
+  'form-use-disable-when': {
+    enable: true,
+    value: { input1: '', input2: '', input3: '', input4: '' },
+  },
   'form-use-array-rw': { list: ['v1', 'v2'] },
   'form-use-fieldset': { k1: '', o1: { k2: '', k3: '' } },
-  'form-use-update-other': { list: 'data1', o1: { k1: '', k2: '' }, o2: { k3: '', k4: '' } },
+  'form-use-update-other': {
+    list: 'data1',
+    o1: { k1: '', k2: '' },
+    o2: { k3: '', k4: '' },
+  },
   'form-use-validator': { k1: '' },
   'form-use-cascade': { k1: true, k2: false, k3: true, k4: false },
   'basic-field-disable-when': { isActive: true, name: '张三' },
@@ -320,9 +348,16 @@ const defaultModels: Record<string, unknown> = {
   selector: 'schema-demo',
   standalone: true,
   template: `
-    <piying-view [schema]="schema()" [model]="model()" [options]="options()"></piying-view>
+    <piying-view
+      [schema]="schema()"
+      [model]="model()"
+      [options]="options()"
+    ></piying-view>
   `,
   imports: [PiyingView],
+  host: {
+    class: 'not-content',
+  },
 })
 export class SchemaDemoComponent {
   name = input('string');

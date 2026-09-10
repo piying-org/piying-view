@@ -10,7 +10,6 @@ import { BaseControl } from '../form/base.component.js';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AmdInit$$ } from './init';
 import { ThemeService } from '../../services/theme.service.js';
-
 @Component({
   selector: 'div[type=code-editor]',
   template: '',
@@ -67,7 +66,7 @@ export default class CodeEditorComponent
       skipDefaultLibCheck: true,
       skipLibCheck: true,
     });
-    const content = await fetch('./declaration/online-type.d.ts').then((a) =>
+    const content = await fetch(`${import.meta.env.BASE_URL}declaration/online-type.d.ts`).then((a) =>
       a.text(),
     );
     const libUri = 'piying.ts';
