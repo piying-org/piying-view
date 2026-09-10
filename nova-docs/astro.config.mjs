@@ -45,6 +45,9 @@ export default defineConfig({
     starlight({
       title: 'Piying-View 文档',
       customCss: ['./src/styles/global.css'],
+      components: {
+        PageTitle: './src/overrides/starlight/PageTitle.astro',
+      },
       plugins: [
         starlightThemeNova({
           nav: [

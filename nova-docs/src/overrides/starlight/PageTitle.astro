@@ -1,0 +1,15 @@
+---
+import DefaultPageTitle from '@astrojs/starlight/components/PageTitle.astro';
+
+const { entry } = Astro.locals.starlightRoute;
+---
+
+{entry.data.hideTitle ? null : <DefaultPageTitle />}
+{entry.data.hideTitle && (
+  <style is:global>
+    .content-panel:first-child {
+      padding: 0 !important;
+      display: none;
+    }
+  </style>
+)}
