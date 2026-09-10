@@ -1,0 +1,100 @@
+<div class="flex flex-col gap-4 lg:flex-row not-content">
+  <div class="flex min-w-0 flex-1 flex-col gap-2">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <span class="font-medium">Schema 代码</span>
+      <div class="flex gap-2">
+        <button class="btn btn-xs btn-ghost" type="button" (click)="openHelp()">
+          使用说明
+        </button>
+        <button class="btn btn-xs not-content" type="button" (click)="reset()">
+          重置
+        </button>
+        <button class="btn btn-xs btn-primary" type="button" (click)="share()">
+          复制分享链接
+        </button>
+      </div>
+    </div>
+    <div
+      class="h-[60vh] min-h-[20rem] overflow-hidden rounded-box border border-base-300"
+    >
+      <div
+        type="code-editor"
+        class="h-full"
+        [ngModel]="code()"
+        (ngModelChange)="updateCode($event)"
+      ></div>
+    </div>
+  </div>
+  <div class="flex min-w-0 flex-1 flex-col gap-2">
+    <span class="font-medium">实时预览</span>
+    <div
+      class="h-[60vh] min-h-[20rem] overflow-auto rounded-box border border-base-300 p-4"
+    >
+      <app-playground-eval-view [configCode]="previewCode()" />
+    </div>
+  </div>
+</div>
+@if (shareText()) {
+  <div class="alert alert-success mt-4 py-2 text-sm">
+    {{ shareText() }}
+  </div>
+}
+<dialog #helpDlg class="modal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="text-lg font-bold">Playground 使用说明</h3>
+    <div class="flex flex-col gap-3 py-3 text-sm leading-6">
+      <p>
+        代码需要返回
+        <code class="badge badge-ghost badge-sm font-normal"
+          >&#123;schema, model?, context?, builderType?&#125;</code
+        >
+        对象。
+      </p>
+      <div>
+        <div class="mb-1">代码中可直接使用的变量：</div>
+        <div class="flex flex-wrap gap-1">
+          @for (item of injectedVars; track item) {
+            <code class="badge badge-ghost badge-sm font-normal">{{
+              item
+            }}</code>
+          }
+        </div>
+      </div>
+      <div>
+        <div class="mb-1">
+          可用的组件类型（与文档站点同一份 fieldGlobalConfig）：
+        </div>
+        <div class="flex flex-wrap gap-1">
+          @for (item of componentTypes; track item) {
+            <code class="badge badge-ghost badge-sm font-normal">{{
+              item
+            }}</code>
+          }
+        </div>
+      </div>
+      <p>
+        <code class="badge badge-ghost badge-sm font-normal"
+          >builderType: 'translate'</code
+        >
+        会切换到 translate builder，此时需要在
+        <code class="badge badge-ghost badge-sm font-normal">context</code>
+        中提供 lang（BehaviorSubject）与 i18n。
+      </p>
+      <p>
+        「复制分享链接」会把当前代码写入 URL 的 input 参数；也可以自行构造
+        <code class="badge badge-ghost badge-sm font-normal"
+          >?input=&lt;JSON 字符串&gt;</code
+        >，对象字面量或裸 schema 表达式会自动包装成可执行代码。
+      </p>
+      <p>编辑器内置类型声明，编写时会有补全与错误提示。</p>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn btn-primary" type="submit">知道了</button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button type="submit">关闭</button>
+  </form>
+</dialog>

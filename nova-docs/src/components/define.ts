@@ -17,6 +17,11 @@ import * as FCCGroup from '@piying-lib/angular-daisyui/field-control';
 import { LabelWC } from '@piying-lib/angular-daisyui/wrapper';
 import { DivNFCC, DivWC } from '@piying-lib/angular-core';
 import { setComponent } from '@piying/view-angular-core';
+import {
+  PresetDefine,
+  FormInputWithValidate,
+} from '@piying-lib/angular-daisyui/preset';
+
 const LazyRestGroup = () =>
   import('./group/rest-group/component').then((item) => item.default);
 const selectActions = [
@@ -29,46 +34,19 @@ const selectActions = [
 ];
 export const FieldGlobalConfig = {
   types: {
-    string: {
-      type: FCCGroup.InputFCC,
-    },
-    number: {
-      type: FCCGroup.InputFCC,
-      actions: [
-        actions.inputs.patch({
-          type: 'number',
-        }),
-      ],
-    },
+    ...PresetDefine.types,
+    ...FormInputWithValidate,
     radio: {
       type: () =>
         import('@piying-lib/angular-daisyui/field-control').then(
           (a) => a.RadioFCC,
         ),
     },
-    boolean: {
-      actions: [
-        setComponent(FCCGroup.CheckboxFCC),
-        actions.wrappers.set([{ type: 'label' }]),
-      ],
-    },
-    checkbox: {
-      actions: [
-        setComponent(FCCGroup.CheckboxFCC),
-        actions.props.set({
-          hideTitle: true,
-        }),
-      ],
-    },
+
     fieldset: {
       type: FieldsetFGC,
     },
-    toggle: {
-      actions: [setComponent(FCCGroup.ToggleFCC)],
-    },
-    picklist: {
-      actions: selectActions,
-    },
+
     multiselect: {
       actions: [...selectActions, actions.inputs.set({ multiple: true })],
     },
@@ -85,26 +63,6 @@ export const FieldGlobalConfig = {
       ],
     },
 
-    rating: {
-      type: FCCGroup.RatingFCC,
-      actions: [
-        actions.wrappers.set([{ type: 'label' }]),
-        actions.inputs.patch({ max: 6 }),
-      ],
-    },
-    range: {
-      type: FCCGroup.RangeFCC,
-    },
-    fileInput: {
-      type: FCCGroup.FileInputFCC,
-    },
-    textarea: {
-      type: FCCGroup.TextareaFCC,
-    },
-
-    object: {
-      type: PiyingViewGroup,
-    },
     restGroup: {
       type: LazyRestGroup,
     },
@@ -145,9 +103,6 @@ export const FieldGlobalConfig = {
       type: LazyRestGroup,
     },
     intersect: {
-      type: PiyingViewGroup,
-    },
-    'intersect-group': {
       type: PiyingViewGroup,
     },
 
@@ -295,6 +250,7 @@ export const FieldGlobalConfig = {
     },
   },
   wrappers: {
+    ...PresetDefine.wrappers,
     validator: {
       type: ValidWC,
     },

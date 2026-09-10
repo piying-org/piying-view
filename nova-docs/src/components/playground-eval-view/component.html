@@ -1,8 +1,12 @@
 @let config = config2$.value();
 @if (config) {
-  <piying-view
-    [schema]="config.schema"
-    [options]="options$$()"
-    [model]="config.model"
-  ></piying-view>
+  @if (config.error) {
+    <div class="alert alert-error text-sm">{{ config.error }}</div>
+  } @else if (config.schema) {
+    <piying-view
+      [schema]="config.schema"
+      [options]="options$$()"
+      [model]="config.model"
+    ></piying-view>
+  }
 }

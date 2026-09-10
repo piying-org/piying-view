@@ -1,5 +1,14 @@
 import * as directive from '../../directive/code-index';
-export async function codeEval(code: string) {
+
+export interface CodeEvalResult {
+  schema?: any;
+  model?: any;
+  context?: any;
+  builderType?: string;
+  error?: string;
+}
+
+export async function codeEval(code: string): Promise<CodeEvalResult> {
   const { map, skip, tap, BehaviorSubject, of, pipe, debounceTime } =
     await import('rxjs');
   const pyva = await import('@piying/view-angular');
@@ -39,9 +48,12 @@ export async function codeEval(code: string) {
     if (result && typeof result === 'object' && 'schema' in result) {
       return result;
     }
-    return undefined;
+    return {
+      error: '代码需要返回 { schema, model?, context?, builderType? } 对象',
+    };
   } catch (error) {
-    console.error(error);
-    return undefined;
+    return {
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }

@@ -4,12 +4,7 @@ import starlightThemeNova from 'starlight-theme-nova';
 import mdx from '@astrojs/mdx';
 import angular from '@analogjs/astro-angular';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'astro/config';
-import starlight from '@astrojs/starlight';
-import starlightThemeNova from 'starlight-theme-nova';
-import mdx from '@astrojs/mdx';
-import angular from '@analogjs/astro-angular';
-import tailwindcss from '@tailwindcss/vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const base = '/piying-view/';
 
@@ -17,7 +12,18 @@ export default defineConfig({
   output: 'static',
   base,
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      viteStaticCopy({
+        targets: [
+          {
+            src: './node_modules/monaco-editor/min/**/*',
+            dest: './lib/monaco-editor',
+            rename: { stripBase: 3 },
+          },
+        ],
+      }),
+    ],
   },
   integrations: [
     mdx(),
@@ -27,6 +33,8 @@ export default defineConfig({
         transformFilter: (_code, id) => {
           return (
             id.includes('src/components') ||
+            id.includes('src/directive') ||
+            id.includes('src/services') ||
             id.includes('view-angular') ||
             id.includes('node_modules')
           );
@@ -40,12 +48,14 @@ export default defineConfig({
       plugins: [
         starlightThemeNova({
           nav: [
-            { label: '快速上手', href: '/getting-started/quick-start/' },
-            { label: 'API 参考', href: '/api/control-api/' },
+            { label: '快速上手', href: `getting-started/quick-start/` },
+            { label: 'API 参考', href: `api/control-api/` },
+            { label: 'Playground', href: `playground/` },
           ],
         }),
       ],
       sidebar: [
+        { label: 'Playground 游乐场', link: 'playground/' },
         {
           label: '入门使用',
           items: [

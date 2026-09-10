@@ -22,18 +22,16 @@ export class PlayGroundEvalViewNFCC {
       return codeEval(params);
     },
   });
-  #context$$ = computed(() => ({
-    ...this.config2$.value()?.context,
-  }));
+
   options$$ = computed(() => {
-    const status = this.config2$.hasValue();
-    if (!status) {
-      return;
+    const config = this.config2$.value();
+    if (!config?.schema) {
+      return undefined;
     }
     return {
       fieldGlobalConfig: FieldGlobalConfig,
-      builder: getBuilderType(this.config2$.value().builderType) as any,
-      context: this.#context$$(),
+      builder: getBuilderType(config.builderType) as any,
+      context: config.context,
     };
   });
 }

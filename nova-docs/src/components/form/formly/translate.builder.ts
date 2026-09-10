@@ -1,7 +1,7 @@
 import { computed, Injectable, isSignal } from '@angular/core';
 import {
   AngularFormBuilder,
-  PiResolvedViewFieldConfig,
+  type PiResolvedViewFieldConfig,
   NgSchemaHandle,
 } from '@piying/view-angular';
 import { deepEqual } from 'fast-equals';
@@ -17,24 +17,17 @@ export class TranslateNgBuilder extends AngularFormBuilder {
     const parsed = super.afterResolveConfig(rawConfig, config);
     const props = parsed.props;
 
-    if (rawConfig.type === 'picklist') {
-      const options$$ = computed(() => parsed.props()?.['options'], {
-        equal: deepEqual,
-      });
-      const options = options$$();
-      if (options && !parsed.inputs()?.['options']) {
-        parsed.inputs.connect('options', options);
-      }
-    }
     const propsData = props();
-    config.context.lang.subscribe((lang: any) => {
-      if (!lang) {
+    config.context?.['lang']?.subscribe?.((lang: any) => {
+      const i18n = config.context?.['i18n'];
+      if (!lang || !i18n) {
         return;
       }
-      config.props.update((value) => ({
-        ...value,
-        title: config.context['i18n'][lang][propsData['title']],
-      }));
+      const title = i18n[lang]?.[propsData['title']];
+      if (!title) {
+        return;
+      }
+      config.props.update((value) => ({ ...value, title }));
     });
     return parsed;
   }
