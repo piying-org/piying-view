@@ -1,0 +1,82 @@
+---
+title: "Using Components"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page explains how to define and use components in Piying-View: creating several components, non-form controls, property operations, output events, context and more.
+
+## Component Types
+
+| Type       | Description                            |
+| -------- | ------------------------------------ |
+| Plain component | A component that does not implement ControlValueAccessor |
+| Control         | A form control implementing ControlValueAccessor |
+| Plain group     | A container component that can hold children |
+| Logic group     | Logical combinations such as anyOf/oneOf |
+
+## Creating Multiple Components
+
+A basic object component is provided out of the box to display its children; you can also customise the presentation or add wrappers.
+
+<SchemaPreview definition="src/angular/components/definition/component-use.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="component-use" />
+</SchemaPreview>
+
+- **Basic object component**: `v.object({ k1: v.string(), k2: v.number() })` displays its children by default
+- **Custom presentation**: switch to a fieldset layout with `setComponent('fieldset')`
+- **Adding a wrapper**: add a label with `actions.wrappers.set(['label'])`, add validation with `v.minValue(10)`
+
+## Non-Form Control Components
+
+By default Valibot's strong typing makes every input a form control. To declare a non-form control, use `NFCSchema` (`v.optional(v.void())`); after using it you must specify the component manually with `setComponent`:
+
+<SchemaPreview definition="src/angular/components/definition/nfc.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="nfc" />
+</SchemaPreview>
+
+> `NFCSchema`: `NonFieldControlSchema`, used to declare non-form controls.
+
+## Property Operations and Output Events
+
+Set input properties with `actions.inputs` and listen to output events with `outputChange`:
+
+<SchemaPreview definition="src/angular/components/definition/action.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="action" />
+</SchemaPreview>
+
+- **Static properties**: `actions.inputs.set({ input1: 1 })` sets input values directly
+- **Dynamic updates**: `actions.inputs.patchAsync({ input1: async (field) => 1 })` supports Promise/Observable/Signal
+- **Output events**: `outputChange` listens to several outputs of several components at once and lets you react to the combination
+
+## Context
+
+Passing a `context` lets components read parameters dynamically from the context:
+
+<SchemaPreview definition="src/angular/components/definition/context.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="context" />
+</SchemaPreview>
+
+## Advanced Customisation
+
+Every configuration operation is built on `rawConfig`, which lets you change the underlying configuration and define your own helpers:
+
+<SchemaPreview definition="src/angular/components/definition/raw.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="raw" />
+</SchemaPreview>
+
+## Tagless Components (Angular selectorless)
+
+A dedicated syntax creates selectorless components (the component only projects its content, producing no host tag):
+
+<SchemaPreview definition="src/angular/components/definition/selectorless.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="selectorless" />
+</SchemaPreview>
+
+## Next Steps
+
+- Learn [Basic Field Definition](en/scenarios/basic-field/) — detailed usage of setComponent / formConfig
+- Learn [API: inputs](en/api/inputs/) — input property operations
+- Learn [API: outputs](en/api/outputs/) — output events
+- Learn [API: Core Utilities](en/api/core-utils/) — the underlying wrappers such as rawConfig

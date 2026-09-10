@@ -1,0 +1,109 @@
+---
+title: "Dynamic Field Control — Scenarios in Practice"
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { DynamicFieldsDemoComponent } from '../../../../angular/components/dynamic-fields-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page shows how to implement dynamic control and field linkage with `hideWhen`, `disableWhen` and `valueChange`.
+
+<LivePreview path="src/angular/components/dynamic-fields-demo.component.ts">
+  <DynamicFieldsDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+> **API reference**: type signatures and parameter details live in the [hideWhen / disableWhen / valueChange API](en/api/hide-disable/).
+
+## hideWhen — Conditional Hiding
+
+### Basic Usage: Showing/Hiding an Extra Field
+
+`hideWhen` decides whether to hide the current field based on the value of another field:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-hide-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-when" />
+</SchemaPreview>
+
+When `showExtra` is `false`, `extraField` is hidden.
+
+### hideWhen + disabled Linkage
+
+`hideWhen` can control `hidden` and `disabled` at the same time:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-hide-disabled.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-disabled" />
+</SchemaPreview>
+
+Now when `enable` is `false`, the `name` field is **hidden and disabled together**.
+
+## disableWhen — Conditional Disabling
+
+### Basic Usage: Disabling Editing Based on Other Fields
+
+`disableWhen` decides whether to disable the current field based on the value of another field:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-disable-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-disable-when" />
+</SchemaPreview>
+
+### disableWhen vs hideWhen.disabled
+
+| Feature     | `disableWhen`       | `hideWhen({ disabled: true })` |
+| -------- | ------------------ | ------------------------------ |
+| Capability  | Controls disabled only | Controls hidden + disabled    |
+| When to use | Field visible but not editable | Field invisible and not editable |
+
+See [API: disableWhen](en/api/hide-disable/).
+
+## valueChange — Custom Linkage
+
+`valueChange` listens to value changes without side effects, which is ideal for custom linkage logic:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-value-change.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-value-change" />
+</SchemaPreview>
+
+See [API: valueChange](en/api/hide-disable/).
+
+## Common Linkage Scenarios
+
+### Scenario 1: Conditional Display — Payment Method Switching
+
+Show different form sections depending on a radio button value:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-payment.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-payment" />
+</SchemaPreview>
+
+### Scenario 2: Conditional Disabling
+
+Disable all editable fields once the form has been submitted:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-submitted.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-submitted" />
+</SchemaPreview>
+
+### Cascading Updates: Multi-Field Linkage
+
+Combine `valueChange` + `field.get()` + `updateValue()` to cascade updates across fields:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-cascade.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-cascade" />
+</SchemaPreview>
+
+> **Note**: the first emission is `undefined` (unless a default value is set), so you need `skip(1)` to ignore the initial trigger.
+
+### Updating Other Fields on Value Change
+
+Listen to a field with `valueChange` and update other fields:
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-update-other.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-update-other" />
+</SchemaPreview>
+
+## Next Steps
+
+- [API: hideWhen / disableWhen / valueChange](en/api/hide-disable/) — complete API reference
+- [Value Transformation and Linkage](en/scenarios/value-transform/) — transformer(toModel/toView)
+- [Complete Example: a Real Business Form](en/scenarios/complete-example/)

@@ -1,0 +1,120 @@
+---
+title: "Complex Schema Structures"
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { ComplexSchemaDemoComponent } from '../../../../angular/components/complex-schema-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page covers the complex Valibot schema types supported by Piying-View and how they appear in the view. Every example definition renders an interactive form.
+
+<LivePreview path="src/angular/components/complex-schema-demo.component.ts">
+  <ComplexSchemaDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## Nesting (Nested Objects)
+
+Define nested object structures with `v.object()`; Piying-View maps the `object` type to a Group component and renders children recursively:
+
+<SchemaPreview definition="src/angular/components/definition/complex-nesting.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-nesting" />
+</SchemaPreview>
+
+Make sure object has a container component in `fieldGlobalConfig.types`:
+
+```typescript
+options = {
+  fieldGlobalConfig: {
+    types: {
+      object: { type: PiyingViewGroup }, // the Group container handles nesting
+    },
+  },
+};
+```
+
+## Array (List Fields)
+
+Define list fields with `v.array()`; Piying-View maps `array` to `FieldArray` and renders it with the array container component:
+
+<SchemaPreview definition="src/angular/components/definition/complex-array.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-array" />
+</SchemaPreview>
+
+Make sure the array type is registered:
+
+```typescript
+options = {
+  fieldGlobalConfig: {
+    types: {
+      array: { type: PiyingViewGroup }, // the Array container handles lists
+    },
+  },
+};
+```
+
+## Tuple (Fixed-Length Arrays)
+
+Define fixed-length, fixed-type arrays with `v.tuple()`; Piying-View maps `tuple` to `FieldArray` with one child field per position:
+
+<SchemaPreview definition="src/angular/components/definition/complex-tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-tuple" />
+</SchemaPreview>
+
+## Record (Dynamic Object Keys)
+
+Define dynamic key/value pairs with `v.record()`; Piying-View maps `record` to a special Group whose keys are added by the user:
+
+<SchemaPreview definition="src/angular/components/definition/complex-record.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-record" />
+</SchemaPreview>
+
+See [Record Schema Dynamic Groups](en/scenarios/record-dynamic-group/).
+
+## Intersect (Intersection Types)
+
+Merge several objects with `v.intersect()`; Piying-View turns `intersect` into a `FieldLogicGroup` and flattens all children to the same level:
+
+<SchemaPreview definition="src/angular/components/definition/complex-intersect.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-intersect" />
+</SchemaPreview>
+
+`layout` adjusts the order and position of fields inside an `intersect`:
+
+```typescript
+import { layout } from '@piying/view-angular-core';
+
+const schema = v.intersect([v.pipe(v.object({ name: v.string() }), layout({ priority: 1 })), v.pipe(v.object({ age: v.number() }), layout({ priority: 2 }))]);
+```
+
+## Union (Union Types)
+
+Define several alternative types with `v.union()`; Piying-View also converts union into a `FieldLogicGroup` and lets users switch between branches:
+
+<SchemaPreview definition="src/angular/components/definition/complex-union.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-union" />
+</SchemaPreview>
+
+## Complex Combination Example
+
+<SchemaPreview definition="src/angular/components/definition/complex-combined.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-combined" />
+</SchemaPreview>
+
+## Schema Type → FieldControl Mapping
+
+| Valibot Schema                              | FieldControl class | View appearance            |
+| ------------------------------------------- | ----------------- | -------------------------- |
+| `v.string()` / `v.number()` / `v.boolean()` | `FieldControl`     | A single input control       |
+| `v.object()`                                | `FieldGroup`       | Object container (renders the child list) |
+| `v.array()`                                 | `FieldArray`       | Array container (items can be added/removed) |
+| `v.tuple()`                                 | `FieldArray`       | Fixed-length array           |
+| `v.record()`                                | `FieldGroup`       | Dynamic key/value container  |
+| `v.intersect()`                             | `FieldLogicGroup`  | Logical grouping (merged fields) |
+| `v.union()`                                 | `FieldLogicGroup`  | Logical grouping (branch switching) |
+
+## Next Steps
+
+- [asControl / asVirtualGroup](en/scenarios/as-control-group/) — Group as a standalone control, Intersect children as a virtual group
+- [Dynamic Field Control](en/scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange in practice
+- [API: Layout metadata](en/api/layout/) — adjusting the layout with keyPath / priority

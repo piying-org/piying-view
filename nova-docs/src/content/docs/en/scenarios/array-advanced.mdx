@@ -1,0 +1,186 @@
+---
+title: "Advanced Array Usage"
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { ArrayDemoComponent } from '../../../../angular/components/array-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page covers the advanced array features of Piying-View: add/remove/update operations, deletionMode, groupMode and more.
+
+<LivePreview path="src/angular/components/array-demo.component.ts">
+  <ArrayDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## Basic Array Operations
+
+Piying-View's FieldArray provides these methods:
+
+### set — set the value at an index
+
+Call `field.action.set(value, index)` directly:
+
+```typescript
+field.action.set('newValue', 0); // set the value at index 0 to 'newValue'
+```
+
+Inserting past leading elements is supported:
+
+```typescript
+field.action.set('value', 5); // set a value at index 5
+```
+
+### remove — remove the element at an index
+
+Call `field.action.remove(index)` directly:
+
+```typescript
+field.action.remove(0); // remove the element at index 0
+```
+
+### updateValue — replace the whole array
+
+Call `field.form.control.updateValue(value)` directly:
+
+```typescript
+field.form.control.updateValue(['a', 'b', 'c']); // replace the whole array content
+```
+
+### clear — empty the array
+
+Call `field.form.control.clear()` directly:
+
+```typescript
+field.form.control.clear(); // remove every element
+```
+
+### reset — reset to the initial value
+
+<SchemaPreview definition="src/angular/components/definition/array-reset.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-reset" />
+</SchemaPreview>
+
+## deletionMode — Deletion Mode
+
+Controls what happens when an array element is deleted.
+
+### shrink (default) — Shrink Mode
+
+After a deletion the array length shrinks:
+
+<SchemaPreview definition="src/angular/components/definition/array-shrink.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-shrink" />
+</SchemaPreview>
+
+### mark — Mark Mode
+
+After a deletion the slot becomes `undefined` and the length is preserved:
+
+<SchemaPreview definition="src/angular/components/definition/array-mark.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-mark" />
+</SchemaPreview>
+
+## groupMode — Group Validation Mode
+
+Controls the validation behaviour of Group / Array. `groupMode` is inferred automatically while parsing the schema and never needs to be set.
+
+| Schema type                        | Inferred `groupMode` | Description                   |
+| -------------------------------- | ---------------------- | ---------------------------- |
+| `v.object()`                     | `'default'`            | Standard object, checks field completeness |
+| `v.loose_object()`               | `'loose'`              | Loose object, extra keys allowed |
+| `v.strict_object()`              | `'strict'`             | Strict object, extra keys rejected |
+| `v.tuple()`                      | `'default'`            | Fixed-length tuple            |
+| `v.loose_tuple()`                | `'loose'`              | Loose tuple                     |
+| `v.strict_tuple()`               | `'strict'`             | Strict tuple                    |
+| `v.array()` / `v.rest()`         | `'reset'`              | Array / variable tail, resets on value change |
+| `v.intersect()` + `asVirtualGroup()` | Configurable     | Equivalent to `v.object()`     |
+
+### Automatic Inference Example
+
+<SchemaPreview definition="src/angular/components/definition/array-loose.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-loose" />
+</SchemaPreview>
+
+### Manual Override Example
+
+<SchemaPreview definition="src/angular/components/definition/array-group-mode.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-group-mode" />
+</SchemaPreview>
+
+### emptyValue — Empty Value Fallback
+
+When validation fails, `emptyValue` is used as the fallback:
+
+<SchemaPreview definition="src/angular/components/definition/array-empty-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-empty-value" />
+</SchemaPreview>
+
+## Array Properties
+
+FieldArray exposes convenient array-related properties:
+
+| Property                 | Type             | Description                       |
+| ------------------------ | ---------------- | -------------------------------- |
+| `field.length`           | `number`         | Array length (excluding marked deletions) |
+| `field.controls`         | `FieldControl[]` | Current child controls            |
+| `field.fixedControls$()` | `FieldControl[]` | Fixed child controls (excluding rest children) |
+| `field.resetControls$()` | `FieldControl[]` | All resettable child controls      |
+
+## Tuple and TupleWithRest
+
+### Tuple — Fixed-Length Tuple
+
+<SchemaPreview definition="src/angular/components/definition/array-tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-tuple" />
+</SchemaPreview>
+
+### TupleWithRest — Tuple + Variable Tail
+
+<SchemaPreview definition="src/angular/components/definition/array-tuple-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-tuple-with-rest" />
+</SchemaPreview>
+
+## Full Example
+
+<SchemaPreview definition="src/angular/components/definition/array-complete.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-complete" />
+</SchemaPreview>
+
+## Examples
+
+```typescript
+// Array set + remove
+const field$ = Promise.withResolvers<_PiResolvedCommonViewFieldConfig>();
+const obj = v.object({
+  key1: v.pipe(v.array(v.string()), getField(field$)),
+});
+
+field.action.set('11', 1); // set '11' at index 1
+field.action.remove(0); // remove index 0
+```
+
+## Filter Group
+
+Create a custom form group that controls the visibility of its inner fields (use the `filterGroup` component for large numbers of fields):
+
+<SchemaPreview definition="src/angular/components/definition/filter-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="filter-group" />
+</SchemaPreview>
+
+> `filterGroup` is a custom group component that filters the display of many inner fields.
+
+## Scroll Group
+
+Create controls lazily with `defer` and combine them with the `scrollGroup` component for scroll-based lazy loading of many fields:
+
+<SchemaPreview definition="src/angular/components/definition/scroll-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="scroll-group" />
+</SchemaPreview>
+
+> `scrollGroup` is a custom group component for scroll-based lazy rendering of large field lists.
+
+## Next Steps
+
+- [Record Schema Dynamic Groups](en/scenarios/record-dynamic-group/) — dynamic key/value forms
+- [API: FieldFormConfig](en/api/field-config/) — details of deletionMode / groupMode / emptyValue

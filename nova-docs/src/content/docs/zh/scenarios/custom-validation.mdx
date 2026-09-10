@@ -1,0 +1,179 @@
+---
+title: '自定义验证'
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { CustomValidationDemoComponent } from '../../../../angular/components/custom-validation-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+本文介绍如何在 Piying-View 中使用自定义验证器，包括同步和异步验证。
+
+<LivePreview path="src/angular/components/custom-validation-demo.component.ts">
+  <CustomValidationDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## formConfig.validators — 同步验证器
+
+`validators` 接受一个验证函数数组，每个验证函数接收 `AbstractControl` 并返回错误或 `null`/`undefined`：
+
+<SchemaPreview definition="src/angular/components/definition/validation-sync.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-sync" />
+</SchemaPreview>
+
+## 验证器函数签名
+
+```typescript
+interface ValidatorFn {
+  (control: AbstractControl):
+    | ValidationErrorsLegacy // 旧格式：{ [key: string]: any }
+    | ValidationErrors2[] // 新格式：结构化错误数组
+    | null
+    | undefined;
+}
+
+// ValidationErrors2 是一个联合类型，包括：
+type ValidationErrors2 =
+  | { kind: 'valibot'; metadata: v.BaseIssue<unknown>[] } // Valibot 校验失败
+  | { kind: 'error'; metadata: Error } // 异常捕获
+  | { kind: string; metadata?: any; message?: string }; // 自定义错误
+```
+
+**返回值说明：**
+
+- 返回 `null` / `undefined`：验证通过
+- 返回 `{ [errorKey]: errorValue }`：旧格式错误（向后兼容）
+- 返回 `[{ kind, metadata, message? }]`：新格式错误（推荐）
+
+## formConfig.asyncValidators — 异步验证器
+
+`asyncValidators` 接受异步验证函数数组，用于网络请求等耗时操作，支持 Promise/Observable/Signal：
+
+<SchemaPreview definition="src/angular/components/definition/validation-async.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-async" />
+</SchemaPreview>
+
+## 验证器与 Valibot 验证的组合
+
+Piying-View 同时支持 Valibot 内置验证和自定义验证器，两者**并行执行**：
+
+<SchemaPreview definition="src/angular/components/definition/validation-combined.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-combined" />
+</SchemaPreview>
+
+Valibot 验证和自定义验证器的错误会合并到 `control.errors` 中：
+
+```typescript
+// 输入 "test@test.test"
+control.errors = [
+  { kind: 'valibot', metadata: [...] },           // Valibot 验证失败
+  { kind: 'testDomain', message: '...' },        // 自定义验证器失败
+];
+```
+
+## 常见验证场景
+
+### 字段对比验证
+
+比较两个字段是否相等（如密码确认）：
+
+<SchemaPreview definition="src/angular/components/definition/validation-compare.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-compare" />
+</SchemaPreview>
+
+### 条件验证（基于其他字段）
+
+<SchemaPreview definition="src/angular/components/definition/validation-conditional.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-conditional" />
+</SchemaPreview>
+
+### 动态错误信息
+
+<SchemaPreview definition="src/angular/components/definition/validation-dynamic-error.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-dynamic-error" />
+</SchemaPreview>
+
+## 分组验证
+
+也可以使用 group 只在专门的组中进行验证，通过 `validGroup` 组件包裹需要验证的字段：
+
+<SchemaPreview definition="src/angular/components/definition/valid-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="valid-group" />
+</SchemaPreview>
+
+> `validGroup` 是一个自定义分组组件，仅对组内字段进行验证并集中显示错误。
+
+## 验证错误处理
+
+Piying-View 的 FieldControl 提供标准接口访问验证状态：
+
+| 属性                 | 类型                                | 说明                             |
+| -------------------- | ----------------------------------- | -------------------------------- |
+| `control.errors`     | `ValidationErrors2[] \| null`       | 当前所有错误（Valibot + 自定义） |
+| `control.valid`      | `boolean`                           | 是否所有验证都通过               |
+| `control.status$$()` | `'VALID' \| 'INVALID' \| 'PENDING'` | 验证状态（包括异步验证中）       |
+| `control.dirty`      | `boolean`                           | 值是否被修改过                   |
+| `control.touched`    | `boolean`                           | 是否被聚焦过                     |
+| `control.pristine`   | `boolean`                           | 是否未被修改过                   |
+
+**新格式错误访问示例：**
+
+```typescript
+if (control.errors) {
+  for (const error of control.errors) {
+    if (error.kind === 'usernameTaken') {
+      console.log('用户名已占用:', error.metadata?.value);
+    } else if (error.kind === 'valibot') {
+      // Valibot 验证失败
+      const issues = error.metadata;
+    }
+  }
+}
+```
+
+## 两种验证方式对比
+
+Piying-View 支持两种验证方式，二者**并行执行**：
+
+| 验证方式     | 说明                            | 特点                               |
+| ------------ | ------------------------------- | ---------------------------------- |
+| Valibot 验证 | 在 Valibot 解析阶段进行，先执行 | 只能验证自身，无法以上下文值验证     |
+| 控件自带验证 | 在 Valibot 验证成功后执行       | 可访问父级，根据其他字段值判断      |
+
+```ts
+// Valibot 内置验证
+v.pipe(v.string(), v.minLength(5));
+
+// 自定义验证
+v.pipe(
+  v.string(),
+  v.check((value) => value === 'k2-value', 'should input k2-value'),
+);
+```
+
+**验证顺序**：
+
+1. **Valibot 验证**（先执行）
+2. **控件自带验证**（后执行）
+
+## Valibot 验证国际化
+
+Valibot 提供了预制的国际化支持，可按浏览器语言加载对应语言包：
+
+```ts
+import '@valibot/i18n/zh-CN';
+import { setGlobalConfig } from 'valibot';
+
+const browserLanguage = navigator.language;
+if (browserLanguage.startsWith('zh')) {
+  setGlobalConfig({ lang: 'zh-CN' });
+}
+```
+
+> 控件自带验证的国际化需要在需要显示异常信息的包装器、组件上自行实现。
+
+## 下一步
+
+- [数组高级用法](zh/scenarios/array-advanced/) — deletionMode / groupMode
+- [API: FieldFormConfig](zh/api/field-config/) — validators / asyncValidators 配置详解
+- [综合示例：完整业务表单](zh/scenarios/complete-example/)

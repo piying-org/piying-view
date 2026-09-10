@@ -1,0 +1,244 @@
+---
+title: "Basic Field Definition"
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { BasicFieldDemoComponent } from '../../../../angular/components/basic-field-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page shows how to define basic form fields with `setComponent` and `formConfig`.
+
+<LivePreview path="src/angular/components/basic-field-demo.component.ts">
+  <BasicFieldDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## Component Type Overview
+
+Piying-View splits reusable units into three single-responsibility component types:
+
+### Plain Components
+
+- They should be atomic components with few external dependencies
+- They may use services to fetch external data
+- **They have no type mapping**: you must specify `setComponent` (string reference or component class)
+- Components relying on `ng-content` / `slot` projection need to be redesigned
+
+### Controls
+
+- A plain component adapted to `ControlValueAccessor` (CVA)
+- Supports form control input/output, validation and data transformation
+- **Automatic type mapping** — primitive types such as string and number map to registered controls through the `fieldGlobalConfig.types` defaults
+
+#### The CVA / CVAA Mechanism
+
+| Name | Description |
+|------|------|
+| `CVA` (ControlValueAccessor) | Exported and registered automatically; you just export it with the fixed code |
+| `CVAA` (ControlValueAccessorAdapter) | Registers the component and binds value and events to it |
+
+> CVA comes from Angular; every framework implements it differently but the idea is the same. Interface definition:
+> ```typescript
+> interface ControlValueAccessor {
+>   writeValue(obj: any): void;
+>   registerOnChange(fn: any): void;
+>   registerOnTouched(fn: any): void;
+>   setDisabledState?(isDisabled: boolean): void;
+> }
+> ```
+
+## setComponent — Setting the Component Type
+
+`setComponent` chooses the component used to render a field. Two usages are supported:
+
+### String Reference (recommended)
+
+Reference a registered component by its key in `fieldGlobalConfig.types`:
+
+```typescript
+import * as v from 'valibot';
+import { setComponent } from '@piying/view-angular-core';
+
+const schema = v.object({
+  name: v.pipe(
+    v.string(),
+    setComponent('my-input'), // references fieldGlobalConfig.types['my-input']
+  ),
+});
+```
+
+The matching options configuration:
+
+```typescript
+options = {
+  fieldGlobalConfig: {
+    types: {
+      'my-input': { type: MyInputComponent },
+    },
+  },
+};
+```
+
+### Passing a Component Class
+
+Pass the component constructor directly:
+
+```typescript
+import { setComponent } from '@piying/view-angular-core';
+
+const schema = v.object({
+  name: v.pipe(
+    v.string(),
+    setComponent(MyInputComponent), // reference the component directly
+  ),
+});
+```
+
+> **Tip**: string references are more flexible and keep the type mapping centrally managed in `fieldGlobalConfig`.
+
+## formConfig — Form Configuration
+
+`formConfig` sets the field's form-level behaviour: required flag, default value, validators and more.
+
+### Basic Usage
+
+<SchemaPreview definition="src/angular/components/definition/basic-form-config.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-form-config" />
+</SchemaPreview>
+
+### Complete FieldFormConfig Fields
+
+The fields fall into two groups: **manually configured** and **automatically assigned**:
+
+#### Manual Configuration
+
+| Field             | Type                                          | Description                      |
+| ----------------- | --------------------------------------------- | ------------------------------- |
+| `disabled`        | `boolean`                                     | Disable this field                |
+| `disabledValue`   | `'reserve' \| 'delete'`                       | Value strategy while disabled      |
+| `emptyValue`      | `any`                                         | Initial empty value for group/array |
+| `deletionMode`    | `'shrink' \| 'mark'`                          | Array deletion mode                |
+| `validators`      | `ValidatorFn[]`                               | Custom synchronous validators      |
+| `asyncValidators` | `AsyncValidatorFn[]`                          | Custom asynchronous validators     |
+| `updateOn`        | `'change' \| 'blur' \| 'submit'`              | When updates are applied           |
+| `transformer`     | `{ toView?, toModel? }`                       | Value transformer                  |
+
+#### Automatic Assignment (inferred from the Valibot schema)
+
+These fields are computed by `CoreSchemaHandle` from the Valibot schema type and usually need no manual configuration:
+
+| Field             | Source                                          | Description                           |
+| ----------------- | --------------------------------------------- | ----------------------------------- |
+| `required`        | `!this.undefinedable && !this.nullable`          | true when neither optional nor nullable |
+| `undefinedable`   | `v.optional()`                                   | true automatically with `v.optional()` |
+| `nullable`        | `v.nullable()`                                   | true automatically with `v.nullable()` |
+| `defaultValue`    | Valibot optional default / null → `null`         | Without an explicit default: nullable→null, otherwise undefined |
+| `groupMode`       | Inferred from the schema type                    | tuple→'default', loose_tuple→'loose', strict_tuple→'strict', object→'default', array/reset→'reset' |
+
+> **Tip**: manual values override the inferred ones, which is useful for special cases.
+
+### defaultValue — Default Value
+
+Prefer Valibot's built-in default mechanism:
+
+<SchemaPreview definition="src/angular/components/definition/basic-default-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-default-value" />
+</SchemaPreview>
+
+You may also set it explicitly through `formConfig`:
+
+<SchemaPreview definition="src/angular/components/definition/basic-default-value-form.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-default-value-form" />
+</SchemaPreview>
+
+### nullable / undefinedable
+
+Control whether the field accepts null or undefined:
+
+<SchemaPreview definition="src/angular/components/definition/basic-nullable.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-nullable" />
+</SchemaPreview>
+
+> **Tip**: `v.nullable()` and `v.optional()` set the corresponding flags automatically, so manual configuration is rarely needed.
+
+### required — Required Flag
+
+Valibot's `v.string()` (without optional) is required by default:
+
+<SchemaPreview definition="src/angular/components/definition/basic-required.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-required" />
+</SchemaPreview>
+
+Manual override:
+
+<SchemaPreview definition="src/angular/components/definition/basic-required-override.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-required-override" />
+</SchemaPreview>
+
+### disabled — Disabling a Field
+
+<SchemaPreview definition="src/angular/components/definition/basic-disabled.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-disabled" />
+</SchemaPreview>
+
+Combine it with dynamic control (see [Dynamic Field Control](en/scenarios/dynamic-fields/) / [API Reference](en/api/hide-disable/)):
+
+<SchemaPreview definition="src/angular/components/definition/basic-field-disable-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-field-disable-when" />
+</SchemaPreview>
+
+## Custom Validators
+
+Add custom synchronous validation with `formConfig.validators`:
+
+<SchemaPreview definition="src/angular/components/definition/basic-validator.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-validator" />
+</SchemaPreview>
+
+## Full Example
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { PiyingView } from '@piying/view-angular';
+import * as v from 'valibot';
+import { formConfig, setComponent } from '@piying/view-angular-core';
+
+@Component({
+  standalone: true,
+  imports: [PiyingView],
+  templateUrl: './basic-field-example.component.html',
+})
+export class BasicFieldExampleComponent {
+  model = signal({
+    name: 'John Doe',
+    age: 25,
+    email: '',
+    bio: '',
+  });
+
+  options = {
+    fieldGlobalConfig: {
+      types: {
+        string: { type: TextInputComponent },
+        number: { type: NumberInputComponent },
+      },
+    },
+  };
+
+  schema = v.object({
+    name: v.pipe(v.string(), formConfig({ required: true, defaultValue: 'Anonymous' })),
+    age: v.pipe(v.number(), formConfig({ defaultValue: 18 })),
+    email: v.optional(v.string()), // optional → required = false
+    bio: v.pipe(
+      v.nullable(v.string()), // nullable → nullable = true
+      formConfig({ disabled: true }), // read-only field
+    ),
+  });
+}
+```
+
+## Next Steps
+
+- [Complex Schema Structures](en/scenarios/complex-schema/) — object / array / tuple / record / intersect / union
+- [Dynamic Field Control](en/scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange in practice
+- [API: formConfig details](en/api/field-config/)

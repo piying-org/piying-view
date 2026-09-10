@@ -1,0 +1,14 @@
+---
+title: Astro 集成 Angular Demo
+description: 在 Astro/Starlight 中通过 @analogjs/astro-angular 集成并运行 Angular 组件
+---
+
+import { HelloComponent } from '../../../../angular/components/hello.component.ts';
+import LivePreview from '../../../../components/LivePreview.astro';
+
+## 单个文件
+
+<LivePreview path="src/angular/components/hello.component.ts" title="hello.component.ts">
+  <HelloComponent slot="preview" client:only="angular" helpText="Angular 已成功运行" />
+</LivePreview>
+

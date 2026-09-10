@@ -1,0 +1,140 @@
+---
+title: "asControl / asVirtualGroup"
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { AsControlGroupDemoComponent } from '../../../../angular/components/as-control-group-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page shows how `asControl()` and `asVirtualGroup()` change the default behaviour of Group and Intersect types.
+
+<LivePreview path="src/angular/components/as-control-group-demo.component.ts">
+  <AsControlGroupDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## asControl — Treat a Group as a Single Control
+
+### Background
+
+By default Piying-View **expands** container types such as `v.object()` and `v.array()` into their child fields:
+
+<SchemaPreview definition="src/angular/components/definition/control-group-default.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-default" />
+</SchemaPreview>
+
+### Using asControl
+
+`asControl()` keeps a Group/Array schema **unexpanded** and treats it as a standalone control node:
+
+<SchemaPreview definition="src/angular/components/definition/control-group-as-control.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-as-control" />
+</SchemaPreview>
+
+`address` now maps to a `FieldControl` rather than a `FieldGroup`; the whole object is handled as a single value.
+
+### Use Cases
+
+**Case 1: pass a whole nested object to a custom component**
+
+Use `asControl()` when your custom component expects the entire nested object instead of individual fields:
+
+```typescript
+const schema = v.object({
+  profile: v.pipe(
+    v.object({
+      name: v.string(),
+      age: v.number(),
+    }),
+    asControl(), // treat it as a standalone control
+    setComponent('profile-editor'), // custom editor component
+  ),
+});
+
+// ProfileEditorComponent receives the whole profile object
+```
+
+**Case 2: a Union type as a single control**
+
+```typescript
+const schema = v.object({
+  value: v.pipe(
+    v.union([v.string(), v.number()]),
+    asControl(), // do not expand into a logic group
+    setComponent('value-input'), // a single input component
+  ),
+});
+```
+
+**Case 3: an Array as a single control**
+
+```typescript
+const schema = v.object({
+  items: v.pipe(
+    v.array(v.string()),
+    asControl(), // the whole array is one value
+    setComponent('array-editor'), // custom array editor
+  ),
+});
+```
+
+## asVirtualGroup — Intersect Children as a Virtual Group
+
+### Background
+
+By default `v.intersect()` becomes a `FieldLogicGroup`. When you need group semantics inside the intersect (rather than a logical grouping), use `asVirtualGroup()`.
+
+### Using asVirtualGroup
+
+<SchemaPreview definition="src/angular/components/definition/control-group-as-virtual.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-as-virtual" />
+</SchemaPreview>
+
+## asControl vs asVirtualGroup
+
+| Feature        | `asControl()`                | `asVirtualGroup()` |
+| ---------- | ---------------------------- | ------------------ |
+| Applies to     | Group / Array / Union          | Intersect            |
+| Default behaviour | Expanded into child fields  | FieldLogicGroup      |
+| After using it | A single FieldControl          | A normal FieldGroup  |
+| Return type    | `FieldControl`                 | `FieldGroup`         |
+| Typical use    | Passing a nested object to one custom component | Changing the form type |
+
+## Field Grouping (tabs)
+
+`v.intersect()` + `asVirtualGroup()` supports multi-level virtual groups, which combine with a `tabs` component to build tabbed groups:
+
+<SchemaPreview definition="src/angular/components/definition/tabs-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="tabs-group" />
+</SchemaPreview>
+
+## Layout Moves
+
+As long as the data structure stays valid, `layout()` moves fields to a given position (smaller `priority` comes first, and `keyPath` can reference aliases set with `setAlias`):
+
+<SchemaPreview definition="src/angular/components/definition/layout.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="layout" />
+</SchemaPreview>
+
+## Common Combinations
+
+```typescript
+import * as v from 'valibot';
+import { asControl, asVirtualGroup, layout } from '@piying/view-angular-core';
+
+const schema = v.object({
+  // Group as a standalone control
+  profile: v.pipe(v.object({ name: v.string(), age: v.number() }), asControl(), setComponent('profile-card')),
+
+  // Intersect children as a virtual group
+  settings: v.pipe(v.intersect([v.object({ theme: v.picklist(['light', 'dark']) }), v.object({ lang: v.picklist(['zh', 'en']) })]), asVirtualGroup()),
+
+  // Nested usage: Intersect + Layout + asVirtualGroup
+  content: v.pipe(v.intersect([v.pipe(v.object({}), layout({ priority: 1 })), v.pipe(v.object({}), layout({ priority: 2 }))]), asVirtualGroup()),
+});
+```
+
+## Next Steps
+
+- [Dynamic Field Control](en/scenarios/dynamic-fields/) — hideWhen / disableWhen / valueChange in practice
+- [API: Layout metadata](en/api/layout/) — rearranging intersect layouts with keyPath / priority

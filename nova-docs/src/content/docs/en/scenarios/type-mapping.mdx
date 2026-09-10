@@ -1,0 +1,136 @@
+---
+title: "Type Mapping — Definition Is the Form"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page demonstrates the core "definition is the form" capability: a Valibot type definition renders automatically into the matching form control. Every definition below renders an interactive form.
+
+Rendering relies on the global field configuration `FieldGlobalConfig` (implicit types such as `string`/`number`/`boolean`/`picklist` map to their controls), passed through `options`:
+
+```typescript
+import { PresetDefine } from '@piying-lib/angular-daisyui/preset';
+
+export const FieldGlobalConfig = PresetDefine;
+
+options = { fieldGlobalConfig: FieldGlobalConfig };
+```
+
+## Control Types
+
+Most Valibot types resolve into form controls; the common mappings are listed below.
+
+### string → Text Input
+
+<SchemaPreview definition="src/angular/components/definition/type-string.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="string" />
+</SchemaPreview>
+
+### number → Number Input
+
+<SchemaPreview definition="src/angular/components/definition/type-number.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="number" />
+</SchemaPreview>
+
+### boolean → Checkbox
+
+<SchemaPreview definition="src/angular/components/definition/type-boolean.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="boolean" />
+</SchemaPreview>
+
+### picklist → Select
+
+<SchemaPreview definition="src/angular/components/definition/type-picklist.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="picklist" />
+</SchemaPreview>
+
+## Form Group Types
+
+An object defined with `v.object()` renders as a form group containing every child field automatically.
+
+### object → Form Group
+
+<SchemaPreview definition="src/angular/components/definition/type-object.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object" />
+</SchemaPreview>
+
+### looseObject → Keeps Undefined Keys
+
+`v.looseObject()` keeps keys that are not explicitly defined in the schema:
+
+<SchemaPreview definition="src/angular/components/definition/loose-object.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="looseObject" />
+</SchemaPreview>
+
+### objectWithRest → Some Fixed + Some Addable
+
+`v.objectWithRest()` keeps some keys fixed while the rest can be added dynamically with the given type:
+
+<SchemaPreview definition="src/angular/components/definition/object-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="objectWithRest" />
+</SchemaPreview>
+
+### record → Dynamic Key/Value Pairs
+
+`v.record()` has no fixed keys — all of them are added dynamically (only string keys are supported so far):
+
+<SchemaPreview definition="src/angular/components/definition/record.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record" />
+</SchemaPreview>
+
+## Form Array Types
+
+The following types resolve into form arrays.
+
+### array → Dynamic Array
+
+`v.array()` renders as an array whose items can be added and removed:
+
+<SchemaPreview definition="src/angular/components/definition/type-array.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array" />
+</SchemaPreview>
+
+### tuple / strictTuple → Fixed-Length Array
+
+`v.tuple()` fixes the array items; nothing can be added and extra values are filtered out:
+
+<SchemaPreview definition="src/angular/components/definition/tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="tuple" />
+</SchemaPreview>
+
+### looseTuple → Fixed Length, Extra Items Kept
+
+`v.looseTuple()` fixes the array items; nothing can be added but extra values are kept:
+
+<SchemaPreview definition="src/angular/components/definition/loose-tuple.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="looseTuple" />
+</SchemaPreview>
+
+### tupleWithRest → Some Fixed + Some Addable
+
+`v.tupleWithRest()` keeps some items fixed while the rest can be added dynamically with the given type:
+
+<SchemaPreview definition="src/angular/components/definition/tuple-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="tupleWithRest" />
+</SchemaPreview>
+
+## Default Values
+
+The second argument of `v.optional()` is the default value, filled into the form on render:
+
+<SchemaPreview definition="src/angular/components/definition/default-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="default" />
+</SchemaPreview>
+
+## Nested Definitions
+
+Use `v.object()` for multi-level data structures; they render as nested child form groups automatically:
+
+<SchemaPreview definition="src/angular/components/definition/nested-object.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="nested" />
+</SchemaPreview>
+
+## More Types
+
+> For more types see the [Valibot API](https://valibot.dev/api/). Use `custom` for your own types.

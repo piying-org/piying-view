@@ -1,0 +1,305 @@
+---
+title: "Two Usage Modes of Piying Forms"
+---
+
+> ⚠️ **Must-read for beginners**: Piying-View offers **two usage modes**. Both are built on Valibot schemas and `convertToField`, but **their boundaries are completely different**. Make sure you know which one you are using.
+
+| Aspect          | Mode 1: automatic mode (fully automatic rendering)         | Mode 2: manual mode (manual binding)                                                     |
+| ------------ | --------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Entry**       | The `<piying-view>` component                                | The `convertToField()` function                                                            |
+| **Rendering**   | The library renders the whole component tree from metadata    | You take `field` and bind it to native controls / choose template positions **by hand**    |
+| **Schema definition** | Components declared through `setComponent` / `fieldGlobalConfig` metadata | The same schema, but **you decide where it renders**                             |
+| **Typical use** | Standard forms, fast development, fields follow the schema    | Custom layouts, mixed native controls, partial field insertion, precise render control     |
+| **Who calls convertToField** | The library internally (you never call it)            | You call it and keep the returned `field`                                                  |
+
+- **Mode 1**: hand all decisions to the `<piying-view>` component and only provide the schema.
+- **Mode 2**: you call `convertToField()` yourself and use directives to **bind the field to a control** or **insert it into a template position**.
+
+---
+
+## Mode 1: Automatic Mode (Schema Driven / Full Metadata Rendering)
+
+The most common and least effort option. Put a `<piying-view>` component in the template, pass `schema`, `model` and `options`, and let the library do the rest.
+
+### Basic Usage
+
+```html
+<piying-view
+  [schema]="schema"
+  [(model)]="model"
+  [options]="options"
+></piying-view>
+```
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { PiyingView, PiyingViewGroup } from '@piying/view-angular';
+import * as v from 'valibot';
+
+@Component({
+  standalone: true,
+  imports: [PiyingView],
+  template: `<piying-view [schema]="schema" [(model)]="model" [options]="options"></piying-view>`,
+})
+export class ExampleComponent {
+  model = signal({ name: '', age: 0 });
+
+  options = {
+    fieldGlobalConfig: {
+      types: {
+        string: { type: TextInputComponent },
+        number: { type: NumberInputComponent },
+        object: { type: PiyingViewGroup },
+      },
+    },
+  };
+
+  schema = v.object({
+    name: v.pipe(v.string(), v.minLength(2, 'Name must be at least 2 characters')),
+    age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old')),
+    email: v.optional(v.string()),
+  });
+}
+```
+
+> **Key point**: in automatic mode you **never call `convertToField` manually**; just pass `schema` / `model` / `options` to `<piying-view>`.
+
+### Automatic Mode Features
+
+- **Fully metadata driven**: component type, inputs, outputs, wrappers, hidden/disabled, validation are all declared by Actions in the schema (`setComponent` / `inputs` / `outputs` / `wrappers` / `hideWhen`, ...).
+- **Automatic two-way binding**: `[(model)]="model"` syncs the data for you.
+- **Automatic recursion**: children of Group / Array render recursively without manual loops.
+- **Automatic wrappers**: wrappers declared with `actions.wrappers` wrap each field automatically.
+
+### `selectorless` — Selectorless Mode
+
+`<piying-view>` also has a `selectorless` input (default `false`). When enabled the component renders **no DOM of its own** and only hosts the conversion/state, so you can design the outer layout entirely yourself while placing inner fields with template directives (mode two).
+
+---
+
+## Mode 2: Manual Mode (convertToField + Manual Binding)
+
+Use manual mode when you need **custom layouts**, **native controls mixed in**, or **fields inserted at specific positions**.
+
+### Step 1: Call convertToField Yourself to Get the field
+
+```typescript
+import { Component, computed, inject, Injector, untracked } from '@angular/core';
+import { convertToField } from '@piying/view-angular';
+import * as v from 'valibot';
+
+@Component({ ... })
+export class CustomFormComponent {
+  injector = inject(Injector);
+
+  bind = computed(() =>
+    untracked(() =>
+      convertToField(this.schema, this.injector, this.options),
+    ),
+  );
+
+  schema = v.object({
+    k1: v.pipe(v.string(), setComponent('input')),
+    k2: v.pipe(v.string(), setComponent('input')),
+  });
+}
+```
+
+`convertToField()` returns a `PiResolvedViewFieldConfig` (`field`) containing the whole field tree: the form control (`form.control`), child fields, component definitions, wrappers, inputs and outputs. From there you have two manual binding options.
+
+> **Key point**: `convertToField` only **parses**; it **renders nothing**. You decide every render position through directives.
+
+### Manual Binding A: Native Controls — the `[formControl]` Directive
+
+`PiyingFieldControlBindDirective`, selector `[formControl]`:
+
+- Inputs: `formControl` (required, `PiResolvedViewFieldConfig`), `path` (optional `KeyPath`)
+- Exposes the field's `FieldControl` to a native form control, giving you **two-way value binding, validation and disabled state**.
+
+> ⚠️ **The binding target must be an Angular form control (with `NG_VALUE_ACCESSOR`)**:
+> - **Native base elements** (`<input>`, `<select>`, `<textarea>`, ...): Angular ships the binding directives for these; importing `FormsModule` (or `ReactiveFormsModule`) is enough.
+> - **Custom components**: must implement `ControlValueAccessor` and register `NG_VALUE_ACCESSOR` in providers, otherwise `[formControl]` cannot recognise them.
+
+```typescript
+import { FormsModule } from '@angular/forms';
+import { PiyingFieldControlBindDirective } from '@piying/view-angular';
+
+@Component({
+  imports: [FormsModule, PiyingFieldControlBindDirective], // FormsModule needed for native elements
+  template: `<input type="text" [formControl]="field$$()" />`,
+})
+export class MyComponent {}
+```
+
+Custom components must register their own CVA:
+
+```typescript
+import { Component, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+
+@Component({
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => MyInputComponent),
+      multi: true,
+    },
+  ],
+})
+export class MyInputComponent implements ControlValueAccessor {
+  // implement writeValue / registerOnChange / registerOnTouched / setDisabledState
+}
+```
+
+```html
+<!-- bind the whole root field to a native input -->
+<input type="text" [formControl]="field$$()" />
+
+<!-- locate child field k1 through path and bind that instead -->
+<input type="text" [formControl]="field$$()" [path]="['k1']" />
+```
+
+`exportAs: 'formControl'` lets you grab the `NgControl` with a template reference variable for further work:
+
+```html
+<input
+  type="text"
+  [formControl]="field$$()"
+  [path]="['k1']"
+  #formControl="formControl"
+/>
+```
+
+> **Note**: `[formControl]` binds **leaf controls** (`FieldControl`), so binding a Group/Array throws `🏷️ fieldControl❗`. Use `path` to point at a leaf inside a container.
+
+### Manual Binding B: Template Insertion — the `[fieldTemplate]` Directive
+
+`PiyingFieldTemplateDirective`, selector `[fieldTemplate]`:
+
+- Inputs: `fieldTemplate` (required, `PiResolvedViewFieldConfig`), `path` (optional `KeyPath`)
+- Renders the field's whole component tree (component + wrappers + recursive children) at the current position, **exactly like automatic mode**.
+
+```html
+<!-- render the component tree of the whole root field here -->
+<ng-container [fieldTemplate]="field$$()"></ng-container>
+
+<!-- render the component tree of child field k2 -->
+<ng-container [fieldTemplate]="field$$()" [path]="['k2']"></ng-container>
+```
+
+**Inside the template everything is automatic**: `[fieldTemplate]` only decides **where** to render. Once the position is set, the field still goes through the full automatic rendering pipeline — component types come from schema metadata, wrappers are applied automatically, groups recurse automatically. Manual mode only makes the **outer position** manual; the **inside stays fully automatic**.
+
+### Comparing the Two Binding Styles
+
+| Style | Directive | Rendered subject | When to use |
+| ---- | ---- | -------- | -------- |
+| **A. Control binding** | `[formControl]` | The **native control you write** (`<input>`, ...) | You want native controls and a completely custom look while keeping value/validation/disabled |
+| **B. Template insertion** | `[fieldTemplate]` | The component **rendered automatically from metadata** | You want to choose where a field goes while the field component stays schema-driven |
+
+---
+
+## Hybrid Mode: Nesting the Two Modes
+
+> 💡 The two modes are **not mutually exclusive** and can be nested on the same page. The rule of thumb:
+> - **Manual inside automatic**: inside a component rendered automatically, use `[formControl]` to bind a field to a native control **by hand**.
+> - **Automatic inside manual**: after obtaining `field` manually, use `[fieldTemplate]` to mark a position and let the inside **render automatically**.
+
+### Manual Inside Automatic — Binding Fields by Hand Inside an Automatically Rendered Component
+
+When you register a custom component with `setComponent` in the schema (**automatic mode**), that component can still use `[formControl]` to bind child fields manually or `[fieldTemplate]` to place other fields.
+
+Get the current field inside the component with `inject(PI_VIEW_FIELD_TOKEN)`:
+
+```typescript
+import { Component, inject } from '@angular/core';
+import {
+  PiyingFieldControlBindDirective,
+  PiyingFieldTemplateDirective,
+} from '@piying/view-angular';
+import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular-core';
+
+@Component({
+  imports: [PiyingFieldControlBindDirective, PiyingFieldTemplateDirective],
+})
+export class MyComponent {
+  field$$ = inject(PI_VIEW_FIELD_TOKEN); // current field configuration
+}
+```
+
+Register it as the root component in the schema (automatic mode):
+
+```typescript
+import { setComponent } from '@piying/view-angular-core';
+
+const schema = v.pipe(
+  v.object({
+    k1: v.pipe(v.string(), setComponent('input')),
+    k2: v.pipe(v.string(), setComponent('input')),
+  }),
+  setComponent(MyComponent), // automatic mode: the schema renders this component
+);
+```
+
+Inside the component template, bind child field `k1` **manually** and render `k2` **automatically** with `[fieldTemplate]`:
+
+```html
+<input type="text" [formControl]="field$$()!" [path]="['k1']" />
+<div class="k2-wrapper">
+  <ng-container [fieldTemplate]="field$$()" [path]="['k2']"></ng-container>
+</div>
+```
+
+Here `k1` is "manual inside automatic" (binding a field to a native input inside an automatically rendered component) and `k2` is "automatic inside automatic" (placing it with `fieldTemplate` while the inside renders automatically).
+
+### Automatic Inside Manual — Rendering Automatically with fieldTemplate
+
+After calling `convertToField` manually and getting `field`, use `[fieldTemplate]` to mark an insertion position; everything inside that field (component, wrappers, recursive children) goes through automatic rendering:
+
+```html
+<!-- component.html -->
+<ng-container [fieldTemplate]="bind()"></ng-container>
+```
+
+```typescript
+// component.ts
+import { convertToField } from '@piying/view-angular';
+
+bind = computed(() =>
+  untracked(() => convertToField(this.schema, this.injector, this.options)),
+);
+```
+
+The `fieldTemplate` pipeline is identical to automatic mode — you only handle the **position**, the rest is metadata.
+
+### Hybrid Mode Cheat Sheet
+
+| Scenario | Entry | Inner technique | Effect |
+| ---- | ---- | -------- | ---- |
+| Manual inside automatic | Inside an automatic-mode component | Bind the field with `[formControl]` | Custom native control inside an automatically rendered component |
+| Automatic inside automatic | Inside an automatic-mode component | Place the field with `[fieldTemplate]` | Fixed position, automatic internals |
+| Automatic inside manual | After `convertToField` | Render with `[fieldTemplate]` | You set the position, the inside is automatic |
+| Manual inside manual | After `convertToField` | Bind a native control with `[formControl]` | Fully hand-written control that keeps validation/value/disabled |
+
+---
+
+## Which Mode Should You Use?
+
+| Scenario                                           | Recommended mode |
+| ------------------------------------------------ | -------- |
+| Standard forms, rapid prototypes, fields fully following the schema | **Mode 1 (automatic)** |
+| Fully custom page layouts, mixing native controls | **Mode 2 (manual)** |
+| Place one specific field at a certain position, everything else schema-driven | **Mode 2 B (fieldTemplate)** |
+| Just use a native `<input>` but keep validation/disabled/two-way binding | **Mode 2 A (formControl)** |
+
+> 💡 **Remember**:
+> - Automatic mode = `<piying-view>` renders everything; you **never touch** `convertToField`.
+> - Manual mode = you call `convertToField` **by hand**, take the `field`, then use `[formControl]` or `[fieldTemplate]` to **decide the render position**.
+> - **The two modes mix**: inside an automatically rendered component you can bind manually with `[formControl]`; after obtaining `field` manually you can render automatically with `[fieldTemplate]`.
+> - In both modes the schema resolution chain is identical, so every metadata-driven capability (component mapping, wrappers, dynamic control, validation) remains available.
+
+## Next Steps
+
+- [Quick Start](en/getting-started/quick-start/) — full automatic-mode example
+- [Core Concepts](en/getting-started/core-concept/) — the Schema → Field → Component chain
+- [Angular API Reference](en/angular/api/) — `PiyingView` / `PiyingFieldControlBindDirective` / `PiyingFieldTemplateDirective` / `convertToField`
+- [Control API](en/api/control-api/) — operating on controls through `field.form.control`

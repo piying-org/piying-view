@@ -1,0 +1,109 @@
+---
+title: "动态字段控制 — 场景与实战"
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { DynamicFieldsDemoComponent } from '../../../../angular/components/dynamic-fields-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+本文介绍如何使用 `hideWhen`、`disableWhen` 和 `valueChange` 实现字段的动态控制和联动。
+
+<LivePreview path="src/angular/components/dynamic-fields-demo.component.ts">
+  <DynamicFieldsDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+> **API 参考**：类型签名、参数说明等详细信息请见 [hideWhen / disableWhen / valueChange API](zh/api/hide-disable/)。
+
+## hideWhen — 条件隐藏
+
+### 基本用法：显示/隐藏额外字段
+
+`hideWhen` 根据其他字段的值决定是否隐藏当前字段：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-hide-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-when" />
+</SchemaPreview>
+
+当 `showExtra` 的值为 `false` 时，`extraField` 将被隐藏。
+
+### hideWhen + disabled 联动
+
+`hideWhen` 可同时控制 `hidden` 和 `disabled`：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-hide-disabled.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-disabled" />
+</SchemaPreview>
+
+此时当 `enable` 为 `false` 时，`name` 字段**同时被隐藏和禁用**。
+
+## disableWhen — 条件禁用
+
+### 基本用法：基于其他字段禁用编辑
+
+`disableWhen` 根据其他字段的值决定是否禁用当前字段：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-disable-when.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-disable-when" />
+</SchemaPreview>
+
+### disableWhen vs hideWhen.disabled
+
+| 特性     | `disableWhen`      | `hideWhen({ disabled: true })` |
+| -------- | ------------------ | ------------------------------ |
+| 功能     | 仅控制 disabled    | 同时控制 hidden + disabled     |
+| 适用场景 | 字段可见但不可编辑 | 字段不可见且不可编辑           |
+
+详见 [API: disableWhen](zh/api/hide-disable/#disablewhen---类型签名)。
+
+## valueChange — 自定义联动
+
+`valueChange` 监听字段值变化但不产生副作用，可用于自定义联动逻辑：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-value-change.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-value-change" />
+</SchemaPreview>
+
+详见 [API: valueChange](zh/api/hide-disable/#valuechange---类型签名)。
+
+## 常见联动场景
+
+### 场景一：条件显示 — 支付方式切换
+
+根据单选按钮的值切换显示不同表单区域：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-payment.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-payment" />
+</SchemaPreview>
+
+### 场景二：条件禁用
+
+当表单已提交时禁用所有编辑字段：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-submitted.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-submitted" />
+</SchemaPreview>
+
+### 级联联动：多字段联动更新
+
+使用 `valueChange` + `field.get()` + `updateValue()` 实现多字段间的级联更新：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-cascade.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-cascade" />
+</SchemaPreview>
+
+> **注意**：首次监听时值为 `undefined`（除非设置了默认值），因此需要使用 `skip(1)` 跳过初始触发。
+
+### 值变更时修改其他字段的值
+
+通过 `valueChange` 监听字段并更新其他字段：
+
+<SchemaPreview definition="src/angular/components/definition/dynamic-update-other.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-update-other" />
+</SchemaPreview>
+
+## 下一步
+
+- [API: hideWhen / disableWhen / valueChange](zh/api/hide-disable/) — 完整的 API 参考
+- [值转换与联动](zh/scenarios/value-transform/) — transformer(toModel/toView)
+- [综合示例：完整业务表单](zh/scenarios/complete-example/)

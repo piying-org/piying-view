@@ -1,0 +1,179 @@
+---
+title: 'Custom Validation'
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { CustomValidationDemoComponent } from '../../../../angular/components/custom-validation-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page shows how to use custom validators in Piying-View, covering synchronous and asynchronous validation.
+
+<LivePreview path="src/angular/components/custom-validation-demo.component.ts">
+  <CustomValidationDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## formConfig.validators — Synchronous Validators
+
+`validators` takes an array of validation functions; each receives an `AbstractControl` and returns an error or `null`/`undefined`:
+
+<SchemaPreview definition="src/angular/components/definition/validation-sync.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-sync" />
+</SchemaPreview>
+
+## Validator Function Signature
+
+```typescript
+interface ValidatorFn {
+  (control: AbstractControl):
+    | ValidationErrorsLegacy // old format: { [key: string]: any }
+    | ValidationErrors2[] // new format: structured error array
+    | null
+    | undefined;
+}
+
+// ValidationErrors2 is a union type including:
+type ValidationErrors2 =
+  | { kind: 'valibot'; metadata: v.BaseIssue<unknown>[] } // Valibot validation failure
+  | { kind: 'error'; metadata: Error } // captured exception
+  | { kind: string; metadata?: any; message?: string }; // custom error
+```
+
+**Return values:**
+
+- Return `null` / `undefined`: validation passed
+- Return `{ [errorKey]: errorValue }`: old-format error (backward compatible)
+- Return `[{ kind, metadata, message? }]`: new-format error (recommended)
+
+## formConfig.asyncValidators — Asynchronous Validators
+
+`asyncValidators` takes asynchronous validation functions for slow operations such as network requests, supporting Promise/Observable/Signal:
+
+<SchemaPreview definition="src/angular/components/definition/validation-async.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-async" />
+</SchemaPreview>
+
+## Combining Custom Validators with Valibot Validation
+
+Piying-View supports both built-in Valibot validation and custom validators; they **run in parallel**:
+
+<SchemaPreview definition="src/angular/components/definition/validation-combined.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-combined" />
+</SchemaPreview>
+
+Errors from Valibot validation and custom validators are merged into `control.errors`:
+
+```typescript
+// input "test@test.test"
+control.errors = [
+  { kind: 'valibot', metadata: [...] },           // Valibot validation failed
+  { kind: 'testDomain', message: '...' },        // custom validator failed
+];
+```
+
+## Common Validation Scenarios
+
+### Cross-Field Validation
+
+Compare two fields for equality (e.g. password confirmation):
+
+<SchemaPreview definition="src/angular/components/definition/validation-compare.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-compare" />
+</SchemaPreview>
+
+### Conditional Validation (based on other fields)
+
+<SchemaPreview definition="src/angular/components/definition/validation-conditional.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-conditional" />
+</SchemaPreview>
+
+### Dynamic Error Messages
+
+<SchemaPreview definition="src/angular/components/definition/validation-dynamic-error.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-dynamic-error" />
+</SchemaPreview>
+
+## Group Validation
+
+You can also use a group that only performs validation, wrapping the fields to validate with the `validGroup` component:
+
+<SchemaPreview definition="src/angular/components/definition/valid-group.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="valid-group" />
+</SchemaPreview>
+
+> `validGroup` is a custom group component that validates the fields inside it and shows the errors together.
+
+## Handling Validation Errors
+
+Piying-View's FieldControl exposes a standard interface for validation state:
+
+| Property              | Type                               | Description                       |
+| -------------------- | ----------------------------------- | -------------------------------- |
+| `control.errors`     | `ValidationErrors2[] \| null`       | All current errors (Valibot + custom) |
+| `control.valid`      | `boolean`                           | Whether every validation passed    |
+| `control.status$$()` | `'VALID' \| 'INVALID' \| 'PENDING'` | Validation status (incl. async pending) |
+| `control.dirty`      | `boolean`                           | Whether the value has changed      |
+| `control.touched`    | `boolean`                           | Whether it has been focused        |
+| `control.pristine`   | `boolean`                           | Whether it is unchanged            |
+
+**Accessing new-format errors:**
+
+```typescript
+if (control.errors) {
+  for (const error of control.errors) {
+    if (error.kind === 'usernameTaken') {
+      console.log('username already taken:', error.metadata?.value);
+    } else if (error.kind === 'valibot') {
+      // Valibot validation failure
+      const issues = error.metadata;
+    }
+  }
+}
+```
+
+## Comparing the Two Validation Styles
+
+Piying-View supports two validation styles that **run in parallel**:
+
+| Validation style | Description                    | Characteristics                    |
+| ------------ | ------------------------------- | ---------------------------------- |
+| Valibot validation | Runs during the Valibot parsing phase, first | Can only validate itself, no access to context values |
+| Control-level validation | Runs after Valibot validation succeeds | Can access parents and other field values |
+
+```ts
+// Valibot built-in validation
+v.pipe(v.string(), v.minLength(5));
+
+// custom validation
+v.pipe(
+  v.string(),
+  v.check((value) => value === 'k2-value', 'should input k2-value'),
+);
+```
+
+**Validation order**:
+
+1. **Valibot validation** (runs first)
+2. **Control-level validation** (runs afterwards)
+
+## Internationalising Valibot Validation
+
+Valibot ships ready-made i18n support; load the locale matching the browser language:
+
+```ts
+import '@valibot/i18n/zh-CN';
+import { setGlobalConfig } from 'valibot';
+
+const browserLanguage = navigator.language;
+if (browserLanguage.startsWith('zh')) {
+  setGlobalConfig({ lang: 'zh-CN' });
+}
+```
+
+> Internationalisation of control-level validation must be implemented yourself in the wrappers and components that display error messages.
+
+## Next Steps
+
+- [Advanced Array Usage](en/scenarios/array-advanced/) — deletionMode / groupMode
+- [API: FieldFormConfig](en/api/field-config/) — details of validators / asyncValidators
+- [Complete Example: a Real Business Form](en/scenarios/complete-example/)

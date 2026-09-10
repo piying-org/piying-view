@@ -20,7 +20,7 @@ pnpm preview   # 预览构建产物
 
 ## Playground 类型声明
 
-Playground（`/playground/`）编辑器的补全与诊断来自 `public/declaration/online-type.d.ts`，它是生成产物，源头是 `src/declaration/online-type.ts` + `tsconfig.online-type.json`：
+Playground（`/zh/playground/`）编辑器的补全与诊断来自 `public/declaration/online-type.d.ts`，它是生成产物，源头是 `src/declaration/online-type.ts` + `tsconfig.online-type.json`：
 
 ```bash
 pnpm build:online-type
@@ -37,20 +37,27 @@ src/angular/               # 全部 Angular 代码（组件 / 指令 / 服务）
   ├── directive/           # 指令
   └── services/            # 可注入服务
 src/components/            # Astro 组件（LivePreview.astro、SchemaPreview.astro）
-src/content/docs/          # 文档源文件（Markdown）
-  ├── getting-started/     # 入门使用
-  ├── scenarios/           # 业务场景
-  ├── api/                 # API 参考
-  ├── adapters/            # 框架适配
-  └── index.md             # 首页（目录）
+src/content/docs/          # 文档源文件（Markdown），按语言分目录
+  ├── zh/                  # 简体中文（默认语言，URL 前缀 /zh/）
+  │   ├── getting-started/ # 入门使用
+  │   ├── scenarios/       # 业务场景
+  │   ├── api/             # API 参考
+  │   ├── angular/         # Angular 专属
+  │   ├── adapters/        # 框架适配
+  │   └── index.md         # 首页（目录）
+  └── en/                  # 英文（由 scripts/i18n 从 zh/ 生成，URL 前缀 /en/）
 src/declaration/           # Playground 类型声明源文件（构建产物在 public/declaration/）
-astro.config.mjs           # Starlight + Nova 主题配置
+src/pages/index.astro      # 站点根路径 → /zh/
+scripts/i18n/              # zh → en 翻译流水线（extract.mjs 导出待译行 / apply.mjs 生成 en）
+astro.config.mjs           # Starlight + Nova 主题配置 + 旧地址跳转
 ```
 
 关于 `src/angular`：`@analogjs/astro-angular` 的 `transformFilter` 只放行 `/src/angular/`，目录外的 `.ts` 不会经过 Angular 编译器。带装饰器（`@Component` / `@Directive` / `@Injectable` 等）的代码写到外面，构建期不报错，渲染页面时才会抛出一个没有头绪的 `SyntaxError`。
 
 ## 配置说明
 
-- 主题插件：`starlightThemeNova({ nav: [...] })` 配置顶部导航
-- 侧边栏：`starlight({ sidebar: [...] })` 配置分组与顺序
+- 主题插件：`starlightThemeNova({ nav: [...] })` 配置顶部导航，`href` 由主题原样输出，需自己拼 `zh/` / `en/` 前缀
+- 侧边栏：`starlight({ sidebar: [...] })` 配置分组与顺序，`link` 不带语言前缀，Starlight 会按当前语言自动补
+- 多语言：`defaultLocale: 'zh'` + `locales: { zh, en }`，站内 Markdown 链接一律写成 `zh/xxx/`（英文为 `en/xxx/`），因为页面里有 `<base href>`，相对链接基于站点根解析
+- 旧地址：`astro.config.mjs` 的 `legacyRedirects` 扫描 `docs/zh/` 生成 `/api/xxx/` → `/zh/api/xxx/`，避免迁移前的外链 404
 - 内容集合：`src/content.config.ts` 通过 `glob` loader 加载 `src/content/docs` 下的 Markdown

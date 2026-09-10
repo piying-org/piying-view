@@ -1,0 +1,90 @@
+---
+title: "Record Schema Dynamic Groups"
+---
+
+import LivePreview from '../../../../components/LivePreview.astro';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { RecordGroupDemoComponent } from '../../../../angular/components/record-group-demo.component.ts';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page explains how Piying-View handles dynamic key/value forms of type `v.record()`.
+
+<LivePreview path="src/angular/components/record-group-demo.component.ts">
+  <RecordGroupDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## Basic Record Usage
+
+`v.record(KeySchema, ValueSchema)` defines an object with string keys and values of a given type. Piying-View maps `record` to a special Group whose keys are added by the user:
+
+<SchemaPreview definition="src/angular/components/definition/record-basic.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-basic" />
+</SchemaPreview>
+
+Make sure record has a container component in `fieldGlobalConfig.types`:
+
+```typescript
+options = {
+  fieldGlobalConfig: {
+    types: {
+      record: { type: PiyingViewGroup }, // the Group container handles dynamic keys
+    },
+  },
+};
+```
+
+## Record as a Dynamic Form Group
+
+In forms, records are commonly used for:
+
+### Scenario 1: Tag / Metadata Editing
+
+<SchemaPreview definition="src/angular/components/definition/record-label.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-label" />
+</SchemaPreview>
+
+Users add key/value pairs dynamically, e.g. `{ "department": "R&D", "level": "P7" }`.
+
+### Scenario 2: Configuration Maps
+
+<SchemaPreview definition="src/angular/components/definition/record-config.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-config" />
+</SchemaPreview>
+
+### Scenario 3: Translations
+
+<SchemaPreview definition="src/angular/components/definition/record-translation.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-translation" />
+</SchemaPreview>
+
+## GroupKeySchema / GroupValueSchema
+
+`FieldFormConfig` provides `groupKeySchema` and `groupValueSchema` to constrain the key and value types of a record:
+
+<SchemaPreview definition="src/angular/components/definition/record-group-key-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-group-key-value" />
+</SchemaPreview>
+
+> **Note**: `groupKeySchema` and `groupValueSchema` constrain the dynamically added key/value pairs rather than replacing the record schema.
+
+## Record Validation Behaviour
+
+Validation of record fields follows the standard Group rules:
+
+<SchemaPreview definition="src/angular/components/definition/record-validation.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-validation" />
+</SchemaPreview>
+
+When a value inside the record fails validation, the child field of that key is marked as an error, but the other keys are unaffected.
+
+## Full Example
+
+<SchemaPreview definition="src/angular/components/definition/record-complete.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-complete" />
+</SchemaPreview>
+
+## Next Steps
+
+- [Complete Example: a Real Business Form](en/scenarios/complete-example/) — a hands-on example combining every concept
+- [API: Layout metadata](en/api/layout/) — adjusting the layout with keyPath / priority
+- [API: Wrappers](en/api/wrappers/) — wrapper configuration
