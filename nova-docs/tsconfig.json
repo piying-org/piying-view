@@ -4,6 +4,8 @@
     ".astro/types/**/*",
     "src/**/*"
   ],
-  "exclude": [],
+  "exclude": [
+    "./src/declaration/online-type.ts"
+  ],
   "compilerOptions": {}
 }
