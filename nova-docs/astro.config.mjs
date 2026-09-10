@@ -54,11 +54,13 @@ export default defineConfig({
             { label: '快速上手', href: `getting-started/quick-start/` },
             { label: 'API 参考', href: `api/control-api/` },
             { label: 'Playground', href: `playground/` },
+            { label: 'JSON Playground', href: `json-playground/` },
           ],
         }),
       ],
       sidebar: [
         { label: 'Playground 游乐场', link: 'playground/' },
+        { label: 'JSON Schema 游乐场', link: 'json-playground/' },
         {
           label: '入门使用',
           items: [

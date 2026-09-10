@@ -1,0 +1,91 @@
+<div class="flex flex-col gap-4 lg:flex-row not-content">
+  <div class="flex min-w-0 flex-1 flex-col gap-2">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <span class="font-medium">JSON Schema</span>
+      <div class="flex gap-2">
+        <button class="btn btn-xs btn-ghost" type="button" (click)="openHelp()">
+          使用说明
+        </button>
+        <button class="btn btn-xs not-content" type="button" (click)="format()">
+          格式化
+        </button>
+        <button class="btn btn-xs not-content" type="button" (click)="reset()">
+          重置
+        </button>
+        <button class="btn btn-xs btn-primary" type="button" (click)="share()">
+          复制分享链接
+        </button>
+      </div>
+    </div>
+    <div
+      class="h-[60vh] min-h-[20rem] overflow-hidden rounded-box border border-base-300"
+    >
+      <div
+        type="json-editor"
+        class="h-full"
+        [ngModel]="code()"
+        (ngModelChange)="updateCode($event)"
+      ></div>
+    </div>
+  </div>
+  <div class="flex min-w-0 flex-1 flex-col gap-2">
+    <span class="font-medium">实时预览</span>
+    <div
+      class="h-[60vh] min-h-[20rem] overflow-auto rounded-box border border-base-300 p-4"
+    >
+      @if (preview().error; as error) {
+        <div class="alert alert-error text-sm">{{ error }}</div>
+      } @else if (preview().data; as data) {
+        <app-json-schema-view [data]="data" />
+      } @else {
+        <div class="opacity-60">请输入 JSON Schema</div>
+      }
+    </div>
+  </div>
+</div>
+@if (shareText()) {
+  <div class="alert alert-success mt-4 py-2 text-sm">
+    {{ shareText() }}
+  </div>
+}
+<dialog #helpDlg class="modal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="text-lg font-bold">JSON Schema Playground 使用说明</h3>
+    <div class="flex flex-col gap-3 py-3 text-sm leading-6">
+      <p>
+        左侧输入 JSON Schema（支持 Draft-04、Draft-07、Draft 2020-12），右侧实时渲染表单。
+      </p>
+      <p>
+        输入内容可以是
+        <code class="badge badge-ghost badge-sm font-normal">JSON Schema</code>
+        本身，也可以是
+        <code class="badge badge-ghost badge-sm font-normal"
+          >&#123;schema, model&#125;</code
+        >
+        包装对象，后者可以顺便指定初始值。
+      </p>
+      <p>
+        转换本质是
+        <code class="badge badge-ghost badge-sm font-normal"
+          >jsonSchemaToValibot()</code
+        >
+        ，详见
+        <a class="link" href="getting-started/jsonschema/">JSON Schema 支持</a>。
+      </p>
+      <p>
+        「复制分享链接」会把当前 JSON 写入 URL 的 input 参数，也可自行构造
+        <code class="badge badge-ghost badge-sm font-normal"
+          >?input=&lt;JSON 字符串&gt;</code
+        >。
+      </p>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn btn-primary" type="submit">知道了</button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button type="submit">关闭</button>
+  </form>
+</dialog>

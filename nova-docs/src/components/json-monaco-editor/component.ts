@@ -58,6 +58,7 @@ export default class JsonEditorComponent
       value: ``,
       language: 'json',
       minimap: { enabled: false },
+      automaticLayout: true,
       theme: this.#theme.monacoTheme(),
     });
     instance.onDidChangeModelContent(() => {
