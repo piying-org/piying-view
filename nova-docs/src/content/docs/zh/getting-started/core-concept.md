@@ -49,8 +49,8 @@ CoreSchemaHandle（核心处理句柄）
 FormBuilder（构建器）
     │  - buildRoot() / buildControl() / #buildField()
     │  - 遍历所有 CoreSchemaHandle，创建 PiResolvedViewFieldConfig
-    │  - 有关键路径（keyPath）→ 创建 FieldControl（关联表单控件）
-    │  - 无关键路径（nonFieldControl）→ 仅作为普通视图组件渲染
+    │  - 有表单控制 → 创建 FieldControl（关联表单控件）
+    │  - nonFieldControl → 不创建 Form Control，仅作为视图组件渲染（keyPath 依然存在，可被查询）
     │  - 递归处理 group / array / logicGroup 的子字段
     │  - 管理注入器、销毁生命周期、作用域映射
     ▼
@@ -132,7 +132,7 @@ v.pipe(
 CoreSchemaHandle 通过 `nonFieldControl` 标记区分两种用途：
 
 - **有表单控制的字段**（默认）：有关键路径 `keyPath`，会创建 `FieldControl`/`FieldGroup`/`FieldArray`，参与表单值管理和验证
-- **无表单控制的字段**（`nonFieldControl = true` 或通过 `NonFieldControlAction` 定义）：没有关键路径，FormBuilder 不会为其创建 Form Control，仅作为普通视图组件渲染
+- **无表单控制的字段**（`nonFieldControl = true` 或通过 `NonFieldControlAction` 定义）：同样拥有关键路径 `keyPath`，同样可以用 `field.get()` 查询定位，只是 FormBuilder 不会为其创建 Form Control，不参与表单值绑定与验证
 
 ```typescript
 // 示例：一个不关联表单的纯展示组件
@@ -230,9 +230,9 @@ Field Control 树构建完成后，Piying-View 根据 `type` 映射动态渲染�
 @Component({
   selector: 'piying-view',
   template: `
-    <ng-container *ngFor="let field of fields">
+    @for (field of fields; track field.id) {
       <ng-container insertField [insertFieldSlots]="field.slots" [insertFieldAttributes]="field.attributes"></ng-container>
-    </ng-container>
+    }
   `,
 })
 export class PiyingView {
@@ -245,7 +245,11 @@ export class PiyingView {
 
 ## 组件分类
 
-Piying-View 将可复用单元划分为三种职责单一的组件类型：
+Piying-View 将可复用单元划分为四种职责单一的组件类型：
+
+#### 普通组件（Component）
+
+不实现 CVA 契约、不关联 Form Control 的组件，只负责展示与交互，不参与表单值管理。常与非表单控件（`NFCSchema` / `nonFieldControl`）配合使用，例如头像、说明文字等纯展示组件，或“发送验证码”这类操作按钮。
 
 #### 控件（Control）
 
@@ -286,7 +290,7 @@ model value → transformer.toView → view value
 ### 视图 → 模型（toModel）
 
 ```
-view value → pipe(toModel) → transformer.toModel → originValue$$ → v.transformer → model value
+view value → pipe(toModel) → transformer.toModel → v.transformer → model value
 ```
 
 ### 双向绑定

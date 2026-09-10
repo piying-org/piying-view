@@ -68,7 +68,42 @@ Every configuration operation is built on `rawConfig`, which lets you change the
 
 ## Tagless Components (Angular selectorless)
 
-A dedicated syntax creates selectorless components (the component only projects its content, producing no host tag):
+By default every field component is rendered with an extra host tag (e.g. `<app-input>`). Any field component — plain component, control or form component — can become a **selectorless component** by adding the following three markers: it only projects its content and **produces no host tag**:
+
+1. Add the static marker `static __version = 2` to the class (the library uses it to detect V2 components)
+2. Declare `templateRef = viewChild.required('templateRef')` in the class
+3. Wrap the whole UI in the template with `<ng-template #templateRef>`
+
+```typescript
+import { Component, viewChild } from '@angular/core';
+
+@Component({
+  selector: 'app-my-component',
+  standalone: true,
+  templateUrl: './my-component.component.html',
+})
+export class MyComponent {
+  static __version = 2;
+  templateRef = viewChild.required('templateRef');
+}
+```
+
+```html
+<!-- my-component.component.html -->
+<ng-template #templateRef>
+  <span>Any content; no host tag is rendered around it</span>
+</ng-template>
+```
+
+> ⚠️ **Note**: selectorless (V2) components **do not bind `actions.attributes` / `actions.events` automatically**. When needed, read them from the template context and apply them with the built-in `AttributesDirective` (`[attributes]`) and `EventsDirective` (`[events]`):
+
+```html
+<ng-template #templateRef let-attr="attributes" let-ev="events">
+  <div [attributes]="attr()" [events]="ev()">
+    <!-- component content -->
+  </div>
+</ng-template>
+```
 
 <SchemaPreview definition="src/angular/components/definition/selectorless.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="selectorless" />

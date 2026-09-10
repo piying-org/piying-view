@@ -49,8 +49,8 @@ CoreSchemaHandle
 FormBuilder
     │  - buildRoot() / buildControl() / #buildField()
     │  - walks every CoreSchemaHandle and creates PiResolvedViewFieldConfig
-    │  - with a key path → creates FieldControl (bound to a form control)
-    │  - without a key path (nonFieldControl) → rendered as a plain view component
+    │  - form control → creates FieldControl (bound to a form control)
+    │  - nonFieldControl → no Form Control created, rendered as a view component only (keyPath still exists and stays queryable)
     │  - recurses into children of group / array / logicGroup
     │  - manages injectors, destroy lifecycle and scope maps
     ▼
@@ -132,7 +132,7 @@ v.pipe(
 CoreSchemaHandle distinguishes two purposes through the `nonFieldControl` flag:
 
 - **Fields with a form control** (default): they have a `keyPath`, so a `FieldControl`/`FieldGroup`/`FieldArray` is created and they take part in value management and validation
-- **Fields without a form control** (`nonFieldControl = true` or defined through `NonFieldControlAction`): no key path, so FormBuilder creates no Form Control and the field renders as a plain view component
+- **Fields without a form control** (`nonFieldControl = true` or defined through `NonFieldControlAction`): they still have a `keyPath` and can still be located with `field.get()`; FormBuilder simply creates no Form Control for them, so they take no part in form value binding or validation
 
 ```typescript
 // example: a presentation-only component with no form binding
@@ -230,9 +230,9 @@ Once the Field Control tree is built, Piying-View renders components dynamically
 @Component({
   selector: 'piying-view',
   template: `
-    <ng-container *ngFor="let field of fields">
+    @for (field of fields; track field.id) {
       <ng-container insertField [insertFieldSlots]="field.slots" [insertFieldAttributes]="field.attributes"></ng-container>
-    </ng-container>
+    }
   `,
 })
 export class PiyingView {
@@ -245,7 +245,11 @@ export class PiyingView {
 
 ## Component Categories
 
-Piying-View splits reusable units into three single-responsibility component types:
+Piying-View splits reusable units into four single-responsibility component types:
+
+#### Plain Component
+
+A component that does not implement the CVA contract and is not bound to a Form Control — it only handles display and interaction, with no form value management. Often paired with non-form controls (`NFCSchema` / `nonFieldControl`): avatars, descriptive text, a "send code" button, and so on.
 
 #### Control
 
@@ -286,7 +290,7 @@ model value → transformer.toView → view value
 ### View → Model (toModel)
 
 ```
-view value → pipe(toModel) → transformer.toModel → originValue$$ → v.transformer → model value
+view value → pipe(toModel) → transformer.toModel → v.transformer → model value
 ```
 
 ### Two-way Binding

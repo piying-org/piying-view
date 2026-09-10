@@ -74,10 +74,6 @@ export class ExampleComponent {
 - **Automatic recursion**: children of Group / Array render recursively without manual loops.
 - **Automatic wrappers**: wrappers declared with `actions.wrappers` wrap each field automatically.
 
-### `selectorless` — Selectorless Mode
-
-`<piying-view>` also has a `selectorless` input (default `false`). When enabled the component renders **no DOM of its own** and only hosts the conversion/state, so you can design the outer layout entirely yourself while placing inner fields with template directives (mode two).
-
 ---
 
 ## Mode 2: Manual Mode (convertToField + Manual Binding)
@@ -87,20 +83,14 @@ Use manual mode when you need **custom layouts**, **native controls mixed in**, 
 ### Step 1: Call convertToField Yourself to Get the field
 
 ```typescript
-import { Component, computed, inject, Injector, untracked } from '@angular/core';
+import { Component } from '@angular/core';
 import { convertToField } from '@piying/view-angular';
 import * as v from 'valibot';
 
 @Component({ ... })
 export class CustomFormComponent {
-  injector = inject(Injector);
-
-  // note: both schema and options must be passed as getter functions
-  bind = computed(() =>
-    untracked(() =>
-      convertToField(() => this.schema, this.injector, () => this.options),
-    ),
-  );
+  // note: both schema and options must be passed as getter functions; pass undefined as the injector — it is resolved automatically
+  bind = convertToField(() => this.schema, undefined, () => this.options);
 
   schema = v.object({
     k1: v.pipe(v.string(), setComponent('input')),
@@ -204,7 +194,7 @@ export class MyInputComponent implements ControlValueAccessor {
 
 Both binding styles together: `k1` uses `[formControl]` to bind a native input (type fewer than 3 characters to see the validation error); `k2` is inserted with `[fieldTemplate]` and rendered automatically from schema metadata:
 
-<LivePreview path="src/angular/components/two-modes-manual-demo.component.ts">
+<LivePreview path="src/angular/components/two-modes-manual-demo.component.*">
   <TwoModesManualDemoComponent slot="preview" client:only="angular" />
 </LivePreview>
 
@@ -276,12 +266,8 @@ After calling `convertToField` manually and getting `field`, use `[fieldTemplate
 // component.ts
 import { convertToField } from '@piying/view-angular';
 
-// both schema and options are passed as getter functions so the field rebuilds reactively
-bind = computed(() =>
-  untracked(() =>
-    convertToField(() => this.schema, this.injector, () => this.options),
-  ),
-);
+// both schema and options are passed as getter functions; pass undefined as the injector — it is resolved automatically
+bind = convertToField(() => this.schema, undefined, () => this.options);
 ```
 
 The `fieldTemplate` pipeline is identical to automatic mode — you only handle the **position**, the rest is metadata.
@@ -305,12 +291,6 @@ The `fieldTemplate` pipeline is identical to automatic mode — you only handle 
 | Fully custom page layouts, mixing native controls | **Mode 2 (manual)** |
 | Place one specific field at a certain position, everything else schema-driven | **Mode 2 B (fieldTemplate)** |
 | Just use a native `<input>` but keep validation/disabled/two-way binding | **Mode 2 A (formControl)** |
-
-> 💡 **Remember**:
-> - Automatic mode = `<piying-view>` renders everything; you **never touch** `convertToField`.
-> - Manual mode = you call `convertToField` **by hand**, take the `field`, then use `[formControl]` or `[fieldTemplate]` to **decide the render position**.
-> - **The two modes mix**: inside an automatically rendered component you can bind manually with `[formControl]`; after obtaining `field` manually you can render automatically with `[fieldTemplate]`.
-> - In both modes the schema resolution chain is identical, so every metadata-driven capability (component mapping, wrappers, dynamic control, validation) remains available.
 
 ## Next Steps
 

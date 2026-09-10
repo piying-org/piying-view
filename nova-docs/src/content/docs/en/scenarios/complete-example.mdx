@@ -288,17 +288,6 @@ flowchart LR
     N -->|no| P[mismatch error displayed]
 ```
 
-## Recap
-
-| Feature     | API used                             | Notes                       |
-| ---------- | ----------------------------------- | -------------------------- |
-| Required validation | `formConfig({ required: true })` | + Valibot `v.minLength()`  |
-| Custom validation | `formConfig({ validators: [...] })` | Password strength check, confirmation match |
-| Conditional hiding | `hideWhen`                         | Toggling the public email setting |
-| Conditional disabling | `disableWhen`                  | Disables the confirmation box until a password exists |
-| Dynamic array | `v.array()` + FieldArray API         | Adding/removing tags        |
-| Nested containers | `fieldGlobalConfig.types.object` | Group renders children recursively |
-
 ## Next Steps
 
 - [API: setComponent](en/api/setcomponent/) — details of component registration

@@ -94,7 +94,6 @@ export { schema as controlGroupDefaultSchema } from './control-group-default.def
 export { schema as controlGroupAsControlSchema } from './control-group-as-control.definition';
 export { schema as controlGroupAsVirtualSchema } from './control-group-as-virtual.definition';
 export { schema as transformCompleteSchema } from './transform-complete.definition';
-export { schema as quickStartSchemaSchema } from './quick-start-schema.definition';
 export { schema as formUseValueChangeSchema } from './form-use-value-change.definition';
 export { schema as formUseDisableWhenSchema } from './form-use-disable-when.definition';
 export { schema as formUseArrayRwSchema } from './form-use-array-rw.definition';

@@ -288,17 +288,6 @@ flowchart LR
     N -->|否| P[显示不匹配错误]
 ```
 
-## 关键点回顾
-
-| 功能       | 使用的 API                          | 说明                       |
-| ---------- | ----------------------------------- | -------------------------- |
-| 必填验证   | `formConfig({ required: true })`    | + Valibot `v.minLength()`  |
-| 自定义验证 | `formConfig({ validators: [...] })` | 密码强度检查、确认密码匹配 |
-| 条件隐藏   | `hideWhen`                          | 公开邮箱设置切换           |
-| 条件禁用   | `disableWhen`                       | 未设密码时禁用确认框       |
-| 动态数组   | `v.array()` + FieldArray API        | 增删标签                   |
-| 嵌套容器   | `fieldGlobalConfig.types.object`    | Group 递归渲染子字段       |
-
 ## 下一步
 
 - [API: setComponent](zh/api/setcomponent/) — 组件设置详解

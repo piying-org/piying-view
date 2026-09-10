@@ -106,8 +106,6 @@ export default defineConfig({
         }),
       ],
       sidebar: [
-        nav('Playground 游乐场', 'Playground', 'playground/'),
-        nav('JSON Schema 游乐场', 'JSON Schema Playground', 'json-playground/'),
         {
           label: '入门使用',
           translations: { en: 'Getting Started' },

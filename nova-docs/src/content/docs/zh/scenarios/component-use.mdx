@@ -68,7 +68,42 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 ## 无标签组件（Angular selectorless）
 
-使用指定的语法可以实现无自定义选择器（组件只投影内容，不产生宿主标签）：
+默认渲染字段组件时会多出一层宿主标签（如 `<app-input>`）。任意类型的字段组件（普通组件 / 控件 / 表单组件）都可以通过以下三个标记成为 **selectorless 组件**：组件只投影内容，**不产生宿主标签**：
+
+1. 类上添加静态标记 `static __version = 2`（库以此识别 V2 组件）
+2. 类中声明 `templateRef = viewChild.required('templateRef')`
+3. 模板中用 `<ng-template #templateRef>` 包裹整个 UI
+
+```typescript
+import { Component, viewChild } from '@angular/core';
+
+@Component({
+  selector: 'app-my-component',
+  standalone: true,
+  templateUrl: './my-component.component.html',
+})
+export class MyComponent {
+  static __version = 2;
+  templateRef = viewChild.required('templateRef');
+}
+```
+
+```html
+<!-- my-component.component.html -->
+<ng-template #templateRef>
+  <span>任意内容，外层不会有宿主标签</span>
+</ng-template>
+```
+
+> ⚠️ **注意**：selectorless（V2）组件**不会自动绑定** `actions.attributes` / `actions.events`，需要时从模板上下文取出，配合内置的 `AttributesDirective`（`[attributes]`）与 `EventsDirective`（`[events]`）手动应用：
+
+```html
+<ng-template #templateRef let-attr="attributes" let-ev="events">
+  <div [attributes]="attr()" [events]="ev()">
+    <!-- 组件内容 -->
+  </div>
+</ng-template>
+```
 
 <SchemaPreview definition="src/angular/components/definition/selectorless.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="selectorless" />

@@ -2,7 +2,7 @@
 title: "Piying-View Documentation"
 ---
 
-Piying-View is an open-source TypeScript form library that turns [Valibot](https://github.com/fabian-hiller/valibot) validation schemas into UI view definitions. Define a schema once and Piying-View renders the whole form, with two-way data binding, dynamic control, custom components and more.
+Piying-View is an open-source TypeScript form library that turns [Valibot](https://github.com/fabian-hiller/valibot) validation schemas into UI view definitions. Define a schema, register the rendering components for it, and Piying-View renders the whole form, with two-way data binding, dynamic control, custom components and more.
 
 **Key features:**
 
@@ -41,7 +41,7 @@ Organised by common business scenario; each one ships a verified, complete examp
 | [Basic Field Definition](en/scenarios/basic-field/)                 | `setComponent` (string reference vs component class), the complete `formConfig` table, Valibot metadata inference, custom validators |
 | [Type Mapping (define equals form)](en/scenarios/type-mapping/) | Automatic mapping from Valibot types to form controls/groups/arrays: string/number/boolean/picklist/object/record/tuple/array, etc. |
 | [Using Forms](en/scenarios/form-use/) | Form usage overview: default values/value listening/layout moving/section disabling/cascading/validation/filter groups/scroll groups |
-| [Using Components](en/scenarios/component-use/) | Component types, non-form controls (NFCSchema), property actions and event outputs, context, advanced customisation with rawConfig |
+| [Using Components](en/scenarios/component-use/) | Component types, non-form controls (NFCSchema), property actions and event outputs, context, advanced customisation with rawConfig, selectorless components |
 | [Complex Schema Structures](en/scenarios/complex-schema/)           | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() mappings and layout priority sorting |
 | [asControl / asVirtualGroup](en/scenarios/as-control-group/)        | `asControl()` treats a nested object as a single control, `asVirtualGroup()` turns Intersect children into a normal Group, with three main scenarios |
 | [Dynamic Field Control](en/scenarios/dynamic-fields/)               | hideWhen (conditional hiding), disableWhen (conditional disabling), valueChange (side-effect-free listening), with payment switching / cascading examples |
@@ -49,7 +49,7 @@ Organised by common business scenario; each one ships a verified, complete examp
 | [Custom Validation](en/scenarios/custom-validation/)                | validators/asyncValidators (four flavours: Promise/Observable/Signal), old vs new error formats, cross-field and conditional validation examples |
 | [Advanced Array Usage](en/scenarios/array-advanced/)                | FieldArray API (set/remove/updateValue/clear/reset), deletionMode (shrink/mark), groupMode, TupleWithRest |
 | [Record Schema Dynamic Groups](en/scenarios/record-dynamic-group/) | Special Group handling of v.record(): `groupKeySchema`/`groupValueSchema` constraints, with tag editing / config maps / translation scenarios |
-| [Complete Example: a Real Business Form](en/scenarios/complete-example/) | A registration form in practice: basic info + password + privacy + dynamic tags + bio, combining validation/hideWhen/disableWhen/component registration + API summary table |
+| [Complete Example: a Real Business Form](en/scenarios/complete-example/) | A registration form in practice: basic info + password + privacy + dynamic tags + bio, combining validation/hideWhen/disableWhen/component registration |
 
 ### 🔧 API Reference
 

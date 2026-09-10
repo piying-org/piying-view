@@ -3,15 +3,13 @@ title: "Quick Start"
 ---
 
 import LivePreview from '../../../../components/LivePreview.astro';
-import SchemaPreview from '../../../../components/SchemaPreview.astro';
 import { QuickStartDemoComponent } from '../../../../angular/components/quick-start-demo.component.ts';
-import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 > **Tip**: Actions such as `setComponent` and `formConfig` behave identically in every framework. The packages and install commands are listed below:
 
 | Framework | Install command                                                             |
 | ------- | ------------------------------------------------------------------------------- |
-| Angular | `pnpm add valibot @piying/view-angular @piying/view-angular-core @angular/core` |
+| Angular | `pnpm add valibot @piying/view-angular @piying/view-angular-core` |
 | Vue     | `pnpm add valibot @piying/view-vue`                                             |
 | React   | `pnpm add valibot @piying/view-react`                                           |
 | Svelte  | `pnpm add valibot @piying/view-svelte`                                          |
@@ -44,45 +42,33 @@ This guide shows how to install Piying-View in an Angular project and render you
 ## Installation
 
 ```bash
-pnpm add valibot @piying/view-angular @piying/view-angular-core @angular/core
+pnpm add valibot @piying/view-angular @piying/view-angular-core
 ```
 
 ## Step 1: Define the Schema
 
 Define the validation schema of the form fields with Valibot:
 
-<SchemaPreview definition="src/angular/components/definition/quick-start-schema.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="quick-start-schema" />
-</SchemaPreview>
+```typescript
+import * as v from 'valibot';
+
+export const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, 'Name must be at least 2 characters')),
+  age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old')),
+  email: v.optional(v.string()),
+});
+```
 
 ## Step 2: Register Component Types
 
-Inside the Angular component, map type names to components through `fieldGlobalConfig.types`:
+Inside the Angular component, map type names to components through `fieldGlobalConfig.types` (see "Writing a Field Component" below for how `InputComponent` is written):
 
 ```typescript
 import { Component, signal } from '@angular/core';
-import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { PiyingView, BaseControl, PiyingViewGroup } from '@piying/view-angular';
+import { PiyingView, PiyingViewGroup } from '@piying/view-angular';
 import * as v from 'valibot';
+import { InputComponent } from './input.component'; // text input shared by string / number
 
-// === text input (shared by string / number) ===
-import { forwardRef } from '@angular/core';
-@Component({
-  selector: 'app-input',
-  standalone: true,
-  imports: [FormsModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputComponent),
-      multi: true,
-    },
-  ],
-  template: `<input [(ngModel)]="value$" [disabled]="disabled$()" />`,
-})
-class InputComponent extends BaseControl {}
-
-// === example component (registers and renders the form) ===
 @Component({
   selector: 'app-example',
   standalone: true,
@@ -127,7 +113,7 @@ export class ExampleComponent {
 
 These are simply **custom Angular form controls**. You only need to register `NG_VALUE_ACCESSOR` to get two-way binding. To keep the code short, Piying-View provides the `BaseControl` base class, which already implements `ControlValueAccessor`.
 
-The full implementation of `InputComponent` from the example above:
+The `InputComponent` referenced during registration (i.e. `./input.component`) is written like this:
 
 ```typescript
 // input.component.ts
@@ -161,15 +147,6 @@ Key points:
 > **Tip**: for `setComponent`, `formConfig` and the rest of the Actions see [Basic Field Definition](en/scenarios/basic-field/); [API: setComponent](en/api/setcomponent/) compares string references with passing component classes directly.
 
 Run `ng serve`, open the page in your browser and you get a form with the name, age and email fields. As you type, the `model` signal updates in sync.
-
-## Recap
-
-| Step          | Description                                                |
-| ------------ | --------------------------------------------------------- |
-| Define schema | Use Valibot `v.object()` / `v.pipe()` for fields and rules  |
-| Register types | `fieldGlobalConfig.types` maps type names to components    |
-| Pass options  | The three core arguments: `schema` + `model` + `options`    |
-| Two-way binding | `[(model)]="model"` keeps the data in sync               |
 
 ## Next Steps
 

@@ -3,15 +3,13 @@ title: "快速上手"
 ---
 
 import LivePreview from '../../../../components/LivePreview.astro';
-import SchemaPreview from '../../../../components/SchemaPreview.astro';
 import { QuickStartDemoComponent } from '../../../../angular/components/quick-start-demo.component.ts';
-import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 > **提示**：Actions（`setComponent`、`formConfig` 等）的逻辑定义在所有框架中是相同的。以下各框架的包名和安装命令如下：
 
 | 框架    | 安装命令                                                                        |
 | ------- | ------------------------------------------------------------------------------- |
-| Angular | `pnpm add valibot @piying/view-angular @piying/view-angular-core @angular/core` |
+| Angular | `pnpm add valibot @piying/view-angular @piying/view-angular-core` |
 | Vue     | `pnpm add valibot @piying/view-vue`                                             |
 | React   | `pnpm add valibot @piying/view-react`                                           |
 | Svelte  | `pnpm add valibot @piying/view-svelte`                                          |
@@ -44,45 +42,33 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 ## 安装
 
 ```bash
-pnpm add valibot @piying/view-angular @piying/view-angular-core @angular/core
+pnpm add valibot @piying/view-angular @piying/view-angular-core
 ```
 
 ## 第一步：定义 Schema
 
 使用 Valibot 定义表单字段的验证 Schema：
 
-<SchemaPreview definition="src/angular/components/definition/quick-start-schema.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="quick-start-schema" />
-</SchemaPreview>
+```typescript
+import * as v from 'valibot';
+
+export const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符')),
+  age: v.pipe(v.number(), v.minValue(18, '必须年满 18 岁')),
+  email: v.optional(v.string()),
+});
+```
 
 ## 第二步：注册组件类型
 
-在 Angular 组件中，通过 `fieldGlobalConfig.types` 将类型名映射到具体组件：
+在 Angular 组件中，通过 `fieldGlobalConfig.types` 将类型名映射到具体组件（`InputComponent` 的编写方式见下文「如何编写字段组件」）：
 
 ```typescript
 import { Component, signal } from '@angular/core';
-import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { PiyingView, BaseControl, PiyingViewGroup } from '@piying/view-angular';
+import { PiyingView, PiyingViewGroup } from '@piying/view-angular';
 import * as v from 'valibot';
+import { InputComponent } from './input.component'; // string / number 通用的输入框组件
 
-// === 输入框（string / number 通用）===
-import { forwardRef } from '@angular/core';
-@Component({
-  selector: 'app-input',
-  standalone: true,
-  imports: [FormsModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputComponent),
-      multi: true,
-    },
-  ],
-  template: `<input [(ngModel)]="value$" [disabled]="disabled$()" />`,
-})
-class InputComponent extends BaseControl {}
-
-// === 示例组件（注册并渲染表单）===
 @Component({
   selector: 'app-example',
   standalone: true,
@@ -127,7 +113,7 @@ export class ExampleComponent {
 
 这些本质上就是 **Angular 自定义表单控件**。你只需要注册 `NG_VALUE_ACCESSOR` 实现双向绑定即可。为了简化写法，Piying-View 提供了 `BaseControl` 基类——它已经内置了 `ControlValueAccessor` 的实现
 
-前面示例中 `InputComponent` 的完整写法如下：
+上面注册时引用的 `InputComponent`（即 `./input.component`），完整写法如下：
 
 ```typescript
 // input.component.ts
@@ -161,15 +147,6 @@ export class InputComponent extends BaseControl {}
 > **提示**：`setComponent`、`formConfig` 等 Actions 的用法详见 [基础字段定义](zh/scenarios/basic-field/)；[API: setComponent](zh/api/setcomponent/) — 包含字符串引用与直接传组件类的完整对比。
 
 运行 `ng serve`，打开浏览器访问页面，你会看到一个包含 name、age、email 三个字段的表单。输入数据时，`model` signal 的值会同步更新；
-
-## 关键点回顾
-
-| 步骤         | 说明                                                      |
-| ------------ | --------------------------------------------------------- |
-| 定义 Schema  | 使用 Valibot `v.object()` / `v.pipe()` 定义字段和验证规则 |
-| 注册类型     | `fieldGlobalConfig.types` 将类型名映射到组件              |
-| 传入 options | `schema` + `model` + `options` 三个核心参数               |
-| 双向绑定     | `[(model)]="model"` 实现数据同步                          |
 
 ## 下一步
 

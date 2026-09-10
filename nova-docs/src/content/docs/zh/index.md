@@ -2,7 +2,7 @@
 title: "Piying-View 文档"
 ---
 
-Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://github.com/fabian-hiller/valibot) 验证 Schema 转换为 UI 视图定义。你只需要定义一个 Schema，Piying-View 就能自动渲染出完整的表单界面，并提供双向数据绑定、动态控制、自定义组件等丰富能力。
+Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://github.com/fabian-hiller/valibot) 验证 Schema 转换为 UI 视图定义。你只需要定义一个 Schema，并为其注册对应的渲染组件，Piying-View 就能自动渲染出完整的表单界面，并提供双向数据绑定、动态控制、自定义组件等丰富能力。
 
 **核心特性：**
 
@@ -41,7 +41,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [基础字段定义](zh/scenarios/basic-field/)                      | `setComponent`（字符串引用 vs 直接传组件类）、`formConfig` 完整字段表、Valibot 元数据自动推导、自定义验证器     |
 | [类型映射（定义即表单）](zh/scenarios/type-mapping/) | Valibot 类型→表单控件/表单组/表单数组的自动映射：string/number/boolean/picklist/object/record/tuple/array 等 |
 | [表单使用](zh/scenarios/form-use/) | 表单使用总览：默认值/值监听/布局移动/分区禁用/级联/验证/过滤组/滚动组 |
-| [组件使用](zh/scenarios/component-use/) | 组件类型、非表单控件（NFCSchema）、属性操作与事件输出、上下文、rawConfig 高级自定义 |
+| [组件使用](zh/scenarios/component-use/) | 组件类型、非表单控件（NFCSchema）、属性操作与事件输出、上下文、rawConfig 高级自定义、无标签组件（selectorless） |
 | [复杂 Schema 结构](zh/scenarios/complex-schema/)               | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() 的映射及 layout priority 排序     |
 | [asControl / asVirtualGroup](zh/scenarios/as-control-group/)   | `asControl()` 将嵌套对象整体作为独立控件、`asVirtualGroup()` 让 Intersect 子级作为普通 Group，含三大使用场景    |
 | [动态字段控制](zh/scenarios/dynamic-fields/)                   | hideWhen（条件隐藏）、disableWhen（条件禁用）、valueChange（值监听无副作用），含支付方式切换/级联联动示例       |
@@ -49,7 +49,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [自定义验证](zh/scenarios/custom-validation/)                  | validators/asyncValidators（Promise/Observable/Signal 四种写法）、新旧格式错误处理、字段对比验证/条件验证示例   |
 | [数组高级用法](zh/scenarios/array-advanced/)                   | FieldArray API（set/remove/updateValue/clear/reset）、deletionMode(shrink/mark)、groupMode、TupleWithRest       |
 | [Record Schema 动态对象组](zh/scenarios/record-dynamic-group/) | v.record() 特殊 Group 处理：`groupKeySchema`/`groupValueSchema` 约束，含标签编辑/配置映射/多语言翻译三大场景    |
-| [综合示例：完整业务表单](zh/scenarios/complete-example/)       | 用户注册表单实战：基本信息+密码+隐私+动态标签+自我介绍，整合验证/hideWhen/disableWhen/组件注册 + API 总结表     |
+| [综合示例：完整业务表单](zh/scenarios/complete-example/)       | 用户注册表单实战：基本信息+密码+隐私+动态标签+自我介绍，整合验证/hideWhen/disableWhen/组件注册     |
 
 ### 🔧 API 参考 (API Reference)
 

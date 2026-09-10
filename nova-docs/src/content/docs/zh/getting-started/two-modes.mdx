@@ -74,10 +74,6 @@ export class ExampleComponent {
 - **自动递归**：Group / Array 的子字段自动递归渲染，无需手动写循环。
 - **自动套包装器**：`actions.wrappers` 定义的包装器自动包裹每个字段。
 
-### `selectorless` — 无选择器模式
-
-`<piying-view>` 还有一个 `selectorless` 输入（默认 `false`）。开启后组件自身**不渲染任何 DOM**，仅作为转换/状态宿主，方便你完全自定义外层布局，内部字段仍由你通过模板指令（模式二）来安放。
-
 ---
 
 ## 模式二：手动模式（convertToField + 手动绑定）
@@ -87,20 +83,14 @@ export class ExampleComponent {
 ### 第一步：手动调用 convertToField 拿到 field
 
 ```typescript
-import { Component, computed, inject, Injector, untracked } from '@angular/core';
+import { Component } from '@angular/core';
 import { convertToField } from '@piying/view-angular';
 import * as v from 'valibot';
 
 @Component({ ... })
 export class CustomFormComponent {
-  injector = inject(Injector);
-
-  // 注意：schema 与 options 都要以「取值函数」形式传入
-  bind = computed(() =>
-    untracked(() =>
-      convertToField(() => this.schema, this.injector, () => this.options),
-    ),
-  );
+  // 注意：schema 与 options 都要以「取值函数」形式传入；injector 传 undefined，内部会自动获取
+  bind = convertToField(() => this.schema, undefined, () => this.options);
 
   schema = v.object({
     k1: v.pipe(v.string(), setComponent('input')),
@@ -204,7 +194,7 @@ export class MyInputComponent implements ControlValueAccessor {
 
 把上面两种方式合在一起：`k1` 用 `[formControl]` 绑定原生 input（输入不足 3 个字符可看到验证错误）；`k2` 用 `[fieldTemplate]` 插入，内部由 Schema 元数据自动渲染：
 
-<LivePreview path="src/angular/components/two-modes-manual-demo.component.ts">
+<LivePreview path="src/angular/components/two-modes-manual-demo.component.*">
   <TwoModesManualDemoComponent slot="preview" client:only="angular" />
 </LivePreview>
 
@@ -276,12 +266,8 @@ const schema = v.pipe(
 // component.ts
 import { convertToField } from '@piying/view-angular';
 
-// schema 与 options 均以取值函数形式传入，便于响应式重建
-bind = computed(() =>
-  untracked(() =>
-    convertToField(() => this.schema, this.injector, () => this.options),
-  ),
-);
+// schema 与 options 均以取值函数形式传入；injector 传 undefined，内部会自动获取
+bind = convertToField(() => this.schema, undefined, () => this.options);
 ```
 
 `fieldTemplate` 的渲染管线和自动模式完全相同——你只负责**位置**，剩下的交给元数据。
@@ -305,12 +291,6 @@ bind = computed(() =>
 | 需要完全自定义页面布局、混用原生控件             | **模式二（手动）** |
 | 只想把「某个字段」安放到特定位置，其余跟随 Schema | **模式二 B（fieldTemplate）** |
 | 只想用原生 `<input>`，但仍要验证/禁用/双向绑定   | **模式二 A（formControl）** |
-
-> 💡 **核心记忆**：
-> - 自动模式 = `<piying-view>` 全自动渲染，你**不碰** `convertToField`。
-> - 手动模式 = 你**手动**调 `convertToField` 拿 `field`，再用 `[formControl]` 或 `[fieldTemplate]` **决定渲染位置**。
-> - **两种模式可以混合**：自动组件内部可用 `[formControl]` 手动绑定（自动中用手动）；手动拿到 `field` 后可用 `[fieldTemplate]` 自动渲染（手动中用自动）。
-> - 无论哪种模式，Schema 解析链完全一致，元数据驱动的能力（组件映射、包装器、动态控制、验证）都可用。
 
 ## 下一步
 
