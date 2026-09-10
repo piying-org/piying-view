@@ -4,8 +4,8 @@ title: "快速上手"
 
 import LivePreview from '../../../components/LivePreview.astro';
 import SchemaPreview from '../../../components/SchemaPreview.astro';
-import { QuickStartDemoComponent } from '../../../components/quick-start-demo.component.ts';
-import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
+import { QuickStartDemoComponent } from '../../../angular/components/quick-start-demo.component.ts';
+import { SchemaDemoComponent } from '../../../angular/components/schema-demo.component.ts';
 
 > **提示**：Actions（`setComponent`、`formConfig` 等）的逻辑定义在所有框架中是相同的。以下各框架的包名和安装命令如下：
 
@@ -37,7 +37,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 本指南介绍如何在 Angular 项目中安装并使用 Piying-View 渲染第一个表单。
 
-<LivePreview path="src/components/quick-start-demo.component.ts">
+<LivePreview path="src/angular/components/quick-start-demo.component.ts">
   <QuickStartDemoComponent slot="preview" client:only="angular" />
 </LivePreview>
 
@@ -51,7 +51,7 @@ pnpm add valibot @piying/view-angular @piying/view-angular-core @angular/core
 
 使用 Valibot 定义表单字段的验证 Schema：
 
-<SchemaPreview definition="src/components/definition/quick-start-schema.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/quick-start-schema.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="quick-start-schema" />
 </SchemaPreview>
 

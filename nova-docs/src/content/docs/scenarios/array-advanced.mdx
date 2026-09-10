@@ -4,12 +4,12 @@ title: "数组高级用法"
 
 import LivePreview from '../../../components/LivePreview.astro';
 import SchemaPreview from '../../../components/SchemaPreview.astro';
-import { ArrayDemoComponent } from '../../../components/array-demo.component.ts';
-import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
+import { ArrayDemoComponent } from '../../../angular/components/array-demo.component.ts';
+import { SchemaDemoComponent } from '../../../angular/components/schema-demo.component.ts';
 
 本文介绍 Piying-View 中数组的高级特性：增删改操作、deletionMode、groupMode 等。
 
-<LivePreview path="src/components/array-demo.component.ts">
+<LivePreview path="src/angular/components/array-demo.component.ts">
   <ArrayDemoComponent slot="preview" client:only="angular" />
 </LivePreview>
 
@@ -57,7 +57,7 @@ field.form.control.clear(); // 清空所有元素
 
 ### reset — 重置到初始值
 
-<SchemaPreview definition="src/components/definition/array-reset.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-reset.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-reset" />
 </SchemaPreview>
 
@@ -69,7 +69,7 @@ field.form.control.clear(); // 清空所有元素
 
 删除元素后，数组长度自动缩短：
 
-<SchemaPreview definition="src/components/definition/array-shrink.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-shrink.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-shrink" />
 </SchemaPreview>
 
@@ -77,7 +77,7 @@ field.form.control.clear(); // 清空所有元素
 
 删除元素后，该位置的值设为 `undefined`，数组长度保持不变：
 
-<SchemaPreview definition="src/components/definition/array-mark.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-mark.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-mark" />
 </SchemaPreview>
 
@@ -98,13 +98,13 @@ field.form.control.clear(); // 清空所有元素
 
 ### 自动推导示例
 
-<SchemaPreview definition="src/components/definition/array-loose.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-loose.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-loose" />
 </SchemaPreview>
 
 ### 手动覆盖示例
 
-<SchemaPreview definition="src/components/definition/array-group-mode.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-group-mode.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-group-mode" />
 </SchemaPreview>
 
@@ -112,7 +112,7 @@ field.form.control.clear(); // 清空所有元素
 
 当验证失败时，使用 `emptyValue` 作为回退值：
 
-<SchemaPreview definition="src/components/definition/array-empty-value.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-empty-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-empty-value" />
 </SchemaPreview>
 
@@ -131,19 +131,19 @@ FieldArray 提供便捷的数组相关属性：
 
 ### Tuple — 固定长度元组
 
-<SchemaPreview definition="src/components/definition/array-tuple.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-tuple.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-tuple" />
 </SchemaPreview>
 
 ### TupleWithRest — 元组 + 可变尾部
 
-<SchemaPreview definition="src/components/definition/array-tuple-with-rest.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-tuple-with-rest.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-tuple-with-rest" />
 </SchemaPreview>
 
 ## 完整示例
 
-<SchemaPreview definition="src/components/definition/array-complete.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/array-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-complete" />
 </SchemaPreview>
 
@@ -164,7 +164,7 @@ field.action.remove(0); // 删除索引 0
 
 自定义创建表单组控制内部表单的显示（大量字段时可使用 `filterGroup` 过滤组件）：
 
-<SchemaPreview definition="src/components/definition/filter-group.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/filter-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="filter-group" />
 </SchemaPreview>
 
@@ -174,7 +174,7 @@ field.action.remove(0); // 删除索引 0
 
 使用 `defer` 动态创建控件，配合 `scrollGroup` 组件实现大量字段的滚动懒加载：
 
-<SchemaPreview definition="src/components/definition/scroll-group.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/scroll-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="scroll-group" />
 </SchemaPreview>
 

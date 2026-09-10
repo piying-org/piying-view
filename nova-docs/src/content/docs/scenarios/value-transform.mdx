@@ -4,12 +4,12 @@ title: "值转换与联动"
 
 import LivePreview from '../../../components/LivePreview.astro';
 import SchemaPreview from '../../../components/SchemaPreview.astro';
-import { ValueTransformDemoComponent } from '../../../components/value-transform-demo.component.ts';
-import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
+import { ValueTransformDemoComponent } from '../../../angular/components/value-transform-demo.component.ts';
+import { SchemaDemoComponent } from '../../../angular/components/schema-demo.component.ts';
 
 本文介绍如何使用 `transformer` 和 Valibot 的 `transform` Action 实现视图层与模型层的值转换。
 
-<LivePreview path="src/components/value-transform-demo.component.ts">
+<LivePreview path="src/angular/components/value-transform-demo.component.ts">
   <ValueTransformDemoComponent slot="preview" client:only="angular" />
 </LivePreview>
 
@@ -24,13 +24,13 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 ### toModel — 视图到模型
 
-<SchemaPreview definition="src/components/definition/transform-to-model.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/transform-to-model.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-to-model" />
 </SchemaPreview>
 
 ### toView — 模型到视图
 
-<SchemaPreview definition="src/components/definition/transform-to-view.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/transform-to-view.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-to-view" />
 </SchemaPreview>
 
@@ -38,7 +38,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 `formConfig.pipe.toModel` 使用 RxJS Observable 进行值转换，支持去抖、过滤等操作：
 
-<SchemaPreview definition="src/components/definition/transform-pipe.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/transform-pipe.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-pipe" />
 </SchemaPreview>
 
@@ -112,7 +112,7 @@ Valibot 内置的 `v.transform()` 在 Schema 层面进行值转换，Piying-View
 
 ### v.transform — 基本用法
 
-<SchemaPreview definition="src/components/definition/transform-basic.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/transform-basic.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-basic" />
 </SchemaPreview>
 
@@ -120,13 +120,13 @@ Valibot 内置的 `v.transform()` 在 Schema 层面进行值转换，Piying-View
 
 将嵌套对象展平为单个字段：
 
-<SchemaPreview definition="src/components/definition/transform-flatten.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/transform-flatten.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-flatten" />
 </SchemaPreview>
 
 ### v.transform — 数组转换
 
-<SchemaPreview definition="src/components/definition/transform-array.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/transform-array.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-array" />
 </SchemaPreview>
 
@@ -142,7 +142,7 @@ Valibot 内置的 `v.transform()` 在 Schema 层面进行值转换，Piying-View
 
 ## 完整示例：表单联动
 
-<SchemaPreview definition="src/components/definition/transform-complete.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/transform-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-complete" />
 </SchemaPreview>
 

@@ -3,7 +3,7 @@ title: "表单使用"
 ---
 
 import SchemaPreview from '../../../components/SchemaPreview.astro';
-import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
+import { SchemaDemoComponent } from '../../../angular/components/schema-demo.component.ts';
 
 - 如果您需要实现某种逻辑却没有头绪，欢迎[提问](https://github.com/piying-org/piying-view/issues)
 
@@ -15,25 +15,25 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 ### string — 文本输入
 
-<SchemaPreview definition="src/components/definition/type-string.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/type-string.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="string" />
 </SchemaPreview>
 
 ### number — 数字输入
 
-<SchemaPreview definition="src/components/definition/type-number.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/type-number.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="number" />
 </SchemaPreview>
 
 ### boolean — 复选框
 
-<SchemaPreview definition="src/components/definition/type-boolean.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/type-boolean.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="boolean" />
 </SchemaPreview>
 
 ### picklist — 下拉选择
 
-<SchemaPreview definition="src/components/definition/type-picklist.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/type-picklist.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="picklist" />
 </SchemaPreview>
 
@@ -45,19 +45,19 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 ### object / strictObject — 自动过滤未定义的键值
 
-<SchemaPreview definition="src/components/definition/form-use-object.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-object.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-object" />
 </SchemaPreview>
 
 ### looseObject — 保留未定义的键值
 
-<SchemaPreview definition="src/components/definition/form-use-loose-object.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-loose-object.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-loose-object" />
 </SchemaPreview>
 
 ### objectWithRest — 部分固定键值，部分可添加
 
-<SchemaPreview definition="src/components/definition/form-use-object-with-rest.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-object-with-rest.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-object-with-rest" />
 </SchemaPreview>
 
@@ -65,7 +65,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 > 目前仅支持 key 为 string 类型。
 
-<SchemaPreview definition="src/components/definition/form-use-record.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-record.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-record" />
 </SchemaPreview>
 
@@ -75,25 +75,25 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 ### tuple / strictTuple — 固定的数组项，不可添加，超过长度自动过滤
 
-<SchemaPreview definition="src/components/definition/form-use-tuple.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-tuple.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-tuple" />
 </SchemaPreview>
 
 ### looseTuple — 固定的数组项，不可添加，超过长度保留
 
-<SchemaPreview definition="src/components/definition/form-use-loose-tuple.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-loose-tuple.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-loose-tuple" />
 </SchemaPreview>
 
 ### tupleWithRest — 部分固定，部分可添加
 
-<SchemaPreview definition="src/components/definition/form-use-tuple-with-rest.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-tuple-with-rest.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-tuple-with-rest" />
 </SchemaPreview>
 
 ### array — 动态添加子项
 
-<SchemaPreview definition="src/components/definition/form-use-array.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-array.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-array" />
 </SchemaPreview>
 
@@ -101,7 +101,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 `v.optional()` 的第二个参数即为默认值，渲染后直接填入表单：
 
-<SchemaPreview definition="src/components/definition/default-value.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/default-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="default" />
 </SchemaPreview>
 
@@ -109,7 +109,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 `valueChange` 的 `list` 属性接受一个路径或者 `undefined`，通过路径查询到对应控件并监听输入值变更：
 
-<SchemaPreview definition="src/components/definition/form-use-value-change.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-value-change.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-value-change" />
 </SchemaPreview>
 
@@ -119,7 +119,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 表单中往往是数据结构与视图布局不一致，此时可在保证数据结构正常的前提下移动组件。被移动的位置一定要先被解析，权重越大组件越靠后：
 
-<SchemaPreview definition="src/components/definition/form-use-layout.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-layout.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-layout" />
 </SchemaPreview>
 
@@ -129,7 +129,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 当表单部分字段在某些场景可以/不可以被填写时，使用 `disableWhen`：
 
-<SchemaPreview definition="src/components/definition/form-use-disable-when.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-disable-when.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-disable-when" />
 </SchemaPreview>
 
@@ -137,7 +137,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 任何情况下，都可以将指定类型定义外加入 `v.array()`，表明为一个数组：
 
-<SchemaPreview definition="src/components/definition/form-use-array-rw.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-array-rw.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-array-rw" />
 </SchemaPreview>
 
@@ -147,7 +147,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 使用 `object` 可以进行多级数据结构定义，自动嵌套渲染为子表单组：
 
-<SchemaPreview definition="src/components/definition/form-use-fieldset.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-fieldset.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-fieldset" />
 </SchemaPreview>
 
@@ -155,7 +155,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 `v.intersect()` + `asVirtualGroup` 可以进行多级虚拟组，配合 `tabs` 组件实现标签页分组：
 
-<SchemaPreview definition="src/components/definition/form-use-tabs-group.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-tabs-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-tabs-group" />
 </SchemaPreview>
 
@@ -163,7 +163,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 使用 `valueChange` 监听控件并更新其他控件的值：
 
-<SchemaPreview definition="src/components/definition/form-use-update-other.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-update-other.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-update-other" />
 </SchemaPreview>
 
@@ -171,11 +171,11 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 验证和控件组件完全解耦，需要自行实现，只提供相关控件状态。可以使用 `wrapper` 套一层实现，也可以使用 group 只在专门的组中进行验证：
 
-<SchemaPreview definition="src/components/definition/form-use-validator.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-validator.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-validator" />
 </SchemaPreview>
 
-<SchemaPreview definition="src/components/definition/form-use-valid-group.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-valid-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-valid-group" />
 </SchemaPreview>
 
@@ -185,7 +185,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 通过 `valueChange` 监听指定控件并更新控件值。第一次监听的值默认为 `undefined`（假如没有设置默认值），所以需要跳过：
 
-<SchemaPreview definition="src/components/definition/form-use-cascade.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-cascade.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-cascade" />
 </SchemaPreview>
 
@@ -193,7 +193,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 自定义创建表单组控制内部表单的显示（大量字段时可使用 `filterGroup` 过滤组件）：
 
-<SchemaPreview definition="src/components/definition/form-use-filter-group.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-filter-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-filter-group" />
 </SchemaPreview>
 
@@ -203,7 +203,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 使用 `defer` 动态创建控件，配合 `scrollGroup` 组件实现大量字段的滚动懒加载：
 
-<SchemaPreview definition="src/components/definition/form-use-scroll-group.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/form-use-scroll-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-scroll-group" />
 </SchemaPreview>
 

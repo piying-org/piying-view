@@ -4,12 +4,12 @@ title: '自定义验证'
 
 import LivePreview from '../../../components/LivePreview.astro';
 import SchemaPreview from '../../../components/SchemaPreview.astro';
-import { CustomValidationDemoComponent } from '../../../components/custom-validation-demo.component.ts';
-import { SchemaDemoComponent } from '../../../components/schema-demo.component.ts';
+import { CustomValidationDemoComponent } from '../../../angular/components/custom-validation-demo.component.ts';
+import { SchemaDemoComponent } from '../../../angular/components/schema-demo.component.ts';
 
 本文介绍如何在 Piying-View 中使用自定义验证器，包括同步和异步验证。
 
-<LivePreview path="src/components/custom-validation-demo.component.ts">
+<LivePreview path="src/angular/components/custom-validation-demo.component.ts">
   <CustomValidationDemoComponent slot="preview" client:only="angular" />
 </LivePreview>
 
@@ -17,7 +17,7 @@ import { SchemaDemoComponent } from '../../../components/schema-demo.component.t
 
 `validators` 接受一个验证函数数组，每个验证函数接收 `AbstractControl` 并返回错误或 `null`/`undefined`：
 
-<SchemaPreview definition="src/components/definition/validation-sync.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/validation-sync.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-sync" />
 </SchemaPreview>
 
@@ -49,7 +49,7 @@ type ValidationErrors2 =
 
 `asyncValidators` 接受异步验证函数数组，用于网络请求等耗时操作，支持 Promise/Observable/Signal：
 
-<SchemaPreview definition="src/components/definition/validation-async.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/validation-async.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-async" />
 </SchemaPreview>
 
@@ -57,7 +57,7 @@ type ValidationErrors2 =
 
 Piying-View 同时支持 Valibot 内置验证和自定义验证器，两者**并行执行**：
 
-<SchemaPreview definition="src/components/definition/validation-combined.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/validation-combined.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-combined" />
 </SchemaPreview>
 
@@ -77,19 +77,19 @@ control.errors = [
 
 比较两个字段是否相等（如密码确认）：
 
-<SchemaPreview definition="src/components/definition/validation-compare.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/validation-compare.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-compare" />
 </SchemaPreview>
 
 ### 条件验证（基于其他字段）
 
-<SchemaPreview definition="src/components/definition/validation-conditional.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/validation-conditional.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-conditional" />
 </SchemaPreview>
 
 ### 动态错误信息
 
-<SchemaPreview definition="src/components/definition/validation-dynamic-error.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/validation-dynamic-error.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-dynamic-error" />
 </SchemaPreview>
 
@@ -97,7 +97,7 @@ control.errors = [
 
 也可以使用 group 只在专门的组中进行验证，通过 `validGroup` 组件包裹需要验证的字段：
 
-<SchemaPreview definition="src/components/definition/valid-group.definition.ts">
+<SchemaPreview definition="src/angular/components/definition/valid-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="valid-group" />
 </SchemaPreview>
 

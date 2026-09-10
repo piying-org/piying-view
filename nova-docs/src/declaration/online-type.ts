@@ -10,7 +10,7 @@ export { PYVAC };
 import * as rxjs from 'rxjs';
 export { rxjs };
 
-import * as directive from '../directive/code-index';
+import * as directive from '../angular/directive/code-index';
 export { directive };
 
 /** 与 code-eval.ts 注入到用户代码中的变量保持一致 */

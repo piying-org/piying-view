@@ -30,14 +30,9 @@ export default defineConfig({
     angular({
       useAngularHydration: false,
       vite: {
+        // 所有 Angular 代码统一放在 src/angular 下，新增代码无需再扩展此白名单
         transformFilter: (_code, id) => {
-          return (
-            id.includes('src/components') ||
-            id.includes('src/directive') ||
-            id.includes('src/services') ||
-            id.includes('view-angular') ||
-            id.includes('node_modules')
-          );
+          return id.replace(/\\/g, '/').includes('/src/angular/');
         },
         tsconfig: './tsconfig.app.json',
       },
