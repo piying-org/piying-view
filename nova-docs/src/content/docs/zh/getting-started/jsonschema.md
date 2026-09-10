@@ -47,8 +47,8 @@ const valibotSchema = jsonSchemaToValibot(jsonSchema);
 | JSON Schema 结构                     | Valibot 对应                                          |
 | ------------------------------------ | ----------------------------------------------------- |
 | `properties` + `required`            | `v.object()`（必填字段自动标记）                      |
-| `properties`（无 required）          | `v.loose_object()`                                    |
-| `prefixItems`                        | `v.tuple()` / `v.loose_tuple()` / `v.tupleWithRest()` |
+| `properties`（无 required）          | `v.looseObject()`                                     |
+| `prefixItems`                        | `v.tuple()` / `v.looseTuple()` / `v.tupleWithRest()` |
 | 无 properties + additionalProperties | `v.record()`                                          |
 
 ### 数组类型
@@ -62,8 +62,8 @@ const valibotSchema = jsonSchemaToValibot(jsonSchema);
 
 | JSON Schema    | Valibot 对应              |
 | -------------- | ------------------------- |
-| `oneOf`        | `v.oneOf()` / `v.union()` |
-| `anyOf`        | `v.anyOf()`               |
+| `oneOf`        | `v.union()`（`oneOf-condition` 组件） |
+| `anyOf`        | `v.intersect()` + `v.union()`（`anyOf-condition` 组件） |
 | `allOf`        | `v.intersect()`           |
 | `if/then/else` | `v.pipe()` + 条件逻辑     |
 
@@ -182,7 +182,7 @@ Piying-View 根据 JSON Schema 结构自动选择合适的组件渲染策略：
 | JSON Schema                 | 映射                                           |
 | --------------------------- | ---------------------------------------------- |
 | `properties` + `required`   | `v.object()`（严格模式）                       |
-| `properties`（无 required） | `v.loose_object()`（宽松模式，保留未定义键值） |
+| `properties`（无 required） | `v.looseObject()`（宽松模式，保留未定义键值） |
 | 带 rest 的 object           | `objectWithRest` / `intersect`                 |
 
 ### tuple 变体
@@ -190,7 +190,7 @@ Piying-View 根据 JSON Schema 结构自动选择合适的组件渲染策略：
 | JSON Schema                             | 映射                                  |
 | --------------------------------------- | ------------------------------------- |
 | `prefixItems` + 无 additionalItems      | `v.tuple()`（固定长度，超出自动过滤） |
-| `prefixItems` + `additionalItems: true` | `v.loose_tuple()`（保留超出部分）     |
+| `prefixItems` + `additionalItems: true` | `v.looseTuple()`（保留超出部分）     |
 | 部分固定 + rest                         | `v.tupleWithRest()`                   |
 
 ### intersect / union

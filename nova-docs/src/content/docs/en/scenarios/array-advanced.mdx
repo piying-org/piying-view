@@ -88,11 +88,11 @@ Controls the validation behaviour of Group / Array. `groupMode` is inferred auto
 | Schema type                        | Inferred `groupMode` | Description                   |
 | -------------------------------- | ---------------------- | ---------------------------- |
 | `v.object()`                     | `'default'`            | Standard object: filters out undefined extra keys on output |
-| `v.loose_object()`               | `'loose'`              | Loose object: keeps undefined extra keys |
-| `v.strict_object()`              | `'strict'`             | Strict object: validation fails when extra keys exist |
+| `v.looseObject()`                | `'loose'`              | Loose object: keeps undefined extra keys |
+| `v.strictObject()`               | `'strict'`             | Strict object: validation fails when extra keys exist |
 | `v.tuple()`                      | `'default'`            | Fixed-length tuple: items beyond the length are truncated |
-| `v.loose_tuple()`                | `'loose'`              | Loose tuple: items beyond the length are kept |
-| `v.strict_tuple()`               | `'strict'`             | Strict tuple: validation fails when the length is exceeded |
+| `v.looseTuple()`                 | `'loose'`              | Loose tuple: items beyond the length are kept |
+| `v.strictTuple()`                | `'strict'`             | Strict tuple: validation fails when the length is exceeded |
 | `v.array()` / the rest part of `v.tupleWithRest()` | `'reset'` | Array / variable tail: no fixed-key or length constraint |
 | `v.intersect()` + `asVirtualGroup()` | Configurable     | Equivalent to `v.object()`     |
 

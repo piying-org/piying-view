@@ -156,7 +156,7 @@ formConfig({
 
 ### defaultValue — default value 🔄 parsed metadata
 
-This field is **extracted** from the `v.default()` metadata of the schema. You can override it with `formConfig()`.
+This field is **extracted** from the schema's default-value metadata (in Valibot 1.x, declared via `v.optional(schema, defaultValue)`). You can override it with `formConfig()`.
 
 ```typescript
 formConfig({ defaultValue: 'Default name' });
@@ -327,7 +327,7 @@ These three fields are **extracted** from the `optional()` and `nullable()` meta
 const schema = v.object({
   field1: v.string(), // required=true, undefinedable=false, nullable=false
   field2: v.optional(v.string()), // required=false, undefinedable=true, nullable=false
-  field3: v.nullable(v.string()), // required=true, undefinedable=false, nullable=true
+  field3: v.nullable(v.string()), // required=false, undefinedable=false, nullable=true
   field4: v.optional(v.nullable(v.string())), // required=false, undefinedable=true, nullable=true
 });
 ```
@@ -368,8 +368,8 @@ This field is **extracted** from the schema's type information.
 | Value | Description | schema metadata source |
 | ----------- | ---------------------------- | ---------------------------------------- |
 | `'default'` | Output automatically filters out extra keys/items that are not defined | `v.object()` / `v.tuple()` |
-| `'loose'` | Keeps extra keys/items that are not defined | `v.loose_object()` / `v.loose_tuple()` |
-| `'strict'` | Validation fails when extra keys/items exist | `v.strict_object()` / `v.strict_tuple()` |
+| `'loose'` | Keeps extra keys/items that are not defined | `v.looseObject()` / `v.looseTuple()` |
+| `'strict'` | Validation fails when extra keys/items exist | `v.strictObject()` / `v.strictTuple()` |
 | `'reset'` | No fixed-key/length constraint; the tail can grow and shrink dynamically | the rest part of `v.array()` / `v.tupleWithRest()` |
 
 ```typescript
@@ -379,9 +379,9 @@ const schema = v.object({
   // this object resolves to groupMode: 'default'
 });
 
-const schema2 = v.loose_object({
+const schema2 = v.looseObject({
   field: v.string(),
-  // this loose_object resolves to groupMode: 'loose'
+  // this looseObject resolves to groupMode: 'loose'
 });
 
 const schema3 = v.array(v.string());

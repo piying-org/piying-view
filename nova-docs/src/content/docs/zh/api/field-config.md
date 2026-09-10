@@ -156,7 +156,7 @@ formConfig({
 
 ### defaultValue — 默认值 🔄 元数据解析
 
-此字段会从 schema 的 `v.default()` 元数据中**提取**而来。你可以通过 `formConfig()` 覆盖。
+此字段会从 schema 的默认值元数据中**提取**而来（通过 `v.optional(schema, 默认值)` 声明）。你可以通过 `formConfig()` 覆盖。
 
 ```typescript
 formConfig({ defaultValue: '默认名称' });
@@ -327,7 +327,7 @@ formConfig({ updateOn: 'submit' });
 const schema = v.object({
   field1: v.string(), // required=true, undefinedable=false, nullable=false
   field2: v.optional(v.string()), // required=false, undefinedable=true, nullable=false
-  field3: v.nullable(v.string()), // required=true, undefinedable=false, nullable=true
+  field3: v.nullable(v.string()), // required=false, undefinedable=false, nullable=true
   field4: v.optional(v.nullable(v.string())), // required=false, undefinedable=true, nullable=true
 });
 ```
@@ -368,8 +368,8 @@ formConfig({ deletionMode: 'mark' });
 | 值 | 说明 | schema 元数据来源 |
 | ----------- | ---------------------------- | ---------------------------------------- |
 | `'default'` | 输出时自动过滤未定义的多余键值/超出项 | `v.object()` / `v.tuple()` |
-| `'loose'` | 保留未定义的多余键值/超出项 | `v.loose_object()` / `v.loose_tuple()` |
-| `'strict'` | 存在多余键值/超出项时验证失败 | `v.strict_object()` / `v.strict_tuple()` |
+| `'loose'` | 保留未定义的多余键值/超出项 | `v.looseObject()` / `v.looseTuple()` |
+| `'strict'` | 存在多余键值/超出项时验证失败 | `v.strictObject()` / `v.strictTuple()` |
 | `'reset'` | 不做固定键/长度约束，尾部可动态增删 | `v.array()` / `v.tupleWithRest()` 的 rest 部分 |
 
 ```typescript
@@ -379,9 +379,9 @@ const schema = v.object({
   // 此 object 会解析出 groupMode: 'default'
 });
 
-const schema2 = v.loose_object({
+const schema2 = v.looseObject({
   field: v.string(),
-  // 此 loose_object 会解析出 groupMode: 'loose'
+  // 此 looseObject 会解析出 groupMode: 'loose'
 });
 
 const schema3 = v.array(v.string());

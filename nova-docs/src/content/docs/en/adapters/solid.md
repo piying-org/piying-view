@@ -38,7 +38,7 @@ import { PiyingView } from '@piying/view-solid';
   schema={schema}
   model={model}
   options={options}
-  onModelChange={(v) => setModel(v)}
+  modelChange={(v) => setModel(v)}
 />;
 ```
 

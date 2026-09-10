@@ -1,5 +1,5 @@
 ---
-title: "Svelte 包 API 参考（@piying/view-svelte）"
+title: 'Svelte 包 API 参考（@piying/view-svelte）'
 ---
 
 本文介绍 Svelte 包 `@piying/view-svelte` 的公开 API。Svelte 使用 runes（`$state` / `$effect`）作为响应式基础，字段通过 `getContext` 获取。
@@ -13,14 +13,17 @@ title: "Svelte 包 API 参考（@piying/view-svelte）"
   import { PiyingView } from '@piying/view-svelte';
 </script>
 
-<PiyingView {schema} {options} bind:model />
+<PiyingView {schema} {options} {model} modelChange={(v) => (model = v)} />
 ```
 
-| Props        | 类型                     | 说明               |
-| ------------ | ------------------------ | ------------------ |
-| `schema`     | `v.BaseSchema`           | Valibot Schema     |
-| `model`      | `any`                    | 双向绑定模型       |
-| `options`    | `FieldConvertViewOptions` | 转换选项         |
+| Props         | 类型                      | 说明                                     |
+| ------------- | ------------------------- | ---------------------------------------- |
+| `schema`      | `v.BaseSchema`            | Valibot Schema                           |
+| `model`       | `any`                     | 模型值（单向传入，变化后重新写入表单）   |
+| `modelChange` | `(value: any) => void`    | 模型变更回调（仅在**无验证错误**时触发） |
+| `options`     | `FieldConvertViewOptions` | 转换选项                                 |
+
+> `model` 不是 `$bindable()` prop，**不能写 `bind:model`**；需要自己在 `modelChange` 里回写本地状态。
 
 ### PiyingFieldTemplate
 
@@ -50,13 +53,21 @@ title: "Svelte 包 API 参考（@piying/view-svelte）"
 
 ### PiyingViewGroup
 
-字段组容器：
+字段组容器，用于渲染 `object` / `array` / `record` 等容器类型。
 
 ```svelte
-<script>
+<script lang="ts">
   import { PiyingViewGroup } from '@piying/view-svelte';
-</script>
 
+  const options = {
+    fieldGlobalConfig: {
+      types: {
+        object: { type: PiyingViewGroup },
+        array: { type: PiyingViewGroup },
+      },
+    },
+  };
+</script>
 <PiyingViewGroup {field} />
 ```
 
@@ -91,12 +102,12 @@ Svelte 通过 `getContext` 获取字段，而非依赖注入：
 
 `cvaa` 提供：
 
-| 成员             | 类型                 | 说明               |
-| ---------------- | -------------------- | ------------------ |
-| `value`          | `$state` getter      | 当前值             |
-| `disabled`       | `$state` getter      | 禁用状态           |
-| `valueChange(v)` | `(v) => void`        | 更新值并触发变更   |
-| `touchedChange()`| `() => void`         | 触发 touched 回调  |
+| 成员              | 类型            | 说明              |
+| ----------------- | --------------- | ----------------- |
+| `value`           | `$state` getter | 当前值            |
+| `disabled`        | `$state` getter | 禁用状态          |
+| `valueChange(v)`  | `(v) => void`   | 更新值并触发变更  |
+| `touchedChange()` | `() => void`    | 触发 touched 回调 |
 
 ### signalToState — Signal 转 State
 

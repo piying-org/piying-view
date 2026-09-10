@@ -13,14 +13,17 @@ This page documents the public API of the Svelte package `@piying/view-svelte`. 
   import { PiyingView } from '@piying/view-svelte';
 </script>
 
-<PiyingView {schema} {options} bind:model />
+<PiyingView {schema} {options} {model} modelChange={(v) => (model = v)} />
 ```
 
-| Props        | Type                     | Description          |
-| ------------ | ------------------------ | ------------------ |
-| `schema`     | `v.BaseSchema`           | Valibot Schema     |
-| `model`      | `any`                    | Two-way bound model   |
-| `options`    | `FieldConvertViewOptions` | Conversion options   |
+| Props         | Type                       | Description                                        |
+| ------------- | -------------------------- | -------------------------------------------------- |
+| `schema`      | `v.BaseSchema`             | Valibot Schema                                     |
+| `model`       | `any`                      | Model value (one-way in; writes back into the form)|
+| `modelChange` | `(value: any) => void`     | Model change callback (fires only with **no validation errors**) |
+| `options`     | `FieldConvertViewOptions`  | Conversion options                                 |
+
+> `model` is not a `$bindable()` prop, so **`bind:model` does not work**; write the value back to your own state inside `modelChange`. 
 
 ### PiyingFieldTemplate
 
@@ -50,14 +53,23 @@ Field control binding component: binds the field as a form control and exposes `
 
 ### PiyingViewGroup
 
-Field group container:
+Field group container for `object` / `array` / `record` types.
+
+It takes **no props** — the field config comes from `getContext(PI_VIEW_FIELD_TOKEN)` (provided by `field-template.svelte`), so you only register it as the container component in `options`:
 
 ```svelte
-<script>
+<script lang="ts">
   import { PiyingViewGroup } from '@piying/view-svelte';
-</script>
 
-<PiyingViewGroup {field} />
+  const options = {
+    fieldGlobalConfig: {
+      types: {
+        object: { type: PiyingViewGroup },
+        array: { type: PiyingViewGroup },
+      },
+    },
+  };
+</script>
 ```
 
 ## Token

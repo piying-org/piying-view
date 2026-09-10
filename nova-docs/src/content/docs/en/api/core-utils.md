@@ -1,10 +1,10 @@
 ---
-title: "Core Utilities (@piying/view-angular-core/util)"
+title: "Core Utilities (@piying/view-angular-core)"
 ---
 
 This page documents the public signal and form utilities of the core library. Most of them are used internally by the framework packages (`field-control-bind` / `PiyingView`, etc.) but can also be called directly from custom components or Actions.
 
-> These functions are exported from `@piying/view-angular-core` (or `@piying/view-core` of each framework package).
+> These functions are all exported from the package **root entry**: `@piying/view-angular-core` for Angular, `@piying/view-core` for the other frameworks. There is **no `/util` subpath** (the only subpath is `@piying/view-angular-core/adapter`, which exports just `jsonSchemaToValibot`).
 
 ## combineSignal — combining signals
 
@@ -152,11 +152,27 @@ const schema = v.object({
 
 > `environments` matches the current environment and runs the corresponding `actions` on a match.
 
-## Other Internal Utilities
+## Other Utilities
 
-The following helpers are exported from `@piying/view-angular-core/util` for internal use and rarely need to be called directly:
+| Name                          | Kind     | Description                                                              |
+| ----------------------------- | -------- | ------------------------------------------------------------------------ |
+| `toArray`                     | function | Normalizes a single value / array / iterable into an array               |
+| `clone`                       | function | Deep clone (used when copying form values)                               |
+| `SortedArray`                 | class    | Extends `Array`, re-sorts with the given `compareFn` after `push`        |
+| `arrayStartsWith`             | function | Array prefix match (used for key-path comparison)                        |
+| `controlStatusList`           | function | `(control?, skipDisabled?) => string[]`, e.g. `['touched','pristine','valid']` |
+| `fieldControlStatusClass`     | function | Same as above, joined as `pi-touched pi-pristine pi-valid`               |
+| `errorSummary` / `getDeepError` | function  | Error summary for the field itself / including descendants              |
+| `effectListen`                | function | Creates an effect inside a `static-injector` injector                    |
+| `toObservable`                | function | Signal → Observable (supports options such as `distinct`)                |
+| `lazyMark` / `getLazyImport`  | function | Two-step lazy loading: `lazyMark(factory)` marks, `getLazyImport(type)` retrieves the factory |
+| `isLazyMark`                  | function | Whether a component type is a lazy-loading marker                        |
+| `computedWithPrev`            | function | `computed` variant that can read the previous value                      |
+| `asyncValidatorToSignal`      | function | Normalizes Promise / Observable / Signal async validators into a Signal  |
+| `initListen`                  | function | Two-way listening between the root form and the external model           |
+| `createViewControlLink`       | function | Links a `ControlValueAccessor` to a field control (used by framework packages) |
 
-`toArray`, `clone`, `sortedArray`, `unwrapSignal`, `arrayStartsWith`, `controlStatusToClass`, `getError`, `effectListen`, `toObservable`, `lazyImport`, `createObservableSignal`, and more.
+> Only `observableSignal` exists (documented above) — there is **no** `createObservableSignal`. `unwrapSignal` does not exist either, only the types `UnWrapSignal` / `SignalInputValue`.
 
 ## Next Steps
 

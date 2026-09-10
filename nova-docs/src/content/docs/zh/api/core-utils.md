@@ -1,10 +1,10 @@
 ---
-title: "核心工具函数（@piying/view-angular-core/util）"
+title: "核心工具函数（@piying/view-angular-core）"
 ---
 
 本文介绍核心库公开的信号与表单工具函数。这些函数大多由框架包（`field-control-bind` / `PiyingView` 等）内部使用，也可在自定义组件或 Action 中直接调用。
 
-> 这些函数从 `@piying/view-angular-core`（或各框架包的 `@piying/view-core`）导出。
+> 这些函数统一从包的**根入口**导出：Angular 为 `@piying/view-angular-core`，其余框架为 `@piying/view-core`
 
 ## combineSignal — 组合信号
 
@@ -152,11 +152,27 @@ const schema = v.object({
 
 > `environments` 用于匹配当前环境，匹配成功时执行对应的 `actions`。
 
-## 其他内部工具
+## 其他工具
 
-以下工具函数从 `@piying/view-angular-core/util` 导出，供内部实现使用，一般无需直接调用：
+| 名称                          | 类型     | 说明                                                              |
+| ----------------------------- | -------- | ----------------------------------------------------------------- |
+| `toArray`                     | function | 将单值/数组/可迭代对象统一转为数组                              |
+| `clone`                       | function | 深拷贝（表单值复制用）                                          |
+| `SortedArray`                 | class    | 继承 `Array`，`push` 后按传入的 `compareFn` 自动排序（布局排序用）|
+| `arrayStartsWith`             | function | 判断数组前缀是否匹配（路径比较用）                              |
+| `controlStatusList`           | function | `(control?, skipDisabled?) => string[]`，如 `['touched','pristine','valid']` |
+| `fieldControlStatusClass`     | function | 同上，拼接为 `pi-touched pi-pristine pi-valid` 形式的 class       |
+| `errorSummary` / `getDeepError` | function | 字段错误摘要（当前字段 / 含子字段）                            |
+| `effectListen`                | function | 在 `static-injector` 的 injector 中创建 effect                    |
+| `toObservable`                | function | Signal → Observable（可配 `distinct` 等选项）                     |
+| `lazyMark` / `getLazyImport`  | function | 懒加载两步式：`lazyMark(factory)` 打标记，`getLazyImport(type)` 取回工厂 |
+| `isLazyMark`                  | function | 判断组件类型是否为懒加载标记                                    |
+| `computedWithPrev`            | function | 可读取上一次值的 `computed`                                       |
+| `asyncValidatorToSignal`      | function | 将 Promise / Observable / Signal 形式的异步验证统一为 Signal      |
+| `initListen`                  | function | 根表单与外部 model 的双向监听（`PiyingView` 内部使用）            |
+| `createViewControlLink`       | function | 把 `ControlValueAccessor` 链接到字段控件（各框架包内部使用）      |
 
-`toArray`、`clone`、`sortedArray`、`unwrapSignal`、`arrayStartsWith`、`controlStatusToClass`、`getError`、`effectListen`、`toObservable`、`lazyImport`、`createObservableSignal` 等。
+> 信号相关只有 `observableSignal`（本文上方），**没有** `createObservableSignal`；`unwrapSignal` 也不存在，只有类型 `UnWrapSignal` / `SignalInputValue`。
 
 ## 下一步
 

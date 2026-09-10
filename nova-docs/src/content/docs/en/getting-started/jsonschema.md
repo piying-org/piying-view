@@ -47,8 +47,8 @@ const valibotSchema = jsonSchemaToValibot(jsonSchema);
 | JSON Schema structure                 | Valibot equivalent                                   |
 | ------------------------------------ | ----------------------------------------------------- |
 | `properties` + `required`             | `v.object()` (required fields marked automatically)   |
-| `properties` (no required)            | `v.loose_object()`                                   |
-| `prefixItems`                        | `v.tuple()` / `v.loose_tuple()` / `v.tupleWithRest()` |
+| `properties` (no required)            | `v.looseObject()`                                   |
+| `prefixItems`                        | `v.tuple()` / `v.looseTuple()` / `v.tupleWithRest()` |
 | no properties + additionalProperties  | `v.record()`                                         |
 
 ### Array Types
@@ -62,8 +62,8 @@ const valibotSchema = jsonSchemaToValibot(jsonSchema);
 
 | JSON Schema    | Valibot equivalent         |
 | -------------- | ------------------------- |
-| `oneOf`        | `v.oneOf()` / `v.union()` |
-| `anyOf`        | `v.anyOf()`               |
+| `oneOf`        | `v.union()` (`oneOf-condition` component) |
+| `anyOf`        | `v.intersect()` + `v.union()` (`anyOf-condition` component) |
 | `allOf`        | `v.intersect()`           |
 | `if/then/else` | `v.pipe()` + conditional logic |
 
@@ -182,7 +182,7 @@ Piying-View picks a rendering strategy automatically from the JSON Schema struct
 | JSON Schema                 | Mapping                                          |
 | --------------------------- | ---------------------------------------------- |
 | `properties` + `required`   | `v.object()` (strict mode)                        |
-| `properties` (no required)  | `v.loose_object()` (keeps undefined keys)         |
+| `properties` (no required)  | `v.looseObject()` (keeps undefined keys)         |
 | object with rest            | `objectWithRest` / `intersect`                    |
 
 ### tuple Variants
@@ -190,7 +190,7 @@ Piying-View picks a rendering strategy automatically from the JSON Schema struct
 | JSON Schema                             | Mapping                              |
 | --------------------------------------- | ------------------------------------- |
 | `prefixItems` + no additionalItems       | `v.tuple()` (fixed length, extras filtered) |
-| `prefixItems` + `additionalItems: true`  | `v.loose_tuple()` (keeps the extra items) |
+| `prefixItems` + `additionalItems: true`  | `v.looseTuple()` (keeps the extra items) |
 | Partial fixed + rest                      | `v.tupleWithRest()`                   |
 
 ### intersect / union
