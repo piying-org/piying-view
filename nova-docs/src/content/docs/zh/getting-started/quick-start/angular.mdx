@@ -1,0 +1,207 @@
+---
+title: "Angular 快速开始"
+---
+
+import LivePreview from '../../../../../components/LivePreview.astro';
+import { QuickStartDemoComponent } from '../../../../../angular/components/quick-start-demo.component.ts';
+
+在 Angular 项目中安装并使用 Piying-View 渲染第一个表单。
+
+> 🚀 **想直接看效果？** 直接拉模板仓库：https://github.com/piying-org/piying-view-angular-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-angular-template
+cd piying-view-angular-template
+npm install && npm start
+```
+
+> 💡 **先分清两种模式**：本文演示的是**自动模式**（`<piying-view>` + Schema 全自动渲染）。另一种**手动模式**（`convertToField` + `[formControl]` / `[fieldTemplate]` 手动绑定）见 [两种使用模式](zh/getting-started/two-modes/)。
+
+## 在线预览
+
+<LivePreview path="src/angular/components/quick-start-demo.component.ts">
+  <QuickStartDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## 第 1 步：安装
+
+```bash
+pnpm add valibot @piying/view-angular @piying/view-angular-core
+```
+
+## 第 2 步：写一个输入框控件
+
+字段控件本质上就是一个 **Angular 自定义表单控件**：注册 `NG_VALUE_ACCESSOR` 即可与 Piying-View 双向通信。
+
+Piying-View 提供了 `BaseControl` 基类，帮你省掉手写 `ControlValueAccessor` 的样板代码。
+
+```typescript
+// src/app/input.component.ts
+import { Component, forwardRef } from '@angular/core';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { BaseControl } from '@piying/view-angular';
+
+@Component({
+  selector: 'app-input',
+  standalone: true,
+  imports: [FormsModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputComponent),
+      multi: true,
+    },
+  ],
+  template: `
+    <input
+      class="input"
+      [(ngModel)]="value$"
+      [disabled]="disabled$()"
+      (blur)="touchedChange()"
+    />
+  `,
+})
+export class InputComponent extends BaseControl {}
+```
+
+`BaseControl` 提供：
+
+| 成员               | 说明                       |
+| ------------------ | -------------------------- |
+| `value$`           | 当前值（Signal）           |
+| `disabled$`        | 禁用状态（Signal）         |
+| `valueChange(v)`   | 主动写值并通知表单         |
+| `touchedChange()`  | 标记为已触碰               |
+
+> 不想用 `BaseControl`？直接自己实现 `ControlValueAccessor` 并注册 `NG_VALUE_ACCESSOR` 也完全可以。
+
+## 第 3 步：注册类型映射（fieldConfig）
+
+`fieldConfig` 是一张「类型名 → 组件」的注册表，Piying-View 按 Schema 推导出的类型名来这里查找渲染组件。
+
+```typescript
+// src/app/piying-define.ts
+import { actions, PiyingViewGroup, type PiViewConfig } from '@piying/view-angular';
+import { InputComponent } from './input.component';
+
+export const fieldConfig = {
+  types: {
+    // Schema 里的 string / number / boolean 分别用哪个组件渲染
+    string: {
+      type: InputComponent,
+      actions: [actions.wrappers.set(['label'])],
+    },
+    number: {
+      type: InputComponent,
+      actions: [actions.wrappers.set(['label'])],
+    },
+    boolean: {
+      type: InputComponent,
+      actions: [actions.wrappers.set(['label'])],
+    },
+    // 对象 / 数组等容器类型，用内置的组容器
+    object: { type: PiyingViewGroup },
+    array: { type: PiyingViewGroup },
+  },
+  wrappers: {
+    label: { type: LabelWrapperComponent },
+  },
+} as PiViewConfig;
+```
+
+其中 `label` 包装器负责把字段的 `title` 渲染成标签：
+
+```typescript
+// src/app/label-wrapper.component.ts
+import { Component, inject } from '@angular/core';
+import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
+
+@Component({
+  selector: 'app-label-wrapper',
+  standalone: true,
+  template: `
+    <div class="flex items-center gap-2">
+      @if (field.props()['title']) {
+        <span class="label">{{ field.props()['title'] }}</span>
+      }
+      <ng-content />
+    </div>
+  `,
+})
+export class LabelWrapperComponent {
+  field = inject(PI_VIEW_FIELD_TOKEN)!;
+}
+```
+
+> Wrappers 的完整写法（V1 / V2 模板、`InsertFieldDirective`）见 [Wrappers 包装器](zh/api/wrappers/)。
+
+## 第 4 步：定义 Schema
+
+```typescript
+import * as v from 'valibot';
+
+export const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符'), v.title('姓名')),
+  age: v.pipe(v.number(), v.minValue(18, '必须年满 18 岁'), v.title('年龄')),
+  email: v.pipe(v.optional(v.string()), v.title('邮箱')),
+});
+```
+
+## 第 5 步：渲染表单
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { JsonPipe } from '@angular/common';
+import { PiyingView } from '@piying/view-angular';
+import { fieldConfig } from './piying-define';
+import { schema } from './schema';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [PiyingView, JsonPipe],
+  template: `
+    <piying-view
+      [schema]="schema"
+      [(model)]="model"
+      [options]="options"
+    ></piying-view>
+
+    <pre>{{ model() | json }}</pre>
+  `,
+})
+export class ExampleComponent {
+  schema = schema;
+  model = signal<Record<string, any>>({});
+  options = {
+    fieldGlobalConfig: fieldConfig,
+  };
+}
+```
+
+`<piying-view>` 接收三个属性：
+
+| 属性        | 说明                                 |
+| ----------- | ------------------------------------ |
+| `schema`    | Valibot Schema，定义字段和验证规则   |
+| `[(model)]` | 双向绑定，同步表单数据               |
+| `options`   | Options 配置（fieldGlobalConfig 等） |
+
+## 第 6 步：运行
+
+```bash
+ng serve
+```
+
+打开浏览器，你会看到 name / age / email 三个字段的表单。输入数据时，`model` signal 会同步更新；校验不通过时不会向 `model` 写出错误值。
+
+---
+
+## 下一步
+
+- [两种使用模式](zh/getting-started/two-modes/) — 自动模式 vs 手动模式的边界划分
+- [核心概念](zh/getting-started/core-concept/) — Schema 是如何转换为视图的
+- [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig 的详细用法
+- [Options 配置](zh/getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
+- [BaseControl](zh/angular/base-control/) — Angular 字段控件基类完整 API
+- [Angular 专属 API](zh/angular/api/) — 组件 / 指令 / Token / 工具函数

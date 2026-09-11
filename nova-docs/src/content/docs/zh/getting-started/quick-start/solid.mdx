@@ -1,0 +1,248 @@
+---
+title: "Solid 快速开始"
+---
+
+在 Solid 项目中安装并使用 Piying-View 渲染第一个表单。
+
+> 🚀 **想直接看效果？** 直接拉模板仓库：https://github.com/piying-org/piying-view-solid-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-solid-template
+cd piying-view-solid-template
+npm install && npm run dev
+```
+
+> 💡 **先分清两种模式**：本文演示的是**自动模式**（`<PiyingView>` + Schema 全自动渲染）。另一种**手动模式**（`convertToField` + `<Field>` 手动绑定）见 [两种使用模式](zh/getting-started/two-modes/)。
+
+## 第 1 步：安装
+
+```bash
+pnpm add valibot @piying/view-core @piying/view-solid
+```
+
+## 第 2 步：写一个输入框控件
+
+Solid 与 React 思路相同，用 **Symbol 属性** 传递 CVA；区别是 Solid 的 setter 是函数，所以 `[CVA]` 的类型是 `Setter<ControlValueAccessor>`，并且值/禁用状态都是**访问器**，需要调用 `()` 才能取值。
+
+```tsx
+// src/piying/input-text.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputText(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+
+  // 关键：把 cva 写回到 CVA 这个 symbol 属性上
+  createMemo(() => props[CVA](cva));
+
+  return (
+    <input
+      class="input"
+      type="text"
+      value={cvaa.value() ?? ''}
+      disabled={cvaa.disabled()}
+      onInput={(e) => cvaa.valueChange(e.currentTarget.value)}
+      onBlur={cvaa.touchedChange}
+    />
+  );
+}
+```
+
+`cvaa` 提供：
+
+| 成员              | 类型                | 说明             |
+| ----------------- | ------------------- | ---------------- |
+| `value`           | `Accessor<any>`     | 当前值（访问器） |
+| `disabled`        | `Accessor<boolean>` | 禁用状态（访问器） |
+| `valueChange(v)`  | `(v) => void`       | 更新值并触发变更 |
+| `touchedChange()` | `() => void`        | 标记为已触碰     |
+
+### 用 `use-*Model` 简化绑定
+
+```tsx
+// src/piying/input-text.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputTextModel } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputText(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  createMemo(() => props[CVA](cva));
+
+  // 注意：Solid 的 compositionMode 是函数 () => boolean
+  const textModel = useInputTextModel(cvaa, () => false);
+
+  return <input class="input" type="text" {...textModel()} />;
+}
+```
+
+照这个模式再写两个控件：
+
+```tsx
+// src/piying/input-number.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputNumberModel } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputNumber(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  createMemo(() => props[CVA](cva));
+  const model = useInputNumberModel(cvaa);
+
+  return <input class="input" type="number" {...model()} />;
+}
+```
+
+```tsx
+// src/piying/input-checkbox.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputCheckboxModel } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputCheckbox(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  createMemo(() => props[CVA](cva));
+  const model = useInputCheckboxModel(cvaa);
+
+  return <input class="checkbox" type="checkbox" {...model()} />;
+}
+```
+
+> 全部 `use-*Model` 的签名与 React 版本的差异见 [Solid 字段模型绑定](zh/adapters/solid/field-model-binding/)。
+
+## 第 3 步：写一个 label 包装器
+
+包装器（Wrapper）负责在控件外面套一层标签。它通过 Solid Context 注入当前字段，读取 `props['title']`。
+
+```tsx
+// src/piying/wrapper/label-wrapper.tsx
+import { Show, useContext } from 'solid-js';
+import { PI_VIEW_FIELD_TOKEN, createSignalConvert } from '@piying/view-solid';
+
+export function LabelWrapper(props: { children: any }) {
+  const field = useContext(PI_VIEW_FIELD_TOKEN)!;
+  const fieldProps = createSignalConvert(() => field.props());
+
+  return (
+    <div class="flex items-center gap-2">
+      <Show when={fieldProps()['title']}>
+        <span class="label">{fieldProps()['title']}</span>
+      </Show>
+      {props.children}
+    </div>
+  );
+}
+```
+
+> Wrappers 的完整写法见 [Wrappers 包装器](zh/api/wrappers/)。
+
+## 第 4 步：注册类型映射（fieldConfig）
+
+`fieldConfig` 是一张「类型名 → 组件」的注册表，Piying-View 按 Schema 推导出的类型名来这里查找渲染组件。
+
+```tsx
+// src/piying/define.ts
+import { lazy } from 'solid-js';
+import { actions } from '@piying/view-core';
+import { PiyingGroup, type PiViewConfig } from '@piying/view-solid';
+import { InputText } from './input-text';
+import { InputNumber } from './input-number';
+import { InputCheckbox } from './input-checkbox';
+import { LabelWrapper } from './wrapper/label-wrapper';
+
+export const fieldConfig = {
+  types: {
+    string: { type: InputText, actions: [actions.wrappers.set(['label'])] },
+    number: { type: InputNumber, actions: [actions.wrappers.set(['label'])] },
+    boolean: { type: InputCheckbox, actions: [actions.wrappers.set(['label'])] },
+    // 对象 / 数组等容器类型，用内置的组容器
+    object: { type: PiyingGroup },
+    array: { type: PiyingGroup },
+  },
+  wrappers: {
+    label: { type: LabelWrapper },
+  },
+} as PiViewConfig;
+```
+
+> 需要懒加载时写成 `type: lazy(() => import('./xxx').then(({ Xxx }) => Xxx))`。
+
+## 第 5 步：定义 Schema 并渲染
+
+```tsx
+// src/PiyingDemo.tsx
+import { createSignal } from 'solid-js';
+import * as v from 'valibot';
+import { PiyingView } from '@piying/view-solid';
+import { fieldConfig } from './piying/define';
+
+const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符'), v.title('姓名')),
+  age: v.pipe(v.number(), v.minValue(18, '必须年满 18 岁'), v.title('年龄')),
+  email: v.pipe(v.optional(v.string()), v.title('邮箱')),
+});
+
+const options = {
+  fieldGlobalConfig: fieldConfig,
+};
+
+export function PiyingDemo() {
+  const [model, setModel] = createSignal<Record<string, any>>({});
+
+  return (
+    <>
+      <PiyingView
+        schema={schema}
+        options={options}
+        model={model()}
+        modelChange={(value) => setModel(value)}
+      />
+      <pre>{JSON.stringify(model(), null, 2)}</pre>
+    </>
+  );
+}
+```
+
+`<PiyingView>` 接收四个属性：
+
+| 属性          | 说明                                       |
+| ------------- | ------------------------------------------ |
+| `schema`      | Valibot Schema，定义字段和验证规则         |
+| `model`       | 传入的模型值                               |
+| `modelChange` | 模型变更回调（仅在**无验证错误**时触发）   |
+| `options`     | Options 配置（fieldGlobalConfig 等）       |
+
+## 第 6 步：运行
+
+```bash
+npm run dev
+```
+
+打开浏览器，你会看到 name / age / email 三个字段的表单。输入数据时 `model` 会同步更新；校验不通过时不会向 `model` 写出错误值。
+
+---
+
+## 下一步
+
+- [Solid 包 API 参考](zh/adapters/solid/) — `@piying/view-solid` 完整 API
+- [Solid 字段模型绑定](zh/adapters/solid/field-model-binding/) — `use-*Model` 详解
+- [两种使用模式](zh/getting-started/two-modes/) — 自动模式 vs 手动模式的边界划分
+- [核心概念](zh/getting-started/core-concept/) — Schema 是如何转换为视图的
+- [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig 的详细用法

@@ -1,0 +1,39 @@
+---
+title: "Quick Start"
+---
+
+import FrameworkCards from '../../../../../components/FrameworkCards.astro';
+
+Piying-View drives a whole form from a single **Valibot schema**: the schema describes the shape and the validation rules, you register one rendering component per type, and the library renders the complete form for you.
+
+**The logic of `setComponent` / `formConfig` / `actions.*` is identical in every framework.** The only thing that differs is *how a field component is written* and *how it is registered*.
+
+So there is no need to read everything — jump straight into the page for the framework you use and follow the five steps.
+
+## Pick your framework
+
+<FrameworkCards />
+
+---
+
+## Five steps (the same in every framework)
+
+| Step                | What you do                                       | Key point                                                            |
+| ------------------- | ------------------------------------------------- | -------------------------------------------------------------------- |
+| **1. Install**      | Install the adapter package + `valibot`           | Actions come from the core package: `@piying/view-angular-core` for Angular, `@piying/view-core` for the rest |
+| **2. Write a control** | Write a plain input component                  | The component only implements the **CVA** (ControlValueAccessor): read/write the value, disabled state, touched |
+| **3. Register it**  | Build a `fieldConfig` table                       | `types`: type name → component; `wrappers`: wrapper name → component   |
+| **4. Define schema** | Describe the fields with Valibot                 | `v.string()` / `v.number()` / `v.boolean()` / `v.object()` …          |
+| **5. Render**       | Hand `schema` + `options` to `<PiyingView />`     | The form renders itself, values sync through `model`                   |
+
+> 💡 **Know the two modes first**: the quick start demonstrates **automatic mode** (`<PiyingView>` renders everything from the schema). The other one is **manual mode** (`convertToField` + manual binding of the render slot). See [Two Usage Modes](en/getting-started/two-modes/).
+
+---
+
+## Next steps
+
+- [Two Usage Modes](en/getting-started/two-modes/) — where automatic mode ends and manual mode begins
+- [Core Concepts](en/getting-started/core-concept/) — how a schema becomes a view
+- [Options Configuration](en/getting-started/options-config/) — introduction to context / fieldGlobalConfig / builder
+- [Framework Differences](en/getting-started/framework-differences/) — CVA / Signal / Token comparison across frameworks
+- [Basic Field Definition](en/scenarios/basic-field/) — detailed usage of setComponent / formConfig

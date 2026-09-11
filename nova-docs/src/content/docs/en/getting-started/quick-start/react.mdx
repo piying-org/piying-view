@@ -1,0 +1,252 @@
+---
+title: "React Quick Start"
+---
+
+Install Piying-View in a React project and render your first form.
+
+> 🚀 **Want to see it running first?** Clone the template: https://github.com/piying-org/piying-view-react-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-react-template
+cd piying-view-react-template
+npm install && npm run dev
+```
+
+> 💡 **Know the two modes first**: this page demonstrates **automatic mode** (`<PiyingView>` renders everything from the schema). The other one is **manual mode** (`convertToField` + `<Field>`). See [Two Usage Modes](en/getting-started/two-modes/).
+
+## Step 1: Install
+
+```bash
+pnpm add valibot @piying/view-core @piying/view-react
+```
+
+## Step 2: Write an input control
+
+React has no official `NG_VALUE_ACCESSOR`-style injection, so Piying-View uses a **symbol property** to do the same job:
+
+- The component receives a ref property keyed by `CVA` (`Symbol.for('ControlValueAccessor')`)
+- Inside the component, `useControlValueAccessor()` creates the CVA and `useImperativeHandle` writes it back to that ref
+
+```tsx
+// src/piying/input-text.tsx
+import { useImperativeHandle } from 'react';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor } from '@piying/view-react';
+
+interface PiInputProps {
+  [CVA]: React.RefObject<ControlValueAccessor>;
+}
+
+export function InputText(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+
+  // Key point: write the cva back to the CVA symbol ref
+  useImperativeHandle(props[CVA], () => cva, [cva]);
+
+  return (
+    <input
+      className="input"
+      type="text"
+      value={cvaa.value ?? ''}
+      disabled={cvaa.disabled}
+      onChange={(e) => cvaa.valueChange(e.target.value)}
+      onBlur={cvaa.touchedChange}
+    />
+  );
+}
+```
+
+`cvaa` provides:
+
+| Member          | Type          | Description          |
+| --------------- | ------------- | -------------------- |
+| `value`         | `any`         | Current value        |
+| `disabled`      | `boolean`     | Disabled state       |
+| `valueChange(v)` | `(v) => void` | Update the value and notify |
+| `touchedChange()` | `() => void` | Mark the control as touched |
+
+### Simplify binding with `use-*Model`
+
+The React package ships a set of `use-*Model` hooks that bundle all those `value` / `onChange` props into one spreadable object:
+
+```tsx
+// src/piying/input-text.tsx
+import { useImperativeHandle } from 'react';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputTextModel } from '@piying/view-react';
+
+interface PiInputProps {
+  [CVA]: React.RefObject<ControlValueAccessor>;
+}
+
+export function InputText(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  useImperativeHandle(props[CVA], () => cva, [cva]);
+
+  // The second argument is compositionMode: pause writes during IME composition
+  const textModel = useInputTextModel(cvaa, false);
+
+  return <input className="input" type="text" {...textModel} />;
+}
+```
+
+Follow the same pattern for two more controls:
+
+```tsx
+// src/piying/input-number.tsx
+import { useImperativeHandle } from 'react';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputNumberModel } from '@piying/view-react';
+
+interface PiInputProps {
+  [CVA]: React.RefObject<ControlValueAccessor>;
+}
+
+export function InputNumber(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  useImperativeHandle(props[CVA], () => cva, [cva]);
+  const model = useInputNumberModel(cvaa);
+
+  return <input className="input" type="number" {...model} />;
+}
+```
+
+```tsx
+// src/piying/input-checkbox.tsx
+import { useImperativeHandle } from 'react';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputCheckboxModel } from '@piying/view-react';
+
+interface PiInputProps {
+  [CVA]: React.RefObject<ControlValueAccessor>;
+}
+
+export function InputCheckbox(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  useImperativeHandle(props[CVA], () => cva, [cva]);
+  const model = useInputCheckboxModel(cvaa);
+
+  return <input className="checkbox" type="checkbox" {...model} />;
+}
+```
+
+> All `use-*Model` signatures and differences are documented in [React field model binding](en/adapters/react/field-model-binding/).
+
+## Step 3: Write a label wrapper
+
+A wrapper adds a layer around the control. It injects the current field through React Context and reads `props['title']`.
+
+```tsx
+// src/piying/wrapper/label-wrapper.tsx
+import { useContext } from 'react';
+import { PI_VIEW_FIELD_TOKEN, useSignalToRef } from '@piying/view-react';
+
+export function LabelWrapper({ children }: { children: React.ReactNode }) {
+  const field = useContext(PI_VIEW_FIELD_TOKEN)!;
+  const fieldProps = useSignalToRef(field, (f) => f.props());
+
+  return (
+    <div className="flex items-center gap-2">
+      {fieldProps['title'] && <span className="label">{fieldProps['title']}</span>}
+      {children}
+    </div>
+  );
+}
+```
+
+> Full wrapper documentation lives in [Wrappers](en/api/wrappers/).
+
+## Step 4: Register the type map (fieldConfig)
+
+`fieldConfig` is a "type name → component" registry. Piying-View derives a type name from the schema and looks it up here.
+
+```tsx
+// src/piying/define.ts
+import { actions } from '@piying/view-core';
+import { PiyingGroup, type PiViewConfig } from '@piying/view-react';
+import { InputText } from './input-text';
+import { InputNumber } from './input-number';
+import { InputCheckbox } from './input-checkbox';
+import { LabelWrapper } from './wrapper/label-wrapper';
+
+export const fieldConfig = {
+  types: {
+    string: { type: InputText, actions: [actions.wrappers.set(['label'])] },
+    number: { type: InputNumber, actions: [actions.wrappers.set(['label'])] },
+    boolean: { type: InputCheckbox, actions: [actions.wrappers.set(['label'])] },
+    // container types such as object / array use the built-in group
+    object: { type: PiyingGroup },
+    array: { type: PiyingGroup },
+  },
+  wrappers: {
+    label: { type: LabelWrapper },
+  },
+} as PiViewConfig;
+```
+
+> For lazy loading write `type: lazy(() => import('./xxx').then((m) => ({ default: m.Xxx })))`.
+
+## Step 5: Define the schema and render
+
+```tsx
+// src/PiyingDemo.tsx
+import { useState } from 'react';
+import * as v from 'valibot';
+import { PiyingView } from '@piying/view-react';
+import { fieldConfig } from './piying/define';
+
+const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, 'Name must be at least 2 characters'), v.title('Name')),
+  age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old'), v.title('Age')),
+  email: v.pipe(v.optional(v.string()), v.title('Email')),
+});
+
+const options = {
+  fieldGlobalConfig: fieldConfig,
+};
+
+export function PiyingDemo() {
+  const [model, setModel] = useState<Record<string, any>>({});
+
+  return (
+    <>
+      <PiyingView
+        schema={schema}
+        options={options}
+        model={model}
+        modelChange={(value) => setModel(value)}
+      />
+      <pre>{JSON.stringify(model, null, 2)}</pre>
+    </>
+  );
+}
+```
+
+`<PiyingView>` takes four properties:
+
+| Property      | Description                                              |
+| ------------- | -------------------------------------------------------- |
+| `schema`      | Valibot schema defining fields and validation rules      |
+| `model`       | The model value passed in                                |
+| `modelChange` | Change callback (fires only when there are **no validation errors**) |
+| `options`     | Options configuration (fieldGlobalConfig, ...)           |
+
+> React has no `bind:` syntax: `model` flows down and `modelChange` writes back, so you wire it up with `useState`.
+
+## Step 6: Run
+
+```bash
+npm run dev
+```
+
+Open the page and you get a form with the name / age / email fields. As you type, `model` updates in sync; values that fail validation are never written to `model`.
+
+---
+
+## Next steps
+
+- [React package API reference](en/adapters/react/) — complete `@piying/view-react` API
+- [React field model binding](en/adapters/react/field-model-binding/) — details on `use-*Model`
+- [Two Usage Modes](en/getting-started/two-modes/) — where automatic mode ends and manual mode begins
+- [Core Concepts](en/getting-started/core-concept/) — how a schema becomes a view
+- [Basic Field Definition](en/scenarios/basic-field/) — detailed usage of setComponent / formConfig

@@ -1,0 +1,248 @@
+---
+title: "Solid Quick Start"
+---
+
+Install Piying-View in a Solid project and render your first form.
+
+> 🚀 **Want to see it running first?** Clone the template: https://github.com/piying-org/piying-view-solid-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-solid-template
+cd piying-view-solid-template
+npm install && npm run dev
+```
+
+> 💡 **Know the two modes first**: this page demonstrates **automatic mode** (`<PiyingView>` renders everything from the schema). The other one is **manual mode** (`convertToField` + `<Field>`). See [Two Usage Modes](en/getting-started/two-modes/).
+
+## Step 1: Install
+
+```bash
+pnpm add valibot @piying/view-core @piying/view-solid
+```
+
+## Step 2: Write an input control
+
+Solid works like React here — the CVA travels through a **symbol property**. The difference is that a Solid setter is a function, so `[CVA]` is typed as `Setter<ControlValueAccessor>`, and the value / disabled state are **accessors** that must be called with `()`.
+
+```tsx
+// src/piying/input-text.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputText(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+
+  // Key point: write the cva back to the CVA symbol property
+  createMemo(() => props[CVA](cva));
+
+  return (
+    <input
+      class="input"
+      type="text"
+      value={cvaa.value() ?? ''}
+      disabled={cvaa.disabled()}
+      onInput={(e) => cvaa.valueChange(e.currentTarget.value)}
+      onBlur={cvaa.touchedChange}
+    />
+  );
+}
+```
+
+`cvaa` provides:
+
+| Member          | Type                | Description              |
+| --------------- | ------------------- | ------------------------ |
+| `value`         | `Accessor<any>`     | Current value (accessor) |
+| `disabled`      | `Accessor<boolean>` | Disabled state (accessor) |
+| `valueChange(v)` | `(v) => void`      | Update the value and notify |
+| `touchedChange()` | `() => void`      | Mark the control as touched |
+
+### Simplify binding with `use-*Model`
+
+```tsx
+// src/piying/input-text.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputTextModel } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputText(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  createMemo(() => props[CVA](cva));
+
+  // Note: in Solid compositionMode is a function () => boolean
+  const textModel = useInputTextModel(cvaa, () => false);
+
+  return <input class="input" type="text" {...textModel()} />;
+}
+```
+
+Follow the same pattern for two more controls:
+
+```tsx
+// src/piying/input-number.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputNumberModel } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputNumber(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  createMemo(() => props[CVA](cva));
+  const model = useInputNumberModel(cvaa);
+
+  return <input class="input" type="number" {...model()} />;
+}
+```
+
+```tsx
+// src/piying/input-checkbox.tsx
+import { createMemo, type Setter } from 'solid-js';
+import type { ControlValueAccessor } from '@piying/view-core';
+import { CVA, useControlValueAccessor, useInputCheckboxModel } from '@piying/view-solid';
+
+interface PiInputProps {
+  [CVA]: Setter<ControlValueAccessor>;
+}
+
+export function InputCheckbox(props: PiInputProps) {
+  const { cva, cvaa } = useControlValueAccessor();
+  createMemo(() => props[CVA](cva));
+  const model = useInputCheckboxModel(cvaa);
+
+  return <input class="checkbox" type="checkbox" {...model()} />;
+}
+```
+
+> All `use-*Model` signatures and how they differ from React are documented in [Solid field model binding](en/adapters/solid/field-model-binding/).
+
+## Step 3: Write a label wrapper
+
+A wrapper adds a layer around the control. It injects the current field through Solid Context and reads `props['title']`.
+
+```tsx
+// src/piying/wrapper/label-wrapper.tsx
+import { Show, useContext } from 'solid-js';
+import { PI_VIEW_FIELD_TOKEN, createSignalConvert } from '@piying/view-solid';
+
+export function LabelWrapper(props: { children: any }) {
+  const field = useContext(PI_VIEW_FIELD_TOKEN)!;
+  const fieldProps = createSignalConvert(() => field.props());
+
+  return (
+    <div class="flex items-center gap-2">
+      <Show when={fieldProps()['title']}>
+        <span class="label">{fieldProps()['title']}</span>
+      </Show>
+      {props.children}
+    </div>
+  );
+}
+```
+
+> Full wrapper documentation lives in [Wrappers](en/api/wrappers/).
+
+## Step 4: Register the type map (fieldConfig)
+
+`fieldConfig` is a "type name → component" registry. Piying-View derives a type name from the schema and looks it up here.
+
+```tsx
+// src/piying/define.ts
+import { lazy } from 'solid-js';
+import { actions } from '@piying/view-core';
+import { PiyingGroup, type PiViewConfig } from '@piying/view-solid';
+import { InputText } from './input-text';
+import { InputNumber } from './input-number';
+import { InputCheckbox } from './input-checkbox';
+import { LabelWrapper } from './wrapper/label-wrapper';
+
+export const fieldConfig = {
+  types: {
+    string: { type: InputText, actions: [actions.wrappers.set(['label'])] },
+    number: { type: InputNumber, actions: [actions.wrappers.set(['label'])] },
+    boolean: { type: InputCheckbox, actions: [actions.wrappers.set(['label'])] },
+    // container types such as object / array use the built-in group
+    object: { type: PiyingGroup },
+    array: { type: PiyingGroup },
+  },
+  wrappers: {
+    label: { type: LabelWrapper },
+  },
+} as PiViewConfig;
+```
+
+> For lazy loading write `type: lazy(() => import('./xxx').then(({ Xxx }) => Xxx))`.
+
+## Step 5: Define the schema and render
+
+```tsx
+// src/PiyingDemo.tsx
+import { createSignal } from 'solid-js';
+import * as v from 'valibot';
+import { PiyingView } from '@piying/view-solid';
+import { fieldConfig } from './piying/define';
+
+const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, 'Name must be at least 2 characters'), v.title('Name')),
+  age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old'), v.title('Age')),
+  email: v.pipe(v.optional(v.string()), v.title('Email')),
+});
+
+const options = {
+  fieldGlobalConfig: fieldConfig,
+};
+
+export function PiyingDemo() {
+  const [model, setModel] = createSignal<Record<string, any>>({});
+
+  return (
+    <>
+      <PiyingView
+        schema={schema}
+        options={options}
+        model={model()}
+        modelChange={(value) => setModel(value)}
+      />
+      <pre>{JSON.stringify(model(), null, 2)}</pre>
+    </>
+  );
+}
+```
+
+`<PiyingView>` takes four properties:
+
+| Property      | Description                                              |
+| ------------- | -------------------------------------------------------- |
+| `schema`      | Valibot schema defining fields and validation rules      |
+| `model`       | The model value passed in                                |
+| `modelChange` | Change callback (fires only when there are **no validation errors**) |
+| `options`     | Options configuration (fieldGlobalConfig, ...)           |
+
+## Step 6: Run
+
+```bash
+npm run dev
+```
+
+Open the page and you get a form with the name / age / email fields. As you type, `model` updates in sync; values that fail validation are never written to `model`.
+
+---
+
+## Next steps
+
+- [Solid package API reference](en/adapters/solid/) — complete `@piying/view-solid` API
+- [Solid field model binding](en/adapters/solid/field-model-binding/) — details on `use-*Model`
+- [Two Usage Modes](en/getting-started/two-modes/) — where automatic mode ends and manual mode begins
+- [Core Concepts](en/getting-started/core-concept/) — how a schema becomes a view
+- [Basic Field Definition](en/scenarios/basic-field/) — detailed usage of setComponent / formConfig

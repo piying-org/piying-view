@@ -175,4 +175,4 @@ import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
 
 - [Framework Differences](en/getting-started/framework-differences/) — Svelte's getContext / signal conversion
 - [Basic Field Definition](en/scenarios/basic-field/) — setComponent / formConfig
-- [Field Model Binding (React)](en/adapters/field-model-binding-react/) — compare binding approaches across frameworks
+- [Field Model Binding (React)](en/adapters/react/field-model-binding/) — compare binding approaches across frameworks

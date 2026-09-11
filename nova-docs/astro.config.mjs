@@ -116,6 +116,17 @@ export default defineConfig({
           translations: { en: 'Getting Started' },
           items: [
             nav('快速上手', 'Quick Start', '/getting-started/quick-start/'),
+            {
+              label: '按框架快速开始',
+              translations: { en: 'Start by Framework' },
+              items: [
+                nav('Angular', 'Angular', '/getting-started/quick-start/angular/'),
+                nav('Vue', 'Vue', '/getting-started/quick-start/vue/'),
+                nav('React', 'React', '/getting-started/quick-start/react/'),
+                nav('Svelte', 'Svelte', '/getting-started/quick-start/svelte/'),
+                nav('Solid', 'Solid', '/getting-started/quick-start/solid/'),
+              ],
+            },
             nav(
               '两种使用模式',
               'Two Usage Modes',
@@ -267,25 +278,43 @@ export default defineConfig({
           label: '框架适配',
           translations: { en: 'Framework Adapters' },
           items: [
-            nav('Vue', 'Vue', '/adapters/vue/'),
-            nav('React', 'React', '/adapters/react/'),
-            nav('Solid', 'Solid', '/adapters/solid/'),
-            nav('Svelte', 'Svelte', '/adapters/svelte/'),
-            nav(
-              '字段模型绑定（React）',
-              'Field Model Binding (React)',
-              '/adapters/field-model-binding-react/',
-            ),
-            nav(
-              '字段模型绑定（Solid）',
-              'Field Model Binding (Solid)',
-              '/adapters/field-model-binding-solid/',
-            ),
-            nav(
-              'Vue 强类型组件',
-              'Vue Typed Components',
-              '/adapters/vue-typed-component/',
-            ),
+            {
+              label: 'Vue',
+              items: [
+                nav('包 API 参考', 'Package API', '/adapters/vue/'),
+                nav(
+                  '强类型组件',
+                  'Typed Components',
+                  '/adapters/vue/typed-component/',
+                ),
+              ],
+            },
+            {
+              label: 'React',
+              items: [
+                nav('包 API 参考', 'Package API', '/adapters/react/'),
+                nav(
+                  '字段模型绑定',
+                  'Field Model Binding',
+                  '/adapters/react/field-model-binding/',
+                ),
+              ],
+            },
+            {
+              label: 'Solid',
+              items: [
+                nav('包 API 参考', 'Package API', '/adapters/solid/'),
+                nav(
+                  '字段模型绑定',
+                  'Field Model Binding',
+                  '/adapters/solid/field-model-binding/',
+                ),
+              ],
+            },
+            {
+              label: 'Svelte',
+              items: [nav('包 API 参考', 'Package API', '/adapters/svelte/')],
+            },
           ],
         },
       ],

@@ -1,0 +1,208 @@
+---
+title: "Svelte Quick Start"
+---
+
+Install Piying-View in a Svelte 5 project and render your first form.
+
+> 🚀 **Want to see it running first?** Clone the template: https://github.com/piying-org/piying-view-svelte-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-svelte-template
+cd piying-view-svelte-template
+npm install && npm run dev
+```
+
+> 💡 **Know the two modes first**: this page demonstrates **automatic mode** (`<PiyingView>` renders everything from the schema). The other one is **manual mode** (`convertToField` + `<Field>`). See [Two Usage Modes](en/getting-started/two-modes/).
+
+## Step 1: Install
+
+```bash
+pnpm add valibot @piying/view-core @piying/view-svelte
+```
+
+## Step 2: Write an input control
+
+The Svelte adapter implements the CVA with runes (`$state`); the component exposes it to Piying-View with `export { cva }`.
+
+```svelte
+<!-- src/lib/piying/input-text.svelte -->
+<script lang="ts">
+  import { useControlValueAccessor } from '@piying/view-svelte';
+
+  const { cva, cvaa } = useControlValueAccessor();
+
+  // Key point: export the cva so the library can register it
+  export { cva };
+</script>
+
+<input
+  class="input"
+  type="text"
+  bind:value={() => cvaa.value, (v) => cvaa.valueChange(v)}
+  disabled={cvaa.disabled}
+  onblur={cvaa.touchedChange}
+/>
+```
+
+`cvaa` provides:
+
+| Member          | Type            | Description          |
+| --------------- | --------------- | -------------------- |
+| `value`         | `$state` getter | Current value        |
+| `disabled`      | `$state` getter | Disabled state       |
+| `valueChange(v)` | `(v) => void`   | Update the value and notify |
+| `touchedChange()` | `() => void`  | Mark the control as touched |
+
+Follow the same pattern for two more controls:
+
+```svelte
+<!-- src/lib/piying/input-number.svelte -->
+<script lang="ts">
+  import { useControlValueAccessor } from '@piying/view-svelte';
+
+  const { cva, cvaa } = useControlValueAccessor();
+  export { cva };
+</script>
+
+<input
+  class="input"
+  type="number"
+  bind:value={() => (cvaa.value == null ? '' : String(cvaa.value)), (v) => cvaa.valueChange(v === '' ? undefined : Number(v))}
+  disabled={cvaa.disabled}
+  onblur={cvaa.touchedChange}
+/>
+```
+
+```svelte
+<!-- src/lib/piying/input-checkbox.svelte -->
+<script lang="ts">
+  import { useControlValueAccessor } from '@piying/view-svelte';
+
+  const { cva, cvaa } = useControlValueAccessor();
+  export { cva };
+</script>
+
+<input
+  class="checkbox"
+  type="checkbox"
+  bind:checked={() => !!cvaa.value, (v) => cvaa.valueChange(v)}
+  disabled={cvaa.disabled}
+  onblur={cvaa.touchedChange}
+/>
+```
+
+> The Svelte package ships **no** `use-*Model` hooks — the `bind:` getter/setter form above is all you need.
+
+## Step 3: Write a label wrapper
+
+A wrapper adds a layer around the control. Svelte reads the current field with `getContext` and uses `props['title']`.
+
+```svelte
+<!-- src/lib/piying/wrapper/label-wrapper.svelte -->
+<script lang="ts">
+  import { getContext } from 'svelte';
+  import { PI_VIEW_FIELD_TOKEN, signalToState } from '@piying/view-svelte';
+
+  let { children } = $props();
+  const field = getContext<PI_VIEW_FIELD_TOKEN>(PI_VIEW_FIELD_TOKEN);
+  const fieldProps = signalToState(() => field().props());
+</script>
+
+<div class="flex items-center gap-2">
+  {#if fieldProps()?.['title']}
+    <span class="label">{fieldProps()?.['title']}</span>
+  {/if}
+  {@render children()}
+</div>
+```
+
+> Full wrapper documentation lives in [Wrappers](en/api/wrappers/).
+
+## Step 4: Register the type map (fieldConfig)
+
+`fieldConfig` is a "type name → component" registry. Piying-View derives a type name from the schema and looks it up here.
+
+```typescript
+// src/lib/piying/define.ts
+import { actions, lazyMark } from '@piying/view-core';
+import { PiyingViewGroup, type PiViewConfig } from '@piying/view-svelte';
+import InputText from './input-text.svelte';
+import InputNumber from './input-number.svelte';
+import InputCheckbox from './input-checkbox.svelte';
+import LabelWrapper from './wrapper/label-wrapper.svelte';
+
+export const fieldConfig = {
+  types: {
+    string: { type: InputText, actions: [actions.wrappers.set(['label'])] },
+    number: { type: InputNumber, actions: [actions.wrappers.set(['label'])] },
+    boolean: { type: InputCheckbox, actions: [actions.wrappers.set(['label'])] },
+    // container types such as object / array use the built-in group
+    object: { type: PiyingViewGroup },
+    array: { type: PiyingViewGroup },
+  },
+  wrappers: {
+    label: { type: LabelWrapper },
+  },
+} as PiViewConfig;
+```
+
+> Svelte lazy loading must be wrapped with `lazyMark()`: `type: lazyMark(() => import('./xxx.svelte').then((m) => m.default))`, otherwise the dynamically imported component cannot be recognised.
+
+## Step 5: Define the schema and render
+
+```svelte
+<!-- src/lib/page/PiyingDemo.svelte -->
+<script lang="ts">
+  import * as v from 'valibot';
+  import { PiyingView } from '@piying/view-svelte';
+  import { fieldConfig } from '../piying/define';
+
+  const schema = v.object({
+    name: v.pipe(v.string(), v.minLength(2, 'Name must be at least 2 characters'), v.title('Name')),
+    age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old'), v.title('Age')),
+    email: v.pipe(v.optional(v.string()), v.title('Email')),
+  });
+
+  const options = {
+    fieldGlobalConfig: fieldConfig,
+  };
+
+  let model = $state<Record<string, any>>({});
+
+  function modelChange(value: Record<string, any>) {
+    model = value;
+  }
+</script>
+
+<PiyingView {schema} {options} {model} {modelChange} />
+
+<pre>{JSON.stringify(model, null, 2)}</pre>
+```
+
+`<PiyingView>` takes four properties:
+
+| Property        | Description                                              |
+| --------------- | -------------------------------------------------------- |
+| `{schema}`      | Valibot schema defining fields and validation rules      |
+| `{model}`       | The model value passed in                                |
+| `{modelChange}` | Change callback (fires only when there are **no validation errors**) |
+| `{options}`     | Options configuration (fieldGlobalConfig, ...)           |
+
+> `model` is **not** a `$bindable()` prop, so `bind:model` does not work — write the local state back inside `modelChange`.
+
+## Step 6: Run
+
+```bash
+npm run dev
+```
+
+Open the page and you get a form with the name / age / email fields. As you type, `model` updates in sync; values that fail validation are never written to `model`.
+
+---
+
+## Next steps
+
+- [Svelte package API reference](en/adapters/svelte/) — complete `@piying/view-svelte` API
+- [Two Usage Modes](en/getting-started/two-modes/) — where automatic mode ends and manual mode begins
+- [Core Concepts](en/getting-started/core-concept/) — how a schema becomes a view
+- [Basic Field Definition](en/scenarios/basic-field/) — detailed usage of setComponent / formConfig

@@ -117,7 +117,7 @@ const outputs = signalToRef(() => field.value.outputs());
 
 ### typedComponent — 强类型 setComponent
 
-详见 [Vue 强类型组件](zh/adapters/vue-typed-component/)。
+详见 [Vue 强类型组件](zh/adapters/vue/typed-component/)。
 
 ```typescript
 import { typedComponent } from '@piying/view-vue';
@@ -202,6 +202,6 @@ const copy = clone(originalObj);
 
 ## 下一步
 
-- [Vue 强类型组件](zh/adapters/vue-typed-component/) — typedComponent 详解
+- [Vue 强类型组件](zh/adapters/vue/typed-component/) — typedComponent 详解
 - [框架差异](zh/getting-started/framework-differences/) — Vue 的 Field Token / CVA 绑定
 - [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig

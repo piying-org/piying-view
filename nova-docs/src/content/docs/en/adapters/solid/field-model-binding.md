@@ -4,7 +4,7 @@ title: "Field Component Model Binding (Solid)"
 
 The Solid package `@piying/view-solid` provides a family of `use-*Model` hooks that bind native form controls to Piying-View's `ControlValueAccessorAdapter` (CVAA). Each hook returns a `createMemo` computed signal, so you must call `()` to unwrap the props.
 
-> **Differences from React:** every Solid `use-*Model` returns a `createMemo` result and must be called with `()`; and `compositionMode` is a function `() => boolean`. The React version returns a plain object and takes a boolean `compositionMode` — see the [React version](en/adapters/field-model-binding-react/).
+> **Differences from React:** every Solid `use-*Model` returns a `createMemo` result and must be called with `()`; and `compositionMode` is a function `() => boolean`. The React version returns a plain object and takes a boolean `compositionMode` — see the [React version](en/adapters/react/field-model-binding/).
 
 ## Prerequisite: Getting the CVAA
 
@@ -137,6 +137,6 @@ export function InputText(props: PiInputOptions) {
 ## Next Steps
 
 - [Solid API](en/adapters/solid/) — complete `@piying/view-solid` API
-- [React version](en/adapters/field-model-binding-react/) — React's `use-*Model` signatures
+- [React version](en/adapters/react/field-model-binding/) — React's `use-*Model` signatures
 - [Framework Differences](en/getting-started/framework-differences/) — CVA binding and signal conversion helpers per framework
 - [Basic Field Definition](en/scenarios/basic-field/) — using setComponent / formConfig

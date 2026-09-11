@@ -174,4 +174,4 @@ import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
 
 - [框架差异](zh/getting-started/framework-differences/) — Svelte 的 getContext / Signal 转换
 - [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig
-- [字段模型绑定（React）](zh/adapters/field-model-binding-react/) — 各框架绑定方式对比
+- [字段模型绑定（React）](zh/adapters/react/field-model-binding/) — 各框架绑定方式对比

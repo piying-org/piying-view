@@ -1,0 +1,208 @@
+---
+title: "Svelte 快速开始"
+---
+
+在 Svelte 5 项目中安装并使用 Piying-View 渲染第一个表单。
+
+> 🚀 **想直接看效果？** 直接拉模板仓库：https://github.com/piying-org/piying-view-svelte-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-svelte-template
+cd piying-view-svelte-template
+npm install && npm run dev
+```
+
+> 💡 **先分清两种模式**：本文演示的是**自动模式**（`<PiyingView>` + Schema 全自动渲染）。另一种**手动模式**（`convertToField` + `<Field>` 手动绑定）见 [两种使用模式](zh/getting-started/two-modes/)。
+
+## 第 1 步：安装
+
+```bash
+pnpm add valibot @piying/view-core @piying/view-svelte
+```
+
+## 第 2 步：写一个输入框控件
+
+Svelte 版用 runes（`$state`）实现 CVA，组件通过 `export { cva }` 把 CVA 暴露给 Piying-View 注册。
+
+```svelte
+<!-- src/lib/piying/input-text.svelte -->
+<script lang="ts">
+  import { useControlValueAccessor } from '@piying/view-svelte';
+
+  const { cva, cvaa } = useControlValueAccessor();
+
+  // 关键：导出 cva，供库内部注册
+  export { cva };
+</script>
+
+<input
+  class="input"
+  type="text"
+  bind:value={() => cvaa.value, (v) => cvaa.valueChange(v)}
+  disabled={cvaa.disabled}
+  onblur={cvaa.touchedChange}
+/>
+```
+
+`cvaa` 提供：
+
+| 成员              | 类型            | 说明             |
+| ----------------- | --------------- | ---------------- |
+| `value`           | `$state` getter | 当前值           |
+| `disabled`        | `$state` getter | 禁用状态         |
+| `valueChange(v)`  | `(v) => void`   | 更新值并触发变更 |
+| `touchedChange()` | `() => void`    | 标记为已触碰     |
+
+照这个模式再写两个控件：
+
+```svelte
+<!-- src/lib/piying/input-number.svelte -->
+<script lang="ts">
+  import { useControlValueAccessor } from '@piying/view-svelte';
+
+  const { cva, cvaa } = useControlValueAccessor();
+  export { cva };
+</script>
+
+<input
+  class="input"
+  type="number"
+  bind:value={() => (cvaa.value == null ? '' : String(cvaa.value)), (v) => cvaa.valueChange(v === '' ? undefined : Number(v))}
+  disabled={cvaa.disabled}
+  onblur={cvaa.touchedChange}
+/>
+```
+
+```svelte
+<!-- src/lib/piying/input-checkbox.svelte -->
+<script lang="ts">
+  import { useControlValueAccessor } from '@piying/view-svelte';
+
+  const { cva, cvaa } = useControlValueAccessor();
+  export { cva };
+</script>
+
+<input
+  class="checkbox"
+  type="checkbox"
+  bind:checked={() => !!cvaa.value, (v) => cvaa.valueChange(v)}
+  disabled={cvaa.disabled}
+  onblur={cvaa.touchedChange}
+/>
+```
+
+> Svelte 包**不提供** `use-*Model` 系列 Hook，直接用 `bind:` 的 getter/setter 形式绑定即可。
+
+## 第 3 步：写一个 label 包装器
+
+包装器（Wrapper）负责在控件外面套一层标签。Svelte 通过 `getContext` 拿到当前字段，读取 `props['title']`。
+
+```svelte
+<!-- src/lib/piying/wrapper/label-wrapper.svelte -->
+<script lang="ts">
+  import { getContext } from 'svelte';
+  import { PI_VIEW_FIELD_TOKEN, signalToState } from '@piying/view-svelte';
+
+  let { children } = $props();
+  const field = getContext<PI_VIEW_FIELD_TOKEN>(PI_VIEW_FIELD_TOKEN);
+  const fieldProps = signalToState(() => field().props());
+</script>
+
+<div class="flex items-center gap-2">
+  {#if fieldProps()?.['title']}
+    <span class="label">{fieldProps()?.['title']}</span>
+  {/if}
+  {@render children()}
+</div>
+```
+
+> Wrappers 的完整写法见 [Wrappers 包装器](zh/api/wrappers/)。
+
+## 第 4 步：注册类型映射（fieldConfig）
+
+`fieldConfig` 是一张「类型名 → 组件」的注册表，Piying-View 按 Schema 推导出的类型名来这里查找渲染组件。
+
+```typescript
+// src/lib/piying/define.ts
+import { actions, lazyMark } from '@piying/view-core';
+import { PiyingViewGroup, type PiViewConfig } from '@piying/view-svelte';
+import InputText from './input-text.svelte';
+import InputNumber from './input-number.svelte';
+import InputCheckbox from './input-checkbox.svelte';
+import LabelWrapper from './wrapper/label-wrapper.svelte';
+
+export const fieldConfig = {
+  types: {
+    string: { type: InputText, actions: [actions.wrappers.set(['label'])] },
+    number: { type: InputNumber, actions: [actions.wrappers.set(['label'])] },
+    boolean: { type: InputCheckbox, actions: [actions.wrappers.set(['label'])] },
+    // 对象 / 数组等容器类型，用内置的组容器
+    object: { type: PiyingViewGroup },
+    array: { type: PiyingViewGroup },
+  },
+  wrappers: {
+    label: { type: LabelWrapper },
+  },
+} as PiViewConfig;
+```
+
+> Svelte 的懒加载需要用 `lazyMark()` 包一层：`type: lazyMark(() => import('./xxx.svelte').then((m) => m.default))`，否则动态 import 的组件无法被正确识别。
+
+## 第 5 步：定义 Schema 并渲染
+
+```svelte
+<!-- src/lib/page/PiyingDemo.svelte -->
+<script lang="ts">
+  import * as v from 'valibot';
+  import { PiyingView } from '@piying/view-svelte';
+  import { fieldConfig } from '../piying/define';
+
+  const schema = v.object({
+    name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符'), v.title('姓名')),
+    age: v.pipe(v.number(), v.minValue(18, '必须年满 18 岁'), v.title('年龄')),
+    email: v.pipe(v.optional(v.string()), v.title('邮箱')),
+  });
+
+  const options = {
+    fieldGlobalConfig: fieldConfig,
+  };
+
+  let model = $state<Record<string, any>>({});
+
+  function modelChange(value: Record<string, any>) {
+    model = value;
+  }
+</script>
+
+<PiyingView {schema} {options} {model} {modelChange} />
+
+<pre>{JSON.stringify(model, null, 2)}</pre>
+```
+
+`<PiyingView>` 接收四个属性：
+
+| 属性          | 说明                                       |
+| ------------- | ------------------------------------------ |
+| `{schema}`    | Valibot Schema，定义字段和验证规则         |
+| `{model}`     | 传入的模型值                               |
+| `{modelChange}` | 模型变更回调（仅在**无验证错误**时触发） |
+| `{options}`   | Options 配置（fieldGlobalConfig 等）       |
+
+> `model` **不是** `$bindable()` prop，不能写 `bind:model`；需要在 `modelChange` 里自己回写本地状态。
+
+## 第 6 步：运行
+
+```bash
+npm run dev
+```
+
+打开浏览器，你会看到 name / age / email 三个字段的表单。输入数据时 `model` 会同步更新；校验不通过时不会向 `model` 写出错误值。
+
+---
+
+## 下一步
+
+- [Svelte 包 API 参考](zh/adapters/svelte/) — `@piying/view-svelte` 完整 API
+- [两种使用模式](zh/getting-started/two-modes/) — 自动模式 vs 手动模式的边界划分
+- [核心概念](zh/getting-started/core-concept/) — Schema 是如何转换为视图的
+- [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig 的详细用法

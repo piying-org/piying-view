@@ -8,6 +8,12 @@ declare global {
       'docCopy.idle': string;
       'docCopy.done': string;
       'docCopy.failed': string;
+      'framework.quickStart': string;
+      'framework.angular.desc': string;
+      'framework.vue.desc': string;
+      'framework.react.desc': string;
+      'framework.svelte.desc': string;
+      'framework.solid.desc': string;
     }
   }
 }

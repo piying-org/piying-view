@@ -1,5 +1,11 @@
 {
   "docCopy.idle": "复制文档",
   "docCopy.done": "已复制",
-  "docCopy.failed": "复制失败"
+  "docCopy.failed": "复制失败",
+  "framework.quickStart": "快速开始",
+  "framework.angular.desc": "主力框架，提供 BaseControl 基类、NG_VALUE_ACCESSOR 集成与指令系统",
+  "framework.vue.desc": "SFC + setup 语法，通过 defineExpose 暴露 CVA，支持 Vue 2 legacy",
+  "framework.react.desc": "Hooks 风格，useControlValueAccessor + use-*Model 系列绑定原生控件",
+  "framework.svelte.desc": "Svelte 5 runes（$state / $effect）+ getContext 获取字段",
+  "framework.solid.desc": "Solid 信号体系，通过 CVA symbol + Setter 完成控件绑定"
 }

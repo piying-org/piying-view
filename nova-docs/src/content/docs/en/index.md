@@ -21,11 +21,16 @@ Piying-View is an open-source TypeScript form library that turns [Valibot](https
 
 ### 🚀 Getting Started
 
-Everything you need to start with Piying-View. The Actions logic in these documents is identical across frameworks; Angular is used as the example.
+Everything you need to start with Piying-View. The quick start is now **split per framework**: read the overview page to pick your framework, then jump into the page that matches it.
 
 | Document                                               | Description                                                                                             |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [Quick Start](en/getting-started/quick-start/)  | Install (commands per framework) → define a schema → register components → render the form, incl. writing custom CVA components |
+| [Quick Start](en/getting-started/quick-start/)  | Framework navigation: the five steps, install commands per framework, template repositories               |
+| [Angular Quick Start](en/getting-started/quick-start/angular/) | Install → BaseControl component → fieldConfig → schema → `<piying-view>` rendering (with live preview) |
+| [Vue Quick Start](en/getting-started/quick-start/vue/)         | Install → `useControlValueAccessor` component → label wrapper → fieldConfig → `v-model` rendering       |
+| [React Quick Start](en/getting-started/quick-start/react/)     | Install → `CVA` symbol + `use-*Model` components → fieldConfig → `modelChange` rendering                |
+| [Svelte Quick Start](en/getting-started/quick-start/svelte/)   | Install → runes + `export { cva }` components → `lazyMark` → `modelChange` rendering                    |
+| [Solid Quick Start](en/getting-started/quick-start/solid/)     | Install → `Setter` + `createSignalConvert` components → fieldConfig → `modelChange` rendering           |
 | [Two Usage Modes](en/getting-started/two-modes/)          | Automatic mode (`<piying-view>` renders everything) vs manual mode (`convertToField` + `[formControl]`/`[fieldTemplate]` binding), boundaries and code walkthrough |
 | [Core Concepts](en/getting-started/core-concept/)        | The three-stage resolution chain Valibot Schema → CoreSchemaHandle → FormBuilder → Component Tree and its data flow (toView/toModel) |
 | [Options Configuration](en/getting-started/options-config/) | Details of the PiyingView `options` property: context, fieldGlobalConfig type/wrapper maps, custom Builder |
@@ -111,6 +116,7 @@ The following documents only cover APIs and directives unique to the **Angular f
 | Topic      | Link                                             |
 | ---------- | ----------------------------------------------- |
 | Installation | [Quick Start](en/getting-started/quick-start/) |
+| Framework quick start | [Angular](en/getting-started/quick-start/angular/) · [Vue](en/getting-started/quick-start/vue/) · [React](en/getting-started/quick-start/react/) · [Svelte](en/getting-started/quick-start/svelte/) · [Solid](en/getting-started/quick-start/solid/) |
 | Two modes    | [Two Usage Modes](en/getting-started/two-modes/)      |
 | How it works | [Core Concepts](en/getting-started/core-concept/)     |
 | Basic fields | [Basic Field Definition](en/scenarios/basic-field/)   |

@@ -1,0 +1,235 @@
+---
+title: "Vue 快速开始"
+---
+
+在 Vue 3 项目中安装并使用 Piying-View 渲染第一个表单。
+
+> 🚀 **想直接看效果？** 直接拉模板仓库：https://github.com/piying-org/piying-view-vue-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-vue-template
+cd piying-view-vue-template
+npm install && npm run dev
+```
+
+> 💡 **先分清两种模式**：本文演示的是**自动模式**（`<PiyingView>` + Schema 全自动渲染）。另一种**手动模式**（`convertToField` + `PiyingFieldTemplate` / `PiyingFieldControlBind` 手动绑定）见 [两种使用模式](zh/getting-started/two-modes/)。
+
+## 第 1 步：安装
+
+```bash
+pnpm add valibot @piying/view-core @piying/view-vue
+```
+
+> Vue 2 项目请使用 `@piying/view-vue2-legacy`，API 结构一致，差异见 [Vue 包 API 参考](zh/adapters/vue/)。
+
+## 第 2 步：写一个输入框控件
+
+Vue 的字段控件通过 `useControlValueAccessor()` 拿到 `cva`，再用 `defineExpose({ cva })` 暴露给 Piying-View 注册。
+
+```vue
+<!-- src/components/piying/input-text.vue -->
+<script setup lang="ts">
+import { useControlValueAccessor } from '@piying/view-vue';
+
+// 解构出 cvaa 的成员，模板里才能自动解包 ref
+const {
+  cva,
+  cvaa: { value, disabled, valueChange, touchedChange },
+} = useControlValueAccessor();
+
+// 关键：把 CVA 暴露出去
+defineExpose({ cva });
+</script>
+
+<template>
+  <input
+    class="input"
+    type="text"
+    :value="value"
+    :disabled="disabled"
+    @input="valueChange($event.target.value)"
+    @blur="touchedChange"
+  />
+</template>
+```
+
+`cvaa` 提供：
+
+| 成员              | 说明               |
+| ----------------- | ------------------ |
+| `value`           | 当前值（ShallowRef） |
+| `disabled`        | 禁用状态（Ref）    |
+| `valueChange(v)`  | 更新值并触发变更   |
+| `touchedChange()` | 标记为已触碰       |
+
+照这个模式再写两个控件：
+
+```vue
+<!-- src/components/piying/input-number.vue -->
+<script setup lang="ts">
+import { useControlValueAccessor } from '@piying/view-vue';
+
+const {
+  cva,
+  cvaa: { value, disabled, valueChange, touchedChange },
+} = useControlValueAccessor();
+
+defineExpose({ cva });
+</script>
+
+<template>
+  <input
+    class="input"
+    type="number"
+    :value="value"
+    :disabled="disabled"
+    @input="valueChange($event.target.value === '' ? undefined : Number($event.target.value))"
+    @blur="touchedChange"
+  />
+</template>
+```
+
+```vue
+<!-- src/components/piying/input-checkbox.vue -->
+<script setup lang="ts">
+import { useControlValueAccessor } from '@piying/view-vue';
+
+const {
+  cva,
+  cvaa: { value, disabled, valueChange, touchedChange },
+} = useControlValueAccessor();
+
+defineExpose({ cva });
+</script>
+
+<template>
+  <input
+    class="checkbox"
+    type="checkbox"
+    :checked="value ?? false"
+    :disabled="disabled"
+    @change="valueChange($event.target.checked)"
+    @blur="touchedChange"
+  />
+</template>
+```
+
+## 第 3 步：写一个 label 包装器
+
+包装器（Wrapper）负责在控件外面套一层标签。它通过 `PI_VIEW_FIELD_TOKEN` 注入当前字段，读取 `props['title']`。
+
+```vue
+<!-- src/components/piying/wrapper/label-wrapper.vue -->
+<script setup lang="ts">
+import { inject } from 'vue';
+import { PI_VIEW_FIELD_TOKEN, signalToRef } from '@piying/view-vue';
+
+const field = inject(PI_VIEW_FIELD_TOKEN)!;
+const fieldProps = signalToRef(() => field.value.props());
+</script>
+
+<template>
+  <div class="flex items-center gap-2">
+    <span v-if="fieldProps['title']" class="label">{{ fieldProps['title'] }}</span>
+    <slot />
+  </div>
+</template>
+```
+
+> Wrappers 的完整写法见 [Wrappers 包装器](zh/api/wrappers/)。
+
+## 第 4 步：注册类型映射（fieldConfig）
+
+`fieldConfig` 是一张「类型名 → 组件」的注册表，Piying-View 按 Schema 推导出的类型名来这里查找渲染组件。
+
+```typescript
+// src/components/piying/define.ts
+import { markRaw } from 'vue';
+import { actions, type PiViewConfig } from '@piying/view-vue';
+import { PiyingViewGroup } from '@piying/view-vue';
+import InputText from './input-text.vue';
+import InputNumber from './input-number.vue';
+import InputCheckbox from './input-checkbox.vue';
+import LabelWrapper from './wrapper/label-wrapper.vue';
+
+export const fieldConfig = {
+  types: {
+    string: {
+      type: markRaw(InputText),
+      actions: [actions.wrappers.set(['label'])],
+    },
+    number: {
+      type: markRaw(InputNumber),
+      actions: [actions.wrappers.set(['label'])],
+    },
+    boolean: {
+      type: markRaw(InputCheckbox),
+      actions: [actions.wrappers.set(['label'])],
+    },
+    // 对象 / 数组等容器类型，用内置的组容器
+    object: { type: markRaw(PiyingViewGroup) },
+    array: { type: markRaw(PiyingViewGroup) },
+  },
+  wrappers: {
+    label: { type: markRaw(LabelWrapper) },
+  },
+} as PiViewConfig;
+```
+
+> 组件对象请用 `markRaw` 包一层，避免被 Vue 的响应式系统代理；也可以写成 `() => import('./xxx.vue')` 做懒加载。
+
+## 第 5 步：定义 Schema 并渲染
+
+```vue
+<!-- src/views/PiyingDemo.vue -->
+<script setup lang="ts">
+import { ref } from 'vue';
+import * as v from 'valibot';
+import { PiyingView } from '@piying/view-vue';
+import { fieldConfig } from '@/components/piying/define';
+
+const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符'), v.title('姓名')),
+  age: v.pipe(v.number(), v.minValue(18, '必须年满 18 岁'), v.title('年龄')),
+  email: v.pipe(v.optional(v.string()), v.title('邮箱')),
+});
+
+const options = {
+  fieldGlobalConfig: fieldConfig,
+};
+
+const model = ref<Record<string, any>>({});
+</script>
+
+<template>
+  <piying-view :schema="schema" :options="options" v-model="model" />
+
+  <pre>{{ JSON.stringify(model, null, 2) }}</pre>
+</template>
+```
+
+`<piying-view>` 接收三个属性：
+
+| 属性               | 说明                                 |
+| ------------------ | ------------------------------------ |
+| `:schema`          | Valibot Schema，定义字段和验证规则   |
+| `v-model`          | 双向绑定，同步表单数据               |
+| `:options`         | Options 配置（fieldGlobalConfig 等） |
+
+## 第 6 步：运行
+
+```bash
+npm run dev
+```
+
+打开浏览器，你会看到 name / age / email 三个字段的表单。输入数据时 `model` 会同步更新；校验不通过时不会向 `model` 写出错误值。
+
+---
+
+## 下一步
+
+- [Vue 包 API 参考](zh/adapters/vue/) — `@piying/view-vue` 完整 API
+- [Vue 强类型组件](zh/adapters/vue/typed-component/) — `typedComponent` 让 setComponent 具备类型推导
+- [两种使用模式](zh/getting-started/two-modes/) — 自动模式 vs 手动模式的边界划分
+- [核心概念](zh/getting-started/core-concept/) — Schema 是如何转换为视图的
+- [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig 的详细用法

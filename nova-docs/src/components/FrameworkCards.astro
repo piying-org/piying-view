@@ -1,0 +1,36 @@
+---
+import { LinkCard } from '@astrojs/starlight/components';
+import { frameworks } from '../config/frameworks';
+
+interface Props {
+  /** 链接前缀，默认指向快速上手目录 */
+  dir?: string;
+}
+
+const { dir = 'getting-started/quick-start' } = Astro.props;
+const t = Astro.locals.t;
+
+const locale = Astro.currentLocale === 'en' ? 'en' : 'zh';
+const base = '/piying-view/';
+---
+
+<div class="framework-cards">
+  {
+    frameworks.map((f) => (
+      <LinkCard
+        href={`${base}${locale}/${dir}/${f.key}/`}
+        title={`${f.name} ${t('framework.quickStart')}`}
+        // description={t(f.descKey)}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .framework-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+</style>

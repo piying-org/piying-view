@@ -1,0 +1,207 @@
+---
+title: "Angular Quick Start"
+---
+
+import LivePreview from '../../../../../components/LivePreview.astro';
+import { QuickStartDemoComponent } from '../../../../../angular/components/quick-start-demo.component.ts';
+
+Install Piying-View in an Angular project and render your first form.
+
+> 🚀 **Want to see it running first?** Clone the template: https://github.com/piying-org/piying-view-angular-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-angular-template
+cd piying-view-angular-template
+npm install && npm start
+```
+
+> 💡 **Know the two modes first**: this page demonstrates **automatic mode** (the `<piying-view>` component renders everything from the schema). There is also a **manual mode** (`convertToField` + `[formControl]` / `[fieldTemplate]` binding). See [Two Usage Modes](en/getting-started/two-modes/).
+
+## Live preview
+
+<LivePreview path="src/angular/components/quick-start-demo.component.ts">
+  <QuickStartDemoComponent slot="preview" client:only="angular" />
+</LivePreview>
+
+## Step 1: Install
+
+```bash
+pnpm add valibot @piying/view-angular @piying/view-angular-core
+```
+
+## Step 2: Write an input control
+
+A field control is simply a **custom Angular form control**: registering `NG_VALUE_ACCESSOR` is all it takes to talk to Piying-View.
+
+Piying-View ships a `BaseControl` base class that removes the `ControlValueAccessor` boilerplate.
+
+```typescript
+// src/app/input.component.ts
+import { Component, forwardRef } from '@angular/core';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { BaseControl } from '@piying/view-angular';
+
+@Component({
+  selector: 'app-input',
+  standalone: true,
+  imports: [FormsModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputComponent),
+      multi: true,
+    },
+  ],
+  template: `
+    <input
+      class="input"
+      [(ngModel)]="value$"
+      [disabled]="disabled$()"
+      (blur)="touchedChange()"
+    />
+  `,
+})
+export class InputComponent extends BaseControl {}
+```
+
+`BaseControl` provides:
+
+| Member           | Description                        |
+| ---------------- | ---------------------------------- |
+| `value$`         | Current value (Signal)             |
+| `disabled$`      | Disabled state (Signal)            |
+| `valueChange(v)` | Write a value and notify the form  |
+| `touchedChange()` | Mark the control as touched       |
+
+> Do not want `BaseControl`? Implementing `ControlValueAccessor` yourself and registering `NG_VALUE_ACCESSOR` works exactly the same.
+
+## Step 3: Register the type map (fieldConfig)
+
+`fieldConfig` is a "type name → component" registry. Piying-View derives a type name from the schema and looks it up here.
+
+```typescript
+// src/app/piying-define.ts
+import { actions, PiyingViewGroup, type PiViewConfig } from '@piying/view-angular';
+import { InputComponent } from './input.component';
+
+export const fieldConfig = {
+  types: {
+    // which component renders string / number / boolean in the schema
+    string: {
+      type: InputComponent,
+      actions: [actions.wrappers.set(['label'])],
+    },
+    number: {
+      type: InputComponent,
+      actions: [actions.wrappers.set(['label'])],
+    },
+    boolean: {
+      type: InputComponent,
+      actions: [actions.wrappers.set(['label'])],
+    },
+    // container types such as object / array use the built-in group
+    object: { type: PiyingViewGroup },
+    array: { type: PiyingViewGroup },
+  },
+  wrappers: {
+    label: { type: LabelWrapperComponent },
+  },
+} as PiViewConfig;
+```
+
+The `label` wrapper renders the field `title` as a label:
+
+```typescript
+// src/app/label-wrapper.component.ts
+import { Component, inject } from '@angular/core';
+import { PI_VIEW_FIELD_TOKEN } from '@piying/view-angular';
+
+@Component({
+  selector: 'app-label-wrapper',
+  standalone: true,
+  template: `
+    <div class="flex items-center gap-2">
+      @if (field.props()['title']) {
+        <span class="label">{{ field.props()['title'] }}</span>
+      }
+      <ng-content />
+    </div>
+  `,
+})
+export class LabelWrapperComponent {
+  field = inject(PI_VIEW_FIELD_TOKEN)!;
+}
+```
+
+> Full wrapper documentation (V1 / V2 templates, `InsertFieldDirective`) lives in [Wrappers](en/api/wrappers/).
+
+## Step 4: Define the schema
+
+```typescript
+import * as v from 'valibot';
+
+export const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, 'Name must be at least 2 characters'), v.title('Name')),
+  age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old'), v.title('Age')),
+  email: v.pipe(v.optional(v.string()), v.title('Email')),
+});
+```
+
+## Step 5: Render the form
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { JsonPipe } from '@angular/common';
+import { PiyingView } from '@piying/view-angular';
+import { fieldConfig } from './piying-define';
+import { schema } from './schema';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [PiyingView, JsonPipe],
+  template: `
+    <piying-view
+      [schema]="schema"
+      [(model)]="model"
+      [options]="options"
+    ></piying-view>
+
+    <pre>{{ model() | json }}</pre>
+  `,
+})
+export class ExampleComponent {
+  schema = schema;
+  model = signal<Record<string, any>>({});
+  options = {
+    fieldGlobalConfig: fieldConfig,
+  };
+}
+```
+
+`<piying-view>` takes three properties:
+
+| Property    | Description                                              |
+| ----------- | -------------------------------------------------------- |
+| `schema`    | Valibot schema defining fields and validation rules      |
+| `[(model)]` | Two-way binding that syncs the form data                 |
+| `options`   | Options configuration (fieldGlobalConfig, ...)           |
+
+## Step 6: Run
+
+```bash
+ng serve
+```
+
+Open the page and you get a form with the name / age / email fields. As you type, the `model` signal updates in sync; values that fail validation are never written to `model`.
+
+---
+
+## Next steps
+
+- [Two Usage Modes](en/getting-started/two-modes/) — where automatic mode ends and manual mode begins
+- [Core Concepts](en/getting-started/core-concept/) — how a schema becomes a view
+- [Basic Field Definition](en/scenarios/basic-field/) — detailed usage of setComponent / formConfig
+- [Options Configuration](en/getting-started/options-config/) — introduction to context / fieldGlobalConfig / builder
+- [BaseControl](en/angular/base-control/) — complete API of the Angular field control base class
+- [Angular Only API](en/angular/api/) — components / directives / tokens / utilities

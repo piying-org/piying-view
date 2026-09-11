@@ -4,7 +4,7 @@ title: "Field Component Model Binding (React)"
 
 The `@piying/view-react` package provides a family of `use-*Model` hooks that bind native form controls to Piying-View's `ControlValueAccessorAdapter` (CVAA). Each hook returns a props object that can be spread directly onto the native control, removing the boilerplate of hand-written value/event bindings.
 
-> The React version of `use-*Model` returns a plain object, so spreading it with `{...model}` is all you need. The Solid version has a different signature (it returns a `createMemo` computed signal) — see the [Solid version](en/adapters/field-model-binding-solid/).
+> The React version of `use-*Model` returns a plain object, so spreading it with `{...model}` is all you need. The Solid version has a different signature (it returns a `createMemo` computed signal) — see the [Solid version](en/adapters/solid/field-model-binding/).
 
 ## Prerequisite: Getting the CVAA
 
@@ -145,6 +145,6 @@ export function InputText(props: PiInputOptions) {
 ## Next Steps
 
 - [React API](en/adapters/react/) — complete `@piying/view-react` API
-- [Solid version](en/adapters/field-model-binding-solid/) — signature differences of Solid's `use-*Model`
+- [Solid version](en/adapters/solid/field-model-binding/) — signature differences of Solid's `use-*Model`
 - [Framework Differences](en/getting-started/framework-differences/) — CVA binding and signal conversion helpers per framework
 - [Basic Field Definition](en/scenarios/basic-field/) — using setComponent / formConfig

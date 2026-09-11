@@ -148,7 +148,7 @@ const field = convertToField(() => schema, injector /* optional */, () => option
 
 ## use-*Model Binding Hooks
 
-Bind native controls to `cvaa` in two directions. See [Field Model Binding](en/adapters/field-model-binding-react/):
+Bind native controls to `cvaa` in two directions. See [Field Model Binding](en/adapters/react/field-model-binding/):
 
 | Hook                    | Target control        |
 | ----------------------- | ------------------- |
@@ -184,6 +184,6 @@ import { PiResolvedViewFieldConfig } from '@piying/view-react';
 
 ## Next Steps
 
-- [Field Model Binding](en/adapters/field-model-binding-react/) — details on use-*Model hooks
+- [Field Model Binding](en/adapters/react/field-model-binding/) — details on use-*Model hooks
 - [Framework Differences](en/getting-started/framework-differences/) — CVA / Signal comparison across frameworks
 - [Basic Field Definition](en/scenarios/basic-field/) — setComponent / formConfig

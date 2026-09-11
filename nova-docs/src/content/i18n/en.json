@@ -1,5 +1,11 @@
 {
   "docCopy.idle": "Copy doc",
   "docCopy.done": "Copied",
-  "docCopy.failed": "Copy failed"
+  "docCopy.failed": "Copy failed",
+  "framework.quickStart": "Quick Start",
+  "framework.angular.desc": "The flagship framework: BaseControl, NG_VALUE_ACCESSOR integration and directives",
+  "framework.vue.desc": "SFC + setup syntax, exposes CVA via defineExpose, Vue 2 legacy supported",
+  "framework.react.desc": "Hooks style: useControlValueAccessor plus use-*Model hooks for native controls",
+  "framework.svelte.desc": "Svelte 5 runes ($state / $effect) with getContext for the current field",
+  "framework.solid.desc": "Solid signals: control binding through the CVA symbol and a Setter"
 }

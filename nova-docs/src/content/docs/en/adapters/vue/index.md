@@ -117,7 +117,7 @@ const outputs = signalToRef(() => field.value.outputs());
 
 ### typedComponent — strongly typed setComponent
 
-See [Vue Typed Components](en/adapters/vue-typed-component/).
+See [Vue Typed Components](en/adapters/vue/typed-component/).
 
 ```typescript
 import { typedComponent } from '@piying/view-vue';
@@ -202,6 +202,6 @@ const copy = clone(originalObj);
 
 ## Next Steps
 
-- [Vue Typed Components](en/adapters/vue-typed-component/) — details of typedComponent
+- [Vue Typed Components](en/adapters/vue/typed-component/) — details of typedComponent
 - [Framework Differences](en/getting-started/framework-differences/) — Vue's Field Token / CVA binding
 - [Basic Field Definition](en/scenarios/basic-field/) — setComponent / formConfig

@@ -148,7 +148,7 @@ const field = convertToField(() => schema, injector /* 可选 */, () => options)
 
 ## use-*Model 绑定 Hook
 
-将原生控件与 `cvaa` 双向绑定。详见 [字段模型绑定](zh/adapters/field-model-binding-react/)：
+将原生控件与 `cvaa` 双向绑定。详见 [字段模型绑定](zh/adapters/react/field-model-binding/)：
 
 | Hook                    | 目标控件            |
 | ----------------------- | ------------------- |
@@ -184,6 +184,6 @@ import { PiResolvedViewFieldConfig } from '@piying/view-react';
 
 ## 下一步
 
-- [字段模型绑定](zh/adapters/field-model-binding-react/) — use-*Model 详解
+- [字段模型绑定](zh/adapters/react/field-model-binding/) — use-*Model 详解
 - [框架差异](zh/getting-started/framework-differences/) — 各框架 CVA / Signal 对比
 - [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig

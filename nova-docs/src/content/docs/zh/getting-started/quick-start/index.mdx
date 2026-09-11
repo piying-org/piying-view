@@ -1,0 +1,39 @@
+---
+title: "快速上手"
+---
+
+import FrameworkCards from '../../../../../components/FrameworkCards.astro';
+
+Piying-View 用一份 **Valibot Schema** 驱动整个表单：Schema 描述结构与校验规则，你为每种类型注册一个渲染组件，库自动渲染出完整表单。
+
+**所有框架里 `setComponent` / `formConfig` / `actions.*` 的逻辑完全相同**，唯一不同的是「字段控件怎么写」和「控件怎么注册」。
+
+所以不需要通读全部文档 —— 直接点进你正在用的那一篇，跟着 5 步跑通第一个表单即可。
+
+## 选择你的框架
+
+<FrameworkCards />
+
+---
+
+## 五步跑通（每个框架都是这五步）
+
+| 步骤             | 做什么                                            | 关键点                                                            |
+| ---------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| **1. 安装**      | 安装框架适配包 + `valibot`                        | Actions 从核心包导入：Angular 用 `@piying/view-angular-core`，其余用 `@piying/view-core` |
+| **2. 写控件**    | 写一个最普通的输入框组件                          | 组件只需实现 **CVA**（ControlValueAccessor）：读写值、禁用、touched |
+| **3. 注册映射**  | 建一张 `fieldConfig` 表                           | `types`：类型名 → 组件；`wrappers`：包装器名 → 组件                 |
+| **4. 定义 Schema** | 用 Valibot 描述字段                              | `v.string()` / `v.number()` / `v.boolean()` / `v.object()` …        |
+| **5. 渲染**      | 把 `schema` + `options` 交给 `<PiyingView />`     | 表单自动渲染，值通过 `model` 双向同步                               |
+
+> 💡 **先分清两种模式**：快速上手演示的是**自动模式**（`<PiyingView>` + Schema 全自动渲染）。另一种**手动模式**（`convertToField` + 手动绑定渲染位置）见 [两种使用模式](zh/getting-started/two-modes/)。
+
+---
+
+## 下一步
+
+- [两种使用模式](zh/getting-started/two-modes/) — 自动模式 vs 手动模式的边界划分
+- [核心概念](zh/getting-started/core-concept/) — Schema 是如何转换为视图的
+- [Options 配置](zh/getting-started/options-config/) — context / fieldGlobalConfig / builder 入门讲解
+- [框架差异](zh/getting-started/framework-differences/) — 各框架 CVA / Signal / Token 对比
+- [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig 的详细用法

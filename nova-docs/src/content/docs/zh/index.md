@@ -21,11 +21,16 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 ### 🚀 入门使用 (Getting Started)
 
-从零开始了解 Piying-View，帮助你快速上手。以下文档的 Actions 逻辑在所有框架中一致，仅以 Angular 为例展示。
+从零开始了解 Piying-View，帮助你快速上手。**快速上手已按框架拆分**：先看「快速上手」总览页选框架，再进入你那个框架的专属快速开始。
 
 | 文档                                                 | 说明                                                                                                      |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [快速上手](zh/getting-started/quick-start/)      | 安装（含各框架安装命令）→ 定义 Schema → 注册组件 → 渲染表单，含自定义 CVA 组件编写方法                       |
+| [快速上手](zh/getting-started/quick-start/)      | 框架导航页：五步概览、各框架安装命令、模板仓库一览                                                          |
+| [Angular 快速开始](zh/getting-started/quick-start/angular/) | 安装 → BaseControl 控件 → fieldConfig 注册 → Schema → `<piying-view>` 渲染（含在线预览）        |
+| [Vue 快速开始](zh/getting-started/quick-start/vue/)         | 安装 → `useControlValueAccessor` 控件 → label 包装器 → fieldConfig → `v-model` 渲染              |
+| [React 快速开始](zh/getting-started/quick-start/react/)     | 安装 → `CVA` symbol + `use-*Model` 控件 → fieldConfig → `modelChange` 渲染                        |
+| [Svelte 快速开始](zh/getting-started/quick-start/svelte/)   | 安装 → runes + `export { cva }` 控件 → `lazyMark` → `modelChange` 渲染                            |
+| [Solid 快速开始](zh/getting-started/quick-start/solid/)     | 安装 → `Setter` + `createSignalConvert` 控件 → fieldConfig → `modelChange` 渲染                   |
 | [两种使用模式](zh/getting-started/two-modes/)          | 自动模式（`<piying-view>` 全自动渲染）vs 手动模式（`convertToField` + `[formControl]`/`[fieldTemplate]` 绑定），边界划分与代码解析 |
 | [核心概念](zh/getting-started/core-concept/)          | Valibot Schema → CoreSchemaHandle → FormBuilder → Component Tree 的三阶段解析链与数据流（toView/toModel） |
 | [Options 配置](zh/getting-started/options-config/)    | PiyingView 组件 `options` 属性详解：context 上下文、fieldGlobalConfig 全局类型/包装器映射、自定义 Builder |
@@ -111,6 +116,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | 主题       | 链接                                            |
 | ---------- | ----------------------------------------------- |
 | 安装使用   | [快速上手](zh/getting-started/quick-start/) |
+| 框架快速开始 | [Angular](zh/getting-started/quick-start/angular/) · [Vue](zh/getting-started/quick-start/vue/) · [React](zh/getting-started/quick-start/react/) · [Svelte](zh/getting-started/quick-start/svelte/) · [Solid](zh/getting-started/quick-start/solid/) |
 | 两种模式   | [两种使用模式](zh/getting-started/two-modes/)     |
 | 理解原理   | [核心概念](zh/getting-started/core-concept/)     |
 | 基本字段   | [基础字段定义](zh/scenarios/basic-field/)        |

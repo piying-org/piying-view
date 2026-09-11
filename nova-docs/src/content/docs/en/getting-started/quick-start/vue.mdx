@@ -1,0 +1,234 @@
+---
+title: "Vue Quick Start"
+---
+
+Install Piying-View in a Vue 3 project and render your first form.
+
+> 🚀 **Want to see it running first?** Clone the template: https://github.com/piying-org/piying-view-vue-template
+
+```bash
+git clone https://github.com/piying-org/piying-view-vue-template
+cd piying-view-vue-template
+npm install && npm run dev
+```
+
+> 💡 **Know the two modes first**: this page demonstrates **automatic mode** (`<PiyingView>` renders everything from the schema). The other one is **manual mode** (`convertToField` + `PiyingFieldTemplate` / `PiyingFieldControlBind`). See [Two Usage Modes](en/getting-started/two-modes/).
+
+## Step 1: Install
+
+```bash
+pnpm add valibot @piying/view-core @piying/view-vue
+```
+
+> Vue 2 projects use `@piying/view-vue2-legacy`; the API shape is the same, see the [Vue package API reference](en/adapters/vue/).
+
+## Step 2: Write an input control
+
+A Vue field control calls `useControlValueAccessor()` to obtain the `cva` and exposes it to Piying-View with `defineExpose({ cva })`.
+
+```vue
+<!-- src/components/piying/input-text.vue -->
+<script setup lang="ts">
+import { useControlValueAccessor } from '@piying/view-vue';
+
+// Destructure the cvaa members so the template can unwrap the refs
+const {
+  cva,
+  cvaa: { value, disabled, valueChange, touchedChange },
+} = useControlValueAccessor();
+
+// Key point: expose the CVA
+defineExpose({ cva });
+</script>
+
+<template>
+  <input
+    class="input"
+    type="text"
+    :value="value"
+    :disabled="disabled"
+    @input="valueChange($event.target.value)"
+    @blur="touchedChange"
+  />
+</template>
+```
+
+`cvaa` provides:
+
+| Member          | Description              |
+| --------------- | ------------------------ |
+| `value`         | Current value (ShallowRef) |
+| `disabled`      | Disabled state (Ref)     |
+| `valueChange(v)` | Update the value and notify |
+| `touchedChange()` | Mark the control as touched |
+
+Follow the same pattern for two more controls:
+
+```vue
+<!-- src/components/piying/input-number.vue -->
+<script setup lang="ts">
+import { useControlValueAccessor } from '@piying/view-vue';
+
+const {
+  cva,
+  cvaa: { value, disabled, valueChange, touchedChange },
+} = useControlValueAccessor();
+
+defineExpose({ cva });
+</script>
+
+<template>
+  <input
+    class="input"
+    type="number"
+    :value="value"
+    :disabled="disabled"
+    @input="valueChange($event.target.value === '' ? undefined : Number($event.target.value))"
+    @blur="touchedChange"
+  />
+</template>
+```
+
+```vue
+<!-- src/components/piying/input-checkbox.vue -->
+<script setup lang="ts">
+import { useControlValueAccessor } from '@piying/view-vue';
+
+const {
+  cva,
+  cvaa: { value, disabled, valueChange, touchedChange },
+} = useControlValueAccessor();
+
+defineExpose({ cva });
+</script>
+
+<template>
+  <input
+    class="checkbox"
+    type="checkbox"
+    :checked="value ?? false"
+    :disabled="disabled"
+    @change="valueChange($event.target.checked)"
+    @blur="touchedChange"
+  />
+</template>
+```
+
+## Step 3: Write a label wrapper
+
+A wrapper adds a layer around the control. It injects the current field through `PI_VIEW_FIELD_TOKEN` and reads `props['title']`.
+
+```vue
+<!-- src/components/piying/wrapper/label-wrapper.vue -->
+<script setup lang="ts">
+import { inject } from 'vue';
+import { PI_VIEW_FIELD_TOKEN, signalToRef } from '@piying/view-vue';
+
+const field = inject(PI_VIEW_FIELD_TOKEN)!;
+const fieldProps = signalToRef(() => field.value.props());
+</script>
+
+<template>
+  <div class="flex items-center gap-2">
+    <span v-if="fieldProps['title']" class="label">{{ fieldProps['title'] }}</span>
+    <slot />
+  </div>
+</template>
+```
+
+> Full wrapper documentation lives in [Wrappers](en/api/wrappers/).
+
+## Step 4: Register the type map (fieldConfig)
+
+`fieldConfig` is a "type name → component" registry. Piying-View derives a type name from the schema and looks it up here.
+
+```typescript
+// src/components/piying/define.ts
+import { markRaw } from 'vue';
+import { actions, PiyingViewGroup, type PiViewConfig } from '@piying/view-vue';
+import InputText from './input-text.vue';
+import InputNumber from './input-number.vue';
+import InputCheckbox from './input-checkbox.vue';
+import LabelWrapper from './wrapper/label-wrapper.vue';
+
+export const fieldConfig = {
+  types: {
+    string: {
+      type: markRaw(InputText),
+      actions: [actions.wrappers.set(['label'])],
+    },
+    number: {
+      type: markRaw(InputNumber),
+      actions: [actions.wrappers.set(['label'])],
+    },
+    boolean: {
+      type: markRaw(InputCheckbox),
+      actions: [actions.wrappers.set(['label'])],
+    },
+    // container types such as object / array use the built-in group
+    object: { type: markRaw(PiyingViewGroup) },
+    array: { type: markRaw(PiyingViewGroup) },
+  },
+  wrappers: {
+    label: { type: markRaw(LabelWrapper) },
+  },
+} as PiViewConfig;
+```
+
+> Wrap components with `markRaw` so Vue's reactivity system does not proxy them; you can also write `() => import('./xxx.vue')` for lazy loading.
+
+## Step 5: Define the schema and render
+
+```vue
+<!-- src/views/PiyingDemo.vue -->
+<script setup lang="ts">
+import { ref } from 'vue';
+import * as v from 'valibot';
+import { PiyingView } from '@piying/view-vue';
+import { fieldConfig } from '@/components/piying/define';
+
+const schema = v.object({
+  name: v.pipe(v.string(), v.minLength(2, 'Name must be at least 2 characters'), v.title('Name')),
+  age: v.pipe(v.number(), v.minValue(18, 'You must be at least 18 years old'), v.title('Age')),
+  email: v.pipe(v.optional(v.string()), v.title('Email')),
+});
+
+const options = {
+  fieldGlobalConfig: fieldConfig,
+};
+
+const model = ref<Record<string, any>>({});
+</script>
+
+<template>
+  <piying-view :schema="schema" :options="options" v-model="model" />
+
+  <pre>{{ JSON.stringify(model, null, 2) }}</pre>
+</template>
+```
+
+`<piying-view>` takes three properties:
+
+| Property        | Description                                        |
+| --------------- | -------------------------------------------------- |
+| `:schema`       | Valibot schema defining fields and validation rules |
+| `v-model`       | Two-way binding that syncs the form data            |
+| `:options`      | Options configuration (fieldGlobalConfig, ...)      |
+
+## Step 6: Run
+
+```bash
+npm run dev
+```
+
+Open the page and you get a form with the name / age / email fields. As you type, `model` updates in sync; values that fail validation are never written to `model`.
+
+---
+
+## Next steps
+
+- [Vue package API reference](en/adapters/vue/) — complete `@piying/view-vue` API
+- [Vue Typed Components](en/adapters/vue/typed-component/) — `typedComponent` brings type inference to setComponent
+- [Two Usage Modes](en/getting-started/two-modes/) — where automatic mode ends and manual mode begins
+- [Core Concepts](en/getting-started/core-concept/) — how a schema becomes a view
+- [Basic Field Definition](en/scenarios/basic-field/) — detailed usage of setComponent / formConfig
