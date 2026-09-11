@@ -5,11 +5,11 @@ interface Props {
 }
 
 const { src } = Astro.props;
-const isZh = (Astro.currentLocale ?? 'zh').startsWith('zh');
+const t = Astro.locals.t;
 const labels = {
-  idle: isZh ? '复制文档' : 'Copy doc',
-  done: isZh ? '已复制' : 'Copied',
-  failed: isZh ? '复制失败' : 'Copy failed',
+  idle: t('docCopy.idle'),
+  done: t('docCopy.done'),
+  failed: t('docCopy.failed'),
 };
 ---
 
