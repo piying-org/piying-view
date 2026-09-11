@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:angular": "npm --prefix .. run build:angular",
     "build:online-type": "dts-bundle-generator ./src/declaration/online-type.ts --project ./tsconfig.online-type.json -o public/declaration/online-type.d.ts --external-inlines valibot --external-inlines @piying/view-angular --external-inlines @piying/view-angular-core --no-check --no-banner --inline-declare-global --inline-declare-externals --export-referenced-types",
     "preview": "astro preview",
     "astro": "astro"

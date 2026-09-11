@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
@@ -28,13 +28,16 @@ jobs:
         uses: pnpm/action-setup@v6
         with:
           version: '11'
-      - name: 安装依赖1
-        run: pnpm install
-      - name: 安装依赖2
-        run: pnpm install
+      - run: pnpm install
+
+      - run: npm run build:angular
+
+      - run: pnpm install
         working-directory: nova-docs
-      - name: 构建文档站点
-        run: npm run build:docs
+
+      - run: npm run build
+        working-directory: nova-docs
+
       - name: 上传制品
         id: deployment
         uses: actions/upload-pages-artifact@v3

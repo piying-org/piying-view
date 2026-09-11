@@ -16,7 +16,6 @@
     "build:core": "rimraf ./dist && npm run create-view-core && ng build view-core",
     "build:angular":"ng build view-angular && ng build view-angular-core",
     "build": "rimraf ./dist && npm run create-view-core && npm run build:angular && ng build view-core && npm run build -ws --if-present",
-    "build:docs": "npm run build:angular && npm --prefix nova-docs run build",
     "test": "ng test test-view-angular",
     "test:vue2-legacy": "npm run test -w packages/vue2-legacy",
     "test:vue": "npm run test -w packages/vue",
