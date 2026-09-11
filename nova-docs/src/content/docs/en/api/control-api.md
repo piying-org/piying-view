@@ -1,5 +1,5 @@
 ---
-title: "Control API — Complete Form Control Reference"
+title: "AbstractControl — Form Control Instance API"
 ---
 
 Piying-View's Control system is the heart of the form: it manages values, tracks state, runs validation and navigates child fields. Controls are created automatically by the library while the schema is parsed and converted.

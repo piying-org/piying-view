@@ -1,5 +1,5 @@
 ---
-title: "Control API — 表单控件完整参考"
+title: "AbstractControl — 表单控件实例 API"
 ---
 
 Piying-View 的 Control 系统是整个表单的核心，负责值管理、状态跟踪、验证和子字段导航。Control 是在 Schema 解析/转换过程中由库自动生成的。

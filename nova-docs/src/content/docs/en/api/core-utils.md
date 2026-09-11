@@ -177,5 +177,5 @@ const schema = v.object({
 ## Next Steps
 
 - [Core Concepts](en/getting-started/core-concept/) — the Schema → Field → Component resolution chain
-- [Control API](en/api/control-api/) — value / state / validation APIs of form controls
+- [AbstractControl](en/api/control-api/) — value / state / validation APIs
 - [formConfig](en/api/form-config/) — form configuration

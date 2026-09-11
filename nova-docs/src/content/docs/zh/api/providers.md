@@ -4,7 +4,12 @@ title: "providers — 注入业务服务"
 
 
 
-本文介绍 Actions 中 Providers 的管理方法（set / patch / change），将业务服务注入到字段组件的 Injector 中。
+本文介绍 Actions 中 Providers 的管理方法（set / patch / change），将业务服务注入到字段组件的 Injector 中。所有框架都能使用，只是导入来源不同：
+
+| 框架                         | actions 导入                    | inject 导入            |
+| ---------------------------- | ------------------------------- | ---------------------- |
+| Angular                      | `@piying/view-angular-core`     | `@angular/core`        |
+| Vue / React / Solid / Svelte | `@piying/view-core`             | `static-injector`      |
 
 ## actions.providers.set — 设置 Provider（覆盖）
 

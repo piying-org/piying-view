@@ -83,34 +83,20 @@ After a deletion the slot becomes `undefined` and the length is preserved:
 
 ## groupMode — Group Validation Mode
 
-Controls the validation behaviour of Group / Array. `groupMode` is inferred automatically while parsing the schema and never needs to be set.
+Controls the validation behaviour of arrays and tuples. `groupMode` is inferred automatically while parsing the schema and never needs to be set.
 
 | Schema type                        | Inferred `groupMode` | Description                   |
 | -------------------------------- | ---------------------- | ---------------------------- |
-| `v.object()`                     | `'default'`            | Standard object: filters out undefined extra keys on output |
-| `v.looseObject()`                | `'loose'`              | Loose object: keeps undefined extra keys |
-| `v.strictObject()`               | `'strict'`             | Strict object: validation fails when extra keys exist |
 | `v.tuple()`                      | `'default'`            | Fixed-length tuple: items beyond the length are truncated |
 | `v.looseTuple()`                 | `'loose'`              | Loose tuple: items beyond the length are kept |
 | `v.strictTuple()`                | `'strict'`             | Strict tuple: validation fails when the length is exceeded |
 | `v.array()` / the rest part of `v.tupleWithRest()` | `'reset'` | Array / variable tail: no fixed-key or length constraint |
-| `v.intersect()` + `asVirtualGroup()` | Configurable     | Equivalent to `v.object()`     |
 
-### Automatic Inference Example
-
-<SchemaPreview definition="src/angular/components/definition/array-loose.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="array-loose" />
-</SchemaPreview>
-
-### Manual Override Example
-
-<SchemaPreview definition="src/angular/components/definition/array-group-mode.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="array-group-mode" />
-</SchemaPreview>
+For object groups (`v.object()` / `v.looseObject()` / `v.strictObject()`) see [Type Mapping](en/scenarios/type-mapping/).
 
 ### emptyValue — Empty Value
 
-When the value aggregated by the Group / Array is empty (an empty object / an empty array), `emptyValue` is returned as the final value:
+When the array is empty, `emptyValue` is returned as the final value:
 
 <SchemaPreview definition="src/angular/components/definition/array-empty-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-empty-value" />
@@ -146,43 +132,6 @@ FieldArray exposes convenient array-related properties:
 <SchemaPreview definition="src/angular/components/definition/array-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-complete" />
 </SchemaPreview>
-
-## Examples
-
-> The examples below are excerpted from the unit tests (`createBuilder` is an internal test utility, not a public API).
-
-```typescript
-// Array set + remove
-const obj = v.object({
-  key1: v.pipe(v.array(v.string()), setComponent('mock-array')),
-});
-
-const resolved = createBuilder(obj);
-const field = resolved.get(['key1'])!;
-
-field.action.set('11', 1); // set '11' at index 1
-field.action.remove(0); // remove index 0
-```
-
-## Filter Group
-
-Create a custom form group that controls the visibility of its inner fields (use the `filterGroup` component for large numbers of fields):
-
-<SchemaPreview definition="src/angular/components/definition/filter-group.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="filter-group" />
-</SchemaPreview>
-
-> `filterGroup` is a custom group component that filters the display of many inner fields.
-
-## Scroll Group
-
-Create controls lazily with `defer` and combine them with the `scrollGroup` component for scroll-based lazy loading of many fields:
-
-<SchemaPreview definition="src/angular/components/definition/scroll-group.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="scroll-group" />
-</SchemaPreview>
-
-> `scrollGroup` is a custom group component for scroll-based lazy rendering of large field lists.
 
 ## Next Steps
 

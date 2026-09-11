@@ -83,34 +83,20 @@ field.form.control.clear(); // 清空所有元素
 
 ## groupMode — 组验证模式
 
-控制 Group / Array 的验证行为。`groupMode` 在解析 schema 时自动推导，无需手动赋值。
+控制数组与元组的验证行为。`groupMode` 在解析 schema 时自动推导，无需手动赋值。
 
 | Schema 类型                      | 自动解析的 `groupMode` | 说明                                       |
 | -------------------------------- | ---------------------- | ------------------------------------------ |
-| `v.object()`                     | `'default'`            | 标准对象：输出时自动过滤未定义的多余键值 |
-| `v.looseObject()`                | `'loose'`              | 宽松对象：保留未定义的多余键值         |
-| `v.strictObject()`               | `'strict'`             | 严格对象：存在多余键值时验证失败       |
 | `v.tuple()`                      | `'default'`            | 固定长度元组：超出长度部分自动截断     |
 | `v.looseTuple()`                 | `'loose'`              | 宽松元组：超出长度部分保留             |
 | `v.strictTuple()`                | `'strict'`             | 严格元组：超出长度时验证失败           |
 | `v.array()` / `v.tupleWithRest()` 的 rest 部分 | `'reset'` | 数组/可变尾部：不做固定键/长度约束 |
-| `v.intersect()` + `asVirtualGroup()` | 可手动配置         | 等价于 `v.object()`                      |
 
-### 自动推导示例
-
-<SchemaPreview definition="src/angular/components/definition/array-loose.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="array-loose" />
-</SchemaPreview>
-
-### 手动覆盖示例
-
-<SchemaPreview definition="src/angular/components/definition/array-group-mode.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="array-group-mode" />
-</SchemaPreview>
+对象组的 `groupMode`（`v.object()` / `v.looseObject()` / `v.strictObject()`）见 [类型映射](zh/scenarios/type-mapping/)。
 
 ### emptyValue — 空值
 
-当 Group / Array 聚合出的值为空（空对象 / 空数组）时，返回 `emptyValue` 作为最终值：
+当数组为空时，返回 `emptyValue` 作为最终值：
 
 <SchemaPreview definition="src/angular/components/definition/array-empty-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-empty-value" />
@@ -146,43 +132,6 @@ FieldArray 提供便捷的数组相关属性：
 <SchemaPreview definition="src/angular/components/definition/array-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array-complete" />
 </SchemaPreview>
-
-## 示例
-
-> 以下示例节选自单元测试（`createBuilder` 为测试内部工具，非公开 API）。
-
-```typescript
-// Array set + remove
-const obj = v.object({
-  key1: v.pipe(v.array(v.string()), setComponent('mock-array')),
-});
-
-const resolved = createBuilder(obj);
-const field = resolved.get(['key1'])!;
-
-field.action.set('11', 1); // 在索引 1 设置 '11'
-field.action.remove(0); // 删除索引 0
-```
-
-## 过滤组
-
-自定义创建表单组控制内部表单的显示（大量字段时可使用 `filterGroup` 过滤组件）：
-
-<SchemaPreview definition="src/angular/components/definition/filter-group.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="filter-group" />
-</SchemaPreview>
-
-> `filterGroup` 是一个自定义分组组件，用于控制大量内部字段的显示过滤。
-
-## 滚动组
-
-使用 `defer` 动态创建控件，配合 `scrollGroup` 组件实现大量字段的滚动懒加载：
-
-<SchemaPreview definition="src/angular/components/definition/scroll-group.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="scroll-group" />
-</SchemaPreview>
-
-> `scrollGroup` 是一个自定义分组组件，用于大量字段的滚动懒加载渲染。
 
 ## 下一步
 

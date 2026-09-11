@@ -216,13 +216,15 @@ const schema = v.object({
 在模板中实现增删标签：
 
 ```typescript
+import { Component, input, output } from '@angular/core';
+
 @Component({
   standalone: true,
   templateUrl: './tags.component.html',
 })
 export class TagsComponent {
-  @Input() model!: Signal<string[]>;
-  @Output() modelChange = new EventEmitter<string[]>();
+  model = input.required<string[]>();
+  modelChange = output<string[]>();
 
   addTag() {
     const current = this.model();

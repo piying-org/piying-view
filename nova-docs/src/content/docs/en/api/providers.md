@@ -4,7 +4,12 @@ title: "providers — Injecting Business Services"
 
 
 
-This page covers managing Providers through Actions (set / patch / change), injecting business services into the injector of a field component.
+This page covers managing Providers through Actions (set / patch / change), injecting business services into the injector of a field component. Every framework can use it; only the import source differs:
+
+| Framework                    | actions import                 | inject import          |
+| ---------------------------- | ------------------------------ | ---------------------- |
+| Angular                      | `@piying/view-angular-core`    | `@angular/core`        |
+| Vue / React / Solid / Svelte | `@piying/view-core`            | `static-injector`      |
 
 ## actions.providers.set — set providers (replace)
 

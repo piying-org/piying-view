@@ -2,16 +2,14 @@
 title: 'Custom Validation'
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { CustomValidationDemoComponent } from '../../../../angular/components/custom-validation-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page shows how to use custom validators in Piying-View, covering synchronous and asynchronous validation.
 
-<LivePreview path="src/angular/components/custom-validation-demo.component.ts">
-  <CustomValidationDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/components/definition/validation-demo.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-demo" />
+</SchemaPreview>
 
 ## formConfig.validators — Synchronous Validators
 

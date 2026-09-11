@@ -1,0 +1,90 @@
+---
+title: "Advanced Object Group Usage"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+This page covers how object groups (`v.object()` / `v.looseObject()` / `v.strictObject()`) aggregate their values: what happens to keys the model carries but the schema does not define, how keys are added dynamically, and what is output when nothing is filled in.
+
+## groupMode — Handling Extra Keys
+
+A key that exists in the model but not in the schema is handled according to `groupMode`, which is inferred while parsing the schema:
+
+| Schema                                       | Inferred    | What happens to extra keys                        |
+| -------------------------------------------- | ----------- | -------------------------------------------------- |
+| `v.object()`                                 | `default`   | dropped on output, only schema keys are kept       |
+| `v.looseObject()`                            | `loose`     | kept and output                                    |
+| `v.strictObject()`                           | `strict`    | validation fails                                   |
+| `v.record()` / the rest part of `v.objectWithRest()` | `reset` | no fixed-key constraint, keys can be added |
+
+All three examples below start with an `extraKey` that the schema does not define — compare the value rendered by `__helper`:
+
+### default — extra keys are dropped
+
+<SchemaPreview definition="src/angular/components/definition/object-group-default.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-default" />
+</SchemaPreview>
+
+### loose — extra keys are kept
+
+<SchemaPreview definition="src/angular/components/definition/object-group-loose.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-loose" />
+</SchemaPreview>
+
+### strict — an extra key fails validation
+
+<SchemaPreview definition="src/angular/components/definition/object-group-strict.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-strict" />
+</SchemaPreview>
+
+## Setting groupMode Manually
+
+`v.intersect()` resolves to a logic group; after turning it into a regular form group with `asVirtualGroup()`, `groupMode` can be set explicitly:
+
+<SchemaPreview definition="src/angular/components/definition/object-group-virtual-mode.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-virtual-mode" />
+</SchemaPreview>
+
+## Adding Keys Dynamically
+
+`v.objectWithRest()` fixes part of the keys and adds the rest dynamically following the rest type; every key of `v.record()` is dynamic. Both infer `reset`:
+
+<SchemaPreview definition="src/angular/components/definition/object-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="objectWithRest" />
+</SchemaPreview>
+
+When a key is added, its name is first checked against `groupKeySchema`; a key that does not pass is never created:
+
+<SchemaPreview definition="src/angular/components/definition/record-group-key-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-group-key-value" />
+</SchemaPreview>
+
+```typescript
+v.pipe(
+  v.record(v.string(), v.string()),
+  formConfig({
+    groupKeySchema: v.picklist(['name', 'email', 'phone']),
+    groupValueSchema: v.pipe(v.string(), v.minLength(1)),
+  }),
+);
+```
+
+> The full guide to key/value forms: [Record Schema Dynamic Groups](en/scenarios/record-dynamic-group/).
+
+## emptyValue — Nothing Is Filled In
+
+When none of the child fields holds a value, the final value becomes `emptyValue`:
+
+<SchemaPreview definition="src/angular/components/definition/object-group-empty-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-empty-value" />
+</SchemaPreview>
+
+Both children of `profile` are `v.optional()` and empty, so the output is `emptyValue`; fill in any one of them and the output becomes a regular key/value object.
+
+## Next Steps
+
+- [Type Mapping (Definition Is the Form)](en/scenarios/type-mapping/) — which schema type becomes which form structure
+- [Record Schema Dynamic Groups](en/scenarios/record-dynamic-group/) — dynamic key/value forms
+- [asControl / asVirtualGroup](en/scenarios/as-control-group/) — Actions that change the structure
+- [formConfig](en/api/form-config/) — details of groupMode / groupKeySchema / groupValueSchema / emptyValue

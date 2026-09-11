@@ -2,16 +2,14 @@
 title: "值转换与联动"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { ValueTransformDemoComponent } from '../../../../angular/components/value-transform-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 本文介绍如何使用 `transformer` 和 Valibot 的 `transform` Action 实现视图层与模型层的值转换。
 
-<LivePreview path="src/angular/components/value-transform-demo.component.ts">
-  <ValueTransformDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/components/definition/transform-demo.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-demo" />
+</SchemaPreview>
 
 ## Transformer（toModel / toView）
 
@@ -142,7 +140,7 @@ Valibot 内置的 `v.transform()` 在 Schema 层面进行值转换，Piying-View
 | Pipe 支持 | ✅ 完整 RxJS 管道        | ❌ 不支持                          |
 | 适用场景  | UI/模型双向转换          | Schema 类型验证 + 转换             |
 
-## 完整示例：表单联动
+## 完整示例
 
 <SchemaPreview definition="src/angular/components/definition/transform-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-complete" />

@@ -216,13 +216,15 @@ const schema = v.object({
 Add and remove tags in the template:
 
 ```typescript
+import { Component, input, output } from '@angular/core';
+
 @Component({
   standalone: true,
   templateUrl: './tags.component.html',
 })
 export class TagsComponent {
-  @Input() model!: Signal<string[]>;
-  @Output() modelChange = new EventEmitter<string[]>();
+  model = input.required<string[]>();
+  modelChange = output<string[]>();
 
   addTag() {
     const current = this.model();

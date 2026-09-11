@@ -48,6 +48,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [值转换与联动](zh/scenarios/value-transform/)                  | formConfig.transformer(toView/toModel)、pipe（RxJS Observable 管道）、Valibot v.transform() 对比 + 完整数据流图 |
 | [自定义验证](zh/scenarios/custom-validation/)                  | validators/asyncValidators（Promise/Observable/Signal 四种写法）、新旧格式错误处理、字段对比验证/条件验证示例   |
 | [数组高级用法](zh/scenarios/array-advanced/)                   | FieldArray API（set/remove/updateValue/clear/reset）、deletionMode(shrink/mark)、groupMode、TupleWithRest       |
+| [对象组高级用法](zh/scenarios/object-group-advanced/)       | groupMode(default/loose/strict/reset) 对多余键的处理、手动指定 groupMode、groupKeySchema 限制新增键、emptyValue 空值输出 |
 | [Record Schema 动态对象组](zh/scenarios/record-dynamic-group/) | v.record() 特殊 Group 处理：`groupKeySchema`/`groupValueSchema` 约束，含标签编辑/配置映射/多语言翻译三大场景    |
 | [综合示例：完整业务表单](zh/scenarios/complete-example/)       | 用户注册表单实战：基本信息+密码+隐私+动态标签+自我介绍，整合验证/hideWhen/disableWhen/组件注册     |
 
@@ -84,7 +85,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [Props 通用属性](zh/api/props/)                              | `actions.props` 通用属性键配置：set(覆盖)/patch(合并)/patchAsync(异步)/remove(移除)/mapAsync(动态映射)，组件通过 field.props() 访问，vs Attributes/Inputs/Outputs 语义区分        |
 | [核心工具函数](zh/api/core-utils/)                            | `combineSignal`/`observableSignal`/`asyncObjectSignal` 等核心信号工具函数                                                                                                         |
 | [Wrappers 包装器](zh/api/wrappers/)                          | `actions.wrappers` set/patch/patchAsync/remove/changeAsync + Wrapper 组件编写指南（V1/V2 模板对比、InsertFieldDirective 用法），各框架通用                                                             |
-| [Control API](zh/api/control-api/)                           | FieldControl/AbstractControl 完整参考：获取 Control、值 API(updateValue/reset/viewValueChange)、状态 API(disabled/touched/dirty)、FieldArray API(length/controls/removeRestControl) |
+| [AbstractControl](zh/api/control-api/)                           | AbstractControl 及其子类完整参考：获取控件、值 API(updateValue/reset/viewValueChange)、状态 API(disabled/touched/dirty)、FieldArray API(length/controls/removeRestControl) |
 | [Providers 服务注入](zh/api/providers/)                      | `actions.providers` 将业务服务注入字段组件 Injector：set(覆盖)/patch(追加)/change(函数式变换)，Angular 用 inject()、其他框架用 static-injector                                          |
 
 ### 🅰️ Angular 专属

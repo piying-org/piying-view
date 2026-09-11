@@ -2,16 +2,14 @@
 title: "Value Transformation and Linkage"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { ValueTransformDemoComponent } from '../../../../angular/components/value-transform-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page shows how to transform values between the view layer and the model layer with `transformer` and Valibot's `transform` Action.
 
-<LivePreview path="src/angular/components/value-transform-demo.component.ts">
-  <ValueTransformDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/components/definition/transform-demo.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="transform-demo" />
+</SchemaPreview>
 
 ## Transformer (toModel / toView)
 
@@ -142,7 +140,7 @@ Flatten a nested object into a single field:
 | Pipe support  | ✅ full RxJS pipes         | ❌ not supported                  |
 | When to use   | UI/model two-way conversion | Schema type validation + conversion |
 
-## Full Example: Form Linkage
+## Full Example
 
 <SchemaPreview definition="src/angular/components/definition/transform-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-complete" />

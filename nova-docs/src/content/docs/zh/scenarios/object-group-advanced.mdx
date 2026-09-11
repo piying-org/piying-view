@@ -1,0 +1,90 @@
+---
+title: "对象组高级用法"
+---
+
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
+
+本文介绍对象组（`v.object()` / `v.looseObject()` / `v.strictObject()`）在聚合值时的行为：模型里多出来的键怎么处理、键怎么动态新增、聚合不出值时输出什么。
+
+## groupMode — 多余键的处理
+
+模型里存在、schema 里没有的键，由 `groupMode` 决定怎么处理。`groupMode` 在解析 schema 时自动推导：
+
+| schema                                       | 自动推导    | 多余键的处理                       |
+| -------------------------------------------- | ----------- | ---------------------------------- |
+| `v.object()`                                 | `default`   | 输出时丢弃，只留 schema 定义的键   |
+| `v.looseObject()`                            | `loose`     | 保留并输出                         |
+| `v.strictObject()`                           | `strict`    | 验证失败                           |
+| `v.record()` / `v.objectWithRest()` 的 rest 部分 | `reset` | 不做固定键约束，键可动态新增       |
+
+下面三个示例的初始模型都带一个 schema 里没有的 `extraKey`，对比 `__helper` 里输出的值：
+
+### default — 丢弃多余键
+
+<SchemaPreview definition="src/angular/components/definition/object-group-default.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-default" />
+</SchemaPreview>
+
+### loose — 保留多余键
+
+<SchemaPreview definition="src/angular/components/definition/object-group-loose.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-loose" />
+</SchemaPreview>
+
+### strict — 多余键直接验证失败
+
+<SchemaPreview definition="src/angular/components/definition/object-group-strict.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-strict" />
+</SchemaPreview>
+
+## 手动指定 groupMode
+
+`v.intersect()` 解析出的是逻辑组，用 `asVirtualGroup()` 转成普通表单组之后，可以手动指定 `groupMode`：
+
+<SchemaPreview definition="src/angular/components/definition/object-group-virtual-mode.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-virtual-mode" />
+</SchemaPreview>
+
+## 动态新增键
+
+`v.objectWithRest()` 固定一部分键，其余键值按 rest 的类型动态添加；`v.record()` 的键值全部可动态添加。两者都推导为 `reset`：
+
+<SchemaPreview definition="src/angular/components/definition/object-with-rest.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="objectWithRest" />
+</SchemaPreview>
+
+新增键时，键名要先过一次 `groupKeySchema`，不通过的键不会被创建：
+
+<SchemaPreview definition="src/angular/components/definition/record-group-key-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-group-key-value" />
+</SchemaPreview>
+
+```typescript
+v.pipe(
+  v.record(v.string(), v.string()),
+  formConfig({
+    groupKeySchema: v.picklist(['name', 'email', 'phone']),
+    groupValueSchema: v.pipe(v.string(), v.minLength(1)),
+  }),
+);
+```
+
+> 键值对的完整用法见 [Record Schema 动态对象组](zh/scenarios/record-dynamic-group/)。
+
+## emptyValue — 聚合不出值时
+
+组里的子字段一个值都没有时，最终值取 `emptyValue`：
+
+<SchemaPreview definition="src/angular/components/definition/object-group-empty-value.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-empty-value" />
+</SchemaPreview>
+
+`profile` 的两个子字段都是 `v.optional()` 且没有值，输出即为 `emptyValue`；填了任意一个子字段，输出就是正常的键值对象。
+
+## 下一步
+
+- [类型映射（定义即表单）](zh/scenarios/type-mapping/) — schema 类型对应哪种表单结构
+- [Record Schema 动态对象组](zh/scenarios/record-dynamic-group/) — 动态键值对表单
+- [asControl / asVirtualGroup](zh/scenarios/as-control-group/) — 改变结构的 Action
+- [formConfig](zh/api/form-config/) — groupMode / groupKeySchema / groupValueSchema / emptyValue 配置详解

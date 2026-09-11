@@ -2,16 +2,14 @@
 title: '自定义验证'
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { CustomValidationDemoComponent } from '../../../../angular/components/custom-validation-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 本文介绍如何在 Piying-View 中使用自定义验证器，包括同步和异步验证。
 
-<LivePreview path="src/angular/components/custom-validation-demo.component.ts">
-  <CustomValidationDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/components/definition/validation-demo.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="validation-demo" />
+</SchemaPreview>
 
 ## formConfig.validators — 同步验证器
 

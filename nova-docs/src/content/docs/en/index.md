@@ -48,6 +48,7 @@ Organised by common business scenario; each one ships a verified, complete examp
 | [Value Transformation and Linkage](en/scenarios/value-transform/)   | formConfig.transformer (toView/toModel), pipe (RxJS observable pipe), comparison with Valibot v.transform() + full data flow diagram |
 | [Custom Validation](en/scenarios/custom-validation/)                | validators/asyncValidators (four flavours: Promise/Observable/Signal), old vs new error formats, cross-field and conditional validation examples |
 | [Advanced Array Usage](en/scenarios/array-advanced/)                | FieldArray API (set/remove/updateValue/clear/reset), deletionMode (shrink/mark), groupMode, TupleWithRest |
+| [Advanced Object Group Usage](en/scenarios/object-group-advanced/) | How groupMode (default/loose/strict/reset) treats extra keys, setting groupMode manually, groupKeySchema for added keys, emptyValue |
 | [Record Schema Dynamic Groups](en/scenarios/record-dynamic-group/) | Special Group handling of v.record(): `groupKeySchema`/`groupValueSchema` constraints, with tag editing / config maps / translation scenarios |
 | [Complete Example: a Real Business Form](en/scenarios/complete-example/) | A registration form in practice: basic info + password + privacy + dynamic tags + bio, combining validation/hideWhen/disableWhen/component registration |
 
@@ -84,7 +85,7 @@ Detailed reference for every Action, configuration item and helper; the logic is
 | [Props Generic Properties](en/api/props/)                            | `actions.props` generic property keys: set (replace) / patch (merge) / patchAsync (async) / remove / mapAsync (dynamic mapping), read through field.props(), semantics vs Attributes/Inputs/Outputs |
 | [Core Utilities](en/api/core-utils/)                                 | Core signal helpers such as `combineSignal`/`observableSignal`/`asyncObjectSignal`                       |
 | [Wrappers](en/api/wrappers/)                                        | `actions.wrappers` set/patch/patchAsync/remove/changeAsync + guide to writing wrapper components (V1/V2 templates, InsertFieldDirective usage), generic across frameworks |
-| [Control API](en/api/control-api/)                                  | Complete FieldControl/AbstractControl reference: getting controls, value API (updateValue/reset/viewValueChange), state API (disabled/touched/dirty), FieldArray API (length/controls/removeRestControl) |
+| [AbstractControl](en/api/control-api/)                                  | Complete reference for AbstractControl and its subclasses: getting controls, value API (updateValue/reset/viewValueChange), state API (disabled/touched/dirty), FieldArray API (length/controls/removeRestControl) |
 | [Providers](en/api/providers/)                                      | `actions.providers` injects business services into the field component injector: set (replace) / patch (append) / change (functional transform); inject() in Angular, static-injector elsewhere |
 
 ### 🅰️ Angular Specific

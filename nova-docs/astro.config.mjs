@@ -186,6 +186,11 @@ export default defineConfig({
               '/scenarios/array-advanced/',
             ),
             nav(
+              '对象组高级用法',
+              'Advanced Object Group Usage',
+              '/scenarios/object-group-advanced/',
+            ),
+            nav(
               'Record Schema 动态对象组',
               'Record Schema Dynamic Groups',
               '/scenarios/record-dynamic-group/',
@@ -227,7 +232,7 @@ export default defineConfig({
             nav('Props 通用属性', 'Props Generic Properties', '/api/props/'),
             nav('核心工具函数', 'Core Utilities', '/api/core-utils/'),
             nav('Wrappers 包装器', 'Wrappers', '/api/wrappers/'),
-            nav('Control API', 'Control API', '/api/control-api/'),
+            nav('AbstractControl', 'AbstractControl', '/api/control-api/'),
             nav('Providers 服务注入', 'Providers', '/api/providers/'),
           ],
         },
