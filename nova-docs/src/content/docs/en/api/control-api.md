@@ -208,7 +208,7 @@ console.log(control.pristine); // false
 | ------------------------- | ------------------ | ---------------------------- |
 | `control.disabled`        | `boolean` (getter) | Effective disabled state (considers parents) |
 | `control.enabled`         | `boolean` (getter) | Equivalent to `!disabled`      |
-| `control.selfDisabled$()` | `Signal<boolean>`  | **Own** disabled state, ignoring parents |
+| `control.selfDisabled$$()` | `Signal<boolean>`  | **Own** disabled state, ignoring parents |
 | `control.disabled$$()`    | `Signal<boolean>`  | Effective disabled state (own or inherited) |
 | `control.enabled$$()`     | `Signal<boolean>`  | Effective enabled state        |
 | `control.disable()`       | `() => void`       | Disables this control          |
@@ -229,7 +229,7 @@ control.config$.update((c) => ({ ...c, disabled: true }));
 // disabling a parent propagates to children
 parentControl.disable();
 console.log(childControl.disabled); // true (disabled by parent)
-console.log(childControl.selfDisabled$()); // false (not disabled itself)
+console.log(childControl.selfDisabled$$()); // false (not disabled itself)
 ```
 
 **Effect of the `disabledValue` strategy:**
@@ -545,13 +545,24 @@ resolved.form.control.emitSubmit();
 
 ### Child Signals of FieldArray (Field Level)
 
+Array-related information lives on **two levels** — don't confuse it with the control level above:
+
+| Level | How to get it | What it provides |
+| ----- | ------------- | ---------------- |
+| **Control level** (`FieldArray`) | `field.form.control` | `length` / `controls` / `fixedControls$` / `resetControls$` / `clear` / `removeRestControl` |
+| **Field level** (`_PiResolvedCommonViewFieldConfig`) | `field` | `children` / `fixedChildren` / `restChildren` / `action` |
+
 On `_PiResolvedCommonViewFieldConfig`, array-typed fields expose:
 
 ```typescript
 // child signals on the Field object
-field.fixedChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>>
-field.restChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>> | undefined
+field.children; // Signal<Array<_PiResolvedCommonViewFieldConfig>>, all child fields (fixed + rest)
+field.fixedChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>>, fixed child fields
+field.restChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>> | undefined, dynamic child fields
+field.action; // { set(value, index?), remove(index) }, write/delete by index
 ```
+
+> ⚠️ `length` / `controls` / `fixedControls$` exist **only on the `FieldArray` control**; `field.length` is always `undefined`. At the field level, use `field.children().length`.
 
 ---
 

@@ -238,4 +238,4 @@ options = {
 
 - [场景: asControl / asVirtualGroup](zh/scenarios/as-control-group/) — Group 视为独立控件
 - [API: setComponent](zh/api/setcomponent/) — 组件设置详解
-- [5分钟快速上手](zh/getting-started/quick-start/) — 从零开始搭建
+- [快速上手](zh/getting-started/quick-start/) — 从零开始搭建

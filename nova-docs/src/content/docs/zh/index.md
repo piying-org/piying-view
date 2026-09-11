@@ -25,12 +25,13 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 | 文档                                                 | 说明                                                                                                      |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [5分钟快速上手](zh/getting-started/quick-start/)      | 安装（含各框架安装命令）→ 定义 Schema → 注册组件 → 渲染表单，含自定义 CVA 组件编写方法                       |
+| [快速上手](zh/getting-started/quick-start/)      | 安装（含各框架安装命令）→ 定义 Schema → 注册组件 → 渲染表单，含自定义 CVA 组件编写方法                       |
 | [两种使用模式](zh/getting-started/two-modes/)          | 自动模式（`<piying-view>` 全自动渲染）vs 手动模式（`convertToField` + `[formControl]`/`[fieldTemplate]` 绑定），边界划分与代码解析 |
 | [核心概念](zh/getting-started/core-concept/)          | Valibot Schema → CoreSchemaHandle → FormBuilder → Component Tree 的三阶段解析链与数据流（toView/toModel） |
 | [Options 配置](zh/getting-started/options-config/)    | PiyingView 组件 `options` 属性详解：context 上下文、fieldGlobalConfig 全局类型/包装器映射、自定义 Builder |
 | [框架差异](zh/getting-started/framework-differences/) | Angular/Vue/React/Solid/Svelte 各框架的 Field Token 获取、CVA 绑定、Signal 转换工具对比                   |
 | [JSON Schema 支持](zh/getting-started/jsonschema/)    | `jsonSchemaToValibot()` 自动转换函数，支持 Draft-04/07/2020-12，含类型映射表和限制说明                    |
+| [常见错误与排查](zh/getting-started/troubleshooting/)  | 真实报错信息（`🈳define` / `🏷️ fieldControl` 等）对照表，以及「不报错但不符合预期」的成因与解法       |
 
 ### 📖 业务场景 (Scenarios)
 
@@ -38,8 +39,8 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 | 文档                                                          | 说明                                                                                                            |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| [基础字段定义](zh/scenarios/basic-field/)                      | `setComponent`（字符串引用 vs 直接传组件类）、`formConfig` 完整字段表、Valibot 元数据自动推导、自定义验证器     |
 | [类型映射（定义即表单）](zh/scenarios/type-mapping/) | Valibot 类型→表单控件/表单组/表单数组的自动映射：string/number/boolean/picklist/object/record/tuple/array 等，含默认值与嵌套定义 |
+| [基础字段定义](zh/scenarios/basic-field/)                      | `setComponent`（字符串引用 vs 直接传组件类）、`formConfig` 完整字段表、Valibot 元数据自动推导、自定义验证器     |
 | [表单使用](zh/scenarios/form-use/) | 表单使用总览：值监听/布局移动/分区禁用/字段分组/级联/验证/过滤组/滚动组 |
 | [组件使用](zh/scenarios/component-use/) | 组件类型、非表单控件（NFCSchema）、属性操作与事件输出、上下文、rawConfig 高级自定义、无标签组件（selectorless） |
 | [复杂 Schema 结构](zh/scenarios/complex-schema/)               | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() 的映射及 layout priority 排序     |
@@ -67,6 +68,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 | 文档                                                        | 说明                                                                                                                                                                                |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Action 速查表](zh/api/action-cheatsheet/)                   | 所有 Action 汇总：`set`/`patch`/`patchAsync`/`remove`/`mapAsync` 通用语义、命名空间支持矩阵、顶层 Action 清单、合并顺序规则                                  |
 | [setComponent](zh/api/setcomponent/)                         | `setComponent` Action 完整 API：字符串引用（通过 fieldGlobalConfig.types）vs 直接传组件类，含内置类型名 key 映射表                                                                  |
 | [inputs](zh/api/inputs/)                                     | `actions.inputs` 组件输入属性设置：set（覆盖）、patch（合并）、remove（移除），为字段组件传递 @Input() 值                                                                           |
 | [outputs](zh/api/outputs/)                                   | `actions.outputs` 组件输出事件设置：set/patch/remove/patchAsync（动态创建），绑定自定义事件处理器到字段                                                                             |
@@ -108,7 +110,7 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 | 主题       | 链接                                            |
 | ---------- | ----------------------------------------------- |
-| 安装使用   | [5分钟快速上手](zh/getting-started/quick-start/) |
+| 安装使用   | [快速上手](zh/getting-started/quick-start/) |
 | 两种模式   | [两种使用模式](zh/getting-started/two-modes/)     |
 | 理解原理   | [核心概念](zh/getting-started/core-concept/)     |
 | 基本字段   | [基础字段定义](zh/scenarios/basic-field/)        |

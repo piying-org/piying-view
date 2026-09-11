@@ -208,7 +208,7 @@ console.log(control.pristine); // false
 | ------------------------- | ------------------ | ---------------------------- |
 | `control.disabled`        | `boolean` (getter) | 最终禁用状态（考虑父级）     |
 | `control.enabled`         | `boolean` (getter) | 等效于 `!disabled`           |
-| `control.selfDisabled$()` | `Signal<boolean>`  | **自身**禁用状态，不考虑父级 |
+| `control.selfDisabled$$()` | `Signal<boolean>`  | **自身**禁用状态，不考虑父级 |
 | `control.disabled$$()`    | `Signal<boolean>`  | 最终禁用状态(自身 或父级)    |
 | `control.enabled$$()`     | `Signal<boolean>`  | 最终启用状态                 |
 | `control.disable()`       | `() => void`       | 禁用此控件                   |
@@ -229,7 +229,7 @@ control.config$.update((c) => ({ ...c, disabled: true }));
 // 父级禁用会传导到子级
 parentControl.disable();
 console.log(childControl.disabled); // true（被父级禁用）
-console.log(childControl.selfDisabled$()); // false（自身未禁用）
+console.log(childControl.selfDisabled$$()); // false（自身未禁用）
 ```
 
 **`disabledValue` 策略影响：**
@@ -545,13 +545,24 @@ resolved.form.control.emitSubmit();
 
 ### FieldArray 的子级信号（Field 层面）
 
+数组相关信息分布在**两个层面**，不要与上面的控件层混淆：
+
+| 层面 | 取法 | 提供什么 |
+| ---- | ---- | -------- |
+| **控件层**（`FieldArray`） | `field.form.control` | `length` / `controls` / `fixedControls$` / `resetControls$` / `clear` / `removeRestControl` |
+| **字段层**（`_PiResolvedCommonViewFieldConfig`） | `field` | `children` / `fixedChildren` / `restChildren` / `action` |
+
 在 `_PiResolvedCommonViewFieldConfig` 上，数组类型的 field 会暴露：
 
 ```typescript
 // Field 对象上的子级信号
-field.fixedChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>>
-field.restChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>> | undefined
+field.children; // Signal<Array<_PiResolvedCommonViewFieldConfig>>，全部子字段（fixed + rest）
+field.fixedChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>>，固定子字段
+field.restChildren; // Signal<Array<_PiResolvedCommonViewFieldConfig>> | undefined，动态子字段
+field.action; // { set(value, index?), remove(index) }，按下标写 / 删
 ```
+
+> ⚠️ `length` / `controls` / `fixedControls$` **只存在于 `FieldArray` 控件上**，`field.length` 取不到值；字段层面请用 `field.children().length`。
 
 ---
 

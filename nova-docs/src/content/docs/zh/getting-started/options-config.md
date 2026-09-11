@@ -19,6 +19,7 @@ options = {
   context?: any;                          // 上下文注入
   fieldGlobalConfig?: PiViewConfig;       // 全局配置（types + wrappers）
   builder?: typeof FormBuilder<any>;      // 自定义 Builder
+  environments?: string[];                // 环境列表，供 condition Action 匹配
 };
 ```
 
@@ -110,12 +111,49 @@ const options = {
 };
 ```
 
+## 4. environments（环境列表）
+
+`environments` 与 [`condition` Action](zh/api/core-utils/#condition--条件执行-actions) 配合使用：只有当 `condition` 中声明的环境**与当前 `environments` 有交集**时，其内部的 `actions` 才会生效。
+
+```typescript
+const options = {
+  environments: ['desktop', 'zh'],
+};
+```
+
+```typescript
+import { condition, rawConfig } from '@piying/view-angular-core';
+
+const schema = v.object({
+  name: v.pipe(
+    v.string(),
+    // 'desktop' 在 environments 中 → 这组 actions 会被应用
+    condition({
+      environments: ['desktop'],
+      actions: [rawConfig((item) => {
+        item.inputs = { ...item.inputs, placeholder: '桌面端占位' };
+    })],
+    }),
+    // 'mobile' 不在 environments 中 → 不会应用
+    condition({
+      environments: ['mobile'],
+      actions: [rawConfig((item) => {
+        item.inputs = { ...item.inputs, placeholder: '移动端占位' };
+    })],
+    }),
+  ),
+});
+```
+
+> 不配置 `environments` 时，任何 `condition` 都不会命中。`condition` 本身来自 `@piying/valibot-visit`，由 Piying-View 重新导出。
+
 ## Options 完整示例
 
 ```typescript
 options = {
   context: { userId: '123' },
   builder: CustomFormBuilder,
+  environments: ['desktop'],
   fieldGlobalConfig: {
     types: {
       string:   { type: TextInputComponent },

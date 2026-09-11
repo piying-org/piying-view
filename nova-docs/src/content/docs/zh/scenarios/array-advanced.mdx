@@ -104,14 +104,7 @@ field.form.control.clear(); // 清空所有元素
 
 ## Array 属性
 
-FieldArray 提供便捷的数组相关属性：
-
-| 属性                     | 类型             | 说明                             |
-| ------------------------ | ---------------- | -------------------------------- |
-| `field.length`           | `number`         | 当前子控件数量（固定 + 动态）    |
-| `field.controls`         | `FieldControl[]` | 当前子控件列表                   |
-| `field.fixedControls$()` | `FieldControl[]` | 固定子控件（不含 rest children） |
-| `field.resetControls$()` | `FieldControl[]` | 所有可重置子控件                 |
+`FieldArray` 的 `length` / `controls` / `fixedControls$` / `clear()` 等属性，以及 Field 层面的 `children` / `fixedChildren` / `restChildren`，属于控件 API，统一见 [AbstractControl — FieldArray 特有 API](zh/api/control-api/#fieldarray-特有-api)。
 
 ## Tuple 与 TupleWithRest
 

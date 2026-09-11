@@ -15,7 +15,14 @@ This page shows how to define basic form fields with `setComponent` and `formCon
 
 ## Component Type Overview
 
-Piying-View splits reusable units into three single-responsibility component types:
+Piying-View splits reusable units into **four** single-responsibility component types (the same taxonomy used in [Core Concepts](en/getting-started/core-concept/) and [Using Components](en/scenarios/component-use/)):
+
+| Type | Bound to a form control | Can contain children | Typical examples |
+| ---- | ----------------------- | -------------------- | ---------------- |
+| Plain component | ❌ | ❌ | Avatar, help text, a "send code" button |
+| Control | ✅ | ❌ | Input, select, checkbox |
+| Wrapper | ❌ | ✅ (wraps a single field) | Label, error message, card |
+| Group | ✅ | ✅ | `object` / `array` / `record` containers |
 
 ### Plain Components
 
@@ -29,6 +36,18 @@ Piying-View splits reusable units into three single-responsibility component typ
 - A plain component adapted to `ControlValueAccessor` (CVA)
 - Supports form control input/output, validation and data transformation
 - **Automatic type mapping** — primitive types such as string and number map to registered controls through the `fieldGlobalConfig.types` defaults
+
+### Wrappers
+
+- Decorative components placed around another field to add a label, an error message, a prefix/suffix, and so on
+- A field can be wrapped by several wrappers, applied from the outside in
+- Declared with `actions.wrappers.set` / `patch`; see [Wrappers](en/api/wrappers/)
+
+### Groups
+
+- Handle schema types that have children (`v.object()` / `v.array()` / `v.record()`, ...)
+- Fully customisable layout (cards, tabs, accordions, ...)
+- In Angular, extend `PiyingViewGroupBase` to build one quickly
 
 #### The CVA / CVAA Mechanism
 

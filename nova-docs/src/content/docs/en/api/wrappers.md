@@ -164,7 +164,7 @@ export class FieldsetWrapperComponent {
 
 ### Inputs of a Wrapper
 
-Wrapper components receive configuration values through Angular `@Input()` (see the [Inputs/Attributes of Wrapper Components](#inputsattributes-of-wrapper-components) section above).
+Wrapper components receive configuration values through Angular `@Input()` (see the [Inputs/Attributes of Wrapper Components](#inputsattributes-of-wrapper-components) section below).
 
 ## V1 vs V2
 

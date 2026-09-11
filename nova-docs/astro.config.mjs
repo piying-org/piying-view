@@ -137,6 +137,11 @@ export default defineConfig({
               'JSON Schema Support',
               '/getting-started/jsonschema/',
             ),
+            nav(
+              '常见错误与排查',
+              'Troubleshooting',
+              '/getting-started/troubleshooting/',
+            ),
           ],
         },
         {
@@ -148,13 +153,13 @@ export default defineConfig({
               'Type Mapping (Definition Is the Form)',
               '/scenarios/type-mapping/',
             ),
-            nav('表单使用', 'Using Forms', '/scenarios/form-use/'),
-            nav('组件使用', 'Using Components', '/scenarios/component-use/'),
             nav(
               '基础字段定义',
               'Basic Field Definition',
               '/scenarios/basic-field/',
             ),
+            nav('表单使用', 'Using Forms', '/scenarios/form-use/'),
+            nav('组件使用', 'Using Components', '/scenarios/component-use/'),
             nav(
               '复杂 Schema 结构',
               'Complex Schema Structures',
@@ -206,6 +211,11 @@ export default defineConfig({
           label: 'API 参考',
           translations: { en: 'API Reference' },
           items: [
+            nav(
+              'Action 速查表',
+              'Action Cheatsheet',
+              '/api/action-cheatsheet/',
+            ),
             nav('setComponent', 'setComponent', '/api/setcomponent/'),
             nav('inputs', 'inputs', '/api/inputs/'),
             nav('outputs', 'outputs', '/api/outputs/'),

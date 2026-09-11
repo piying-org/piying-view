@@ -15,7 +15,14 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 ## 组件类型概览
 
-Piying-View 将可复用单元划分为三种职责单一的组件类型：
+Piying-View 将可复用单元划分为**四种**职责单一的组件类型（与[核心概念](zh/getting-started/core-concept/)、[组件使用](zh/scenarios/component-use/) 口径一致）：
+
+| 类型 | 是否关联表单控件 | 是否可包含子字段 | 典型例子 |
+| ---- | ---------------- | ---------------- | -------- |
+| 普通组件 | ❌ | ❌ | 头像、说明文字、「发送验证码」按钮 |
+| 控件（Control） | ✅ | ❌ | 输入框、下拉框、复选框 |
+| 包装器（Wrapper） | ❌ | ✅（包裹单个字段） | label、错误提示、卡片 |
+| 分组（Group） | ✅ | ✅ | object / array / record 容器 |
 
 ### 普通组件
 
@@ -29,6 +36,18 @@ Piying-View 将可复用单元划分为三种职责单一的组件类型：
 - 在普通组件基础上适配 `ControlValueAccessor` (CVA)
 - 支持表单控件的输入/输出、验证、数据转换等逻辑
 - **有自动类型映射** — string、number 等基础类型会按 `fieldGlobalConfig.types` 默认映射到已注册的控件
+
+### 包装器（Wrapper）
+
+- 装饰性组件，包裹在其他字段外面，补上标签、错误提示、前后缀等
+- 一个字段可以套多个 Wrapper，渲染时由外到内依次包裹
+- 通过 `actions.wrappers.set` / `patch` 声明，详见 [Wrappers 包装器](zh/api/wrappers/)
+
+### 分组（Group）
+
+- 处理带子级的 Schema 类型（`v.object()` / `v.array()` / `v.record()` 等）
+- 可自定义布局（卡片、标签页、手风琴等）
+- Angular 下继承 `PiyingViewGroupBase` 即可快速自定义
 
 #### CVA / CVAA 机制
 

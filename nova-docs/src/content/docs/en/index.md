@@ -25,12 +25,13 @@ Everything you need to start with Piying-View. The Actions logic in these docume
 
 | Document                                               | Description                                                                                             |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [5-Minute Quick Start](en/getting-started/quick-start/)  | Install (commands per framework) → define a schema → register components → render the form, incl. writing custom CVA components |
+| [Quick Start](en/getting-started/quick-start/)  | Install (commands per framework) → define a schema → register components → render the form, incl. writing custom CVA components |
 | [Two Usage Modes](en/getting-started/two-modes/)          | Automatic mode (`<piying-view>` renders everything) vs manual mode (`convertToField` + `[formControl]`/`[fieldTemplate]` binding), boundaries and code walkthrough |
 | [Core Concepts](en/getting-started/core-concept/)        | The three-stage resolution chain Valibot Schema → CoreSchemaHandle → FormBuilder → Component Tree and its data flow (toView/toModel) |
 | [Options Configuration](en/getting-started/options-config/) | Details of the PiyingView `options` property: context, fieldGlobalConfig type/wrapper maps, custom Builder |
 | [Framework Differences](en/getting-started/framework-differences/) | Field Token access, CVA binding and signal helpers in Angular/Vue/React/Solid/Svelte |
 | [JSON Schema Support](en/getting-started/jsonschema/)    | The `jsonSchemaToValibot()` converter, Draft-04/07/2020-12 support, type mapping table and limitations  |
+| [Troubleshooting](en/getting-started/troubleshooting/)   | A lookup table of the real error messages (`🈳define` / `🏷️ fieldControl`, ...) plus the causes and fixes for "no error, but not what I expected" |
 
 ### 📖 Scenarios
 
@@ -38,8 +39,8 @@ Organised by common business scenario; each one ships a verified, complete examp
 
 | Document                                                          | Description                                                                                               |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| [Basic Field Definition](en/scenarios/basic-field/)                 | `setComponent` (string reference vs component class), the complete `formConfig` table, Valibot metadata inference, custom validators |
 | [Type Mapping (define equals form)](en/scenarios/type-mapping/) | Automatic mapping from Valibot types to form controls/groups/arrays: string/number/boolean/picklist/object/record/tuple/array, etc., including default values and nested definitions |
+| [Basic Field Definition](en/scenarios/basic-field/)                 | `setComponent` (string reference vs component class), the complete `formConfig` table, Valibot metadata inference, custom validators |
 | [Using Forms](en/scenarios/form-use/) | Form usage overview: value listening/layout moving/section disabling/field grouping/cascading/validation/filter groups/scroll groups |
 | [Using Components](en/scenarios/component-use/) | Component types, non-form controls (NFCSchema), property actions and event outputs, context, advanced customisation with rawConfig, selectorless components |
 | [Complex Schema Structures](en/scenarios/complex-schema/)           | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() mappings and layout priority sorting |
@@ -67,6 +68,7 @@ Detailed reference for every Action, configuration item and helper; the logic is
 
 | Document                                                          | Description                                                                                                     |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Action Cheatsheet](en/api/action-cheatsheet/)                    | Every Action in one place: shared `set`/`patch`/`patchAsync`/`remove`/`mapAsync` semantics, the namespace support matrix, top-level Actions and the merge order |
 | [setComponent](en/api/setcomponent/)                                | Full `setComponent` API: string references (through fieldGlobalConfig.types) vs component classes, incl. built-in type key mapping |
 | [inputs](en/api/inputs/)                                            | `actions.inputs`: set (replace), patch (merge), remove, passing @Input() values to field components |
 | [outputs](en/api/outputs/)                                          | `actions.outputs`: set/patch/remove/patchAsync (created dynamically), binding custom event handlers to a field |
@@ -108,7 +110,7 @@ The following documents only cover APIs and directives unique to the **Angular f
 
 | Topic      | Link                                             |
 | ---------- | ----------------------------------------------- |
-| Installation | [5-Minute Quick Start](en/getting-started/quick-start/) |
+| Installation | [Quick Start](en/getting-started/quick-start/) |
 | Two modes    | [Two Usage Modes](en/getting-started/two-modes/)      |
 | How it works | [Core Concepts](en/getting-started/core-concept/)     |
 | Basic fields | [Basic Field Definition](en/scenarios/basic-field/)   |

@@ -104,14 +104,7 @@ When the array is empty, `emptyValue` is returned as the final value:
 
 ## Array Properties
 
-FieldArray exposes convenient array-related properties:
-
-| Property                 | Type             | Description                       |
-| ------------------------ | ---------------- | -------------------------------- |
-| `field.length`           | `number`         | Number of current child controls (fixed + dynamic) |
-| `field.controls`         | `FieldControl[]` | Current child controls            |
-| `field.fixedControls$()` | `FieldControl[]` | Fixed child controls (excluding rest children) |
-| `field.resetControls$()` | `FieldControl[]` | All resettable child controls      |
+The `FieldArray` members `length` / `controls` / `fixedControls$` / `clear()`, together with the field-level `children` / `fixedChildren` / `restChildren`, are control API — see [AbstractControl — FieldArray-specific API](en/api/control-api/#fieldarray-specific-api).
 
 ## Tuple and TupleWithRest
 

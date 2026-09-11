@@ -19,6 +19,7 @@ options = {
   context?: any;                          // context injection
   fieldGlobalConfig?: PiViewConfig;       // global configuration (types + wrappers)
   builder?: typeof FormBuilder<any>;      // custom Builder
+  environments?: string[];                // environment list matched by the condition Action
 };
 ```
 
@@ -110,12 +111,49 @@ const options = {
 };
 ```
 
+## 4. environments
+
+`environments` works together with the [`condition` Action](en/api/core-utils/#condition--conditional-actions): the inner `actions` of a `condition` only apply when the environments it declares **intersect** the current `environments`.
+
+```typescript
+const options = {
+  environments: ['desktop', 'zh'],
+};
+```
+
+```typescript
+import { condition, rawConfig } from '@piying/view-angular-core';
+
+const schema = v.object({
+  name: v.pipe(
+    v.string(),
+    // 'desktop' is present in environments → these actions apply
+    condition({
+      environments: ['desktop'],
+      actions: [rawConfig((item) => {
+        item.inputs = { ...item.inputs, placeholder: 'Desktop placeholder' };
+    })],
+    }),
+    // 'mobile' is not in environments → nothing applies
+    condition({
+      environments: ['mobile'],
+      actions: [rawConfig((item) => {
+        item.inputs = { ...item.inputs, placeholder: 'Mobile placeholder' };
+    })],
+    }),
+  ),
+});
+```
+
+> If `environments` is not configured, no `condition` ever matches. `condition` itself comes from `@piying/valibot-visit` and is re-exported by Piying-View.
+
 ## Full Options Example
 
 ```typescript
 options = {
   context: { userId: '123' },
   builder: CustomFormBuilder,
+  environments: ['desktop'],
   fieldGlobalConfig: {
     types: {
       string:   { type: TextInputComponent },

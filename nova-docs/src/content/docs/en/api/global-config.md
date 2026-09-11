@@ -238,4 +238,4 @@ options = {
 
 - [Scenario: asControl / asVirtualGroup](en/scenarios/as-control-group/) — treating a Group as a single control
 - [API: setComponent](en/api/setcomponent/) — details of component registration
-- [5-Minute Quick Start](en/getting-started/quick-start/) — building from scratch
+- [Quick Start](en/getting-started/quick-start/) — building from scratch

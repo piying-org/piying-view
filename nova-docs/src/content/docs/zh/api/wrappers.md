@@ -139,7 +139,7 @@ export class CardWrapperComponent {
 
 ### V1 Wrapper 模板（兼容）
 
-V1 模式下，不使用 `<ng-template #templateRef>` 包裹：<
+V1 模式下，不使用 `<ng-template #templateRef>` 包裹：
 
 ```html
 <!-- fieldset.wrapper.html -->
@@ -164,7 +164,7 @@ export class FieldsetWrapperComponent {
 
 ### Wrapper 的 Inputs
 
-Wrapper 组件通过 Angular `@Input()` 接收配置值（见上方 [Wrapper 组件的 Inputs/Attributes](#wrapper-组件的-inputsattributes) 章节）。
+Wrapper 组件通过 Angular `@Input()` 接收配置值（见下方 [Wrapper 组件的 Inputs/Attributes](#wrapper-组件的-inputsattributes) 章节）。
 
 ## V1 与 V2 的区别
 
