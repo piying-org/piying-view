@@ -1,0 +1,103 @@
+---
+interface Props {
+  /** 原始 markdown 的访问地址 */
+  src: string;
+}
+
+const { src } = Astro.props;
+const isZh = (Astro.currentLocale ?? 'zh').startsWith('zh');
+const labels = {
+  idle: isZh ? '复制文档' : 'Copy doc',
+  done: isZh ? '已复制' : 'Copied',
+  failed: isZh ? '复制失败' : 'Copy failed',
+};
+---
+
+<button type="button" class="btn btn-ghost btn-sm" data-doc-copy data-src={src} data-labels={JSON.stringify(labels)}>
+  <label class="swap">
+    <input type="checkbox" />
+
+    <svg
+      class="swap-off"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      width="16"
+      height="16"
+    >
+      <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+    </svg>
+    <svg
+      class="swap-on"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      width="16"
+      height="16"
+    >
+      <path d="M20 6L9 17l-5-5"></path>
+    </svg>
+  </label>
+  <span data-label>{labels.idle}</span>
+</button>
+
+<script>
+  async function writeToClipboard(text: string) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+  }
+
+  function setState(btn: HTMLButtonElement, state: 'idle' | 'done' | 'failed') {
+    const labels = JSON.parse(btn.dataset.labels!) as Record<string, string>;
+    btn.classList.toggle('text-success', state === 'done');
+    btn.classList.toggle('text-error', state === 'failed');
+    btn.querySelector('.swap')?.classList.toggle('swap-active', state === 'done');
+    btn.querySelector<HTMLElement>('[data-label]')!.textContent = labels[state];
+  }
+
+  function bind(btn: HTMLButtonElement) {
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+
+    btn.addEventListener('click', async () => {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch(btn.dataset.src!);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        await writeToClipboard(await res.text());
+        setState(btn, 'done');
+      } catch {
+        setState(btn, 'failed');
+      }
+      setTimeout(() => {
+        setState(btn, 'idle');
+        btn.disabled = false;
+      }, 1600);
+    });
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('button[data-doc-copy]').forEach(bind);
+</script>

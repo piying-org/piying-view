@@ -2,9 +2,9 @@
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import CodeFile from 'starlight-theme-nova/components/CodeFile.astro';
 import { CodeTabItem, CodeTabs } from 'starlight-theme-nova/components';
-import { globSync } from 'tinyglobby';
 import { basename, extname } from 'node:path';
 import { readFile } from 'node:fs/promises';
+import { attrsOf, resolveLivePreviewFiles, toList } from '../utils/preview-sources';
 
 interface Props {
   /**
@@ -32,23 +32,12 @@ interface Props {
 
 const { path, include, exclude, previewLabel = '预览', codeLabel = '代码' } = Astro.props;
 
-// 解析包含模式
-let patterns: string[];
-if (include) {
-  patterns = Array.isArray(include) ? include : [include];
-} else if (path) {
-  patterns = [path];
-} else {
-  throw new Error('LivePreview 需要提供 path 或 include 属性');
-}
-
-const ignore = exclude ? (Array.isArray(exclude) ? exclude : [exclude]) : undefined;
-
-// 匹配源码文件（相对项目根）
-const files = globSync(patterns, { ignore }).filter((f) => !f.startsWith('node_modules/'));
+const files = resolveLivePreviewFiles(attrsOf({ path, include, exclude }));
 
 if (files.length === 0) {
-  throw new Error(`LivePreview 未找到匹配的文件：${patterns.join(', ')}`);
+  throw new Error(
+    `LivePreview 未找到匹配的文件：${[...toList(include), ...toList(path)].join(', ')}`,
+  );
 }
 
 // 从扩展名推断代码语言

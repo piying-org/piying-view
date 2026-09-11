@@ -1,6 +1,7 @@
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import CodeFile from 'starlight-theme-nova/components/CodeFile.astro';
+import { attrsOf, resolveSchemaPreviewFiles } from '../utils/preview-sources';
 
 interface Props {
   /**
@@ -20,7 +21,9 @@ interface Props {
 
 const { definition, previewLabel = '预览', codeLabel = '定义' } = Astro.props;
 
-if (!definition) {
+const files = resolveSchemaPreviewFiles(attrsOf({ definition }));
+
+if (files.length === 0) {
   throw new Error('SchemaPreview 需要提供 definition 属性');
 }
 ---
@@ -31,7 +34,7 @@ if (!definition) {
       <slot name="preview" />
     </TabItem>
     <TabItem label={codeLabel}>
-      <CodeFile path={definition} />
+      <CodeFile path={files[0]} />
     </TabItem>
   </Tabs>
 </div>
