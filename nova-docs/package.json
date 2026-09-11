@@ -6,11 +6,21 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:angular": "npm --prefix .. run build:angular",
     "build:online-type": "dts-bundle-generator ./src/declaration/online-type.ts --project ./tsconfig.online-type.json -o public/declaration/online-type.d.ts --external-inlines valibot --external-inlines @piying/view-angular --external-inlines @piying/view-angular-core --no-check --no-banner --inline-declare-global --inline-declare-externals --export-referenced-types",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@angular/cdk": "22.0.3",
+    "@angular/common": "22.0.5",
+    "@angular/compiler": "22.0.5",
+    "@angular/core": "22.0.5",
+    "@angular/forms": "22.0.5",
+    "@angular/material": "22.0.3",
+    "@angular/platform-browser": "22.0.5",
+    "@angular/platform-server": "22.0.5",
+    "@angular/router": "22.0.5",
     "@analogjs/astro-angular": "^2.7.1",
     "@astrojs/markdown-satteri": "0.4.1",
     "@astrojs/mdx": "^8.0.0",
@@ -18,8 +28,10 @@
     "@cyia/ngx-common": "^22.0.3",
     "@piying-lib/angular-core": "^1.4.3",
     "@piying-lib/angular-daisyui": "^1.4.3",
+    "@piying/valibot-visit": "^1.3.14",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.1",
+    "fast-equals": "^5.2.2",
     "highlight.js": "^11.12.0",
     "json-formatter-js": "^2.5.23",
     "magic-string": "^1.3.1",
@@ -41,7 +53,11 @@
     "@piying/view-angular-core": "*"
   },
   "devDependencies": {
+    "@angular/build": "22.0.5",
+    "@angular/compiler-cli": "22.0.5",
+    "@types/node": "^22.15.30",
     "dts-bundle-generator": "^9.5.1",
+    "typescript": "6.0.3",
     "vite-plugin-static-copy": "^4.1.1"
   }
 }

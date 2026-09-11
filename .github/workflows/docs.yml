@@ -19,20 +19,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 拉取仓库
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: 安装 Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
       - name: 安装 pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: '11'
-      - name: 安装依赖
+      - name: 安装依赖1
         run: pnpm install
-      - name: 构建文档站点
+      - name: 安装依赖2
+        run: pnpm install
         working-directory: nova-docs
-        run: pnpm build
+      - name: 构建文档站点
+        run: npm run build:docs
       - name: 上传制品
         id: deployment
         uses: actions/upload-pages-artifact@v3

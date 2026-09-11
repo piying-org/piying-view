@@ -1,0 +1,22 @@
+# nova-docs 独立 workspace：与库的 workspace 分离，根目录 pnpm i 不再解析本目录
+packages: []
+
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+  esbuild: true
+  less: true
+  lmdb: true
+  msgpackr-extract: true
+
+# 指向库的构建产物，因此本目录安装前必须先执行根目录 build:angular
+# typescript 必须锁 6.x：dts-bundle-generator 会把 TS7（原生版）当直接依赖装上，缺 ts.sys/ts.createPrinter
+overrides:
+  '@piying/view-angular': 'file:../dist/view-angular'
+  '@piying/view-angular-core': 'file:../dist/view-angular-core'
+  typescript: '6.0.3'
+
+minimumReleaseAgeExclude:
+  - '@piying/valibot-visit@1.3.14'
+  - '@piying-lib/angular-core@1.4.3'
+  - '@piying-lib/angular-daisyui@1.4.3'
