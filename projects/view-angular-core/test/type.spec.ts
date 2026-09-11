@@ -354,6 +354,62 @@ describe('强类型推断', () => {
     }
   });
 
+  it('数组项内 @别名 命中项内同名别名(子级优先)', () => {
+    const result = createBuilder(
+      v.object({
+        a: v.pipe(v.number(), setAlias('xx')),
+        b: v.array(
+          v.pipe(
+            v.object({ c: v.pipe(v.string(), setAlias('xx')) }),
+            setAlias('arr'),
+          ),
+        ),
+      }),
+    );
+    // 创建数组项, 保证 item 存在一个
+    result.form.control?.updateValue({ b: [{ c: 'v1' }] });
+
+    const itemField = result.get(['b', 0]);
+    expect(itemField).toBeDefined();
+    if (!itemField) {
+      return;
+    }
+    const cField = itemField.get(['c']);
+    expect(cField).toBeDefined();
+    // c 是 string
+    const cValue = cField!.form.control!.value;
+    const cEqual: Equal<typeof cValue, string> = true;
+    expect(cValue).toBe('v1');
+    expect(cEqual).toBe(true);
+
+    // 在 item 上查 @xx: 命中项内的 c, 而不是根级的 a
+    const aliased = itemField.get(['@xx']);
+    expect(aliased).toBeDefined();
+    expect(aliased).toBe(cField);
+    expect(aliased?.keyPath).toEqual(['c']);
+    expect(aliased?.alias).toBe('xx');
+    // 类型层面同样精确: @xx 在 item 作用域内解析为 c 的 string
+    const aliasedValue = aliased!.form.control!.value;
+    const aliasEqual: Equal<typeof aliasedValue, string> = true;
+    // @ts-expect-error @xx 在 item 作用域内不是 number
+    const aliasWrong: number = aliasedValue;
+    expect(aliasedValue).toBe('v1');
+    expect(aliasEqual).toBe(true);
+
+    // 项内另一个别名 @arr 解析为 item 自身的 { c: string }
+    const arrField = itemField.get(['@arr'])!;
+    const arrValue = arrField.form.control!.value;
+    const arrEqual: Equal<typeof arrValue, { c: string }> = true;
+    expect(arrEqual).toBe(true);
+
+    // 根级查 @xx: 仍是 a(number), 未被数组项内的同名别名污染
+    const rootAliased = result.get(['@xx'])!;
+    const rootAliasValue = rootAliased.form.control!.value;
+    const rootAliasEqual: Equal<typeof rootAliasValue, number> = true;
+    expect(rootAliased.keyPath).toEqual(['a']);
+    expect(rootAliasEqual).toBe(true);
+  });
+
   it('根对象: form.control.value 精确推断为对象类型', () => {
     const result = createBuilder(v.object({ key1: v.string() }));
     const value = result.form.control!.value;

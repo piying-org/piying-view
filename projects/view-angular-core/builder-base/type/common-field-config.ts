@@ -46,20 +46,8 @@ type RestPath<Path extends KeyPath> = Path extends [any, ...infer R]
   : [];
 
 /* ---------- 别名(@alias) 强类型支持 ---------- */
-type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
-  x: infer R,
-) => void
-  ? R
-  : never;
 
-/** 在 schema 中查找第一个 setAlias 的别名 */
-type FindAlias<S> = S extends { alias: infer Al }
-  ? Al
-  : S extends { pipe: infer P extends readonly any[] }
-    ? FindAliasInPipe<P>
-    : S extends { entries: infer E extends Record<string, any> }
-      ? FindAliasInEntries<E>
-      : never;
+/** 在 pipe 中查找第一个 setAlias 的别名 */
 type FindAliasInPipe<P extends readonly any[]> = P extends readonly [
   infer A,
   ...infer R,
@@ -68,32 +56,84 @@ type FindAliasInPipe<P extends readonly any[]> = P extends readonly [
     ? Al
     : FindAliasInPipe<R>
   : never;
-type FindAliasInEntries<E extends Record<string, any>> = {
-  [K in keyof E]: FindAlias<E[K]>;
-}[keyof E];
 
 /** 提取字段输出类型(非 schema 时兜底为 any) */
 type FieldOutput<F> = F extends v.BaseSchema<unknown, unknown, any>
   ? v.InferOutput<F>
   : any;
 
-/** 提取单个字段的别名映射: { [别名]: 字段value类型 } */
-type ExtractFieldMap<F> = FindAlias<F> extends infer Al
+/** 字段自身(pipe 上)的别名 -> [value, schema] */
+type OwnAliasMap<S> = (
+  S extends { alias: infer Al }
+    ? Al
+    : S extends { pipe: infer P extends readonly any[] }
+      ? FindAliasInPipe<P>
+      : never
+) extends infer Al
   ? Al extends string
-    ? { [key in Al]: FieldOutput<F> }
+    ? { [K in Al]: [FieldOutput<S>, S] }
     : {}
   : {};
 
-/** 从 root schema 递归提取所有别名 -> 字段类型 映射(any/unknown 及未覆盖的 schema 类型返回 {}) */
-export type InferAliasMap<S> = unknown extends S
+/** 合并多个别名映射, 同名 key 的 value 取并集(避免交叉成 never) */
+type MergeAliasUnion<U> = {
+  [K in U extends any ? keyof U : never]: U extends any
+    ? K extends keyof U
+      ? U[K]
+      : never
+    : never;
+};
+
+/**
+ * 收集「同一作用域内」的别名映射。
+ * 沿 object/intersect/union/pipe/wrapped 下钻, 但遇到数组 item 即停止
+ * —— 数组项在运行时由独立的 ParentMap 承载, 属于内层作用域。
+ */
+type CollectScopeAlias<S> = unknown extends S
   ? {}
-  : S extends { entries: infer E extends Record<string, any> }
-    ? UnionToIntersection<{ [K in keyof E]: ExtractFieldMap<E[K]> }[keyof E]>
-    : S extends { pipe: infer P extends readonly any[] }
-      ? InferAliasMap<P[0]>
-      : S extends { options: infer O extends readonly any[] }
-        ? UnionToIntersection<InferAliasMap<O[number]>>
-        : {};
+  : MergeAliasUnion<
+      | OwnAliasMap<S>
+      | (S extends { pipe: infer P extends readonly any[] }
+          ? CollectScopeAlias<P[0]>
+          : {})
+      | (S extends { wrapped: infer W } ? CollectScopeAlias<W> : {})
+      | (S extends { entries: infer E extends Record<string, any> }
+          ? MergeAliasUnion<
+              { [K in keyof E]: CollectScopeAlias<E[K]> }[keyof E]
+            >
+          : {})
+      | (S extends { options: infer O extends readonly any[] }
+          ? MergeAliasUnion<CollectScopeAlias<O[number]>>
+          : {})
+    >;
+
+/**
+ * 作用域链 [最内层, ..., 最外层], 对应运行时的 ParentMap 链。
+ * @alias 先在当前(最内)作用域查找, 未命中再逐级向外回退。
+ * 命中时返回 [别名目标, 以命中层为起点的作用域链]。
+ */
+type LookupAliasScope<Scopes, Name extends string> = Scopes extends readonly [
+  infer Cur,
+  ...infer Rest extends readonly any[],
+]
+  ? Name extends keyof Cur
+    ? [Cur[Name], [Cur, ...Rest]]
+    : LookupAliasScope<Rest, Name>
+  : never;
+
+/** 下钻数组项时压入新的作用域 */
+type PushItemScope<Schema, K, Scopes> = [
+  CoreSchemaOf<Schema>,
+] extends [{ item: infer T }]
+  ? K extends number
+    ? Scopes extends readonly any[]
+      ? [CollectScopeAlias<T>, ...Scopes]
+      : [CollectScopeAlias<T>]
+    : Scopes
+  : Scopes;
+
+/** 根作用域别名链 */
+export type InferAliasMap<S> = [CollectScopeAlias<S>];
 
 /* ---------- schema 导航(支持 intersect/union 数字下标及对象/数组) ---------- */
 /** 从 schema 中按 key 取子 schema(支持对象/数组/pipe/optional 等包裹) */
@@ -127,10 +167,11 @@ type ItemSchema<S, I> = unknown extends S
         : never;
 
 /**
- * 根据 keyPath 递归解析出 [value 类型, schema]。
+ * 根据 keyPath 递归解析出 [value 类型, schema, 作用域链]。
  * Value: 当前字段值类型; Schema: 当前字段 schema。
  * RootValue/RootSchema: 根级; ParentValue/ParentSchema: 父级。
  * - '#' 从根级开始; '..' 从父级开始(单级退回); '@alias' 通过别名查询。
+ * - 下钻数组项时作用域链压入新层, 与运行时 #createArrayItem 的 ParentMap 一致。
  */
 type Resolve<
   Value,
@@ -142,28 +183,28 @@ type Resolve<
   AliasMap,
   Path extends KeyPath,
 > = Path extends []
-  ? [Value, Schema]
+  ? [Value, Schema, AliasMap]
   : Path[0] extends '#'
     ? Resolve<RootValue, RootSchema, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
     : Path[0] extends '..'
       ? Resolve<ParentValue, ParentSchema, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
       : Path[0] extends `@${infer Al}`
-        ? Al extends keyof AliasMap
-          ? Resolve<AliasMap[Al], any, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
-          : [any, any]
+        ? LookupAliasScope<AliasMap, Al> extends [[infer AV, infer AS], infer ASC extends readonly any[]]
+          ? Resolve<AV, AS, RootValue, RootSchema, any, any, ASC, RestPath<Path>>
+          : [any, any, AliasMap]
         : Path extends [infer K, ...infer Rest]
           ? Rest extends KeyPath
             ? K extends keyof Value
-              ? Resolve<Value[K], SubSchema<Schema, K>, RootValue, RootSchema, Value, Schema, AliasMap, Rest>
+              ? Resolve<Value[K], SubSchema<Schema, K>, RootValue, RootSchema, Value, Schema, PushItemScope<Schema, K, AliasMap>, Rest>
               : K extends number
-                ? Resolve<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, RootValue, RootSchema, Value, Schema, AliasMap, Rest>
-                : [any, any]
+                ? Resolve<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, RootValue, RootSchema, Value, Schema, PushItemScope<Schema, K, AliasMap>, Rest>
+                : [any, any, AliasMap]
             : K extends keyof Value
-              ? [Value[K], SubSchema<Schema, K>]
+              ? [Value[K], SubSchema<Schema, K>, AliasMap]
               : K extends number
-                ? [FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>]
-                : [any, any]
-          : [any, any];
+                ? [FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, AliasMap]
+                : [any, any, AliasMap]
+          : [any, any, AliasMap];
 
 /** 解析路径末端的 value 类型 */
 type GetPathValue<
@@ -188,6 +229,18 @@ type GetPathSchema<
   AliasMap,
   Path extends KeyPath,
 > = Resolve<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>[1];
+
+/** 解析路径末端所处的作用域链 */
+type GetPathScopes<
+  Value,
+  Schema,
+  RootValue,
+  RootSchema,
+  ParentValue,
+  ParentSchema,
+  AliasMap,
+  Path extends KeyPath,
+> = Resolve<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>[2];
 
 /** 返回字段的父级值类型: 普通路径的父级是路径倒数第二个 key 的值; 特殊路径无法推导为 any */
 type GetParentValue<Value, Schema, ParentValue, Path extends KeyPath> =
@@ -239,7 +292,7 @@ type GetResult<
   GetPathValue<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
   RootValue,
   GetParentValue<Value, Schema, ParentValue, Path>,
-  AliasMap,
+  GetPathScopes<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
   GetPathSchema<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
   RootSchema,
   GetParentSchema<Value, Schema, ParentSchema, Path>
