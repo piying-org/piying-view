@@ -39,8 +39,8 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | 文档                                                          | 说明                                                                                                            |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | [基础字段定义](zh/scenarios/basic-field/)                      | `setComponent`（字符串引用 vs 直接传组件类）、`formConfig` 完整字段表、Valibot 元数据自动推导、自定义验证器     |
-| [类型映射（定义即表单）](zh/scenarios/type-mapping/) | Valibot 类型→表单控件/表单组/表单数组的自动映射：string/number/boolean/picklist/object/record/tuple/array 等 |
-| [表单使用](zh/scenarios/form-use/) | 表单使用总览：默认值/值监听/布局移动/分区禁用/级联/验证/过滤组/滚动组 |
+| [类型映射（定义即表单）](zh/scenarios/type-mapping/) | Valibot 类型→表单控件/表单组/表单数组的自动映射：string/number/boolean/picklist/object/record/tuple/array 等，含默认值与嵌套定义 |
+| [表单使用](zh/scenarios/form-use/) | 表单使用总览：值监听/布局移动/分区禁用/字段分组/级联/验证/过滤组/滚动组 |
 | [组件使用](zh/scenarios/component-use/) | 组件类型、非表单控件（NFCSchema）、属性操作与事件输出、上下文、rawConfig 高级自定义、无标签组件（selectorless） |
 | [复杂 Schema 结构](zh/scenarios/complex-schema/)               | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() 的映射及 layout priority 排序     |
 | [asControl / asVirtualGroup](zh/scenarios/as-control-group/)   | `asControl()` 将嵌套对象整体作为独立控件、`asVirtualGroup()` 让 Intersect 子级作为普通 Group，含三大使用场景    |

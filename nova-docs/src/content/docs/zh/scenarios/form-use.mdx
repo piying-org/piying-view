@@ -7,103 +7,9 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 - 如果您需要实现某种逻辑却没有头绪，欢迎[提问](https://github.com/piying-org/piying-view/issues)
 
-本文是表单使用的总览。各场景的详细示例见右侧对应文档；这里展示最核心的「定义即表单」能力，以及常用的 `formHelper`（`__helper`）辅助组件。
+本文介绍表单的常用能力：值监听、布局移动、分区禁用、字段分组、验证、级联、懒加载等。
 
-## 类型映射
-
-大部分 `Valibot` 类型会被解析为`表单控件`，以下为一些常用的类型。更多类型请到 [Valibot API](https://valibot.dev/api/) 中查看，自定义类型请使用 `custom`。
-
-### string — 文本输入
-
-<SchemaPreview definition="src/angular/components/definition/type-string.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="string" />
-</SchemaPreview>
-
-### number — 数字输入
-
-<SchemaPreview definition="src/angular/components/definition/type-number.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="number" />
-</SchemaPreview>
-
-### boolean — 复选框
-
-<SchemaPreview definition="src/angular/components/definition/type-boolean.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="boolean" />
-</SchemaPreview>
-
-### picklist — 下拉选择
-
-<SchemaPreview definition="src/angular/components/definition/type-picklist.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="picklist" />
-</SchemaPreview>
-
-> 上述控件类型映射的完整定义与可交互演示，见 [类型映射 — 定义即表单](zh/scenarios/type-mapping/)。
-
----
-
-以下类型会被解析为`表单组`，均可在内部通过 `__helper` 引用 `formHelper` 组件来展示校验错误、提交/重置按钮：
-
-### object / strictObject — 自动过滤未定义的键值
-
-<SchemaPreview definition="src/angular/components/definition/form-use-object.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-object" />
-</SchemaPreview>
-
-### looseObject — 保留未定义的键值
-
-<SchemaPreview definition="src/angular/components/definition/form-use-loose-object.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-loose-object" />
-</SchemaPreview>
-
-### objectWithRest — 部分固定键值，部分可添加
-
-<SchemaPreview definition="src/angular/components/definition/form-use-object-with-rest.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-object-with-rest" />
-</SchemaPreview>
-
-### record — 无固定键值，全部为可添加键值
-
-> 目前仅支持 key 为 string 类型。
-
-<SchemaPreview definition="src/angular/components/definition/form-use-record.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-record" />
-</SchemaPreview>
-
----
-
-以下类型会被解析为`表单数组`：
-
-### tuple / strictTuple — 固定的数组项，不可添加，超过长度自动过滤
-
-<SchemaPreview definition="src/angular/components/definition/form-use-tuple.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-tuple" />
-</SchemaPreview>
-
-### looseTuple — 固定的数组项，不可添加，超过长度保留
-
-<SchemaPreview definition="src/angular/components/definition/form-use-loose-tuple.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-loose-tuple" />
-</SchemaPreview>
-
-### tupleWithRest — 部分固定，部分可添加
-
-<SchemaPreview definition="src/angular/components/definition/form-use-tuple-with-rest.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-tuple-with-rest" />
-</SchemaPreview>
-
-### array — 动态添加子项
-
-<SchemaPreview definition="src/angular/components/definition/form-use-array.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-array" />
-</SchemaPreview>
-
-## 默认值
-
-`v.optional()` 的第二个参数即为默认值，渲染后直接填入表单：
-
-<SchemaPreview definition="src/angular/components/definition/default-value.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="default" />
-</SchemaPreview>
+Valibot 类型如何映射为`表单控件` / `表单组` / `表单数组`，以及默认值与嵌套定义，统一见 [类型映射 — 定义即表单](zh/scenarios/type-mapping/)，本文不再重复。
 
 ## 值变更监听
 
@@ -142,14 +48,6 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 </SchemaPreview>
 
 > 数组的增删改、deletionMode、groupMode 等高级用法见 [数组高级用法](zh/scenarios/array-advanced/)。
-
-## 嵌套定义
-
-使用 `object` 可以进行多级数据结构定义，自动嵌套渲染为子表单组：
-
-<SchemaPreview definition="src/angular/components/definition/form-use-fieldset.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-fieldset" />
-</SchemaPreview>
 
 ## 字段分组
 
@@ -211,7 +109,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 ## 下一步
 
-- [类型映射 — 定义即表单](zh/scenarios/type-mapping/) — 更多类型与默认值/嵌套定义
+- [类型映射 — 定义即表单](zh/scenarios/type-mapping/) — 类型映射 / 默认值 / 嵌套定义
 - [动态字段控制](zh/scenarios/dynamic-fields/) — valueChange / disableWhen / 级联
 - [asControl / asVirtualGroup](zh/scenarios/as-control-group/) — 布局移动 / 字段分组
 - [数组高级用法](zh/scenarios/array-advanced/) — 过滤组 / 滚动组

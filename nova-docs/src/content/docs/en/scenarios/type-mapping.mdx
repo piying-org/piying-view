@@ -47,9 +47,9 @@ Most Valibot types resolve into form controls; the common mappings are listed be
 
 ## Form Group Types
 
-An object defined with `v.object()` renders as a form group containing every child field automatically.
+An object defined with `v.object()` renders as a form group containing every child field automatically. Inside any group you can reference the `formHelper` component through `__helper` to render validation errors and submit / reset buttons.
 
-### object → Form Group
+### object / strictObject → Form Group (undefined keys filtered out)
 
 <SchemaPreview definition="src/angular/components/definition/type-object.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object" />
@@ -134,3 +134,5 @@ Use `v.object()` for multi-level data structures; they render as nested child fo
 ## More Types
 
 > For more types see the [Valibot API](https://valibot.dev/api/). Use `custom` for your own types.
+>
+> For form capabilities (value listening / layout moves / section disabling / field grouping / validation / cascading / filter group / scroll group) see [Using Forms](en/scenarios/form-use/).

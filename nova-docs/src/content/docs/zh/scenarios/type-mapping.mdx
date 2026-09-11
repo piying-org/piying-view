@@ -47,9 +47,9 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 ## 表单组类型
 
-`v.object()` 定义的对象会渲染为一个表单组，自动包含所有子字段。
+`v.object()` 定义的对象会渲染为一个表单组，自动包含所有子字段。表单组内部都可以通过 `__helper` 引用 `formHelper` 组件，展示校验错误与提交 / 重置按钮。
 
-### object → 表单组
+### object / strictObject → 表单组（自动过滤未定义的键值）
 
 <SchemaPreview definition="src/angular/components/definition/type-object.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object" />
@@ -134,3 +134,5 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 ## 更多类型
 
 > 更多类型请参考 [Valibot API](https://valibot.dev/api/)。自定义类型可使用 `custom`。
+>
+> 表单能力（值监听 / 布局移动 / 分区禁用 / 字段分组 / 验证 / 级联 / 过滤组 / 滚动组）见 [表单使用](zh/scenarios/form-use/)。

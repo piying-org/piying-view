@@ -1,6 +1,12 @@
 import * as v from 'valibot';
-import { valueChange } from '@piying/view-angular-core';
+import {
+  actions,
+  NFCSchema,
+  setComponent,
+  valueChange,
+} from '@piying/view-angular-core';
 import { skip } from 'rxjs';
+import { appendLog } from '../log';
 
 export const schema = v.object({
   k1: v.boolean(),
@@ -11,6 +17,7 @@ export const schema = v.object({
         .pipe(skip(1))
         .subscribe(({ list: [value], field }) => {
           field.form.control?.updateValue(!value);
+          appendLog(field, `k1 = ${value} → k2 = ${!value}`);
         });
     }),
   ),
@@ -21,6 +28,7 @@ export const schema = v.object({
         .pipe(skip(1))
         .subscribe(({ list: [value], field }) => {
           field.form.control?.updateValue(!value);
+          appendLog(field, `k2 = ${value} → k3 = ${!value}`);
         });
     }),
   ),
@@ -31,7 +39,13 @@ export const schema = v.object({
         .pipe(skip(1))
         .subscribe(({ list: [value], field }) => {
           field.form.control?.updateValue(!value);
+          appendLog(field, `k3 = ${value} → k4 = ${!value}`);
         });
     }),
+  ),
+  __log: v.pipe(
+    NFCSchema,
+    setComponent('log'),
+    actions.inputs.set({ logs: [] }),
   ),
 });

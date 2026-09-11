@@ -1,6 +1,12 @@
 import * as v from 'valibot';
-import { disableWhen } from '@piying/view-angular-core';
+import {
+  actions,
+  disableWhen,
+  NFCSchema,
+  setComponent,
+} from '@piying/view-angular-core';
 import { map } from 'rxjs';
+import { appendLog } from '../log';
 
 export const schema = v.object({
   enable: v.boolean(),
@@ -13,7 +19,13 @@ export const schema = v.object({
       disableWhen({
         listen: (fn) => {
           return fn({ list: [['#', 'enable']] }).pipe(
-            map(({ list }) => list[0]),
+            map(({ list, field }) => {
+              appendLog(
+                field,
+                `enable = ${list[0]} → input1 / input2 ${list[0] ? '禁用' : '可编辑'}`,
+              );
+              return list[0];
+            }),
           );
         },
       }),
@@ -26,10 +38,21 @@ export const schema = v.object({
       disableWhen({
         listen: (fn) => {
           return fn({ list: [['#', 'enable']] }).pipe(
-            map(({ list }) => !list[0]),
+            map(({ list, field }) => {
+              appendLog(
+                field,
+                `enable = ${list[0]} → input3 / input4 ${list[0] ? '可编辑' : '禁用'}`,
+              );
+              return !list[0];
+            }),
           );
         },
       }),
     ),
   ]),
+  __log: v.pipe(
+    NFCSchema,
+    setComponent('log'),
+    actions.inputs.set({ logs: [] }),
+  ),
 });

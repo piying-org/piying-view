@@ -5,105 +5,11 @@ title: "Using Forms"
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
-- If you need a certain behaviour and don't know where to start, feel free to [open an issue](https://github.com/piying-org/piying-view/issues)
+- If you are trying to implement some logic and have no idea where to start, feel free to [open an issue](https://github.com/piying-org/piying-view/issues)
 
-This page is an overview of form usage. Detailed examples per scenario live in the linked documents; here we show the core "definition is the form" capability plus the common `formHelper` (`__helper`) components.
+This page covers the common form capabilities: value listening, layout moves, section disabling, field grouping, validation, cascading and lazy loading.
 
-## Type Mapping
-
-Most `Valibot` types are resolved into form controls; some common ones are listed below. See the [Valibot API](https://valibot.dev/api/) for more types, and use `custom` for your own types.
-
-### string — Text Input
-
-<SchemaPreview definition="src/angular/components/definition/type-string.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="string" />
-</SchemaPreview>
-
-### number — Number Input
-
-<SchemaPreview definition="src/angular/components/definition/type-number.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="number" />
-</SchemaPreview>
-
-### boolean — Checkbox
-
-<SchemaPreview definition="src/angular/components/definition/type-boolean.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="boolean" />
-</SchemaPreview>
-
-### picklist — Select
-
-<SchemaPreview definition="src/angular/components/definition/type-picklist.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="picklist" />
-</SchemaPreview>
-
-> For the full control type mapping and interactive demos see [Type Mapping — Definition Is the Form](en/scenarios/type-mapping/).
-
----
-
-The following types resolve into form groups; each can reference the `formHelper` component through `__helper` to render validation errors and submit/reset buttons:
-
-### object / strictObject — Undefined Keys Filtered Out
-
-<SchemaPreview definition="src/angular/components/definition/form-use-object.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-object" />
-</SchemaPreview>
-
-### looseObject — Keeps Undefined Keys
-
-<SchemaPreview definition="src/angular/components/definition/form-use-loose-object.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-loose-object" />
-</SchemaPreview>
-
-### objectWithRest — Some Fixed Keys, Some Addable
-
-<SchemaPreview definition="src/angular/components/definition/form-use-object-with-rest.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-object-with-rest" />
-</SchemaPreview>
-
-### record — No Fixed Keys, All Keys Addable
-
-> Currently only string keys are supported.
-
-<SchemaPreview definition="src/angular/components/definition/form-use-record.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-record" />
-</SchemaPreview>
-
----
-
-The following types resolve into form arrays:
-
-### tuple / strictTuple — Fixed Items, Not Addable, Extra Values Filtered Out
-
-<SchemaPreview definition="src/angular/components/definition/form-use-tuple.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-tuple" />
-</SchemaPreview>
-
-### looseTuple — Fixed Items, Not Addable, Extra Values Kept
-
-<SchemaPreview definition="src/angular/components/definition/form-use-loose-tuple.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-loose-tuple" />
-</SchemaPreview>
-
-### tupleWithRest — Some Fixed, Some Addable
-
-<SchemaPreview definition="src/angular/components/definition/form-use-tuple-with-rest.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-tuple-with-rest" />
-</SchemaPreview>
-
-### array — Dynamically Added Children
-
-<SchemaPreview definition="src/angular/components/definition/form-use-array.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-array" />
-</SchemaPreview>
-
-## Default Values
-
-The second argument of `v.optional()` is the default value, filled into the form on render:
-
-<SchemaPreview definition="src/angular/components/definition/default-value.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="default" />
-</SchemaPreview>
+How Valibot types resolve into form controls / form groups / form arrays, plus default values and nested definitions, lives exclusively in [Type Mapping — Definition Is the Form](en/scenarios/type-mapping/) and is not repeated here.
 
 ## Listening to Value Changes
 
@@ -142,14 +48,6 @@ You can always wrap a type definition in `v.array()` to make it an array:
 </SchemaPreview>
 
 > Advanced usage (add/remove/update, deletionMode, groupMode) is covered in [Advanced Array Usage](en/scenarios/array-advanced/).
-
-## Nested Definitions
-
-Use `object` for multi-level data structures; they render as nested child form groups automatically:
-
-<SchemaPreview definition="src/angular/components/definition/form-use-fieldset.definition.ts">
-  <SchemaDemoComponent slot="preview" client:only="angular" name="form-use-fieldset" />
-</SchemaPreview>
 
 ## Field Grouping
 
@@ -211,7 +109,7 @@ Create controls lazily with `defer` and combine them with the `scrollGroup` comp
 
 ## Next Steps
 
-- [Type Mapping — Definition Is the Form](en/scenarios/type-mapping/) — more types, default values and nested definitions
+- [Type Mapping — Definition Is the Form](en/scenarios/type-mapping/) — type mapping / default values / nested definitions
 - [Dynamic Field Control](en/scenarios/dynamic-fields/) — valueChange / disableWhen / cascading
 - [asControl / asVirtualGroup](en/scenarios/as-control-group/) — layout moves / field grouping
 - [Advanced Array Usage](en/scenarios/array-advanced/) — filter group / scroll group

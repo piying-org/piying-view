@@ -39,8 +39,8 @@ Organised by common business scenario; each one ships a verified, complete examp
 | Document                                                          | Description                                                                                               |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | [Basic Field Definition](en/scenarios/basic-field/)                 | `setComponent` (string reference vs component class), the complete `formConfig` table, Valibot metadata inference, custom validators |
-| [Type Mapping (define equals form)](en/scenarios/type-mapping/) | Automatic mapping from Valibot types to form controls/groups/arrays: string/number/boolean/picklist/object/record/tuple/array, etc. |
-| [Using Forms](en/scenarios/form-use/) | Form usage overview: default values/value listening/layout moving/section disabling/cascading/validation/filter groups/scroll groups |
+| [Type Mapping (define equals form)](en/scenarios/type-mapping/) | Automatic mapping from Valibot types to form controls/groups/arrays: string/number/boolean/picklist/object/record/tuple/array, etc., including default values and nested definitions |
+| [Using Forms](en/scenarios/form-use/) | Form usage overview: value listening/layout moving/section disabling/field grouping/cascading/validation/filter groups/scroll groups |
 | [Using Components](en/scenarios/component-use/) | Component types, non-form controls (NFCSchema), property actions and event outputs, context, advanced customisation with rawConfig, selectorless components |
 | [Complex Schema Structures](en/scenarios/complex-schema/)           | v.object()→FieldGroup / v.array()→FieldArray / v.record()/intersect()/union() mappings and layout priority sorting |
 | [asControl / asVirtualGroup](en/scenarios/as-control-group/)        | `asControl()` treats a nested object as a single control, `asVirtualGroup()` turns Intersect children into a normal Group, with three main scenarios |
