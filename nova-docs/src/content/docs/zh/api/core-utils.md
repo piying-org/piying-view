@@ -178,4 +178,4 @@ const schema = v.object({
 
 - [核心概念](zh/getting-started/core-concept/) — Schema → Field → Component 解析链
 - [Control API](zh/api/control-api/) — 表单控件值/状态/验证 API
-- [FieldFormConfig](zh/api/field-config/) — 字段表单配置
+- [formConfig](zh/api/form-config/) — 字段表单配置

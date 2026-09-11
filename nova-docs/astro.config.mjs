@@ -215,7 +215,9 @@ export default defineConfig({
               '/api/hide-disable/',
             ),
             nav('路径查询', 'Path Querying', '/api/path-querying/'),
-            nav('FieldFormConfig', 'FieldFormConfig', '/api/field-config/'),
+            nav('formConfig', 'formConfig', '/api/form-config/'),
+            nav('renderConfig', 'renderConfig', '/api/render-config/'),
+            nav('rawConfig', 'rawConfig', '/api/raw-config/'),
             nav(
               'fieldGlobalConfig',
               'fieldGlobalConfig',

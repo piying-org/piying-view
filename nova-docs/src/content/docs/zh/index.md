@@ -76,7 +76,9 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 | [Layout metadata](zh/api/layout/)                            | `layout` Action：priority 排序权重 + keyPath 查询表达式（'#'/'..'/'@alias'），Intersect + Layout 配合改变字段排列                                                                   |
 | [hideWhen / disableWhen / valueChange](zh/api/hide-disable/) | hideWhen/disableWhen/valueChange/outputChange 完整 API 签名、listenFields 数组机制、skipInitValue、生命周期时机说明                                                                 |
 | [路径查询](zh/api/path-querying/)                            | KeyPath 类型定义、field.get() 用法：`['..']`(父级开始)/`'#'`(根字段开始)/`'@alias'`(别名定位)、命名冲突处理规则                                                                     |
-| [FieldFormConfig](zh/api/field-config/)                      | `FieldFormConfig` 完整字段参考：renderConfig vs hideWhen、transformer/pipe/validators/updateOn/deletionMode/rawConfig                                                               |
+| [formConfig](zh/api/form-config/)                          | `FieldFormConfig` 字段表：禁用 / 值转换 / 校验 / 更新时机 / 数组与表单组行为                                                     |
+| [renderConfig](zh/api/render-config/)                      | `hidden` 配置：字段是否渲染，与 hideWhen 的区别                                                                                  |
+| [rawConfig](zh/api/raw-config/)                            | 直接读写字段配置对象（inputs / attributes / props 等），现成 Action 覆盖不到时使用                                                |
 | [fieldGlobalConfig](zh/api/global-config/)                   | `fieldGlobalConfig` types/wrappers 全局配置结构 + Actions 合并规则（全局在前）+ Component Type 查找优先级体系                                                                       |
 | [Hooks 生命周期](zh/api/hooks/)                              | `actions.hooks` Hook 生命周期管理：merge(依次执行多个)/patch(覆盖同名)/remove/set，Hook 注册与执行顺序详解                                                                          |
 | [Props 通用属性](zh/api/props/)                              | `actions.props` 通用属性键配置：set(覆盖)/patch(合并)/patchAsync(异步)/remove(移除)/mapAsync(动态映射)，组件通过 field.props() 访问，vs Attributes/Inputs/Outputs 语义区分        |

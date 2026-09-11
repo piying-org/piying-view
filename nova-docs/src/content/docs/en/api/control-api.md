@@ -705,7 +705,7 @@ console.log(ctrl.value); // 25.5 (a number)
 
 ## Related Documents
 
-- [FieldFormConfig](en/api/field-config/) — detailed field form configuration
+- [formConfig](en/api/form-config/) — detailed form configuration
 - [Path Querying](en/api/path-querying/) — quick reference for keyPath and get()
 - [Custom Validation](en/scenarios/custom-validation/) — validators / asyncValidators scenarios
 - [Value Transformation and Linkage](en/scenarios/value-transform/) — guide to transformers

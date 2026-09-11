@@ -70,4 +70,4 @@ Components read props through `field.props()`. In Angular, inject `PI_VIEW_FIELD
 ## Next Steps
 
 - [API: providers](en/api/providers/) — injecting business services
-- [API: field-config](en/api/field-config/) — details of disabled/emptyValue/deletionMode and more
+- [formConfig](en/api/form-config/) — details of disabled / emptyValue / deletionMode and more

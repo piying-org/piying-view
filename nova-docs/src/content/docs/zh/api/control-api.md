@@ -708,7 +708,7 @@ console.log(ctrl.value); // 25.5（数字）
 
 ## 相关文档
 
-- [FieldFormConfig](zh/api/field-config/) — 字段表单配置详解
+- [formConfig](zh/api/form-config/) — 禁用 / 校验 / 值转换等配置详解
 - [路径查询](zh/api/path-querying/) — keyPath、get() 用法速查
 - [自定义验证](zh/scenarios/custom-validation/) — validators / asyncValidators 场景示例
 - [值转换与联动](zh/scenarios/value-transform/) — transformer 使用指南

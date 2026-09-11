@@ -17,12 +17,12 @@ export const schema = v.object({
   ),
 
   price: v.pipe(
-    v.string(),
+    v.number(),
     formConfig({
       transformer: {
-        toView: (value: any) => parseFloat(value),
+        toView: (value: any) => (value ? value + 1 : 0),
         toModel: (value: any) => {
-          return value?.toFixed(2) ?? '0.00';
+          return value ? value : value - 1;
         },
       },
     }),

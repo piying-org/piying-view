@@ -76,7 +76,9 @@ Detailed reference for every Action, configuration item and helper; the logic is
 | [Layout metadata](en/api/layout/)                                   | The `layout` Action: priority weighting + keyPath expressions ('#'/'..'/'@alias'), Intersect + Layout rearranging fields |
 | [hideWhen / disableWhen / valueChange](en/api/hide-disable/)        | Full API signatures of hideWhen/disableWhen/valueChange/outputChange, the listenFields mechanism, skipInitValue, lifecycle timing |
 | [Path Querying](en/api/path-querying/)                              | KeyPath type definition, `field.get()` usage: `['..']` (from the parent) / `'#'` (from the root) / `'@alias'` (alias lookup), naming conflict rules |
-| [FieldFormConfig](en/api/field-config/)                             | Complete `FieldFormConfig` reference: renderConfig vs hideWhen, transformer/pipe/validators/updateOn/deletionMode/rawConfig |
+| [formConfig](en/api/form-config/)                          | The `FieldFormConfig` field table: disabling / value transformation / validation / update timing / array & group behaviour        |
+| [renderConfig](en/api/render-config/)                      | The `hidden` option: whether a field is rendered, and how it differs from hideWhen                                               |
+| [rawConfig](en/api/raw-config/)                            | Edit the field config object directly (inputs / attributes / props, ...), for cases the ready-made Actions do not cover            |
 | [fieldGlobalConfig](en/api/global-config/)                          | `fieldGlobalConfig` types/wrappers structure + Actions merge rules (global first) + component type lookup priority system |
 | [Hooks Lifecycle](en/api/hooks/)                                    | `actions.hooks` lifecycle management: merge (run several in order) / patch (override by name) / remove / set, hook registration and ordering |
 | [Props Generic Properties](en/api/props/)                            | `actions.props` generic property keys: set (replace) / patch (merge) / patchAsync (async) / remove / mapAsync (dynamic mapping), read through field.props(), semantics vs Attributes/Inputs/Outputs |

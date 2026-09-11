@@ -7,7 +7,10 @@ export const schema = v.pipe(
     k1: v.pipe(
       v.string(),
       rawConfig((field) => {
-        field.attributes = { ...field.inputs, placeholder: 'rawConfig 底层配置' };
+        field.attributes = {
+          ...field.attributes,
+          placeholder: 'rawConfig 底层配置',
+        };
         return field;
       }),
     ),

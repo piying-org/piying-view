@@ -242,4 +242,4 @@ The wrapper component receives these values through Angular `@Input()`.
 
 - [API: path-querying](en/api/path-querying/) — fullPath / keyPath / get() / @alias
 - [API: fieldGlobalConfig](en/api/global-config/) — priority system of types/wrappers global configuration
-- [API: FieldFormConfig](en/api/field-config/) — details of disabled/emptyValue/deletionMode and more
+- [formConfig](en/api/form-config/) — details of disabled / emptyValue / deletionMode and more

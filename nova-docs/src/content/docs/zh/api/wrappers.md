@@ -242,4 +242,4 @@ Wrapper 组件通过 Angular `@Input()` 接收这些值。
 
 - [API: path-querying](zh/api/path-querying/) — fullPath / keyPath / get() / @alias
 - [API: fieldGlobalConfig](zh/api/global-config/) — types/wrappers 全局配置优先级体系
-- [API: FieldFormConfig](zh/api/field-config/) — disabled/emptyValue/deletionMode 等配置详解
+- [formConfig](zh/api/form-config/) — disabled / emptyValue / deletionMode 等配置详解
