@@ -6,3 +6,5 @@ export const schema = v.object({
     street: v.string(),
   }),
 });
+
+export const model = { address: { city: '上海', street: '南京路' } };

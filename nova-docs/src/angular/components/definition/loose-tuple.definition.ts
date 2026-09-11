@@ -5,3 +5,5 @@ export const schema = v.object({
   list: v.looseTuple([v.string()]),
   __helper: v.pipe(NFCSchema, setComponent('formHelper')),
 });
+
+export const model = { list: ['v1', 'v2'] };

@@ -21,7 +21,11 @@ export const schema = v.pipe(
         },
       }),
     ),
-    __log: v.pipe(NFCSchema, setComponent('log'),actions.inputs.set({logs:[]})),
+    __log: v.pipe(
+      NFCSchema,
+      setComponent('log'),
+      actions.inputs.set({ logs: [] }),
+    ),
   }),
   setComponent('fieldset'),
 );

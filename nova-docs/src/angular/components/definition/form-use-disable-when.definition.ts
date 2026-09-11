@@ -56,3 +56,8 @@ export const schema = v.object({
     actions.inputs.set({ logs: [] }),
   ),
 });
+
+export const model = {
+  enable: true,
+  value: { input1: '', input2: '', input3: '', input4: '' },
+};

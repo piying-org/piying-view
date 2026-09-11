@@ -1,3 +1,7 @@
 import * as v from 'valibot';
 
-export const schema = v.pipe(v.optional(v.array(v.string()), ['default1', 'default2']));
+export const schema = v.pipe(
+  v.optional(v.array(v.string()), ['default1', 'default2']),
+);
+
+export const model = ['default1', 'default2'];

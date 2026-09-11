@@ -12,3 +12,5 @@ export const schema = v.object({
     asControl(),
   ),
 });
+
+export const model = { address: { city: '上海', street: '南京路' } };

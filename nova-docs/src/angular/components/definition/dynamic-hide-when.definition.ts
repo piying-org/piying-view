@@ -8,9 +8,9 @@ export const schema = v.object({
     v.string(),
     hideWhen({
       listen: (fn) =>
-        fn({ list: [['..', 'showExtra']] }).pipe(
-          map((item) => !item.list[0]),
-        ),
+        fn({ list: [['..', 'showExtra']] }).pipe(map((item) => !item.list[0])),
     }),
   ),
 });
+
+export const model = { showExtra: true, extraField: '额外字段' };

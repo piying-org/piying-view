@@ -22,3 +22,5 @@ export const schema = v.object({
     actions.inputs.set({ logs: [] }),
   ),
 });
+
+export const model = { k1: '' };

@@ -25,3 +25,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { k1: true, k2: false, k3: true };

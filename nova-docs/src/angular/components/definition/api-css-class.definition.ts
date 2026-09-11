@@ -17,9 +17,7 @@ export const schema = v.pipe(
       actions.class.asyncBottom((field) =>
         field.form.control!.valueChanges.pipe(
           map((value) =>
-            (value as string)?.length > 5
-              ? 'bg-error/30'
-              : 'bg-success/30',
+            (value as string)?.length > 5 ? 'bg-error/30' : 'bg-success/30',
           ),
         ),
       ),

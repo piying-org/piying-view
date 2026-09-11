@@ -21,3 +21,9 @@ export const schema = v.object({
   o1: v.object({ k1: v.optional(v.string()), k2: v.optional(v.string()) }),
   o2: v.object({ k3: v.optional(v.string()), k4: v.optional(v.string()) }),
 });
+
+export const model = {
+  mode: 'data1',
+  o1: { k1: '', k2: '' },
+  o2: { k3: '', k4: '' },
+};

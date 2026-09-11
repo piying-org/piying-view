@@ -1,99 +1,206 @@
-export { schema as stringSchema } from './type-string.definition';
-export { schema as numberSchema } from './type-number.definition';
-export { schema as booleanSchema } from './type-boolean.definition';
-export { schema as picklistSchema } from './type-picklist.definition';
-export { schema as objectSchema } from './type-object.definition';
-export { schema as arraySchema } from './type-array.definition';
-export { schema as defaultSchema } from './default-value.definition';
-export { schema as nestedSchema } from './nested-object.definition';
-export { schema as looseObjectSchema } from './loose-object.definition';
-export { schema as objectWithRestSchema } from './object-with-rest.definition';
-export { schema as objectGroupDefaultSchema } from './object-group-default.definition';
-export { schema as objectGroupLooseSchema } from './object-group-loose.definition';
-export { schema as objectGroupStrictSchema } from './object-group-strict.definition';
-export { schema as objectGroupVirtualModeSchema } from './object-group-virtual-mode.definition';
-export { schema as objectGroupEmptyValueSchema } from './object-group-empty-value.definition';
-export { schema as recordSchema } from './record.definition';
-export { schema as tupleSchema } from './tuple.definition';
-export { schema as looseTupleSchema } from './loose-tuple.definition';
-export { schema as tupleWithRestSchema } from './tuple-with-rest.definition';
-export { schema as componentUseSchema } from './component-use.definition';
-export { schema as nfcSchema } from './nfc.definition';
-export { schema as actionSchema } from './action.definition';
-export { schema as eventsSchema } from './events.definition';
-export { schema as apiCssClassSchema } from './api-css-class.definition';
-export { schema as apiAttributesSchema } from './api-attributes.definition';
-export { schema as contextSchema } from './context.definition';
-export { schema as rawSchema } from './raw.definition';
-export { schema as selectorlessSchema } from './selectorless.definition';
-export { schema as tabsGroupSchema } from './tabs-group.definition';
-export { schema as layoutSchema } from './layout.definition';
-export { schema as validGroupSchema } from './valid-group.definition';
-export { schema as complexNestingSchema } from './complex-nesting.definition';
-export { schema as complexArraySchema } from './complex-array.definition';
-export { schema as complexTupleSchema } from './complex-tuple.definition';
-export { schema as complexRecordSchema } from './complex-record.definition';
-export { schema as complexIntersectSchema } from './complex-intersect.definition';
-export { schema as complexUnionSchema } from './complex-union.definition';
-export { schema as recordBasicSchema } from './record-basic.definition';
-export { schema as formUseLayoutSchema } from './form-use-layout.definition';
-export { schema as formUseTabsGroupSchema } from './form-use-tabs-group.definition';
-export { schema as formUseValidGroupSchema } from './form-use-valid-group.definition';
-export { schema as formUseFilterGroupSchema } from './form-use-filter-group.definition';
-export { schema as formUseScrollGroupSchema } from './form-use-scroll-group.definition';
-export { schema as recordLabelSchema } from './record-label.definition';
-export { schema as recordConfigSchema } from './record-config.definition';
-export { schema as recordTranslationSchema } from './record-translation.definition';
-export { schema as recordGroupKeyValueSchema } from './record-group-key-value.definition';
-export { schema as recordValidationSchema } from './record-validation.definition';
-export { schema as recordCompleteSchema } from './record-complete.definition';
-export { schema as basicFormConfigSchema } from './basic-form-config.definition';
-export { schema as basicDefaultValueSchema } from './basic-default-value.definition';
-export { schema as basicDefaultValueFormSchema } from './basic-default-value-form.definition';
-export { schema as basicNullableSchema } from './basic-nullable.definition';
-export { schema as basicRequiredSchema } from './basic-required.definition';
-export { schema as basicRequiredOverrideSchema } from './basic-required-override.definition';
-export { schema as basicDisabledSchema } from './basic-disabled.definition';
-export { schema as basicValidatorSchema } from './basic-validator.definition';
-export { schema as transformDemoSchema } from './transform-demo.definition';
-export { schema as transformToModelSchema } from './transform-to-model.definition';
-export { schema as transformToViewSchema } from './transform-to-view.definition';
-export { schema as transformPipeSchema } from './transform-pipe.definition';
-export { schema as transformBasicSchema } from './transform-basic.definition';
-export { schema as transformFlattenSchema } from './transform-flatten.definition';
-export { schema as transformArraySchema } from './transform-array.definition';
-export { schema as dynamicHideWhenSchema } from './dynamic-hide-when.definition';
-export { schema as dynamicHideDisabledSchema } from './dynamic-hide-disabled.definition';
-export { schema as dynamicDisableWhenSchema } from './dynamic-disable-when.definition';
-export { schema as dynamicValueChangeSchema } from './dynamic-value-change.definition';
-export { schema as dynamicPaymentSchema } from './dynamic-payment.definition';
-export { schema as dynamicSubmittedSchema } from './dynamic-submitted.definition';
-export { schema as dynamicCascadeSchema } from './dynamic-cascade.definition';
-export { schema as dynamicUpdateOtherSchema } from './dynamic-update-other.definition';
-export { schema as arrayResetSchema } from './array-reset.definition';
-export { schema as arrayShrinkSchema } from './array-shrink.definition';
-export { schema as arrayMarkSchema } from './array-mark.definition';
-export { schema as arrayEmptyValueSchema } from './array-empty-value.definition';
-export { schema as arrayTupleSchema } from './array-tuple.definition';
-export { schema as arrayTupleWithRestSchema } from './array-tuple-with-rest.definition';
-export { schema as arrayCompleteSchema } from './array-complete.definition';
-export { schema as validationDemoSchema } from './validation-demo.definition';
-export { schema as validationSyncSchema } from './validation-sync.definition';
-export { schema as validationAsyncSchema } from './validation-async.definition';
-export { schema as validationCombinedSchema } from './validation-combined.definition';
-export { schema as validationCompareSchema } from './validation-compare.definition';
-export { schema as validationConditionalSchema } from './validation-conditional.definition';
-export { schema as validationDynamicErrorSchema } from './validation-dynamic-error.definition';
-export { schema as complexCombinedSchema } from './complex-combined.definition';
-export { schema as controlGroupDefaultSchema } from './control-group-default.definition';
-export { schema as controlGroupAsControlSchema } from './control-group-as-control.definition';
-export { schema as controlGroupAsVirtualSchema } from './control-group-as-virtual.definition';
-export { schema as transformCompleteSchema } from './transform-complete.definition';
-export { schema as formUseValueChangeSchema } from './form-use-value-change.definition';
-export { schema as formUseDisableWhenSchema } from './form-use-disable-when.definition';
-export { schema as formUseArrayRwSchema } from './form-use-array-rw.definition';
-export { schema as formUseUpdateOtherSchema } from './form-use-update-other.definition';
-export { schema as formUseValidatorSchema } from './form-use-validator.definition';
-export { schema as formUseCascadeSchema } from './form-use-cascade.definition';
-export { schema as basicFieldDisableWhenSchema } from './basic-field-disable-when.definition';
-export { context as contextSchemaContext, options as contextSchemaOptions } from './context.definition';
+import type { BaseSchema } from 'valibot';
+import * as typeStringDef from './type-string.definition';
+import * as typeNumberDef from './type-number.definition';
+import * as typeBooleanDef from './type-boolean.definition';
+import * as typePicklistDef from './type-picklist.definition';
+import * as typeObjectDef from './type-object.definition';
+import * as looseObjectDef from './loose-object.definition';
+import * as objectWithRestDef from './object-with-rest.definition';
+import * as objectGroupDefaultDef from './object-group-default.definition';
+import * as objectGroupLooseDef from './object-group-loose.definition';
+import * as objectGroupStrictDef from './object-group-strict.definition';
+import * as objectGroupVirtualModeDef from './object-group-virtual-mode.definition';
+import * as objectGroupEmptyValueDef from './object-group-empty-value.definition';
+import * as recordDef from './record.definition';
+import * as typeArrayDef from './type-array.definition';
+import * as tupleDef from './tuple.definition';
+import * as looseTupleDef from './loose-tuple.definition';
+import * as tupleWithRestDef from './tuple-with-rest.definition';
+import * as defaultValueDef from './default-value.definition';
+import * as nestedObjectDef from './nested-object.definition';
+import * as componentUseDef from './component-use.definition';
+import * as nfcDef from './nfc.definition';
+import * as actionDef from './action.definition';
+import * as eventsDef from './events.definition';
+import * as apiCssClassDef from './api-css-class.definition';
+import * as apiAttributesDef from './api-attributes.definition';
+import * as contextDef from './context.definition';
+import * as rawDef from './raw.definition';
+import * as selectorlessDef from './selectorless.definition';
+import * as tabsGroupDef from './tabs-group.definition';
+import * as layoutDef from './layout.definition';
+import * as validGroupDef from './valid-group.definition';
+import * as complexNestingDef from './complex-nesting.definition';
+import * as complexArrayDef from './complex-array.definition';
+import * as complexTupleDef from './complex-tuple.definition';
+import * as complexRecordDef from './complex-record.definition';
+import * as complexIntersectDef from './complex-intersect.definition';
+import * as complexUnionDef from './complex-union.definition';
+import * as recordBasicDef from './record-basic.definition';
+import * as formUseLayoutDef from './form-use-layout.definition';
+import * as formUseTabsGroupDef from './form-use-tabs-group.definition';
+import * as formUseValidGroupDef from './form-use-valid-group.definition';
+import * as formUseFilterGroupDef from './form-use-filter-group.definition';
+import * as formUseScrollGroupDef from './form-use-scroll-group.definition';
+import * as recordLabelDef from './record-label.definition';
+import * as recordConfigDef from './record-config.definition';
+import * as recordTranslationDef from './record-translation.definition';
+import * as recordGroupKeyValueDef from './record-group-key-value.definition';
+import * as recordValidationDef from './record-validation.definition';
+import * as recordCompleteDef from './record-complete.definition';
+import * as basicFormConfigDef from './basic-form-config.definition';
+import * as basicDefaultValueDef from './basic-default-value.definition';
+import * as basicDefaultValueFormDef from './basic-default-value-form.definition';
+import * as basicNullableDef from './basic-nullable.definition';
+import * as basicRequiredDef from './basic-required.definition';
+import * as basicRequiredOverrideDef from './basic-required-override.definition';
+import * as basicDisabledDef from './basic-disabled.definition';
+import * as basicValidatorDef from './basic-validator.definition';
+import * as transformDemoDef from './transform-demo.definition';
+import * as transformToModelDef from './transform-to-model.definition';
+import * as transformToViewDef from './transform-to-view.definition';
+import * as transformPipeDef from './transform-pipe.definition';
+import * as transformBasicDef from './transform-basic.definition';
+import * as transformFlattenDef from './transform-flatten.definition';
+import * as transformArrayDef from './transform-array.definition';
+import * as dynamicHideWhenDef from './dynamic-hide-when.definition';
+import * as dynamicHideDisabledDef from './dynamic-hide-disabled.definition';
+import * as dynamicDisableWhenDef from './dynamic-disable-when.definition';
+import * as dynamicValueChangeDef from './dynamic-value-change.definition';
+import * as dynamicPaymentDef from './dynamic-payment.definition';
+import * as dynamicSubmittedDef from './dynamic-submitted.definition';
+import * as dynamicCascadeDef from './dynamic-cascade.definition';
+import * as dynamicUpdateOtherDef from './dynamic-update-other.definition';
+import * as arrayResetDef from './array-reset.definition';
+import * as arrayShrinkDef from './array-shrink.definition';
+import * as arrayMarkDef from './array-mark.definition';
+import * as arrayEmptyValueDef from './array-empty-value.definition';
+import * as arrayTupleDef from './array-tuple.definition';
+import * as arrayTupleWithRestDef from './array-tuple-with-rest.definition';
+import * as arrayCompleteDef from './array-complete.definition';
+import * as validationDemoDef from './validation-demo.definition';
+import * as validationSyncDef from './validation-sync.definition';
+import * as validationAsyncDef from './validation-async.definition';
+import * as validationCombinedDef from './validation-combined.definition';
+import * as validationCompareDef from './validation-compare.definition';
+import * as validationConditionalDef from './validation-conditional.definition';
+import * as validationDynamicErrorDef from './validation-dynamic-error.definition';
+import * as complexCombinedDef from './complex-combined.definition';
+import * as controlGroupDefaultDef from './control-group-default.definition';
+import * as controlGroupAsControlDef from './control-group-as-control.definition';
+import * as controlGroupAsVirtualDef from './control-group-as-virtual.definition';
+import * as transformCompleteDef from './transform-complete.definition';
+import * as formUseValueChangeDef from './form-use-value-change.definition';
+import * as formUseDisableWhenDef from './form-use-disable-when.definition';
+import * as formUseArrayRwDef from './form-use-array-rw.definition';
+import * as formUseUpdateOtherDef from './form-use-update-other.definition';
+import * as formUseValidatorDef from './form-use-validator.definition';
+import * as formUseCascadeDef from './form-use-cascade.definition';
+import * as basicFieldDisableWhenDef from './basic-field-disable-when.definition';
+
+export interface DemoDefinition {
+  schema: BaseSchema<any, any, any>;
+  model?: unknown;
+  options?: Record<string, any>;
+}
+
+export const demoRegistry: Record<string, DemoDefinition> = {
+  string: typeStringDef,
+  number: typeNumberDef,
+  boolean: typeBooleanDef,
+  picklist: typePicklistDef,
+  object: typeObjectDef,
+  looseObject: looseObjectDef,
+  objectWithRest: objectWithRestDef,
+  'object-group-default': objectGroupDefaultDef,
+  'object-group-loose': objectGroupLooseDef,
+  'object-group-strict': objectGroupStrictDef,
+  'object-group-virtual-mode': objectGroupVirtualModeDef,
+  'object-group-empty-value': objectGroupEmptyValueDef,
+  record: recordDef,
+  array: typeArrayDef,
+  tuple: tupleDef,
+  looseTuple: looseTupleDef,
+  tupleWithRest: tupleWithRestDef,
+  default: defaultValueDef,
+  nested: nestedObjectDef,
+  'component-use': componentUseDef,
+  nfc: nfcDef,
+  action: actionDef,
+  events: eventsDef,
+  'api-css-class': apiCssClassDef,
+  'api-attributes': apiAttributesDef,
+  context: contextDef,
+  raw: rawDef,
+  selectorless: selectorlessDef,
+  'tabs-group': tabsGroupDef,
+  layout: layoutDef,
+  'valid-group': validGroupDef,
+  'complex-nesting': complexNestingDef,
+  'complex-array': complexArrayDef,
+  'complex-tuple': complexTupleDef,
+  'complex-record': complexRecordDef,
+  'complex-intersect': complexIntersectDef,
+  'complex-union': complexUnionDef,
+  'record-basic': recordBasicDef,
+  'form-use-layout': formUseLayoutDef,
+  'form-use-tabs-group': formUseTabsGroupDef,
+  'form-use-valid-group': formUseValidGroupDef,
+  'form-use-filter-group': formUseFilterGroupDef,
+  'form-use-scroll-group': formUseScrollGroupDef,
+  'record-label': recordLabelDef,
+  'record-config': recordConfigDef,
+  'record-translation': recordTranslationDef,
+  'record-group-key-value': recordGroupKeyValueDef,
+  'record-validation': recordValidationDef,
+  'record-complete': recordCompleteDef,
+  'basic-form-config': basicFormConfigDef,
+  'basic-default-value': basicDefaultValueDef,
+  'basic-default-value-form': basicDefaultValueFormDef,
+  'basic-nullable': basicNullableDef,
+  'basic-required': basicRequiredDef,
+  'basic-required-override': basicRequiredOverrideDef,
+  'basic-disabled': basicDisabledDef,
+  'basic-validator': basicValidatorDef,
+  'transform-demo': transformDemoDef,
+  'transform-to-model': transformToModelDef,
+  'transform-to-view': transformToViewDef,
+  'transform-pipe': transformPipeDef,
+  'transform-basic': transformBasicDef,
+  'transform-flatten': transformFlattenDef,
+  'transform-array': transformArrayDef,
+  'dynamic-hide-when': dynamicHideWhenDef,
+  'dynamic-hide-disabled': dynamicHideDisabledDef,
+  'dynamic-disable-when': dynamicDisableWhenDef,
+  'dynamic-value-change': dynamicValueChangeDef,
+  'dynamic-payment': dynamicPaymentDef,
+  'dynamic-submitted': dynamicSubmittedDef,
+  'dynamic-cascade': dynamicCascadeDef,
+  'dynamic-update-other': dynamicUpdateOtherDef,
+  'array-reset': arrayResetDef,
+  'array-shrink': arrayShrinkDef,
+  'array-mark': arrayMarkDef,
+  'array-empty-value': arrayEmptyValueDef,
+  'array-tuple': arrayTupleDef,
+  'array-tuple-with-rest': arrayTupleWithRestDef,
+  'array-complete': arrayCompleteDef,
+  'validation-demo': validationDemoDef,
+  'validation-sync': validationSyncDef,
+  'validation-async': validationAsyncDef,
+  'validation-combined': validationCombinedDef,
+  'validation-compare': validationCompareDef,
+  'validation-conditional': validationConditionalDef,
+  'validation-dynamic-error': validationDynamicErrorDef,
+  'complex-combined': complexCombinedDef,
+  'control-group-default': controlGroupDefaultDef,
+  'control-group-as-control': controlGroupAsControlDef,
+  'control-group-as-virtual': controlGroupAsVirtualDef,
+  'transform-complete': transformCompleteDef,
+  'form-use-value-change': formUseValueChangeDef,
+  'form-use-disable-when': formUseDisableWhenDef,
+  'form-use-array-rw': formUseArrayRwDef,
+  'form-use-update-other': formUseUpdateOtherDef,
+  'form-use-validator': formUseValidatorDef,
+  'form-use-cascade': formUseCascadeDef,
+  'basic-field-disable-when': basicFieldDisableWhenDef,
+};

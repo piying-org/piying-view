@@ -8,3 +8,5 @@ export const schema = v.pipe(
     groupValueSchema: v.pipe(v.string(), v.minLength(1)),
   }),
 );
+
+export const model = { name: '张三' };

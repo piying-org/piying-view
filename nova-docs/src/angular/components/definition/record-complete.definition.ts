@@ -17,3 +17,9 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = {
+  metadata: { k1: 'v1' },
+  settings: { darkMode: true },
+  teamMembers: { zhang: { name: '张三', role: '开发' } },
+};

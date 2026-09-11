@@ -4,7 +4,9 @@ import { InputFCC } from '@piying-lib/angular-daisyui/field-control';
 import { setComponent, valueChange } from '@piying/view-angular-core';
 import { BehaviorSubject } from 'rxjs';
 
-export const context = { lastValue$: new BehaviorSubject<string | undefined>(undefined) };
+export const context = {
+  lastValue$: new BehaviorSubject<string | undefined>(undefined),
+};
 
 export const options = { context };
 

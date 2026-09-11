@@ -11,3 +11,5 @@ export const schema = v.object({
   ),
   __helper: v.pipe(NFCSchema, setComponent('formHelper')),
 });
+
+export const model = { profile: {} };

@@ -6,3 +6,5 @@ export const schema = v.object({
     v.transform((obj) => `${obj.first} ${obj.last}`),
   ),
 });
+
+export const model = { fullName: '张三' };

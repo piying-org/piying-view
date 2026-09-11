@@ -4,3 +4,5 @@ import { formConfig } from '@piying/view-angular-core';
 export const schema = v.object({
   readonlyField: v.pipe(v.string(), formConfig({ disabled: true })),
 });
+
+export const model = { readonlyField: '只读值' };

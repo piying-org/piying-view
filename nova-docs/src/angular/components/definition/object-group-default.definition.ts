@@ -5,3 +5,5 @@ export const schema = v.object({
   k1: v.string(),
   __helper: v.pipe(NFCSchema, setComponent('formHelper')),
 });
+
+export const model = { k1: 'v1', extraKey: 'schema 未定义的键' };

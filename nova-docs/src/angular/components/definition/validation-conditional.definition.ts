@@ -23,3 +23,5 @@ export const schema = v.pipe(
     ],
   }),
 );
+
+export const model = { hasAddress: true, address: '' };

@@ -6,3 +6,5 @@ export const schema = v.object({
     v.transform((arr) => arr.join(',')),
   ),
 });
+
+export const model = { tags: ['a', 'b'] };

@@ -11,3 +11,5 @@ export const schema = v.pipe(
   }),
   setComponent('validGroup'),
 );
+
+export const model = { k1: '', k2: '' };

@@ -7,19 +7,35 @@ export const schema = v.object({
   alipayAccount: v.pipe(
     v.string(),
     hideWhen({
-      listen: (fn) => fn({ list: [['..', 'paymentMethod']] }).pipe(map((item) => item.list[0] !== 'alipay')),
+      listen: (fn) =>
+        fn({ list: [['..', 'paymentMethod']] }).pipe(
+          map((item) => item.list[0] !== 'alipay'),
+        ),
     }),
   ),
   wechatAccount: v.pipe(
     v.string(),
     hideWhen({
-      listen: (fn) => fn({ list: [['..', 'paymentMethod']] }).pipe(map((item) => item.list[0] !== 'wechat')),
+      listen: (fn) =>
+        fn({ list: [['..', 'paymentMethod']] }).pipe(
+          map((item) => item.list[0] !== 'wechat'),
+        ),
     }),
   ),
   cardNumber: v.pipe(
     v.string(),
     hideWhen({
-      listen: (fn) => fn({ list: [['..', 'paymentMethod']] }).pipe(map((item) => item.list[0] !== 'card')),
+      listen: (fn) =>
+        fn({ list: [['..', 'paymentMethod']] }).pipe(
+          map((item) => item.list[0] !== 'card'),
+        ),
     }),
   ),
 });
+
+export const model = {
+  paymentMethod: 'alipay',
+  alipayAccount: '',
+  wechatAccount: '',
+  cardNumber: '',
+};

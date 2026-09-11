@@ -4,3 +4,5 @@ export const schema = v.object({
   metadata: v.record(v.string(), v.string()),
   scores: v.record(v.string(), v.number()),
 });
+
+export const model = { metadata: { k1: 'v1' }, scores: { s1: 1 } };

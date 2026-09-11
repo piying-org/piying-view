@@ -6,3 +6,5 @@ export const schema = v.looseObject({
   k2: v.number(),
   __helper: v.pipe(NFCSchema, setComponent('formHelper')),
 });
+
+export const model = { k1: 'v1', k2: 2 };

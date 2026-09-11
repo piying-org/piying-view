@@ -12,8 +12,8 @@ export const schema = v.object({
     v.picklist(['data1', 'data2']),
     valueChange((fn) => {
       fn().subscribe(({ list: [value], field }) => {
-        const o1FG = field.get(['#', 'o1']).form.control;
-        const o2FG = field.get(['#', 'o2']).form.control;
+        const o1FG = field.get(['#', 'o1'])!.form.control!;
+        const o2FG = field.get(['#', 'o2'])!.form.control!;
         if (value === 'data1') {
           o1FG.updateValue({ k1: 'data1-input-k1', k2: 'data1-input-k2' });
           o2FG.updateValue({});
@@ -34,3 +34,9 @@ export const schema = v.object({
     actions.inputs.set({ logs: [] }),
   ),
 });
+
+export const model = {
+  list: 'data1',
+  o1: { k1: '', k2: '' },
+  o2: { k3: '', k4: '' },
+};

@@ -16,3 +16,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { search: 'AbC' };

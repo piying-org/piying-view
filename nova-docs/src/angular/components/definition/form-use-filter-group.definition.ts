@@ -13,3 +13,5 @@ export const schema = v.pipe(
   ),
   setComponent('filterGroup'),
 );
+
+export const model = {};

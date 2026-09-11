@@ -8,7 +8,10 @@ export const schema = v.object({
     v.string(),
     hideWhen({
       disabled: true,
-      listen: (fn) => fn({ list: [['..', 'enable']] }).pipe(map((item) => !item.list[0])),
+      listen: (fn) =>
+        fn({ list: [['..', 'enable']] }).pipe(map((item) => !item.list[0])),
     }),
   ),
 });
+
+export const model = { enable: true, name: '张三' };

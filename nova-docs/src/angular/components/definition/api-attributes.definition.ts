@@ -2,7 +2,6 @@ import * as v from 'valibot';
 import { map } from 'rxjs';
 import { actions, NFCSchema, setComponent } from '@piying/view-angular-core';
 
-
 export const schema = v.pipe(
   v.object({
     input: v.pipe(
@@ -13,7 +12,7 @@ export const schema = v.pipe(
       }),
       // patchAsync：随值变化动态更新 data-length（可在开发者工具中观察）
       actions.attributes.patchAsync({
-        'title': (field) =>
+        title: (field) =>
           field.form.control!.valueChanges.pipe(
             map((value) => String((value as string)?.length ?? 0)),
           ),

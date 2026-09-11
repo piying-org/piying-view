@@ -11,3 +11,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { price: '19.99' };

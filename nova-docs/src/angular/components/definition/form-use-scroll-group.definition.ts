@@ -15,3 +15,5 @@ export const schema = v.pipe(
   setComponent('scrollGroup'),
   actions.inputs.set({ scrollHeight: 500, placeholerHeight: 20 }),
 );
+
+export const model = {};

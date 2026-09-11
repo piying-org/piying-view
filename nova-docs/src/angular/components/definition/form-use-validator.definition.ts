@@ -11,3 +11,5 @@ export const schema = v.pipe(
     ),
   }),
 );
+
+export const model = { k1: '' };

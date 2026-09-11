@@ -8,9 +8,9 @@ export const schema = v.object({
     v.string(),
     disableWhen({
       listen: (fn) =>
-        fn({ list: [['..', 'isActive']] }).pipe(
-          map((item) => !item.list[0]),
-        ),
+        fn({ list: [['..', 'isActive']] }).pipe(map((item) => !item.list[0])),
     }),
   ),
 });
+
+export const model = { isActive: true, name: '张三' };

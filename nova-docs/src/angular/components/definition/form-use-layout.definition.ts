@@ -1,6 +1,11 @@
 import { asVirtualGroup, PiyingViewGroup } from '@piying/view-angular';
 import * as v from 'valibot';
-import { NFCSchema, layout, setAlias, setComponent } from '@piying/view-angular-core';
+import {
+  NFCSchema,
+  layout,
+  setAlias,
+  setComponent,
+} from '@piying/view-angular-core';
 
 export const schema = v.pipe(
   v.intersect([
@@ -16,3 +21,5 @@ export const schema = v.pipe(
   ]),
   asVirtualGroup(),
 );
+
+export const model = { input1: '', input2: '', input3: '', input4: '' };

@@ -10,3 +10,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { name: '张三' };

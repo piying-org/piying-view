@@ -23,3 +23,5 @@ export const schema = v.pipe(
     ],
   }),
 );
+
+export const model = { password: '12345678', confirmPassword: '87654321' };

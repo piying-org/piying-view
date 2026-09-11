@@ -15,3 +15,5 @@ export const schema = v.intersect([
     }),
   ),
 ]);
+
+export const model = { k1: 'v1', k2: 2 };

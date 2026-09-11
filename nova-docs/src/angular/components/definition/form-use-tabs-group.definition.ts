@@ -28,3 +28,5 @@ export const schema = v.pipe(
     });
   }),
 );
+
+export const model = { k1: '', k2: '', k3: '', k4: '' };

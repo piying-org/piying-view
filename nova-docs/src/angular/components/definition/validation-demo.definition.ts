@@ -52,3 +52,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { password: '', confirmPassword: '' };

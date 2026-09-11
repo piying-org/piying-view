@@ -9,3 +9,7 @@ export const schema = v.object({
     }),
   }),
 });
+
+export const model = {
+  user: { name: '张三', address: { city: '北京', street: '长安街' } },
+};

@@ -45,3 +45,5 @@ export const schema = v.object({
     v.maxValue(100),
   ),
 });
+
+export const model = { search: '', price: '', birthDate: '', score: '80' };

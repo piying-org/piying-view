@@ -31,3 +31,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { age: 25 };

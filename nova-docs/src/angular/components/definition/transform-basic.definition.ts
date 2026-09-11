@@ -6,3 +6,5 @@ export const schema = v.object({
     v.transform((value) => parseInt(value, 10)),
   ),
 });
+
+export const model = { age: '25' };

@@ -22,3 +22,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { email: 'test@test.com' };

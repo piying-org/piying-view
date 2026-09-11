@@ -7,7 +7,9 @@ export const schema = v.object({
     formConfig({
       asyncValidators: [
         async (control) => {
-          const response = await fetch(`/api/check-username?name=${control.value}`);
+          const response = await fetch(
+            `/api/check-username?name=${control.value}`,
+          );
           const available = await response.json();
           if (!available) {
             return [
@@ -24,3 +26,5 @@ export const schema = v.object({
     }),
   ),
 });
+
+export const model = { username: '' };

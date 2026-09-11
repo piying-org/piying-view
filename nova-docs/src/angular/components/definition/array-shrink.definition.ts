@@ -5,3 +5,5 @@ export const schema = v.pipe(
   v.array(v.string()),
   formConfig({ deletionMode: 'shrink' }),
 );
+
+export const model = ['a', 'b', 'c'];
