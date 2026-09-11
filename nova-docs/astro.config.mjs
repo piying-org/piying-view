@@ -25,27 +25,9 @@ const navHref = (path) => ({
   en: `${base}en/${path}`,
 });
 
-// 中文文档已整体迁入 docs/zh/，为旧地址（/api/xxx/）保留跳转
-const legacyRedirects = Object.fromEntries(
-  (function walk(dir, out = []) {
-    for (const name of readdirSync(`./src/content/docs/zh/${dir}`)) {
-      const rel = dir ? `${dir}/${name}` : name;
-      if (statSync(`./src/content/docs/zh/${rel}`).isDirectory())
-        walk(rel, out);
-      else if (/\.(md|mdx)$/.test(name)) {
-        const path = rel.replace(/\.(md|mdx)$/, '').replace(/(^|\/)index$/, '');
-        if (!path) continue;
-        out.push([`/${path}/`, `${base}zh/${path}/`]);
-      }
-    }
-    return out;
-  })(''),
-);
-
 export default defineConfig({
   output: 'static',
   base,
-  redirects: legacyRedirects,
   markdown: {
     processor: satteri({ mdastPlugins: [mdastBaseLinks({ base })] }),
   },
@@ -120,7 +102,11 @@ export default defineConfig({
               label: '按框架快速开始',
               translations: { en: 'Start by Framework' },
               items: [
-                nav('Angular', 'Angular', '/getting-started/quick-start/angular/'),
+                nav(
+                  'Angular',
+                  'Angular',
+                  '/getting-started/quick-start/angular/',
+                ),
                 nav('Vue', 'Vue', '/getting-started/quick-start/vue/'),
                 nav('React', 'React', '/getting-started/quick-start/react/'),
                 nav('Svelte', 'Svelte', '/getting-started/quick-start/svelte/'),
@@ -318,7 +304,6 @@ export default defineConfig({
           ],
         },
       ],
-
     }),
   ],
 });
