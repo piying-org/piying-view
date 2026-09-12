@@ -2,16 +2,14 @@
 title: "数组高级用法"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { ArrayDemoComponent } from '../../../../angular/components/array-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 本文介绍 Piying-View 中数组的高级特性：增删改操作、deletionMode、groupMode 等。
 
-<LivePreview path="src/angular/components/array-demo.component.ts">
-  <ArrayDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/array-basic.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-basic" />
+</SchemaPreview>
 
 ## 数组基本操作
 

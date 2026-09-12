@@ -2,16 +2,14 @@
 title: "Record Schema Dynamic Groups"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { RecordGroupDemoComponent } from '../../../../angular/components/record-group-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page explains how Piying-View handles dynamic key/value forms of type `v.record()`.
 
-<LivePreview path="src/angular/components/record-group-demo.component.ts">
-  <RecordGroupDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/record-group-overview.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="record-group-overview" />
+</SchemaPreview>
 
 ## Basic Record Usage
 

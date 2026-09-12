@@ -2,16 +2,14 @@
 title: "动态字段控制 — 场景与实战"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { DynamicFieldsDemoComponent } from '../../../../angular/components/dynamic-fields-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 本文介绍如何使用 `hideWhen`、`disableWhen` 和 `valueChange` 实现字段的动态控制和联动。
 
-<LivePreview path="src/angular/components/dynamic-fields-demo.component.ts">
-  <DynamicFieldsDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/dynamic-fields-overview.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-fields-overview" />
+</SchemaPreview>
 
 > **API 参考**：类型签名、参数说明等详细信息请见 [hideWhen / disableWhen / valueChange API](zh/api/hide-disable/)。
 

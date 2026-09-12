@@ -2,16 +2,14 @@
 title: "Complex Schema Structures"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { ComplexSchemaDemoComponent } from '../../../../angular/components/complex-schema-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page covers the complex Valibot schema types supported by Piying-View and how they appear in the view. Every example definition renders an interactive form.
 
-<LivePreview path="src/angular/components/complex-schema-demo.component.ts">
-  <ComplexSchemaDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/complex-schema-overview.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-schema-overview" />
+</SchemaPreview>
 
 ## Nesting (Nested Objects)
 

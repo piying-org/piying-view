@@ -97,6 +97,13 @@ import * as formUseUpdateOtherDef from './form-use-update-other.definition';
 import * as formUseValidatorDef from './form-use-validator.definition';
 import * as formUseCascadeDef from './form-use-cascade.definition';
 import * as basicFieldDisableWhenDef from './basic-field-disable-when.definition';
+import * as arrayBasicDef from './array-basic.definition';
+import * as basicFieldOverviewDef from './basic-field-overview.definition';
+import * as completeExampleDef from './complete-example.definition';
+import * as complexSchemaOverviewDef from './complex-schema-overview.definition';
+import * as controlGroupIntersectVirtualDef from './control-group-intersect-virtual.definition';
+import * as dynamicFieldsOverviewDef from './dynamic-fields-overview.definition';
+import * as recordGroupOverviewDef from './record-group-overview.definition';
 
 export interface DemoDefinition {
   schema: BaseSchema<any, any, any>;
@@ -203,4 +210,11 @@ export const demoRegistry: Record<string, DemoDefinition> = {
   'form-use-validator': formUseValidatorDef,
   'form-use-cascade': formUseCascadeDef,
   'basic-field-disable-when': basicFieldDisableWhenDef,
+  'array-basic': arrayBasicDef,
+  'basic-field-overview': basicFieldOverviewDef,
+  'complete-example': completeExampleDef,
+  'complex-schema-overview': complexSchemaOverviewDef,
+  'control-group-intersect-virtual': controlGroupIntersectVirtualDef,
+  'dynamic-fields-overview': dynamicFieldsOverviewDef,
+  'record-group-overview': recordGroupOverviewDef,
 };

@@ -2,16 +2,14 @@
 title: "asControl / asVirtualGroup"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { AsControlGroupDemoComponent } from '../../../../angular/components/as-control-group-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page shows how `asControl()` and `asVirtualGroup()` change the default behaviour of Group and Intersect types.
 
-<LivePreview path="src/angular/components/as-control-group-demo.component.ts">
-  <AsControlGroupDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/control-group-intersect-virtual.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-intersect-virtual" />
+</SchemaPreview>
 
 ## asControl — Treat a Group as a Single Control
 

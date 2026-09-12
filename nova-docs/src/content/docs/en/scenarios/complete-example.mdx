@@ -2,14 +2,14 @@
 title: "Complete Example: a Real Business Form"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
-import { CompleteExampleDemoComponent } from '../../../../angular/components/complete-example-demo.component.ts';
+import SchemaPreview from '../../../../components/SchemaPreview.astro';
+import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This example combines everything you have learned into a single registration form.
 
-<LivePreview path="src/angular/components/complete-example-demo.component.ts">
-  <CompleteExampleDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/complete-example.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complete-example" showModel />
+</SchemaPreview>
 
 ## Requirements
 

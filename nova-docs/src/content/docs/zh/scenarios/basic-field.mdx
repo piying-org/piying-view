@@ -2,16 +2,14 @@
 title: "基础字段定义"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { BasicFieldDemoComponent } from '../../../../angular/components/basic-field-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 本文介绍如何使用 `setComponent` 和 `formConfig` 定义基础表单字段。
 
-<LivePreview path="src/angular/components/basic-field-demo.component.ts">
-  <BasicFieldDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/basic-field-overview.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="basic-field-overview" />
+</SchemaPreview>
 
 ## 组件类型概览
 

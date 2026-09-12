@@ -2,16 +2,14 @@
 title: "Advanced Array Usage"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { ArrayDemoComponent } from '../../../../angular/components/array-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page covers the advanced array features of Piying-View: add/remove/update operations, deletionMode, groupMode and more.
 
-<LivePreview path="src/angular/components/array-demo.component.ts">
-  <ArrayDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/array-basic.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="array-basic" />
+</SchemaPreview>
 
 ## Basic Array Operations
 

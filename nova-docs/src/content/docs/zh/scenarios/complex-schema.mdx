@@ -2,16 +2,14 @@
 title: "复杂 Schema 结构"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { ComplexSchemaDemoComponent } from '../../../../angular/components/complex-schema-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 本文介绍 Piying-View 支持的 Valibot 复杂 Schema 类型及其对应的视图表现。每个示例的**定义**都会渲染出一个可交互的**表单**。
 
-<LivePreview path="src/angular/components/complex-schema-demo.component.ts">
-  <ComplexSchemaDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/complex-schema-overview.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="complex-schema-overview" />
+</SchemaPreview>
 
 ## Nesting（嵌套对象）
 

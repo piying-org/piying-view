@@ -2,16 +2,14 @@
 title: "Dynamic Field Control — Scenarios in Practice"
 ---
 
-import LivePreview from '../../../../components/LivePreview.astro';
 import SchemaPreview from '../../../../components/SchemaPreview.astro';
-import { DynamicFieldsDemoComponent } from '../../../../angular/components/dynamic-fields-demo.component.ts';
 import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.component.ts';
 
 This page shows how to implement dynamic control and field linkage with `hideWhen`, `disableWhen` and `valueChange`.
 
-<LivePreview path="src/angular/components/dynamic-fields-demo.component.ts">
-  <DynamicFieldsDemoComponent slot="preview" client:only="angular" />
-</LivePreview>
+<SchemaPreview definition="src/angular/definition/dynamic-fields-overview.definition.ts">
+  <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-fields-overview" />
+</SchemaPreview>
 
 > **API reference**: type signatures and parameter details live in the [hideWhen / disableWhen / valueChange API](en/api/hide-disable/).
 
