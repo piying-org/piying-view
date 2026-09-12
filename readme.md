@@ -2,7 +2,7 @@
 
 ## document
 
-- https://piying-org.github.io/website/docs/client/intro
+- https://piying-org.github.io/piying-view/
 
 ## start
 
