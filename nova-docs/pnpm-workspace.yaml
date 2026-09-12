@@ -17,6 +17,6 @@ overrides:
   typescript: '6.0.3'
 
 minimumReleaseAgeExclude:
-  - '@piying/valibot-visit@1.3.14'
+  - '@piying/valibot-visit'
   - '@piying-lib/angular-core@1.4.3'
   - '@piying-lib/angular-daisyui@1.4.3'
