@@ -93,6 +93,7 @@ function resolveInitialJson() {
   selector: 'app-json-playground',
   imports: [FormsModule, JsonEditorComponent, JsonSchemaViewRC],
   templateUrl: './component.html',
+  host: { class: 'not-content' },
 })
 export class JsonPlaygroundComponent implements OnDestroy {
   code = signal(resolveInitialJson());

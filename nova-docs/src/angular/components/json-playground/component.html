@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4 lg:flex-row not-content">
+<div class="flex flex-col gap-4 lg:flex-row">
   <div class="flex min-w-0 flex-1 flex-col gap-2">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <span class="font-medium">JSON Schema</span>
@@ -6,12 +6,11 @@
         <button class="btn btn-xs btn-ghost" type="button" (click)="openHelp()">
           使用说明
         </button>
-        <button class="btn btn-xs not-content" type="button" (click)="format()">
+        <button class="btn btn-xs" type="button" (click)="format()">
           格式化
         </button>
-        <button class="btn btn-xs not-content" type="button" (click)="reset()">
-          重置
-        </button>
+        <input type="reset" class="btn btn-xs" (click)="reset()" />
+
         <button class="btn btn-xs btn-primary" type="button" (click)="share()">
           复制分享链接
         </button>
@@ -53,7 +52,8 @@
     <h3 class="text-lg font-bold">JSON Schema Playground 使用说明</h3>
     <div class="flex flex-col gap-3 py-3 text-sm leading-6">
       <p>
-        左侧输入 JSON Schema（支持 Draft-04、Draft-07、Draft 2020-12），右侧实时渲染表单。
+        左侧输入 JSON Schema（支持 Draft-04、Draft-07、Draft
+        2020-12），右侧实时渲染表单。
       </p>
       <p>
         输入内容可以是
@@ -71,7 +71,9 @@
         >
         ，详见
         <!-- 说明文案与链接固定指向中文文档（站内相对链接基于 <base> 解析） -->
-        <a class="link" href="zh/getting-started/jsonschema/">JSON Schema 支持</a>。
+        <a class="link" href="zh/getting-started/jsonschema/"
+          >JSON Schema 支持</a
+        >。
       </p>
       <p>
         「复制分享链接」会把当前 JSON 写入 URL 的 input 参数，也可自行构造
