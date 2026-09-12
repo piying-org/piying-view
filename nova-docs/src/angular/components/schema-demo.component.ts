@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { PiyingView } from '@piying/view-angular';
 import { FieldGlobalConfig } from './define';
-import { demoRegistry } from './definition';
+import { demoRegistry } from '../definition';
 
 /**
  * 通用「定义 → 表单」演示组件。

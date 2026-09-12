@@ -20,7 +20,7 @@ This page explains how to define and use components in Piying-View: creating sev
 
 A basic object component is provided out of the box to display its children; you can also customise the presentation or add wrappers.
 
-<SchemaPreview definition="src/angular/components/definition/component-use.definition.ts">
+<SchemaPreview definition="src/angular/definition/component-use.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="component-use" />
 </SchemaPreview>
 
@@ -32,7 +32,7 @@ A basic object component is provided out of the box to display its children; you
 
 By default Valibot's strong typing makes every input a form control. To declare a non-form control, use `NFCSchema` (`v.optional(v.void())`); after using it you must specify the component manually with `setComponent`:
 
-<SchemaPreview definition="src/angular/components/definition/nfc.definition.ts">
+<SchemaPreview definition="src/angular/definition/nfc.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="nfc" />
 </SchemaPreview>
 
@@ -42,7 +42,7 @@ By default Valibot's strong typing makes every input a form control. To declare 
 
 Set input properties with `actions.inputs` and listen to output events with `outputChange`:
 
-<SchemaPreview definition="src/angular/components/definition/action.definition.ts">
+<SchemaPreview definition="src/angular/definition/action.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="action" />
 </SchemaPreview>
 
@@ -54,7 +54,7 @@ Set input properties with `actions.inputs` and listen to output events with `out
 
 Passing a `context` lets components read parameters dynamically from the context:
 
-<SchemaPreview definition="src/angular/components/definition/context.definition.ts">
+<SchemaPreview definition="src/angular/definition/context.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="context" />
 </SchemaPreview>
 
@@ -62,7 +62,7 @@ Passing a `context` lets components read parameters dynamically from the context
 
 Every configuration operation is built on `rawConfig`, which lets you change the underlying configuration and define your own helpers:
 
-<SchemaPreview definition="src/angular/components/definition/raw.definition.ts">
+<SchemaPreview definition="src/angular/definition/raw.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="raw" />
 </SchemaPreview>
 
@@ -105,7 +105,7 @@ export class MyComponent {
 </ng-template>
 ```
 
-<SchemaPreview definition="src/angular/components/definition/selectorless.definition.ts">
+<SchemaPreview definition="src/angular/definition/selectorless.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="selectorless" />
 </SchemaPreview>
 

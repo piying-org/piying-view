@@ -121,7 +121,7 @@ const schema = v.object({
 
 ### 基本用法
 
-<SchemaPreview definition="src/angular/components/definition/basic-form-config.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-form-config.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-form-config" />
 </SchemaPreview>
 
@@ -160,13 +160,13 @@ const schema = v.object({
 
 优先使用 Valibot 内置的默认值机制：
 
-<SchemaPreview definition="src/angular/components/definition/basic-default-value.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-default-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-default-value" />
 </SchemaPreview>
 
 也可以通过 `formConfig` 显式设置：
 
-<SchemaPreview definition="src/angular/components/definition/basic-default-value-form.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-default-value-form.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-default-value-form" />
 </SchemaPreview>
 
@@ -174,7 +174,7 @@ const schema = v.object({
 
 控制字段是否接受 null 或 undefined：
 
-<SchemaPreview definition="src/angular/components/definition/basic-nullable.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-nullable.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-nullable" />
 </SchemaPreview>
 
@@ -184,25 +184,25 @@ const schema = v.object({
 
 Valibot 的 `v.string()`（无 optional）默认为必填：
 
-<SchemaPreview definition="src/angular/components/definition/basic-required.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-required.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-required" />
 </SchemaPreview>
 
 手动覆盖：
 
-<SchemaPreview definition="src/angular/components/definition/basic-required-override.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-required-override.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-required-override" />
 </SchemaPreview>
 
 ### disabled — 禁用字段
 
-<SchemaPreview definition="src/angular/components/definition/basic-disabled.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-disabled.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-disabled" />
 </SchemaPreview>
 
 结合动态控制（见 [动态字段控制场景](zh/scenarios/dynamic-fields/) / [API 参考](zh/api/hide-disable/)）：
 
-<SchemaPreview definition="src/angular/components/definition/basic-field-disable-when.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-field-disable-when.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-field-disable-when" />
 </SchemaPreview>
 
@@ -210,7 +210,7 @@ Valibot 的 `v.string()`（无 optional）默认为必填：
 
 通过 `formConfig.validators` 添加自定义同步验证：
 
-<SchemaPreview definition="src/angular/components/definition/basic-validator.definition.ts">
+<SchemaPreview definition="src/angular/definition/basic-validator.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="basic-validator" />
 </SchemaPreview>
 

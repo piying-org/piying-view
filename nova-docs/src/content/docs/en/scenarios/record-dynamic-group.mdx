@@ -17,7 +17,7 @@ This page explains how Piying-View handles dynamic key/value forms of type `v.re
 
 `v.record(KeySchema, ValueSchema)` defines an object with string keys and values of a given type. Piying-View maps `record` to a special Group whose keys are added by the user:
 
-<SchemaPreview definition="src/angular/components/definition/record-basic.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-basic.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-basic" />
 </SchemaPreview>
 
@@ -39,7 +39,7 @@ In forms, records are commonly used for:
 
 ### Scenario 1: Tag / Metadata Editing
 
-<SchemaPreview definition="src/angular/components/definition/record-label.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-label.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-label" />
 </SchemaPreview>
 
@@ -47,13 +47,13 @@ Users add key/value pairs dynamically, e.g. `{ "department": "R&D", "level": "P7
 
 ### Scenario 2: Configuration Maps
 
-<SchemaPreview definition="src/angular/components/definition/record-config.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-config.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-config" />
 </SchemaPreview>
 
 ### Scenario 3: Translations
 
-<SchemaPreview definition="src/angular/components/definition/record-translation.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-translation.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-translation" />
 </SchemaPreview>
 
@@ -61,7 +61,7 @@ Users add key/value pairs dynamically, e.g. `{ "department": "R&D", "level": "P7
 
 `FieldFormConfig` provides `groupKeySchema` and `groupValueSchema` to constrain the key and value types of a record:
 
-<SchemaPreview definition="src/angular/components/definition/record-group-key-value.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-group-key-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-group-key-value" />
 </SchemaPreview>
 
@@ -71,7 +71,7 @@ Users add key/value pairs dynamically, e.g. `{ "department": "R&D", "level": "P7
 
 Validation of record fields follows the standard Group rules:
 
-<SchemaPreview definition="src/angular/components/definition/record-validation.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-validation.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-validation" />
 </SchemaPreview>
 
@@ -79,7 +79,7 @@ When a value inside the record fails validation, the child field of that key is 
 
 ## Full Example
 
-<SchemaPreview definition="src/angular/components/definition/record-complete.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-complete" />
 </SchemaPreview>
 

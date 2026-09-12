@@ -6,7 +6,7 @@ import {
   setComponent,
 } from '@piying/view-angular-core';
 import { map } from 'rxjs';
-import { appendLog } from '../log';
+import { appendLog } from '../components/log';
 
 export const schema = v.object({
   enable: v.boolean(),

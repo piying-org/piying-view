@@ -19,7 +19,7 @@ This page shows how `asControl()` and `asVirtualGroup()` change the default beha
 
 By default Piying-View **expands** container types such as `v.object()` and `v.array()` into their child fields:
 
-<SchemaPreview definition="src/angular/components/definition/control-group-default.definition.ts">
+<SchemaPreview definition="src/angular/definition/control-group-default.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-default" />
 </SchemaPreview>
 
@@ -27,7 +27,7 @@ By default Piying-View **expands** container types such as `v.object()` and `v.a
 
 `asControl()` keeps a Group/Array schema **unexpanded** and treats it as a standalone control node:
 
-<SchemaPreview definition="src/angular/components/definition/control-group-as-control.definition.ts">
+<SchemaPreview definition="src/angular/definition/control-group-as-control.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-as-control" />
 </SchemaPreview>
 
@@ -86,7 +86,7 @@ By default `v.intersect()` becomes a `FieldLogicGroup`. When you need group sema
 
 ### Using asVirtualGroup
 
-<SchemaPreview definition="src/angular/components/definition/control-group-as-virtual.definition.ts">
+<SchemaPreview definition="src/angular/definition/control-group-as-virtual.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="control-group-as-virtual" />
 </SchemaPreview>
 
@@ -104,7 +104,7 @@ By default `v.intersect()` becomes a `FieldLogicGroup`. When you need group sema
 
 `v.intersect()` + `asVirtualGroup()` supports multi-level virtual groups, which combine with a `tabs` component to build tabbed groups:
 
-<SchemaPreview definition="src/angular/components/definition/tabs-group.definition.ts">
+<SchemaPreview definition="src/angular/definition/tabs-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="tabs-group" />
 </SchemaPreview>
 
@@ -112,7 +112,7 @@ By default `v.intersect()` becomes a `FieldLogicGroup`. When you need group sema
 
 As long as the data structure stays valid, `layout()` moves fields to a given position (smaller `priority` comes first, and `keyPath` can reference aliases set with `setAlias`):
 
-<SchemaPreview definition="src/angular/components/definition/layout.definition.ts">
+<SchemaPreview definition="src/angular/definition/layout.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="layout" />
 </SchemaPreview>
 

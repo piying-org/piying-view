@@ -22,19 +22,19 @@ All three examples below start with an `extraKey` that the schema does not defin
 
 ### default — extra keys are dropped
 
-<SchemaPreview definition="src/angular/components/definition/object-group-default.definition.ts">
+<SchemaPreview definition="src/angular/definition/object-group-default.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-default" />
 </SchemaPreview>
 
 ### loose — extra keys are kept
 
-<SchemaPreview definition="src/angular/components/definition/object-group-loose.definition.ts">
+<SchemaPreview definition="src/angular/definition/object-group-loose.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-loose" />
 </SchemaPreview>
 
 ### strict — an extra key fails validation
 
-<SchemaPreview definition="src/angular/components/definition/object-group-strict.definition.ts">
+<SchemaPreview definition="src/angular/definition/object-group-strict.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-strict" />
 </SchemaPreview>
 
@@ -42,7 +42,7 @@ All three examples below start with an `extraKey` that the schema does not defin
 
 `v.intersect()` resolves to a logic group; after turning it into a regular form group with `asVirtualGroup()`, `groupMode` can be set explicitly:
 
-<SchemaPreview definition="src/angular/components/definition/object-group-virtual-mode.definition.ts">
+<SchemaPreview definition="src/angular/definition/object-group-virtual-mode.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-virtual-mode" />
 </SchemaPreview>
 
@@ -50,13 +50,13 @@ All three examples below start with an `extraKey` that the schema does not defin
 
 `v.objectWithRest()` fixes part of the keys and adds the rest dynamically following the rest type; every key of `v.record()` is dynamic. Both infer `reset`:
 
-<SchemaPreview definition="src/angular/components/definition/object-with-rest.definition.ts">
+<SchemaPreview definition="src/angular/definition/object-with-rest.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="objectWithRest" />
 </SchemaPreview>
 
 When a key is added, its name is first checked against `groupKeySchema`; a key that does not pass is never created:
 
-<SchemaPreview definition="src/angular/components/definition/record-group-key-value.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-group-key-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-group-key-value" />
 </SchemaPreview>
 
@@ -76,7 +76,7 @@ v.pipe(
 
 When none of the child fields holds a value, the final value becomes `emptyValue`:
 
-<SchemaPreview definition="src/angular/components/definition/object-group-empty-value.definition.ts">
+<SchemaPreview definition="src/angular/definition/object-group-empty-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object-group-empty-value" />
 </SchemaPreview>
 

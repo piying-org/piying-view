@@ -7,7 +7,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 This page shows how to use custom validators in Piying-View, covering synchronous and asynchronous validation.
 
-<SchemaPreview definition="src/angular/components/definition/validation-demo.definition.ts">
+<SchemaPreview definition="src/angular/definition/validation-demo.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-demo" />
 </SchemaPreview>
 
@@ -15,7 +15,7 @@ This page shows how to use custom validators in Piying-View, covering synchronou
 
 `validators` takes an array of validation functions; each receives an `AbstractControl` and returns an error or `null`/`undefined`:
 
-<SchemaPreview definition="src/angular/components/definition/validation-sync.definition.ts">
+<SchemaPreview definition="src/angular/definition/validation-sync.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-sync" />
 </SchemaPreview>
 
@@ -47,7 +47,7 @@ type ValidationErrors2 =
 
 `asyncValidators` takes asynchronous validation functions for slow operations such as network requests, supporting Promise/Observable/Signal:
 
-<SchemaPreview definition="src/angular/components/definition/validation-async.definition.ts">
+<SchemaPreview definition="src/angular/definition/validation-async.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-async" />
 </SchemaPreview>
 
@@ -55,7 +55,7 @@ type ValidationErrors2 =
 
 Piying-View supports both built-in Valibot validation and custom validators; they **run in parallel**:
 
-<SchemaPreview definition="src/angular/components/definition/validation-combined.definition.ts">
+<SchemaPreview definition="src/angular/definition/validation-combined.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-combined" />
 </SchemaPreview>
 
@@ -75,19 +75,19 @@ control.errors = [
 
 Compare two fields for equality (e.g. password confirmation):
 
-<SchemaPreview definition="src/angular/components/definition/validation-compare.definition.ts">
+<SchemaPreview definition="src/angular/definition/validation-compare.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-compare" />
 </SchemaPreview>
 
 ### Conditional Validation (based on other fields)
 
-<SchemaPreview definition="src/angular/components/definition/validation-conditional.definition.ts">
+<SchemaPreview definition="src/angular/definition/validation-conditional.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-conditional" />
 </SchemaPreview>
 
 ### Dynamic Error Messages
 
-<SchemaPreview definition="src/angular/components/definition/validation-dynamic-error.definition.ts">
+<SchemaPreview definition="src/angular/definition/validation-dynamic-error.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-dynamic-error" />
 </SchemaPreview>
 
@@ -95,7 +95,7 @@ Compare two fields for equality (e.g. password confirmation):
 
 You can also use a group that only performs validation, wrapping the fields to validate with the `validGroup` component:
 
-<SchemaPreview definition="src/angular/components/definition/valid-group.definition.ts">
+<SchemaPreview definition="src/angular/definition/valid-group.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="valid-group" />
 </SchemaPreview>
 

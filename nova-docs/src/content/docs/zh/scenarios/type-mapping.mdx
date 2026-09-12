@@ -23,25 +23,25 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 ### string → 文本输入
 
-<SchemaPreview definition="src/angular/components/definition/type-string.definition.ts">
+<SchemaPreview definition="src/angular/definition/type-string.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="string" />
 </SchemaPreview>
 
 ### number → 数字输入
 
-<SchemaPreview definition="src/angular/components/definition/type-number.definition.ts">
+<SchemaPreview definition="src/angular/definition/type-number.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="number" />
 </SchemaPreview>
 
 ### boolean → 复选框
 
-<SchemaPreview definition="src/angular/components/definition/type-boolean.definition.ts">
+<SchemaPreview definition="src/angular/definition/type-boolean.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="boolean" />
 </SchemaPreview>
 
 ### picklist → 下拉选择
 
-<SchemaPreview definition="src/angular/components/definition/type-picklist.definition.ts">
+<SchemaPreview definition="src/angular/definition/type-picklist.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="picklist" />
 </SchemaPreview>
 
@@ -51,7 +51,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 ### object / strictObject → 表单组（自动过滤未定义的键值）
 
-<SchemaPreview definition="src/angular/components/definition/type-object.definition.ts">
+<SchemaPreview definition="src/angular/definition/type-object.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="object" />
 </SchemaPreview>
 
@@ -59,7 +59,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.looseObject()` 会保留未在 Schema 中显式定义的键值：
 
-<SchemaPreview definition="src/angular/components/definition/loose-object.definition.ts">
+<SchemaPreview definition="src/angular/definition/loose-object.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="looseObject" />
 </SchemaPreview>
 
@@ -67,7 +67,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.objectWithRest()` 部分键值固定，其余键值按指定类型可动态添加：
 
-<SchemaPreview definition="src/angular/components/definition/object-with-rest.definition.ts">
+<SchemaPreview definition="src/angular/definition/object-with-rest.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="objectWithRest" />
 </SchemaPreview>
 
@@ -75,7 +75,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.record()` 无固定键值，键值全部可动态添加（目前仅支持 key 为 string 类型）：
 
-<SchemaPreview definition="src/angular/components/definition/record.definition.ts">
+<SchemaPreview definition="src/angular/definition/record.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record" />
 </SchemaPreview>
 
@@ -87,7 +87,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.array()` 定义会渲染为可动态增删的数组：
 
-<SchemaPreview definition="src/angular/components/definition/type-array.definition.ts">
+<SchemaPreview definition="src/angular/definition/type-array.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="array" />
 </SchemaPreview>
 
@@ -95,7 +95,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.tuple()` 固定数组项，不可添加，超过长度自动过滤：
 
-<SchemaPreview definition="src/angular/components/definition/tuple.definition.ts">
+<SchemaPreview definition="src/angular/definition/tuple.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="tuple" />
 </SchemaPreview>
 
@@ -103,7 +103,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.looseTuple()` 固定数组项，不可添加，超过长度时保留：
 
-<SchemaPreview definition="src/angular/components/definition/loose-tuple.definition.ts">
+<SchemaPreview definition="src/angular/definition/loose-tuple.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="looseTuple" />
 </SchemaPreview>
 
@@ -111,7 +111,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.tupleWithRest()` 部分数组项固定，其余按指定类型可动态添加：
 
-<SchemaPreview definition="src/angular/components/definition/tuple-with-rest.definition.ts">
+<SchemaPreview definition="src/angular/definition/tuple-with-rest.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="tupleWithRest" />
 </SchemaPreview>
 
@@ -119,7 +119,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 `v.optional()` 的第二个参数即为默认值，渲染后直接填入表单：
 
-<SchemaPreview definition="src/angular/components/definition/default-value.definition.ts">
+<SchemaPreview definition="src/angular/definition/default-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="default" />
 </SchemaPreview>
 
@@ -127,7 +127,7 @@ options = { fieldGlobalConfig: FieldGlobalConfig };
 
 使用 `v.object()` 可进行多级数据结构定义，自动嵌套渲染为子表单组：
 
-<SchemaPreview definition="src/angular/components/definition/nested-object.definition.ts">
+<SchemaPreview definition="src/angular/definition/nested-object.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="nested" />
 </SchemaPreview>
 

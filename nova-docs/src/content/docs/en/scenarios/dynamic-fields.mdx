@@ -21,7 +21,7 @@ This page shows how to implement dynamic control and field linkage with `hideWhe
 
 `hideWhen` decides whether to hide the current field based on the value of another field:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-hide-when.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-hide-when.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-when" />
 </SchemaPreview>
 
@@ -31,7 +31,7 @@ When `showExtra` is `false`, `extraField` is hidden.
 
 `hideWhen` can control `hidden` and `disabled` at the same time:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-hide-disabled.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-hide-disabled.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-hide-disabled" />
 </SchemaPreview>
 
@@ -43,7 +43,7 @@ Now when `enable` is `false`, the `name` field is **hidden and disabled together
 
 `disableWhen` decides whether to disable the current field based on the value of another field:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-disable-when.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-disable-when.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-disable-when" />
 </SchemaPreview>
 
@@ -60,7 +60,7 @@ See [API: disableWhen](en/api/hide-disable/).
 
 `valueChange` listens to value changes without side effects, which is ideal for custom linkage logic:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-value-change.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-value-change.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-value-change" />
 </SchemaPreview>
 
@@ -72,7 +72,7 @@ See [API: valueChange](en/api/hide-disable/).
 
 Show different form sections depending on a radio button value:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-payment.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-payment.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-payment" />
 </SchemaPreview>
 
@@ -80,7 +80,7 @@ Show different form sections depending on a radio button value:
 
 Disable all editable fields once the form has been submitted:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-submitted.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-submitted.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-submitted" />
 </SchemaPreview>
 
@@ -88,7 +88,7 @@ Disable all editable fields once the form has been submitted:
 
 Combine `valueChange` + `field.get()` + `updateValue()` to cascade updates across fields:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-cascade.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-cascade.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-cascade" />
 </SchemaPreview>
 
@@ -98,7 +98,7 @@ Combine `valueChange` + `field.get()` + `updateValue()` to cascade updates acros
 
 Listen to a field with `valueChange` and update other fields:
 
-<SchemaPreview definition="src/angular/components/definition/dynamic-update-other.definition.ts">
+<SchemaPreview definition="src/angular/definition/dynamic-update-other.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="dynamic-update-other" />
 </SchemaPreview>
 

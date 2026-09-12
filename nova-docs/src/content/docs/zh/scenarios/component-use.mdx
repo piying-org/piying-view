@@ -20,7 +20,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 默认提供基础的 object 组件，用来展示内部子组件，也可自定义显示方式或增加包装器。
 
-<SchemaPreview definition="src/angular/components/definition/component-use.definition.ts">
+<SchemaPreview definition="src/angular/definition/component-use.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="component-use" />
 </SchemaPreview>
 
@@ -32,7 +32,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 默认情况下，Valibot 的强类型定义使所有输入默认为表单控件。若需定义为非表单控件，可使用 `NFCSchema`（`v.optional(v.void())`），使用后必须用 `setComponent` 手动指定组件：
 
-<SchemaPreview definition="src/angular/components/definition/nfc.definition.ts">
+<SchemaPreview definition="src/angular/definition/nfc.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="nfc" />
 </SchemaPreview>
 
@@ -42,7 +42,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 通过 `actions.inputs` 设置输入属性，并通过 `outputChange` 监听事件输出：
 
-<SchemaPreview definition="src/angular/components/definition/action.definition.ts">
+<SchemaPreview definition="src/angular/definition/action.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="action" />
 </SchemaPreview>
 
@@ -54,7 +54,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 通过传入 `context` 使得组件可以通过上下文动态获取参数：
 
-<SchemaPreview definition="src/angular/components/definition/context.definition.ts">
+<SchemaPreview definition="src/angular/definition/context.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="context" />
 </SchemaPreview>
 
@@ -62,7 +62,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 所有设置操作都基于 `rawConfig` 封装，`rawConfig` 允许修改底层设置，方便开发者自行定义：
 
-<SchemaPreview definition="src/angular/components/definition/raw.definition.ts">
+<SchemaPreview definition="src/angular/definition/raw.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="raw" />
 </SchemaPreview>
 
@@ -105,7 +105,7 @@ export class MyComponent {
 </ng-template>
 ```
 
-<SchemaPreview definition="src/angular/components/definition/selectorless.definition.ts">
+<SchemaPreview definition="src/angular/definition/selectorless.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="selectorless" />
 </SchemaPreview>
 

@@ -17,7 +17,7 @@ This page covers the complex Valibot schema types supported by Piying-View and h
 
 Define nested object structures with `v.object()`; Piying-View maps the `object` type to a Group component and renders children recursively:
 
-<SchemaPreview definition="src/angular/components/definition/complex-nesting.definition.ts">
+<SchemaPreview definition="src/angular/definition/complex-nesting.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="complex-nesting" />
 </SchemaPreview>
 
@@ -37,7 +37,7 @@ options = {
 
 Define list fields with `v.array()`; Piying-View maps `array` to `FieldArray` and renders it with the array container component:
 
-<SchemaPreview definition="src/angular/components/definition/complex-array.definition.ts">
+<SchemaPreview definition="src/angular/definition/complex-array.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="complex-array" />
 </SchemaPreview>
 
@@ -57,7 +57,7 @@ options = {
 
 Define fixed-length, fixed-type arrays with `v.tuple()`; Piying-View maps `tuple` to `FieldArray` with one child field per position:
 
-<SchemaPreview definition="src/angular/components/definition/complex-tuple.definition.ts">
+<SchemaPreview definition="src/angular/definition/complex-tuple.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="complex-tuple" />
 </SchemaPreview>
 
@@ -65,7 +65,7 @@ Define fixed-length, fixed-type arrays with `v.tuple()`; Piying-View maps `tuple
 
 Define dynamic key/value pairs with `v.record()`; Piying-View maps `record` to a special Group whose keys are added by the user:
 
-<SchemaPreview definition="src/angular/components/definition/complex-record.definition.ts">
+<SchemaPreview definition="src/angular/definition/complex-record.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="complex-record" />
 </SchemaPreview>
 
@@ -75,7 +75,7 @@ See [Record Schema Dynamic Groups](en/scenarios/record-dynamic-group/).
 
 Merge several objects with `v.intersect()`; Piying-View turns `intersect` into a `FieldLogicGroup` and flattens all children to the same level:
 
-<SchemaPreview definition="src/angular/components/definition/complex-intersect.definition.ts">
+<SchemaPreview definition="src/angular/definition/complex-intersect.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="complex-intersect" />
 </SchemaPreview>
 
@@ -91,13 +91,13 @@ const schema = v.intersect([v.pipe(v.object({ name: v.string() }), layout({ prio
 
 Define several alternative types with `v.union()`; Piying-View also converts union into a `FieldLogicGroup` and lets users switch between branches:
 
-<SchemaPreview definition="src/angular/components/definition/complex-union.definition.ts">
+<SchemaPreview definition="src/angular/definition/complex-union.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="complex-union" />
 </SchemaPreview>
 
 ## Complex Combination Example
 
-<SchemaPreview definition="src/angular/components/definition/complex-combined.definition.ts">
+<SchemaPreview definition="src/angular/definition/complex-combined.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="complex-combined" />
 </SchemaPreview>
 

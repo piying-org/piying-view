@@ -5,7 +5,7 @@ import {
   setComponent,
   valueChange,
 } from '@piying/view-angular-core';
-import { appendLog } from '../log';
+import { appendLog } from '../components/log';
 
 export const schema = v.object({
   k1: v.pipe(

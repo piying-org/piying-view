@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 import { actions, NFCSchema, setComponent } from '@piying/view-angular-core';
-import { SimpleInputC } from '../simple-input';
-import { appendLog } from '../log';
+import { SimpleInputC } from '../components/simple-input';
+import { appendLog } from '../components/log';
 
 export const schema = v.pipe(
   v.object({

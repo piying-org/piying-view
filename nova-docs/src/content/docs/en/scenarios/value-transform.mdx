@@ -7,7 +7,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 This page shows how to transform values between the view layer and the model layer with `transformer` and Valibot's `transform` Action.
 
-<SchemaPreview definition="src/angular/components/definition/transform-demo.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-demo.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-demo" />
 </SchemaPreview>
 
@@ -22,13 +22,13 @@ This page shows how to transform values between the view layer and the model lay
 
 ### toModel — View to Model
 
-<SchemaPreview definition="src/angular/components/definition/transform-to-model.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-to-model.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-to-model" />
 </SchemaPreview>
 
 ### toView — Model to View
 
-<SchemaPreview definition="src/angular/components/definition/transform-to-view.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-to-view.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-to-view" />
 </SchemaPreview>
 
@@ -36,7 +36,7 @@ This page shows how to transform values between the view layer and the model lay
 
 `formConfig.pipe.toModel` transforms values with an RxJS observable, supporting debouncing, filtering and more:
 
-<SchemaPreview definition="src/angular/components/definition/transform-pipe.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-pipe.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-pipe" />
 </SchemaPreview>
 
@@ -112,7 +112,7 @@ Valibot's built-in `v.transform()` transforms values at the schema level, and Pi
 
 ### v.transform — Basic Usage
 
-<SchemaPreview definition="src/angular/components/definition/transform-basic.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-basic.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-basic" />
 </SchemaPreview>
 
@@ -120,13 +120,13 @@ Valibot's built-in `v.transform()` transforms values at the schema level, and Pi
 
 Flatten a nested object into a single field:
 
-<SchemaPreview definition="src/angular/components/definition/transform-flatten.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-flatten.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-flatten" />
 </SchemaPreview>
 
 ### v.transform — Array Transformation
 
-<SchemaPreview definition="src/angular/components/definition/transform-array.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-array.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-array" />
 </SchemaPreview>
 
@@ -142,7 +142,7 @@ Flatten a nested object into a single field:
 
 ## Full Example
 
-<SchemaPreview definition="src/angular/components/definition/transform-complete.definition.ts">
+<SchemaPreview definition="src/angular/definition/transform-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="transform-complete" />
 </SchemaPreview>
 

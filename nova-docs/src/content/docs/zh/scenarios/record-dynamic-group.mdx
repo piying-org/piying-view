@@ -17,7 +17,7 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 `v.record(KeySchema, ValueSchema)` 定义一个键为字符串、值为指定类型的对象。Piying-View 将 `record` 映射为特殊的 Group，键由用户动态添加：
 
-<SchemaPreview definition="src/angular/components/definition/record-basic.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-basic.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-basic" />
 </SchemaPreview>
 
@@ -39,7 +39,7 @@ options = {
 
 ### 场景一：标签/元数据编辑
 
-<SchemaPreview definition="src/angular/components/definition/record-label.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-label.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-label" />
 </SchemaPreview>
 
@@ -47,13 +47,13 @@ options = {
 
 ### 场景二：配置映射
 
-<SchemaPreview definition="src/angular/components/definition/record-config.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-config.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-config" />
 </SchemaPreview>
 
 ### 场景三：多语言翻译
 
-<SchemaPreview definition="src/angular/components/definition/record-translation.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-translation.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-translation" />
 </SchemaPreview>
 
@@ -61,7 +61,7 @@ options = {
 
 `FieldFormConfig` 提供 `groupKeySchema` 和 `groupValueSchema`，用于约束 Record 的键和值类型：
 
-<SchemaPreview definition="src/angular/components/definition/record-group-key-value.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-group-key-value.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-group-key-value" />
 </SchemaPreview>
 
@@ -71,7 +71,7 @@ options = {
 
 Record 字段的验证遵循标准 Group 规则：
 
-<SchemaPreview definition="src/angular/components/definition/record-validation.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-validation.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-validation" />
 </SchemaPreview>
 
@@ -79,7 +79,7 @@ Record 字段的验证遵循标准 Group 规则：
 
 ## 完整示例
 
-<SchemaPreview definition="src/angular/components/definition/record-complete.definition.ts">
+<SchemaPreview definition="src/angular/definition/record-complete.definition.ts">
   <SchemaDemoComponent slot="preview" client:only="angular" name="record-complete" />
 </SchemaPreview>
 
