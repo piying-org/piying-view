@@ -1,3 +1,5 @@
+## [2.15.4](https://github.com/piying-org/piying-view/compare/2.15.2...2.15.4) (2026-09-12)
+
 ## 2.15.2 (2026-09-11)
 
 
