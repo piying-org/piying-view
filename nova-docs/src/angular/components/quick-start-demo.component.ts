@@ -10,7 +10,6 @@ import {
 @Component({
   selector: 'quick-start-demo',
   standalone: true,
-  host: { class: 'not-content' },
   template: `
     <piying-view
       [schema]="schema"
@@ -22,6 +21,9 @@ Model 值: {{ model() | json }}</pre
     >
   `,
   imports: [PiyingView, JsonPipe],
+  host: {
+    class: 'not-content',
+  },
 })
 export class QuickStartDemoComponent {
   model = signal({ name: '', age: 18, email: '', active: true });

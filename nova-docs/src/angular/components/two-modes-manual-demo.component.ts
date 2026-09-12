@@ -20,6 +20,9 @@ import { actions, setComponent } from '@piying/view-angular-core';
     PiyingFieldTemplateDirective,
     JsonPipe,
   ],
+  host: {
+    class: 'not-content',
+  },
 })
 export class TwoModesManualDemoComponent {
   schema = v.object({
