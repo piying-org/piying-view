@@ -1,5 +1,4 @@
 import * as v from 'valibot';
-import { InputFCC } from '@piying-lib/angular-daisyui/field-control';
 import { rawConfig, setComponent } from '@piying/view-angular-core';
 
 export const schema = v.pipe(

@@ -1,6 +1,5 @@
 import { actions } from '@piying/view-angular';
 import * as v from 'valibot';
-import { InputFCC } from '@piying-lib/angular-daisyui/field-control';
 import {
   NFCSchema,
   outputChange,
@@ -9,7 +8,7 @@ import {
 
 export const schema = v.pipe(
   v.object({
-    input: v.pipe(v.string(), setComponent(InputFCC)),
+    input: v.pipe(v.string(),),
     __btn: v.pipe(
       NFCSchema,
       setComponent('demo'),

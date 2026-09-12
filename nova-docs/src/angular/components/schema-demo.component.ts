@@ -36,12 +36,12 @@ export class SchemaDemoComponent {
 
   private definition = computed(() => demoRegistry[this.name()]);
 
-  schema = computed(() => this.definition()?.schema);
+  schema = computed(() => this.definition()!.schema);
 
-  options = computed(
-    () =>
-      this.definition()?.options ?? { fieldGlobalConfig: FieldGlobalConfig },
-  );
+  options = computed(() => ({
+    ...this.definition()?.options,
+    fieldGlobalConfig: FieldGlobalConfig,
+  }));
 
   // 以定义中的 model 作为初值，后续跟随用户输入变化
   model = linkedSignal(() => this.definition()?.model);
