@@ -1,36 +1,49 @@
-<div class="flex flex-col gap-4 lg:flex-row not-content">
-  <div class="flex min-w-0 flex-1 flex-col gap-2">
-    <div class="flex flex-wrap items-center justify-between gap-2">
-      <span class="font-medium">Schema 代码</span>
-      <div class="flex gap-2">
-        <button class="btn btn-xs btn-ghost" type="button" (click)="openHelp()">
-          使用说明
-        </button>
-        <button class="btn btn-xs not-content" type="button" (click)="reset()">
-          重置
-        </button>
-        <button class="btn btn-xs btn-primary" type="button" (click)="share()">
-          复制分享链接
-        </button>
+@if (loadError()) {
+  <div class="alert alert-error py-2 text-sm">{{ loadError() }}</div>
+}
+<div class="relative">
+  @if (loading()) {
+    <div
+      class="absolute inset-0 z-10 flex items-center justify-center gap-2 rounded-box bg-base-100/70 text-sm backdrop-blur-sm"
+    >
+      <span class="loading loading-spinner loading-sm"></span>
+      <span>载入文档示例…</span>
+    </div>
+  }
+  <div class="flex flex-col gap-4 lg:flex-row">
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="font-medium">Schema 代码</span>
+        <div class="flex gap-2">
+          <button class="btn btn-xs btn-ghost" type="button" (click)="openHelp()">
+            使用说明
+          </button>
+          <button class="btn btn-xs" type="button" (click)="reset()">
+            重置
+          </button>
+          <button class="btn btn-xs btn-primary" type="button" (click)="share()">
+            复制分享链接
+          </button>
+        </div>
+      </div>
+      <div
+        class="h-[60vh] min-h-[20rem] overflow-hidden rounded-box border border-base-300"
+      >
+        <div
+          type="code-editor"
+          class="h-full"
+          [ngModel]="code()"
+          (ngModelChange)="updateCode($event)"
+        ></div>
       </div>
     </div>
-    <div
-      class="h-[60vh] min-h-[20rem] overflow-hidden rounded-box border border-base-300"
-    >
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <span class="font-medium">实时预览</span>
       <div
-        type="code-editor"
-        class="h-full"
-        [ngModel]="code()"
-        (ngModelChange)="updateCode($event)"
-      ></div>
-    </div>
-  </div>
-  <div class="flex min-w-0 flex-1 flex-col gap-2">
-    <span class="font-medium">实时预览</span>
-    <div
-      class="h-[60vh] min-h-[20rem] overflow-auto rounded-box border border-base-300 p-4"
-    >
-      <app-playground-eval-view [configCode]="previewCode()" />
+        class="h-[60vh] min-h-[20rem] overflow-auto rounded-box border border-base-300 p-4"
+      >
+        <app-playground-eval-view [configCode]="previewCode()" />
+      </div>
     </div>
   </div>
 </div>

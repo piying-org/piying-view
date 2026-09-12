@@ -1,4 +1,4 @@
-import { asVirtualGroup, PiyingViewGroup } from '@piying/view-angular';
+import { asVirtualGroup } from '@piying/view-angular';
 import * as v from 'valibot';
 import {
   NFCSchema,
@@ -9,8 +9,8 @@ import {
 
 export const schema = v.pipe(
   v.intersect([
-    v.pipe(v.object({}), setComponent(PiyingViewGroup), setAlias('ly1')),
-    v.pipe(v.object({}), setComponent(PiyingViewGroup), setAlias('ly2')),
+    v.pipe(v.object({}), setAlias('ly1')),
+    v.pipe(v.object({}), setAlias('ly2')),
     v.object({
       input1: v.pipe(v.string(), layout({ keyPath: ['@ly1'] })),
       input2: v.pipe(v.string(), layout({ keyPath: ['@ly2'], priority: 3 })),

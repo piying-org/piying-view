@@ -12,6 +12,12 @@ import { PlayGroundEvalViewNFCC } from '../playground-eval-view/component';
 
 const DEBOUNCE_TIME = 500;
 
+interface PlaygroundDef {
+  name: string;
+  source: string;
+  code: string;
+}
+
 const DEFAULT_CODE = `(() => {
   // 可直接使用：v (valibot) / actions / setComponent / NFCSchema / valueChange ...
   let schema = v.object({
@@ -42,11 +48,13 @@ const INJECTED_VARS = [
   'rawConfig',
   'condition',
   'renderConfig',
+  'appendLog',
   'map',
   'tap',
   'skip',
   'of',
   'pipe',
+  'filter',
   'debounceTime',
   'BehaviorSubject',
   'FocusDirective',
@@ -69,9 +77,8 @@ const COMPONENT_TYPES = [
   'codeEditor',
 ];
 
-/** 支持 ?input=<JSON.stringify(code)> 形式分享代码 */
-function resolveInitialCode() {
-  const raw = new URLSearchParams(window.location.search).get('input');
+/** ?input=<JSON.stringify(code)> 形式分享代码，兼容裸 schema / 对象字面量 */
+function resolveCodeParam(raw: string | null) {
   if (!raw) {
     return DEFAULT_CODE;
   }
@@ -100,16 +107,37 @@ function resolveInitialCode() {
   return `(() => {\n  let schema = ${trimmed}\n  return { schema: schema }\n})()`;
 }
 
+/** URL 只读一次，定下初始来源：input 优先，def 需要异步取故单独分支 */
+function resolveInitialSource():
+  | { kind: 'def'; name: string }
+  | { kind: 'code'; code: string } {
+  const params = new URLSearchParams(window.location.search);
+  const input = params.get('input');
+  if (input) {
+    return { kind: 'code', code: resolveCodeParam(input) };
+  }
+  const def = params.get('def');
+  if (def) {
+    return { kind: 'def', name: def };
+  }
+  return { kind: 'code', code: DEFAULT_CODE };
+}
+
 @Component({
   selector: 'app-playground-single',
   imports: [FormsModule, CodeEditorComponent, PlayGroundEvalViewNFCC],
   templateUrl: './component.html',
   // template:''
+  host: {
+    class: 'not-content',
+  },
 })
 export class PlaygroundSingleComponent implements OnDestroy {
-  code = signal(resolveInitialCode());
-  previewCode = signal(this.code());
+  code = signal('');
+  previewCode = signal('');
+  loading = signal(false);
   shareText = signal('');
+  loadError = signal('');
 
   injectedVars = INJECTED_VARS;
   componentTypes = COMPONENT_TYPES;
@@ -117,15 +145,47 @@ export class PlaygroundSingleComponent implements OnDestroy {
   helpDlg = viewChild<ElementRef<HTMLDialogElement>>('helpDlg');
   #changes = new Subject<string>();
   #subscription: Subscription;
+  #initialCode = DEFAULT_CODE;
 
   constructor() {
     this.#subscription = this.#changes
       .pipe(debounceTime(DEBOUNCE_TIME))
       .subscribe((value) => this.previewCode.set(value));
+
+    const source = resolveInitialSource();
+    if (source.kind === 'def') {
+      this.loading.set(true);
+      void this.#loadDef(source.name);
+    } else {
+      this.#apply(source.code);
+    }
   }
 
   ngOnDestroy(): void {
     this.#subscription.unsubscribe();
+  }
+
+  /** 代码唯一入口：一并同步 code / previewCode / 重置基准 */
+  #apply(code: string) {
+    this.#initialCode = code;
+    this.code.set(code);
+    this.previewCode.set(code);
+  }
+
+  async #loadDef(name: string) {
+    const url = `${import.meta.env.BASE_URL}playground-defs/${encodeURIComponent(name)}.json`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const def = (await res.json()) as PlaygroundDef;
+      this.#apply(def.code);
+    } catch {
+      this.loadError.set(`无法载入文档示例「${name}」`);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   openHelp() {
@@ -138,18 +198,20 @@ export class PlaygroundSingleComponent implements OnDestroy {
   }
 
   reset() {
-    this.updateCode(DEFAULT_CODE);
+    this.#apply(this.#initialCode);
   }
 
   async share() {
     const url = new URL(window.location.href);
+    // input 与 def 互斥：分享链接只带 input
+    url.searchParams.delete('def');
     url.searchParams.set('input', JSON.stringify(this.code()));
     const link = url.toString();
     try {
       await navigator.clipboard.writeText(link);
-      this.shareText.set('分享链接已复制到剪贴板：' + link);
+      this.shareText.set('分享链接已复制到剪贴板：');
     } catch {
-      this.shareText.set('复制失败，请手动复制地址栏链接，或访问：' + link);
+      this.shareText.set('复制失败，请手动复制：' + link);
     }
     window.setTimeout(() => this.shareText.set(''), 5000);
   }

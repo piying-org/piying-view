@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import { globSync } from 'tinyglobby';
 
 // 构建/开发时进程的工作目录即 nova-docs 项目根
@@ -42,4 +43,9 @@ export function resolveLivePreviewFiles(attrs: Attrs) {
 export function resolveSchemaPreviewFiles(attrs: Attrs) {
   const file = toList(attrs.get('definition'))[0];
   return file ? [file] : [];
+}
+
+/** `src/angular/definition/type-string.definition.ts` → `type-string` */
+export function definitionName(file: string) {
+  return basename(file, '.definition.ts');
 }

@@ -1,6 +1,5 @@
 import * as v from 'valibot';
 import { actions, NFCSchema, setComponent } from '@piying/view-angular-core';
-import { SimpleInputC } from '../components/simple-input';
 import { appendLog } from '../components/log';
 
 export const schema = v.pipe(
@@ -8,7 +7,7 @@ export const schema = v.pipe(
     input: v.pipe(
       v.string(),
       // V1 控件：events 会自动绑定到宿主元素
-      setComponent(SimpleInputC),
+      setComponent('simpleInput'),
       actions.inputs.set({ placeholder: '点我，或在此输入后按 Enter' }),
       actions.events.patchAsync({
         click: (field) => () => {

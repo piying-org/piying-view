@@ -29,9 +29,10 @@ export class PlayGroundEvalViewNFCC {
       return undefined;
     }
     return {
+      ...config.options,
       fieldGlobalConfig: FieldGlobalConfig,
       builder: getBuilderType(config.builderType) as any,
-      context: config.context,
+      context: config.context ?? config.options?.context,
     };
   });
 }

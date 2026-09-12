@@ -1,4 +1,3 @@
-import { PiyingViewGroup } from '@piying/view-angular';
 import * as v from 'valibot';
 import { setComponent, valueChange } from '@piying/view-angular-core';
 import { BehaviorSubject } from 'rxjs';
@@ -21,5 +20,4 @@ export const schema = v.pipe(
       }),
     ),
   }),
-  setComponent(PiyingViewGroup),
 );

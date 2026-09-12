@@ -13,6 +13,7 @@ import { PanelWC } from './wrapper/panel-wrapper/component';
 import { TooltipWC } from './wrapper/tooltip/component';
 import { DemoNFCC } from './demo';
 import { LogNFCC } from './log';
+import { SimpleInputC } from './simple-input';
 import { SelectorlessNFCC } from './selector-less';
 import * as FCCGroup from '@piying-lib/angular-daisyui/field-control';
 import { LabelWC } from '@piying-lib/angular-daisyui/wrapper';
@@ -105,6 +106,12 @@ export const FieldGlobalConfig = {
     },
     intersect: {
       type: PiyingViewGroup,
+    },
+    group: {
+      type: PiyingViewGroup,
+    },
+    simpleInput: {
+      type: SimpleInputC,
     },
 
     codeEditor: {
