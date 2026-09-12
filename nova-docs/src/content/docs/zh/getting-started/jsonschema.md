@@ -201,12 +201,14 @@ Piying-View 根据 JSON Schema 结构自动选择合适的组件渲染策略：
 
 以下类型会自动传入 `options` 输入属性到对应组件，组件需要实现选项渲染：
 
-| JSON Schema                                       | 说明                |
-| ------------------------------------------------- | ------------------- |
-| `"enum": ["1", "2"]`                              | 单选（picklist）    |
-| `"items": { "enum": [...] }`                      | 多选（multiselect） |
-| `"items": { "enum": [...] }, "uniqueItems": true` | 可重复选择的多选    |
-| `"type": "number", "minimum": N`                  | 数值输入            |
+| JSON Schema                                       | Valibot        | 组件类型               | 说明                     |
+| ------------------------------------------------- | -------------- | ---------------------- | ------------------------ |
+| `"enum": ["1", "2"]`                              | `v.picklist()` | 由类型映射决定         | 单选                     |
+| `"items": { "enum": [...] }, "uniqueItems": true` | `v.array()`    | `multiselect`          | 多选，**不可**重复选择   |
+| `"items": { "enum": [...] }`（无 `uniqueItems`）  | `v.array()`    | `multiselect-repeat`   | 多选，**可以**重复选择   |
+| `"type": "number", "minimum": N`                  | `v.number()`   | 由类型映射决定         | 数值输入                 |
+
+> ⚠️ 多选分支的组件名由 `uniqueItems` 直接决定：`uniqueItems ? 'multiselect' : 'multiselect-repeat'`。即**带 `uniqueItems` 才是不可重复的 `multiselect`**，不带时反而是可重复的 `multiselect-repeat`。多选分支还会额外附加 `asControl()` 与 `multiple: true` 输入。
 
 ## 自定义 Actions
 

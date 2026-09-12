@@ -201,12 +201,14 @@ This can be treated as a regular object type, mainly for validation.
 
 These types pass an `options` input property to the component automatically; the component must render the options:
 
-| JSON Schema                                       | Description         |
-| ------------------------------------------------- | ------------------- |
-| `"enum": ["1", "2"]`                              | Single choice (picklist) |
-| `"items": { "enum": [...] }`                      | Multiple choice (multiselect) |
-| `"items": { "enum": [...] }, "uniqueItems": true` | Multiple choice with repeats allowed |
-| `"type": "number", "minimum": N`                  | Number input        |
+| JSON Schema                                       | Valibot        | Component type         | Notes                          |
+| ------------------------------------------------- | -------------- | -------------------- | ------------------------------ |
+| `"enum": ["1", "2"]`                              | `v.picklist()` | from type mapping    | Single choice                  |
+| `"items": { "enum": [...] }, "uniqueItems": true` | `v.array()`    | `multiselect`        | Multiple choice, **no** repeats |
+| `"items": { "enum": [...] }` (no `uniqueItems`)   | `v.array()`    | `multiselect-repeat` | Multiple choice, repeats allowed |
+| `"type": "number", "minimum": N`                  | `v.number()`   | from type mapping    | Number input                   |
+
+> ⚠️ The multi-select component name is decided directly by `uniqueItems`: `uniqueItems ? 'multiselect' : 'multiselect-repeat'`. So **`uniqueItems` present means the non-repeatable `multiselect`**, while omitting it yields the repeatable `multiselect-repeat`. The multi-select branch also adds `asControl()` and a `multiple: true` input.
 
 ## Custom Actions
 

@@ -17,6 +17,56 @@ Piying-View 是一个开源的 TypeScript 表单库，它将 [Valibot](https://g
 
 ---
 
+## 为什么选择 Piying-View
+
+### 一次定义，多端使用
+
+传统表单开发里，**视图、逻辑、类型是三份东西**，分开写、强耦合：改一个字段要同时动模板、校验器、类型定义。Piying-View 把这三者收敛到**一份 Valibot Schema**：
+
+| | 传统做法 | Piying-View |
+| --- | --- | --- |
+| 结构 | 模板里手写 | Schema 定义 |
+| 类型 | 单独的 interface / type | 从 Schema 推导 |
+| 默认值 | 组件里初始化 | `v.optional(schema, 默认值)` |
+| 校验 | 散落在组件 / service | Schema + `formConfig` |
+| 布局 | 写死在模板 | `layout` / `wrappers` 动态调整 |
+
+好处是代码更好管，框架之间迁移时**Schema 与业务逻辑原样复用**，只需重写渲染层。
+
+### 灵活的布局控制
+
+Schema 定义是固定的，但渲染顺序与位置可以动态调整。通过 `layout({ priority })` 调权重、`layout({ keyPath })` 把字段移动到已解析的其他容器中，不必为了排版去改数据结构。详见 [Layout metadata](zh/api/layout/)。
+
+### 完整的逻辑表达能力
+
+支持 `anyOf` / `oneOf` / `intersect` 等复杂逻辑，用 `FieldLogicGroup` 实现条件分支与分支切换，而不是靠一堆 `if/else` 拼出来。详见 [复杂 Schema 结构](zh/scenarios/complex-schema/) 与 [asControl / asVirtualGroup](zh/scenarios/as-control-group/)。
+
+### 数据流分离
+
+模型→视图、视图→模型两个方向的转换互相独立，可用 `formConfig.transformer`（同步）、`formConfig.pipe`（RxJS 管道）或 Valibot 的 `v.transform`。详见 [值转换与联动](zh/scenarios/value-transform/)。
+
+### 技术特点
+
+- **统一 API**：不同框架提供一致的开发体验，Actions 语义完全相同
+- **语义化配置**：`inputs` / `attributes` / `props` / `models` 各司其职，降低心智负担
+- **高内聚低耦合**：通过配置动态调整功能，组件保持原子化
+- **Valibot 兼容**：完整复用 Valibot 的验证与转换机制
+
+### 支持的框架
+
+| 框架 | 包 | 支持状态 |
+| ---- | -- | -------- |
+| Angular | `@piying/view-angular` | ✅ 完整支持（主力框架） |
+| Vue 3 | `@piying/view-vue` | ✅ 完整支持 |
+| Vue 2 | `@piying/view-vue2-legacy` | ✅ 完整支持 |
+| React | `@piying/view-react` | ✅ 完整支持 |
+| Svelte | `@piying/view-svelte` | ✅ 完整支持 |
+| Solid | `@piying/view-solid` | ✅ 完整支持 |
+
+各框架的差异（Token 获取、CVA 绑定、Signal 转换工具）集中在 [框架差异](zh/getting-started/framework-differences/) 与 [框架适配](zh/adapters/vue/) 两节。
+
+---
+
 ## 目录结构
 
 ### 🚀 入门使用 (Getting Started)

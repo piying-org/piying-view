@@ -69,6 +69,30 @@ const schema = v.pipe(
 );
 ```
 
+## actions.attributes.mapAsync — 映射属性值
+
+与 `patchAsync`「按 key 赋值」不同，`mapAsync` 拿到**整个 attributes 对象**做函数式变换。签名是 `(field) => (value) => 新值`：
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.attributes.set({ 'data-role': 'input', 'data-len': '0' }),
+  // 给所有 key 加上命名空间前缀，并注入当前值的长度
+  actions.attributes.mapAsync((field) => {
+    return (value: Record<string, any>) => {
+      const len = String(field.form.control?.value?.length ?? 0);
+      return Object.fromEntries(
+        Object.entries(value).map(([k, v]) => [`piying-${k}`, k === 'data-len' ? len : v]),
+      );
+    };
+  }),
+);
+
+// 最终 attributes = { 'piying-data-role': 'input', 'piying-data-len': '<当前输入长度>' }
+```
+
+> `mapAsync` 适合「批量改写已有属性」的场景（加前缀、脱敏、统一注入）。只是根据字段状态设几个值时，用 `patchAsync` 更直接。
+
 ## actions.attributes.top — 作用于最外层容器
 
 `top.set` / `top.patch` 把属性写到字段的**最外层 wrapper**（无 wrapper 时为字段自身），常用于由 wrapper 渲染的卡片/fieldset 等容器：

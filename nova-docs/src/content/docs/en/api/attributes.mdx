@@ -69,6 +69,30 @@ const schema = v.pipe(
 );
 ```
 
+## actions.attributes.mapAsync — map attribute values
+
+Unlike `patchAsync`, which assigns **per key**, `mapAsync` receives the **whole attributes object** and transforms it functionally. The signature is `(field) => (value) => newValue`:
+
+```typescript
+const schema = v.pipe(
+  v.string(),
+  actions.attributes.set({ 'data-role': 'input', 'data-len': '0' }),
+  // Namespace every key and inject the current value length
+  actions.attributes.mapAsync((field) => {
+    return (value: Record<string, any>) => {
+      const len = String(field.form.control?.value?.length ?? 0);
+      return Object.fromEntries(
+        Object.entries(value).map(([k, v]) => [`piying-${k}`, k === 'data-len' ? len : v]),
+      );
+    };
+  }),
+);
+
+// Final attributes = { 'piying-data-role': 'input', 'piying-data-len': '<current input length>' }
+```
+
+> Use `mapAsync` when you need to **rewrite existing attributes in bulk** (prefixing, redacting, injecting uniformly). When you only need to set a few values from field state, `patchAsync` is more direct.
+
 ## actions.attributes.top — target the outermost container
 
 `top.set` / `top.patch` write the attributes to the field's **outermost wrapper** (the field itself when there is no wrapper), which is useful for containers rendered by a wrapper, such as cards or fieldsets:

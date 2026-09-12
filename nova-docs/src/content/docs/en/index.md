@@ -17,6 +17,56 @@ Piying-View is an open-source TypeScript form library that turns [Valibot](https
 
 ---
 
+## Why Piying-View
+
+### Define once, use everywhere
+
+In traditional form development, **view, logic and types are three separate things**, written apart and tightly coupled: changing one field means touching the template, the validator and the type definition. Piying-View collapses all three into **a single Valibot Schema**:
+
+| | Traditional | Piying-View |
+| --- | --- | --- |
+| Structure | Hand-written in the template | Defined in the Schema |
+| Types | Separate interface / type | Inferred from the Schema |
+| Default value | Initialized in the component | `v.optional(schema, defaultValue)` |
+| Validation | Scattered across components / services | Schema + `formConfig` |
+| Layout | Hard-coded in the template | Adjusted dynamically via `layout` / `wrappers` |
+
+The payoff is easier maintenance: when you migrate between frameworks, **the Schema and business logic are reused as-is**, and only the rendering layer is rewritten.
+
+### Flexible layout control
+
+The Schema definition stays fixed, but render order and position can change dynamically. Use `layout({ priority })` to adjust weight and `layout({ keyPath })` to move a field into another already-resolved container — without reshaping your data model just to satisfy the layout. See [Layout metadata](en/api/layout/).
+
+### Full logical expressiveness
+
+Supports complex logic such as `anyOf` / `oneOf` / `intersect`, using `FieldLogicGroup` for conditional branches and branch switching instead of stitching together piles of `if/else`. See [Complex Schema Structures](en/scenarios/complex-schema/) and [asControl / asVirtualGroup](en/scenarios/as-control-group/).
+
+### Separated data flow
+
+The model→view and view→model transformations are independent of each other. Use `formConfig.transformer` (synchronous), `formConfig.pipe` (RxJS pipeline) or Valibot's `v.transform`. See [Value Transformation & Linkage](en/scenarios/value-transform/).
+
+### Technical highlights
+
+- **Unified API**: a consistent developer experience across frameworks, with identical Action semantics
+- **Semantic configuration**: `inputs` / `attributes` / `props` / `models` each have a clear role, reducing cognitive load
+- **High cohesion, low coupling**: behaviour is tuned through configuration while components stay atomic
+- **Valibot compatible**: fully reuses Valibot's validation and transformation machinery
+
+### Supported frameworks
+
+| Framework | Package | Status |
+| --------- | ------- | ------ |
+| Angular | `@piying/view-angular` | ✅ Fully supported (primary framework) |
+| Vue 3 | `@piying/view-vue` | ✅ Fully supported |
+| Vue 2 | `@piying/view-vue2-legacy` | ✅ Fully supported |
+| React | `@piying/view-react` | ✅ Fully supported |
+| Svelte | `@piying/view-svelte` | ✅ Fully supported |
+| Solid | `@piying/view-solid` | ✅ Fully supported |
+
+Framework differences (token access, CVA binding, signal conversion helpers) are collected in [Framework Differences](en/getting-started/framework-differences/) and the [Framework Adapters](en/adapters/vue/) section.
+
+---
+
 ## Table of Contents
 
 ### 🚀 Getting Started
