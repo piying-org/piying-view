@@ -6,6 +6,7 @@ import {
   errorSummary,
   isFieldControl,
   KeyPath,
+  PiFieldGet,
 } from '@piying/view-angular-core';
 import { FieldControlBase } from './field-control-base';
 
@@ -20,18 +21,31 @@ const formControlBinding: Provider = {
   standalone: true,
   exportAs: 'formControl',
 })
-export class PiyingFieldControlBindDirective extends FieldControlBase {
-  formControl = input.required<_PiResolvedCommonViewFieldConfig>();
-  path = input<KeyPath>();
-  field$$ = computed(() => {
+export class PiyingFieldControlBindDirective<
+  S = _PiResolvedCommonViewFieldConfig,
+  P extends KeyPath = [],
+> extends FieldControlBase {
+  formControl = input.required<S>();
+  path = input<[...P]>();
+
+  /** 运行时解析结果(宽松类型), 供内部逻辑使用 */
+  #resolved = computed<_PiResolvedCommonViewFieldConfig | undefined>(() => {
+    const base =
+      this.formControl() as unknown as _PiResolvedCommonViewFieldConfig;
     const keyPath = this.path();
-    return keyPath ? this.formControl().get(keyPath) : this.formControl();
+    return (keyPath ? base.get(keyPath) : base) as
+      | _PiResolvedCommonViewFieldConfig
+      | undefined;
   });
+
+  field$$ = computed((): PiFieldGet<S, P> | undefined =>
+    this.#resolved() as unknown as PiFieldGet<S, P> | undefined,
+  );
   override fieldControl$$ = computed(() => {
-    const control = this.field$$()?.form.control;
+    const control = this.#resolved()?.form.control;
     if (!control) {
       throw new Error(
-        `📍 fieldControlBind:[${this.field$$()?.keyPath || ''}]->[${this.path() || ''}]❗`,
+        `📍 fieldControlBind:[${this.#resolved()?.keyPath || ''}]->[${this.path() || ''}]❗`,
       );
     }
     if (!isFieldControl(control)) {
@@ -41,7 +55,7 @@ export class PiyingFieldControlBindDirective extends FieldControlBase {
   });
 
   summaryList$$ = computed(() => {
-    return errorSummary(this.field$$()?.form.control);
+    return errorSummary(this.#resolved()?.form.control);
   });
   valibotIssueSummary$$ = computed(() => {
     return this.summaryList$$().map((item) => item.valibotIssueSummary!).filter(Boolean).join('\n');

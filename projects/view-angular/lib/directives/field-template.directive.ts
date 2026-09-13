@@ -1,7 +1,7 @@
 import { inject, Injector, Directive, input, computed } from '@angular/core';
 
 import { PiResolvedViewFieldConfig } from '../type';
-import { errorSummary, KeyPath } from '@piying/view-angular-core';
+import { errorSummary, KeyPath, PiFieldGet } from '@piying/view-angular-core';
 import { DynamicCreateDirective } from '../hook/dynamic-create';
 
 @Directive({
@@ -9,21 +9,33 @@ import { DynamicCreateDirective } from '../hook/dynamic-create';
   standalone: true,
   exportAs: 'fieldTemplate',
 })
-export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
-  readonly fieldTemplate = input.required<PiResolvedViewFieldConfig>();
-  readonly path = input<KeyPath>();
+export class PiyingFieldTemplateDirective<
+  S = PiResolvedViewFieldConfig,
+  P extends KeyPath = [],
+> extends DynamicCreateDirective {
+  readonly fieldTemplate = input.required<S>();
+  readonly path = input<[...P]>();
   onInit = input<(field: PiResolvedViewFieldConfig) => void>();
   injector = inject(Injector);
-  field$$ = computed<PiResolvedViewFieldConfig | undefined>(() => {
+
+  /** 运行时解析结果(宽松类型), 供内部逻辑使用 */
+  #resolved = computed<PiResolvedViewFieldConfig | undefined>(() => {
+    const base = this.fieldTemplate() as unknown as PiResolvedViewFieldConfig;
     const keyPath = this.path();
-    return keyPath ? this.fieldTemplate().get(keyPath) : this.fieldTemplate()!;
+    return (keyPath ? base.get(keyPath) : base) as
+      | PiResolvedViewFieldConfig
+      | undefined;
   });
-  override field = computed(() => this.field$$()!);
+
+  field$$ = computed((): PiFieldGet<S, P> | undefined =>
+    this.#resolved() as unknown as PiFieldGet<S, P> | undefined,
+  );
+  override field = computed(() => this.#resolved()!);
   override inputInjector = computed(() => this.injector);
 
   #initialized = false;
   summaryList$$ = computed(() => {
-    return errorSummary(this.field$$()?.form.control);
+    return errorSummary(this.#resolved()?.form.control);
   });
   valibotIssueSummary$$ = computed(() => {
     return this.summaryList$$()
@@ -33,7 +45,7 @@ export class PiyingFieldTemplateDirective extends DynamicCreateDirective {
   });
   override ngOnChanges(): void {
     let field;
-    if (!this.#initialized && (field = this.field$$())) {
+    if (!this.#initialized && (field = this.#resolved())) {
       this.#initialized = true;
       this.onInit()?.(field);
     }

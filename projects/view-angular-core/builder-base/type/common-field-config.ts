@@ -412,6 +412,17 @@ export type PiResolvedCommonViewFieldConfig<
   };
   /** 仅用来开发时debug使用 */
   readonly origin: any;
+  /**
+   * 类型占位, 运行时不存在。
+   * 把 schema 相关泛型以「类型引用」形式携带,
+   * 供下游(如模板指令)反查后复用 GetResult 做路径推导。
+   */
+  readonly __piTypes?: PiFieldTypeRef<
+    Schema,
+    RootSchema,
+    ParentSchema,
+    AliasMap
+  >;
 
   injector: Injector;
   /** 外部传入引用 */
@@ -440,6 +451,45 @@ export type PiResolvedCommonViewFieldConfig<
   } & Readonly<
     Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
   >;
+/**
+ * 类型占位: 仅承载 schema 泛型。
+ * 成员类型与泛型无关, 所以不同实参之间结构互容, 不会收紧赋值兼容性;
+ * 但类型引用本身保留实参, 可以用 infer 直接反查。
+ */
+export interface PiFieldTypeRef<
+  Schema,
+  RootSchema,
+  ParentSchema,
+  AliasMap,
+> {
+  readonly __piRef?: never;
+}
+
+/** 从字段配置类型反查 schema 泛型; 拿不到时给宽松兜底 */
+type FieldSchemaParts<F> = F extends {
+  __piTypes?: PiFieldTypeRef<infer S, infer R, infer Pa, infer A>;
+}
+  ? { schema: S; root: R; parent: Pa; alias: A }
+  : { schema: any; root: any; parent: any; alias: {} };
+
+/**
+ * 对字段配置 F 执行 `.get(P)` 的等价类型。
+ * - P 未绑定(默认 [])或推断失败(any) 时, 返回 F 自身
+ * - 其余情况走与 `get` 完全一致的 GetResult 推导
+ */
+export type PiFieldGet<F, P extends KeyPath> = 0 extends 1 & P
+  ? F
+  : P extends []
+    ? F
+    : FieldSchemaParts<F> extends {
+          schema: infer S;
+          root: infer R;
+          parent: infer Pa;
+          alias: infer A;
+        }
+      ? GetResult<S, R, Pa, A, P>
+      : F;
+
 export type _PiResolvedCommonViewFieldConfig<
   Schema = any,
   RootSchema = Schema,
