@@ -2,6 +2,8 @@ import {
   ChangeDetectionScheduler,
   ChangeDetectionSchedulerImpl,
   createRootInjector,
+  EffectScheduler,
+  Injector,
 } from 'static-injector';
 
 export const createInjector = () =>
@@ -13,3 +15,6 @@ export const createInjector = () =>
       },
     ],
   });
+
+export const flushEffects = (injector: Injector) =>
+  injector.get(EffectScheduler).flush();

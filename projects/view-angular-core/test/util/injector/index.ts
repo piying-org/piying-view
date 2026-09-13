@@ -3,8 +3,9 @@ import {
   provideZonelessChangeDetection,
   ɵisEnvironmentProviders,
   Injector,
-  Provider,
   EnvironmentInjector,
+  Provider,
+  ɵEffectScheduler,
 } from '@angular/core';
 
 export const createInjector = () => {
@@ -23,3 +24,7 @@ export const createInjector = () => {
   });
   return instance;
 };
+
+
+export const flushEffects = (injector: Injector) =>
+  injector.get(ɵEffectScheduler).flush();
