@@ -1,6 +1,20 @@
 import { Injector, Signal, WritableSignal } from '@angular/core';
 import * as v from 'valibot';
 
+import {
+  EntriesOf,
+  ItemOf,
+  ItemsOf,
+  OptionsOf,
+  PipeOf,
+  RecordValueOf,
+  RestOf,
+  VsArrayLikeHost,
+  VsEntriesHost,
+  VsTupleHost,
+  WrappedOf,
+} from './valibot-shape';
+
 import { FieldArray } from '../../field/field-array';
 import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
@@ -65,8 +79,10 @@ type FindAliasInPipe<P extends readonly any[]> = P extends readonly [
 type OwnAliasMap<S> = (
   S extends { alias: infer Al }
     ? Al
-    : S extends { pipe: infer P extends readonly any[] }
-      ? FindAliasInPipe<P>
+    : PipeOf<S> extends infer P
+      ? P extends readonly any[]
+        ? FindAliasInPipe<P>
+        : never
       : never
 ) extends infer Al
   ? Al extends string
@@ -92,17 +108,27 @@ type CollectScopeAlias<S> = unknown extends S
   ? {}
   : MergeAliasUnion<
       | OwnAliasMap<S>
-      | (S extends { pipe: infer P extends readonly any[] }
-          ? CollectScopeAlias<P[0]>
+      | (PipeOf<S> extends infer P
+          ? P extends readonly [infer F, ...any[]]
+            ? CollectScopeAlias<F>
+            : {}
           : {})
-      | (S extends { wrapped: infer W } ? CollectScopeAlias<W> : {})
-      | (S extends { entries: infer E extends Record<string, any> }
-          ? MergeAliasUnion<
-              { [K in keyof E]: CollectScopeAlias<E[K]> }[keyof E]
-            >
+      | (WrappedOf<S> extends infer W
+          ? [W] extends [never]
+            ? {}
+            : CollectScopeAlias<W>
           : {})
-      | (S extends { options: infer O extends readonly any[] }
-          ? MergeAliasUnion<CollectScopeAlias<O[number]>>
+      | (EntriesOf<S> extends infer E
+          ? E extends Record<string, any>
+            ? MergeAliasUnion<
+                { [K in keyof E]: CollectScopeAlias<E[K]> }[keyof E]
+              >
+            : {}
+          : {})
+      | (OptionsOf<S> extends infer O
+          ? O extends readonly any[]
+            ? MergeAliasUnion<CollectScopeAlias<O[number]>>
+            : {}
           : {})
     >;
 
@@ -121,14 +147,16 @@ type LookupAliasScope<Scopes, Name extends string> = Scopes extends readonly [
   : never;
 
 /** 下钻数组项时压入新的作用域 */
-type PushItemScope<Schema, K, Scopes> = [CoreSchemaOf<Schema>] extends [
-  { item: infer T },
-]
-  ? K extends number
-    ? Scopes extends readonly any[]
-      ? [CollectScopeAlias<T>, ...Scopes]
-      : [CollectScopeAlias<T>]
-    : Scopes
+type PushItemScope<Schema, K, Scopes> = ItemOf<
+  CoreSchemaOf<Schema>
+> extends infer T
+  ? [T] extends [never]
+    ? Scopes
+    : K extends number
+      ? Scopes extends readonly any[]
+        ? [CollectScopeAlias<T>, ...Scopes]
+        : [CollectScopeAlias<T>]
+      : Scopes
   : Scopes;
 
 /** 根作用域别名链 */
@@ -136,58 +164,90 @@ export type InferAliasMap<S> = [CollectScopeAlias<S>];
 
 /* ---------- schema 导航(支持 intersect/union 数字下标及对象/数组) ---------- */
 
-/** object_with_rest / tuple_with_rest 的 rest schema, 无 rest 时为 never */
-type RestSchemaOf<S> = S extends { rest: infer R } ? R : never;
-
 /** tuple / tuple_with_rest 按数字下标取成员 schema */
-type TupleEntryOf<S, K> = S extends { items: infer I extends readonly any[] }
-  ? K extends number
-    ? `${K}` extends Extract<keyof I, `${number}`>
-      ? I[K & keyof I]
-      : RestSchemaOf<S>
-    : never
+type TupleEntryOf<S, K> = ItemsOf<S> extends infer I
+  ? [I] extends [never]
+    ? never
+    : K extends number
+      ? `${K}` extends Extract<keyof I, `${number}`>
+        ? I[K & keyof I]
+        : RestOf<S>
+      : never
   : never;
-
 /**
  * 从 schema 中按 key 取子 schema。
- * 支持 array(item) / object(entries) / object_with_rest(rest)
- * tuple(items + rest) / record(value) / pipe / wrapped 包裹。
+ * 优先级固定 array > entries > tuple > record > pipe > wrapped:
+ * SchemaWithPipe 会保留被包裹 schema 的 entries 等字段, 必须先认容器再认 pipe。
+ *
+ * 注: 每层提取结果均经 `extends infer X` 绑定一次, 不可重复内联,
+ * 否则 TS 会指数级重复实例化并爆栈。
  */
-type SubSchema<S, K> = unknown extends S
-  ? any
-  : S extends { item: infer T }
-    ? K extends number
+type SubSchema<S, K> = unknown extends S ? any : SubByArray<S, K>;
+
+type SubByArray<S, K> = ItemOf<S> extends infer T
+  ? [T] extends [never]
+    ? SubByEntries<S, K>
+    : K extends number
       ? T
       : never
-    : S extends { entries: infer E extends Record<string, any> }
-      ? K extends keyof E
-        ? E[K]
-        : RestSchemaOf<S>
-      : [S] extends [{ type: 'tuple' | 'tuple_with_rest' }]
-        ? TupleEntryOf<S, K>
-        : [S] extends [{ type: 'record' }]
-          ? S extends { value: infer V }
-            ? V
-            : never
-          : S extends { pipe: infer P extends readonly any[] }
-            ? SubSchema<P[0], K>
-            : S extends { wrapped: infer W }
-              ? SubSchema<W, K>
-              : never;
+  : never;
+
+type SubByEntries<S, K> = EntriesOf<S> extends infer E
+  ? [E] extends [never]
+    ? SubByTuple<S, K>
+    : K extends keyof E
+      ? E[K]
+      : RestOf<S>
+  : never;
+
+type SubByTuple<S, K> = [S] extends [VsTupleHost]
+  ? TupleEntryOf<S, K>
+  : SubByRecord<S, K>;
+
+type SubByRecord<S, K> = RecordValueOf<S> extends infer V
+  ? [V] extends [never]
+    ? SubByPipe<S, K>
+    : V
+  : never;
+
+type SubByPipe<S, K> = PipeOf<S> extends infer P
+  ? [P] extends [never]
+    ? SubByWrapped<S, K>
+    : P extends readonly [infer F, ...any[]]
+      ? SubSchema<F, K>
+      : never
+  : never;
+
+type SubByWrapped<S, K> = WrappedOf<S> extends infer W
+  ? [W] extends [never]
+    ? never
+    : SubSchema<W, K>
+  : never;
 
 /** 从 intersect/union schema 中按数字下标取成员 schema */
-type ItemSchema<S, I> = unknown extends S
-  ? any
-  : S extends { options: infer O extends readonly any[] }
-    ? I extends number
-      ? O[I]
-      : never
-    : S extends { pipe: infer P extends readonly any[] }
-      ? ItemSchema<P[0], I>
-      : S extends { wrapped: infer W }
-        ? ItemSchema<W, I>
-        : never;
+type ItemSchema<S, I> = unknown extends S ? any : ItemByOptions<S, I>;
 
+type ItemByOptions<S, I> = OptionsOf<S> extends infer O
+  ? [O] extends [never]
+    ? ItemByPipe<S, I>
+    : I extends number
+      ? O[I & keyof O]
+      : never
+  : never;
+
+type ItemByPipe<S, I> = PipeOf<S> extends infer P
+  ? [P] extends [never]
+    ? ItemByWrapped<S, I>
+    : P extends readonly [infer F, ...any[]]
+      ? ItemSchema<F, I>
+      : never
+  : never;
+
+type ItemByWrapped<S, I> = WrappedOf<S> extends infer W
+  ? [W] extends [never]
+    ? never
+    : ItemSchema<W, I>
+  : never;
 /** 子 schema 取不到时回退到 intersect/union 成员, 仍取不到则 any(保持宽松) */
 type SubSchemaOrItem<S, K> = [SubSchema<S, K>] extends [never]
   ? [ItemSchema<S, K>] extends [never]
@@ -258,15 +318,21 @@ type GetResult<
  * 与运行时 schemaForEach 完全对齐的节点递归:
  * pipe -> 遍历每一项; wrapped -> 向内(可多层链); 叶子 -> 比对 type
  */
-type NodeHasAction<S, T extends string> = S extends {
-  pipe: infer P extends readonly any[];
-}
-  ? HasPipeAction<P, T>
-  : S extends { wrapped: infer W }
-    ? NodeHasAction<W, T>
-    : [S] extends [{ type: T }]
+type NodeHasAction<S, T extends string> = PipeOf<S> extends infer P
+  ? [P] extends [never]
+    ? NodeHasActionNoPipe<S, T>
+    : P extends readonly any[]
+      ? HasPipeAction<P, T>
+      : never
+  : never;
+
+type NodeHasActionNoPipe<S, T extends string> = WrappedOf<S> extends infer W
+  ? [W] extends [never]
+    ? [S] extends [{ type: T }]
       ? true
-      : false;
+      : false
+    : NodeHasAction<W, T>
+  : never;
 /** 判断 pipe 中是否包含指定 action type */
 type HasPipeAction<
   P extends readonly any[],
@@ -285,28 +351,29 @@ type CoreSchemaOf<S> = unknown extends S
   ? any
   : [S] extends [never]
     ? any
-    : S extends { pipe: infer P extends readonly any[] }
-      ? CoreSchemaOf<P[0]>
-      : S extends { wrapped: infer W }
-        ? CoreSchemaOf<W>
-        : S;
+    : PipeOf<S> extends infer P
+      ? [P] extends [never]
+        ? CoreSchemaOfNoPipe<S>
+        : P extends readonly [infer F, ...any[]]
+          ? CoreSchemaOf<F>
+          : never
+      : never;
+
+type CoreSchemaOfNoPipe<S> = WrappedOf<S> extends infer W
+  ? [W] extends [never]
+    ? S
+    : CoreSchemaOf<W>
+  : never;
 /** 根据核心 schema 与原始 schema 推断控件类型 */
-type SchemaControlOf<C, S, V> = C extends { type: 'array' | 'tuple' }
+type SchemaControlOf<C, S, V> = C extends VsArrayLikeHost
   ? FieldArray<V>
-  : C extends { type: 'intersect' }
+  : C extends v.IntersectSchema<any, any>
     ? IsAsVirtualGroup<S> extends true
       ? FieldGroup<V>
       : FieldLogicGroup<V>
-    : C extends { type: 'union' }
+    : C extends v.UnionSchema<any, any>
       ? FieldLogicGroup<V>
-      : C extends {
-            type:
-              | 'object'
-              | 'loose_object'
-              | 'strict_object'
-              | 'object_with_rest'
-              | 'record';
-          }
+      : C extends VsEntriesHost | v.RecordSchema<any, any, any>
         ? IsAsControl<S> extends true
           ? FieldControl<V>
           : FieldGroup<V>
