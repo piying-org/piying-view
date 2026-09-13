@@ -6,6 +6,7 @@ import {
   errorSummary,
   isFieldControl,
   KeyPath,
+  PiFieldControlGet,
   PiFieldGet,
 } from '@piying/view-angular-core';
 import { FieldControlBase } from './field-control-base';
@@ -41,7 +42,7 @@ export class PiyingFieldControlBindDirective<
   field$$ = computed((): PiFieldGet<S, P> | undefined =>
     this.#resolved() as unknown as PiFieldGet<S, P> | undefined,
   );
-  override fieldControl$$ = computed(() => {
+  override fieldControl$$ = computed<PiFieldControlGet<S, P>>(() => {
     const control = this.#resolved()?.form.control;
     if (!control) {
       throw new Error(

@@ -490,6 +490,22 @@ export type PiFieldGet<F, P extends KeyPath> = 0 extends 1 & P
       ? GetResult<S, R, Pa, A, P>
       : F;
 
+/**
+ * 字段配置 F 的 `form.control` 等价强类型。
+ * 叶子控件的 value 类型由对应 schema 推导。
+ */
+type PiFieldControlOf<F> = FieldControl<
+  Out<FieldSchemaParts<F>['schema']>
+>;
+
+/**
+ * 指令场景: 绑定类型 F + path P 推导出的 `fieldControl$$` 强类型。
+ * 与 `PiFieldGet<F, P>` 保持同构。
+ */
+export type PiFieldControlGet<F, P extends KeyPath> = PiFieldControlOf<
+  PiFieldGet<F, P>
+>;
+
 export type _PiResolvedCommonViewFieldConfig<
   Schema = any,
   RootSchema = Schema,
