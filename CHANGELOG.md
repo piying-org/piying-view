@@ -1,3 +1,9 @@
+## [2.15.6](https://github.com/piying-org/piying-view/compare/2.15.5...2.15.6) (2026-09-13)
+
+### Features
+
+* PiyingFieldControlBindDirective fieldControl$$ typed ([5d94f19](https://github.com/piying-org/piying-view/commit/5d94f1980800e66f413ca014e35819be344892f9))
+
 ## [2.15.5](https://github.com/piying-org/piying-view/compare/2.15.4...2.15.5) (2026-09-13)
 
 ### Bug Fixes
