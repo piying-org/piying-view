@@ -1,3 +1,15 @@
+## [2.15.5](https://github.com/piying-org/piying-view/compare/2.15.4...2.15.5) (2026-09-13)
+
+### Bug Fixes
+
+* type ([3f24662](https://github.com/piying-org/piying-view/commit/3f2466288b83653ce69fdf9032067fa5a02c4fdd))
+
+### Features
+
+* directive type ([37a77af](https://github.com/piying-org/piying-view/commit/37a77af0194db94cdba7e1176b07d0efcd670afc))
+* typedFieldComponentPipe ([ba0c2a8](https://github.com/piying-org/piying-view/commit/ba0c2a8b66d325ae8d16d874e2cb2323752a285d))
+* typedFieldPipe ([36a5999](https://github.com/piying-org/piying-view/commit/36a599956576300d4b83b19608e842f0e996a405))
+
 ## [2.15.4](https://github.com/piying-org/piying-view/compare/2.15.2...2.15.4) (2026-09-12)
 
 ## 2.15.2 (2026-09-11)
