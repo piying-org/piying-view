@@ -299,23 +299,30 @@ type GetResult<
 >;
 
 /* ---------- 控件类型细分(control 类型) ---------- */
+/**
+ * 与运行时 schemaForEach 完全对齐的节点递归:
+ * pipe -> 遍历每一项; wrapped -> 向内(可多层链); 叶子 -> 比对 type
+ */
+type NodeHasAction<S, T extends string> = S extends {
+  pipe: infer P extends readonly any[];
+}
+  ? HasPipeAction<P, T>
+  : S extends { wrapped: infer W }
+    ? NodeHasAction<W, T>
+    : [S] extends [{ type: T }]
+      ? true
+      : false;
 /** 判断 pipe 中是否包含指定 action type */
 type HasPipeAction<P extends readonly any[], T extends string> =
   P extends readonly [infer A, ...infer Rest]
-    ? A extends { type: T }
+    ? NodeHasAction<A, T> extends true
       ? true
       : HasPipeAction<Rest, T>
     : false;
 /** schema 是否配置了 asControl(强制作为 FieldControl) */
-type IsAsControl<S> = S extends { pipe: infer P extends readonly any[] }
-  ? HasPipeAction<P, 'asControl'>
-  : false;
+type IsAsControl<S> = NodeHasAction<S, 'asControl'>;
 /** schema 是否配置了 asVirtualGroup(强制作为 FieldGroup) */
-type IsAsVirtualGroup<S> = S extends {
-  pipe: infer P extends readonly any[];
-}
-  ? HasPipeAction<P, 'asVirtualGroup'>
-  : false;
+type IsAsVirtualGroup<S> = NodeHasAction<S, 'asVirtualGroup'>;
 /** 递归解包 pipe/wrapped 得到核心 schema */
 type CoreSchemaOf<S> = unknown extends S
   ? any
@@ -430,6 +437,49 @@ export type _PiResolvedCommonViewFieldConfig<
   Schema,
   RootSchema,
   ParentSchema
+>;
+
+/** 任意「字段配置」形态, 用于类型层识别 field 并做替换 */
+export type AnyPiResolvedField = _PiResolvedCommonViewFieldConfig<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any
+>;
+
+/**
+ * 由 schema 片段直接推导字段类型(绑定 Schema, form.control 可精确到具体控件)。
+ */
+export type PiFieldOfSchema<S extends v.BaseSchema<any, any, any>> =
+  _PiResolvedCommonViewFieldConfig<
+    v.InferOutput<S>,
+    any,
+    any,
+    {},
+    S,
+    any,
+    any
+  >;
+
+/**
+ * 从「根 schema + keyPath」推导出与 `builder.get(path)` 完全等价的字段类型。
+ * 自身/父级/根级/别名 全套信息齐备, 支持 ['a','b'] / ['a',0,'b'] / ['#'] / ['@alias']。
+ */
+export type PiFieldAtPath<
+  RootSchema extends v.BaseSchema<any, any, any>,
+  Path extends KeyPath,
+> = GetResult<
+  v.InferOutput<RootSchema>,
+  v.InferOutput<RootSchema>,
+  any,
+  InferAliasMap<RootSchema>,
+  RootSchema,
+  RootSchema,
+  any,
+  Path
 >;
 
 export interface FormBuilderOptions<T> {

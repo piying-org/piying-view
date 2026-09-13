@@ -26,6 +26,7 @@ export {
   setProviders as ɵsetProviders,
 };
 export * from './type/async-callback';
+export * from './typed-field-pipe';
 export const actions = {
   ...__actions,
   class: classAction,

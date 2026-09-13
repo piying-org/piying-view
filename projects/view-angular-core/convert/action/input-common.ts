@@ -13,6 +13,24 @@ type AsyncResult<T = any> = Promise<T> | Observable<T> | Signal<T> | (T & {});
 export type AsyncProperty<T = any> = (
   field: _PiResolvedCommonViewFieldConfig,
 ) => AsyncResult<T>;
+
+/**
+ * patchAsync / mapAsync 回调中的 field 类型。
+ * Value 由 valibot pipe 的上下文类型(BaseMetadata<TInput>['~types']['input'])反推得到。
+ */
+export type AsyncPropField<V> = _PiResolvedCommonViewFieldConfig<
+  V,
+  any,
+  any,
+  {},
+  any,
+  any,
+  any
+>;
+/** 以当前节点值类型 V 为入参的异步属性回调 */
+export type AsyncPropertyOf<V, R = any> = (
+  field: AsyncPropField<V>,
+) => AsyncResult<R>;
 export type ChangeKey =
   | 'inputs'
   | 'outputs'
@@ -58,14 +76,15 @@ export const createRemovePropertyFn =
         rawField,
       ),
     );
-export function createPatchAsyncPropertyFn<
-  InputData extends Record<string, AsyncProperty> = Record<
-    string,
-    AsyncProperty
-  >,
->(key: ChangeKey) {
-  return <T>(dataObj: InputData) =>
-    rawConfig<T>((rawField, _, ...args) => {
+export function createPatchAsyncPropertyFn<Result = any>(key: ChangeKey) {
+  return <
+    V = any,
+    Data extends Record<string, AsyncPropertyOf<V, Result>> = Record<
+      string,
+      AsyncPropertyOf<V, Result>
+    >,
+  >(dataObj: Data) =>
+    rawConfig<V>((rawField, _, ...args) => {
       let data$;
       if (
         args.length > 0 &&
@@ -112,7 +131,7 @@ export function createPatchAsyncPropertyFn<
             }
             const content$: AsyncObjectSignal<any> = data$()[key];
             Object.entries(dataObj).forEach(([key, value]) => {
-              const result = value(field);
+              const result = (value as AsyncProperty)(field);
               content$.connect(key, result);
             });
           },
@@ -173,10 +192,10 @@ export function createSetOrPatchPropertyFn<
 }
 
 export function createMapAsyncPropertyFn(key: ChangeKey) {
-  return <T>(
-    fn: (field: _PiResolvedCommonViewFieldConfig) => (value: any) => any,
+  return <V = any>(
+    fn: (field: AsyncPropField<V>) => (value: any) => any,
   ) =>
-    rawConfig<T>((rawField, _, ...args) =>
+    rawConfig<V>((rawField, _, ...args) =>
       mergeHooksFn(
         {
           allFieldsResolved: (field: _PiResolvedCommonViewFieldConfig) => {
@@ -195,7 +214,7 @@ export function createMapAsyncPropertyFn(key: ChangeKey) {
             }
 
             const content$ = data$()[key] as AsyncObjectSignal<any>;
-            content$.map(fn(field));
+            content$.map(fn(field as AsyncPropField<any>));
           },
         },
         { position: 'bottom' },
@@ -229,13 +248,7 @@ export const __actions = {
     set: createSetOrPatchPropertyFn<Record<string, (...args: any[]) => any>>(
       'outputs',
     ),
-    patchAsync:
-      createPatchAsyncPropertyFn<
-        Record<
-          string,
-          (field: _PiResolvedCommonViewFieldConfig) => (...args: any[]) => any
-        >
-      >('outputs'),
+    patchAsync: createPatchAsyncPropertyFn<(...args: any[]) => any>('outputs'),
     remove: createRemovePropertyFn('outputs'),
     merge: mergeOutputs,
     mergeAsync: asyncMergeOutputs,
@@ -260,13 +273,7 @@ export const __actions = {
     set: createSetOrPatchPropertyFn<Record<string, (event: Event) => any>>(
       'events',
     ),
-    patchAsync:
-      createPatchAsyncPropertyFn<
-        Record<
-          string,
-          (field: _PiResolvedCommonViewFieldConfig) => (event: Event) => any
-        >
-      >('events'),
+    patchAsync: createPatchAsyncPropertyFn<(event: Event) => any>('events'),
     remove: createRemovePropertyFn('events'),
     mapAsync: createMapAsyncPropertyFn('events'),
   },
