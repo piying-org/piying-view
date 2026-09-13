@@ -1,9 +1,6 @@
 import * as v from 'valibot';
 import { of, map, pipe as rxPipe } from 'rxjs';
-import {
-  _PiResolvedCommonViewFieldConfig,
-  formConfig,
-} from '@piying/view-angular-core';
+import { PiFieldWithValue, formConfig } from '@piying/view-angular-core';
 import { createBuilder } from '../util/create-builder';
 import { getField } from '../util/action';
 import { assertFieldControl } from '../util/is-field';
@@ -12,11 +9,10 @@ import { Equal, IsAny, IsUnknown } from '../util/type-assert';
 /** 构建一个 key1 字段并返回解析后的 field */
 async function makeKeyField<Value = any>(
   fieldSchema: (
-    field$: PromiseWithResolvers<_PiResolvedCommonViewFieldConfig<Value>>,
+    field$: PromiseWithResolvers<PiFieldWithValue<Value>>,
   ) => v.BaseSchema<any, any, any>,
 ) {
-  const field$ =
-    Promise.withResolvers<_PiResolvedCommonViewFieldConfig<Value>>();
+  const field$ = Promise.withResolvers<PiFieldWithValue<Value>>();
   const result = createBuilder(v.object({ key1: fieldSchema(field$) }));
   result.form.control?.updateValue({ key1: '5' });
   return await field$.promise;
@@ -100,8 +96,7 @@ describe('强类型推断: schema 输出类型', () => {
   });
 
   it('getField捕获的子字段: 推断单个字段类型', async () => {
-    const field$ =
-      Promise.withResolvers<_PiResolvedCommonViewFieldConfig<string>>();
+    const field$ = Promise.withResolvers<PiFieldWithValue<string>>();
     const obj = v.object({
       key1: v.pipe(v.string(), getField(field$)),
     });
@@ -118,10 +113,7 @@ describe('强类型推断: schema 输出类型', () => {
   });
 
   it('getField捕获的group子字段: 推断子对象类型', async () => {
-    const field$ =
-      Promise.withResolvers<
-        _PiResolvedCommonViewFieldConfig<{ sub: number }>
-      >();
+    const field$ = Promise.withResolvers<PiFieldWithValue<{ sub: number }>>();
     const obj = v.object({
       key1: v.pipe(v.object({ sub: v.number() }), getField(field$)),
     });
@@ -136,8 +128,7 @@ describe('强类型推断: schema 输出类型', () => {
   });
 
   it('formConfig pipe.toModel 不影响最终输出类型(以schema为准)', async () => {
-    const field$ =
-      Promise.withResolvers<_PiResolvedCommonViewFieldConfig<string>>();
+    const field$ = Promise.withResolvers<PiFieldWithValue<string>>();
     const obj = v.object({
       key1: v.pipe(
         v.string(),
@@ -160,8 +151,7 @@ describe('强类型推断: schema 输出类型', () => {
   });
 
   it('transformer.toModel 不影响最终输出类型(以schema为准)', async () => {
-    const field$ =
-      Promise.withResolvers<_PiResolvedCommonViewFieldConfig<string>>();
+    const field$ = Promise.withResolvers<PiFieldWithValue<string>>();
     const obj = v.object({
       key1: v.pipe(
         v.string(),

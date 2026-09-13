@@ -1,9 +1,5 @@
 import { RawConfigActionCommon } from '@piying/valibot-visit';
-import {
-  _PiResolvedCommonViewFieldConfig,
-  mergeHooksFn,
-  rawConfig,
-} from '@piying/view-angular-core';
+import { mergeHooksFn, rawConfig } from '@piying/view-angular-core';
 export type GetFieldType<T> = <B>(
   field$: PromiseWithResolvers<T>,
   hooks?:
@@ -12,7 +8,7 @@ export type GetFieldType<T> = <B>(
     | 'beforeCreateComponent'
     | 'afterCreateComponent',
 ) => RawConfigActionCommon<B>;
-export const getField: GetFieldType<_PiResolvedCommonViewFieldConfig> = (
+export const getField: GetFieldType<any> = (
   field$,
   hooks = 'allFieldsResolved',
 ) =>

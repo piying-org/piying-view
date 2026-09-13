@@ -1,5 +1,8 @@
 import { Signal, WritableSignal } from '@angular/core';
-import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
+import {
+  PiFieldWithValue,
+  _PiResolvedCommonViewFieldConfig,
+} from '../../builder-base';
 import { Observable } from 'rxjs';
 import { RawConfigAction } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
@@ -16,17 +19,9 @@ export type AsyncProperty<T = any> = (
 
 /**
  * patchAsync / mapAsync 回调中的 field 类型。
- * Value 由 valibot pipe 的上下文类型(BaseMetadata<TInput>['~types']['input'])反推得到。
+ * V 由 valibot pipe 的上下文类型(BaseMetadata<TInput>['~types']['input'])反推得到。
  */
-export type AsyncPropField<V> = _PiResolvedCommonViewFieldConfig<
-  V,
-  any,
-  any,
-  {},
-  any,
-  any,
-  any
->;
+export type AsyncPropField<V> = PiFieldWithValue<V>;
 /** 以当前节点值类型 V 为入参的异步属性回调 */
 export type AsyncPropertyOf<V, R = any> = (
   field: AsyncPropField<V>,
@@ -83,7 +78,9 @@ export function createPatchAsyncPropertyFn<Result = any>(key: ChangeKey) {
       string,
       AsyncPropertyOf<V, Result>
     >,
-  >(dataObj: Data) =>
+  >(
+    dataObj: Data,
+  ) =>
     rawConfig<V>((rawField, _, ...args) => {
       let data$;
       if (
@@ -192,9 +189,7 @@ export function createSetOrPatchPropertyFn<
 }
 
 export function createMapAsyncPropertyFn(key: ChangeKey) {
-  return <V = any>(
-    fn: (field: AsyncPropField<V>) => (value: any) => any,
-  ) =>
+  return <V = any>(fn: (field: AsyncPropField<V>) => (value: any) => any) =>
     rawConfig<V>((rawField, _, ...args) =>
       mergeHooksFn(
         {

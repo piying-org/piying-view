@@ -72,12 +72,9 @@ export function createBuilder<T extends v.BaseSchema<any, any, any>>(
     }),
   );
   return result as _PiResolvedCommonViewFieldConfig<
-    v.InferOutput<T>,
-    v.InferOutput<T>,
+    T,
+    T,
     any,
-    InferAliasMap<T>,
-    T,
-    T,
-    any
+    InferAliasMap<T>
   >;
 }

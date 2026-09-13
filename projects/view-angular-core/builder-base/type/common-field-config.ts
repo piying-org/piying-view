@@ -45,6 +45,10 @@ type RestPath<Path extends KeyPath> = Path extends [any, ...infer R]
     : []
   : [];
 
+/** schema 的输出类型, 非 schema 兜底为 any */
+type Out<S> =
+  S extends v.BaseSchema<unknown, unknown, any> ? v.InferOutput<S> : any;
+
 /* ---------- 别名(@alias) 强类型支持 ---------- */
 
 /** 在 pipe 中查找第一个 setAlias 的别名 */
@@ -57,12 +61,7 @@ type FindAliasInPipe<P extends readonly any[]> = P extends readonly [
     : FindAliasInPipe<R>
   : never;
 
-/** 提取字段输出类型(非 schema 时兜底为 any) */
-type FieldOutput<F> = F extends v.BaseSchema<unknown, unknown, any>
-  ? v.InferOutput<F>
-  : any;
-
-/** 字段自身(pipe 上)的别名 -> [value, schema] */
+/** 字段自身(pipe 上)的别名 -> { 别名: 目标 schema } */
 type OwnAliasMap<S> = (
   S extends { alias: infer Al }
     ? Al
@@ -71,7 +70,7 @@ type OwnAliasMap<S> = (
       : never
 ) extends infer Al
   ? Al extends string
-    ? { [K in Al]: [FieldOutput<S>, S] }
+    ? { [K in Al]: S }
     : {}
   : {};
 
@@ -110,7 +109,7 @@ type CollectScopeAlias<S> = unknown extends S
 /**
  * 作用域链 [最内层, ..., 最外层], 对应运行时的 ParentMap 链。
  * @alias 先在当前(最内)作用域查找, 未命中再逐级向外回退。
- * 命中时返回 [别名目标, 以命中层为起点的作用域链]。
+ * 命中时返回 [别名目标 schema, 以命中层为起点的作用域链]。
  */
 type LookupAliasScope<Scopes, Name extends string> = Scopes extends readonly [
   infer Cur,
@@ -122,9 +121,9 @@ type LookupAliasScope<Scopes, Name extends string> = Scopes extends readonly [
   : never;
 
 /** 下钻数组项时压入新的作用域 */
-type PushItemScope<Schema, K, Scopes> = [
-  CoreSchemaOf<Schema>,
-] extends [{ item: infer T }]
+type PushItemScope<Schema, K, Scopes> = [CoreSchemaOf<Schema>] extends [
+  { item: infer T },
+]
   ? K extends number
     ? Scopes extends readonly any[]
       ? [CollectScopeAlias<T>, ...Scopes]
@@ -136,7 +135,24 @@ type PushItemScope<Schema, K, Scopes> = [
 export type InferAliasMap<S> = [CollectScopeAlias<S>];
 
 /* ---------- schema 导航(支持 intersect/union 数字下标及对象/数组) ---------- */
-/** 从 schema 中按 key 取子 schema(支持对象/数组/pipe/optional 等包裹) */
+
+/** object_with_rest / tuple_with_rest 的 rest schema, 无 rest 时为 never */
+type RestSchemaOf<S> = S extends { rest: infer R } ? R : never;
+
+/** tuple / tuple_with_rest 按数字下标取成员 schema */
+type TupleEntryOf<S, K> = S extends { items: infer I extends readonly any[] }
+  ? K extends number
+    ? `${K}` extends Extract<keyof I, `${number}`>
+      ? I[K & keyof I]
+      : RestSchemaOf<S>
+    : never
+  : never;
+
+/**
+ * 从 schema 中按 key 取子 schema。
+ * 支持 array(item) / object(entries) / object_with_rest(rest)
+ * tuple(items + rest) / record(value) / pipe / wrapped 包裹。
+ */
 type SubSchema<S, K> = unknown extends S
   ? any
   : S extends { item: infer T }
@@ -146,12 +162,18 @@ type SubSchema<S, K> = unknown extends S
     : S extends { entries: infer E extends Record<string, any> }
       ? K extends keyof E
         ? E[K]
-        : never
-      : S extends { pipe: infer P extends readonly any[] }
-        ? SubSchema<P[0], K>
-        : S extends { wrapped: infer W }
-          ? SubSchema<W, K>
-          : never;
+        : RestSchemaOf<S>
+      : [S] extends [{ type: 'tuple' | 'tuple_with_rest' }]
+        ? TupleEntryOf<S, K>
+        : [S] extends [{ type: 'record' }]
+          ? S extends { value: infer V }
+            ? V
+            : never
+          : S extends { pipe: infer P extends readonly any[] }
+            ? SubSchema<P[0], K>
+            : S extends { wrapped: infer W }
+              ? SubSchema<W, K>
+              : never;
 
 /** 从 intersect/union schema 中按数字下标取成员 schema */
 type ItemSchema<S, I> = unknown extends S
@@ -166,137 +188,70 @@ type ItemSchema<S, I> = unknown extends S
         ? ItemSchema<W, I>
         : never;
 
+/** 子 schema 取不到时回退到 intersect/union 成员, 仍取不到则 any(保持宽松) */
+type SubSchemaOrItem<S, K> = [SubSchema<S, K>] extends [never]
+  ? [ItemSchema<S, K>] extends [never]
+    ? any
+    : ItemSchema<S, K>
+  : SubSchema<S, K>;
+
 /**
- * 根据 keyPath 递归解析出 [value 类型, schema, 作用域链]。
- * Value: 当前字段值类型; Schema: 当前字段 schema。
- * RootValue/RootSchema: 根级; ParentValue/ParentSchema: 父级。
+ * 根据 keyPath 递归解析出 [当前 schema, 父级 schema, 作用域链]。
+ * value 类型不再单独携带, 统一由各层 schema 经 Out<> 推导。
  * - '#' 从根级开始; '..' 从父级开始(单级退回); '@alias' 通过别名查询。
  * - 下钻数组项时作用域链压入新层, 与运行时 #createArrayItem 的 ParentMap 一致。
  */
 type Resolve<
-  Value,
   Schema,
-  RootValue,
   RootSchema,
-  ParentValue,
   ParentSchema,
   AliasMap,
   Path extends KeyPath,
 > = Path extends []
-  ? [Value, Schema, AliasMap]
+  ? [Schema, ParentSchema, AliasMap]
   : Path[0] extends '#'
-    ? Resolve<RootValue, RootSchema, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
+    ? Resolve<RootSchema, RootSchema, any, AliasMap, RestPath<Path>>
     : Path[0] extends '..'
-      ? Resolve<ParentValue, ParentSchema, RootValue, RootSchema, any, any, AliasMap, RestPath<Path>>
+      ? Resolve<ParentSchema, RootSchema, any, AliasMap, RestPath<Path>>
       : Path[0] extends `@${infer Al}`
-        ? LookupAliasScope<AliasMap, Al> extends [[infer AV, infer AS], infer ASC extends readonly any[]]
-          ? Resolve<AV, AS, RootValue, RootSchema, any, any, ASC, RestPath<Path>>
+        ? LookupAliasScope<AliasMap, Al> extends [
+            infer AS,
+            infer ASC extends readonly any[],
+          ]
+          ? Resolve<AS, RootSchema, any, ASC, RestPath<Path>>
           : [any, any, AliasMap]
         : Path extends [infer K, ...infer Rest]
           ? Rest extends KeyPath
-            ? K extends keyof Value
-              ? Resolve<Value[K], SubSchema<Schema, K>, RootValue, RootSchema, Value, Schema, PushItemScope<Schema, K, AliasMap>, Rest>
-              : K extends number
-                ? Resolve<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, RootValue, RootSchema, Value, Schema, PushItemScope<Schema, K, AliasMap>, Rest>
-                : [any, any, AliasMap]
-            : K extends keyof Value
-              ? [Value[K], SubSchema<Schema, K>, AliasMap]
-              : K extends number
-                ? [FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, AliasMap]
-                : [any, any, AliasMap]
-          : [any, any, AliasMap];
+            ? Resolve<
+                SubSchemaOrItem<Schema, K>,
+                RootSchema,
+                Schema,
+                PushItemScope<Schema, K, AliasMap>,
+                Rest
+              >
+            : [any, Schema, AliasMap]
+          : [any, Schema, AliasMap];
 
-/** 解析路径末端的 value 类型 */
-type GetPathValue<
-  Value,
-  Schema,
-  RootValue,
-  RootSchema,
-  ParentValue,
-  ParentSchema,
-  AliasMap,
-  Path extends KeyPath,
-> = Resolve<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>[0];
-
-/** 解析路径末端的 schema */
-type GetPathSchema<
-  Value,
-  Schema,
-  RootValue,
-  RootSchema,
-  ParentValue,
-  ParentSchema,
-  AliasMap,
-  Path extends KeyPath,
-> = Resolve<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>[1];
-
-/** 解析路径末端所处的作用域链 */
-type GetPathScopes<
-  Value,
-  Schema,
-  RootValue,
-  RootSchema,
-  ParentValue,
-  ParentSchema,
-  AliasMap,
-  Path extends KeyPath,
-> = Resolve<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>[2];
-
-/** 返回字段的父级值类型: 普通路径的父级是路径倒数第二个 key 的值; 特殊路径无法推导为 any */
-type GetParentValue<Value, Schema, ParentValue, Path extends KeyPath> =
-  Path extends []
-    ? ParentValue
-    : Path[0] extends '#' | '..' | `@${string}`
-      ? any
-      : Path extends [infer K, ...infer Rest]
-        ? Rest extends KeyPath
-          ? Rest extends []
-            ? Value
-            : K extends keyof Value
-              ? GetParentValue<Value[K], SubSchema<Schema, K>, ParentValue, Rest>
-              : K extends number
-                ? GetParentValue<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, ParentValue, Rest>
-                : any
-          : any
-        : any;
-
-/** 返回字段的父级 schema */
-type GetParentSchema<Value, Schema, ParentSchema, Path extends KeyPath> =
-  Path extends []
-    ? ParentSchema
-    : Path[0] extends '#' | '..' | `@${string}`
-      ? any
-      : Path extends [infer K, ...infer Rest]
-        ? Rest extends KeyPath
-          ? Rest extends []
-            ? Schema
-            : K extends keyof Value
-              ? GetParentSchema<Value[K], SubSchema<Schema, K>, ParentSchema, Rest>
-              : K extends number
-                ? GetParentSchema<FieldOutput<ItemSchema<Schema, K>>, ItemSchema<Schema, K>, ParentSchema, Rest>
-                : any
-          : any
-        : any;
-
-/** get 的返回字段完整类型(携带正确的 RootValue/ParentValue/AliasMap/Schema) */
+/** get 的返回字段完整类型(携带正确的 RootSchema/ParentSchema/AliasMap) */
 type GetResult<
-  Value,
-  RootValue,
-  ParentValue,
-  AliasMap,
   Schema,
   RootSchema,
   ParentSchema,
+  AliasMap,
   Path extends KeyPath,
-> = _PiResolvedCommonViewFieldConfig<
-  GetPathValue<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
-  RootValue,
-  GetParentValue<Value, Schema, ParentValue, Path>,
-  GetPathScopes<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
-  GetPathSchema<Value, Schema, RootValue, RootSchema, ParentValue, ParentSchema, AliasMap, Path>,
-  RootSchema,
-  GetParentSchema<Value, Schema, ParentSchema, Path>
->;
+> =
+  Resolve<Schema, RootSchema, ParentSchema, AliasMap, Path> extends [
+    infer SelfSchema,
+    infer ResultParentSchema,
+    infer ResultAliasMap,
+  ]
+    ? _PiResolvedCommonViewFieldConfig<
+        SelfSchema,
+        RootSchema,
+        ResultParentSchema,
+        ResultAliasMap
+      >
+    : never;
 
 /* ---------- 控件类型细分(control 类型) ---------- */
 /**
@@ -313,12 +268,14 @@ type NodeHasAction<S, T extends string> = S extends {
       ? true
       : false;
 /** 判断 pipe 中是否包含指定 action type */
-type HasPipeAction<P extends readonly any[], T extends string> =
-  P extends readonly [infer A, ...infer Rest]
-    ? NodeHasAction<A, T> extends true
-      ? true
-      : HasPipeAction<Rest, T>
-    : false;
+type HasPipeAction<
+  P extends readonly any[],
+  T extends string,
+> = P extends readonly [infer A, ...infer Rest]
+  ? NodeHasAction<A, T> extends true
+    ? true
+    : HasPipeAction<Rest, T>
+  : false;
 /** schema 是否配置了 asControl(强制作为 FieldControl) */
 type IsAsControl<S> = NodeHasAction<S, 'asControl'>;
 /** schema 是否配置了 asVirtualGroup(强制作为 FieldGroup) */
@@ -354,8 +311,8 @@ type SchemaControlOf<C, S, V> = C extends { type: 'array' | 'tuple' }
           ? FieldControl<V>
           : FieldGroup<V>
         : FieldControl<V>;
-/** 根据 schema 推断对应表单控件类型 */
-type SchemaToControl<S, V> = unknown extends S
+/** 根据 schema 推断对应表单控件类型, value 类型由 schema 推导 */
+type SchemaToControl<S, V = Out<S>> = unknown extends S
   ? FieldGroup<V> | FieldArray<V> | FieldControl<V> | FieldLogicGroup<V>
   : [S] extends [never]
     ? FieldGroup<V> | FieldArray<V> | FieldControl<V> | FieldLogicGroup<V>
@@ -364,13 +321,10 @@ type SchemaToControl<S, V> = unknown extends S
 export type PiResolvedCommonViewFieldConfig<
   SelfResolvedFn extends () => any,
   Define,
-  Value = any,
-  RootValue = Value,
-  ParentValue = any,
-  AliasMap = {},
   Schema = any,
   RootSchema = Schema,
   ParentSchema = any,
+  AliasMap = {},
 > = {
   readonly hooks: HookConfig<ReturnType<SelfResolvedFn>>;
   // 额外
@@ -385,9 +339,9 @@ export type PiResolvedCommonViewFieldConfig<
   restChildren?: WritableSignal<ReturnType<SelfResolvedFn>[]>;
   parent: ReturnType<SelfResolvedFn>;
   readonly form: {
-    readonly control?: SchemaToControl<Schema, Value>;
-    readonly parent: SchemaToControl<ParentSchema, ParentValue>;
-    readonly root: SchemaToControl<RootSchema, RootValue>;
+    readonly control?: SchemaToControl<Schema>;
+    readonly parent: SchemaToControl<ParentSchema>;
+    readonly root: SchemaToControl<RootSchema>;
   };
   /** 仅用来开发时debug使用 */
   readonly origin: any;
@@ -402,7 +356,7 @@ export type PiResolvedCommonViewFieldConfig<
       name: string,
       field: PiResolvedCommonViewFieldConfig<any, any>,
     ) => PiResolvedCommonViewFieldConfig<any, any>,
-  ) => GetResult<Value, RootValue, ParentValue, AliasMap, Schema, RootSchema, ParentSchema, K> | undefined;
+  ) => GetResult<Schema, RootSchema, ParentSchema, AliasMap, K> | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
@@ -420,49 +374,38 @@ export type PiResolvedCommonViewFieldConfig<
     Wrapper$<Required<Pick<AnyCoreSchemaHandle, 'formConfig' | 'renderConfig'>>>
   >;
 export type _PiResolvedCommonViewFieldConfig<
-  Value = any,
-  RootValue = Value,
-  ParentValue = any,
-  AliasMap = {},
   Schema = any,
   RootSchema = Schema,
   ParentSchema = any,
+  AliasMap = {},
 > = PiResolvedCommonViewFieldConfig<
   () => _PiResolvedCommonViewFieldConfig<any>,
   CoreResolvedComponentDefine,
-  Value,
-  RootValue,
-  ParentValue,
-  AliasMap,
   Schema,
   RootSchema,
-  ParentSchema
+  ParentSchema,
+  AliasMap
 >;
 
 /** 任意「字段配置」形态, 用于类型层识别 field 并做替换 */
-export type AnyPiResolvedField = _PiResolvedCommonViewFieldConfig<
+export type AnyPiResolvedField = _PiResolvedCommonViewFieldConfig;
+
+/**
+ * 仅指定 value 类型(不关心 schema)时的字段类型。
+ * 用于回调/捕获场景下手工标注 value, 例如 PiFieldWithValue<string>。
+ */
+export type PiFieldWithValue<V> = _PiResolvedCommonViewFieldConfig<
+  v.BaseSchema<any, V, any>,
   any,
   any,
-  any,
-  any,
-  any,
-  any,
-  any
+  {}
 >;
 
 /**
  * 由 schema 片段直接推导字段类型(绑定 Schema, form.control 可精确到具体控件)。
  */
 export type PiFieldOfSchema<S extends v.BaseSchema<any, any, any>> =
-  _PiResolvedCommonViewFieldConfig<
-    v.InferOutput<S>,
-    any,
-    any,
-    {},
-    S,
-    any,
-    any
-  >;
+  _PiResolvedCommonViewFieldConfig<S, S, any, {}>;
 
 /**
  * 从「根 schema + keyPath」推导出与 `builder.get(path)` 完全等价的字段类型。
@@ -471,16 +414,7 @@ export type PiFieldOfSchema<S extends v.BaseSchema<any, any, any>> =
 export type PiFieldAtPath<
   RootSchema extends v.BaseSchema<any, any, any>,
   Path extends KeyPath,
-> = GetResult<
-  v.InferOutput<RootSchema>,
-  v.InferOutput<RootSchema>,
-  any,
-  InferAliasMap<RootSchema>,
-  RootSchema,
-  RootSchema,
-  any,
-  Path
->;
+> = GetResult<RootSchema, RootSchema, any, InferAliasMap<RootSchema>, Path>;
 
 export interface FormBuilderOptions<T> {
   form$$: Signal<FieldGroup>;
