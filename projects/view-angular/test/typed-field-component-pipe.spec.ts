@@ -191,6 +191,14 @@ describe('typedFieldComponentPipe（typedFieldPipe + typedComponent 组合）', 
         d(['a'], 'test1', ($) => [$.inputs.patch({ notAnInput: 'x' })]),
         // @ts-expect-error 组件没有这个 output
         d(['a'], 'test1', ($) => [$.outputs.patch({ notAnOutput: () => {} })]),
+        // @ts-expect-error '#' 特殊段不参与 define 路径的联想
+        d(['#'], 'test1', ($) => [$.props.patch({ x: 1 })]),
+        // @ts-expect-error '..' 同上
+        d(['..'], 'test1', ($) => [$.props.patch({ x: 1 })]),
+        // @ts-expect-error '@alias' 同上
+        d(['@ss'], 'test1', ($) => [$.props.patch({ x: 1 })]),
+        // @ts-expect-error 嵌套位置同样不接受特殊段
+        d(['list', '#'], 'test1', ($) => [$.props.patch({ x: 1 })]),
       ]);
     expect(typeOnlyChecks).toBeDefined();
   });

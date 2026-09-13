@@ -126,6 +126,31 @@ export type PathsOf<V, D extends readonly unknown[] = [0, 0, 0, 0, 0, 0]> = D ex
           : never)
   : [];
 
+/**
+ * 不含特殊段('#' / '..' / '@alias')的「纯字段路径」联合。
+ *
+ * pipe 是从根级逐层往下合并 actions, `mergeAt` 只认 entries / item / items / options / value / wrapped,
+ * 特殊段在合并侧根本没有落点(写了就是运行期抱错), 所以定义路径时只保留「一层一个字段」的正常路径。
+ *
+ * 注意: 回调里的 `field.get([...])` 走的是 `KeyPath`, 不受此类型约束,
+ * '#' / '..' / '@alias' 依旧可用。
+ */
+export type FieldPathsOf<
+  V,
+  D extends readonly unknown[] = [0, 0, 0, 0, 0, 0],
+> = D extends [unknown, ...infer R]
+  ?
+      | []
+      | (V extends readonly (infer E)[]
+          ? [number, ...FieldPathsOf<E, R>]
+          : never)
+      | (V extends Record<string, any>
+          ? {
+              [K in keyof V & string]: [K, ...FieldPathsOf<V[K], R>];
+            }[keyof V & string]
+          : never)
+  : [];
+
 /** 定义单条 entry; 泛型 P 在这里独立推断, 所以每条路径各自精确 */
 export type DefineEntry<Root extends v.BaseSchema<any, any, any>> = <
   P extends PathsOf<v.InferOutput<Root>>,

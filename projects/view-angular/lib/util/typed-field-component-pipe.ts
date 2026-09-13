@@ -11,8 +11,8 @@ import {
 import type {
   ConfigAction,
   FieldEntry,
+  FieldPathsOf,
   KeyPath,
-  PathsOf,
   PiCommonConfig,
   PiFieldAtPath,
   PiTypeConfig,
@@ -114,12 +114,13 @@ export type ComponentOf<Cfg, K> = K extends keyof TypesOf<Cfg>
 /**
  * 定义单条 entry: 路径 + 组件 -> 该路径下的强类型 actions。
  * 泛型 P / K 在这里独立推断, 所以每条路径各自精确。
+ * 路径只接受「根级逐层下钻」的字段路径, 不包含 '#' / '..' / '@alias'。
  */
 export type DefineComponentEntry<
   Root extends v.BaseSchema<any, any, any>,
   Cfg,
 > = <
-  P extends PathsOf<v.InferOutput<Root>>,
+  P extends FieldPathsOf<v.InferOutput<Root>>,
   K extends ComponentKeyOf<Cfg>,
 >(
   path: [...P],
