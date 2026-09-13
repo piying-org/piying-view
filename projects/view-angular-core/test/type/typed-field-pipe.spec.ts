@@ -179,6 +179,68 @@ describe('typedFieldPipe 精确写法(schema 实参 + 路径合并 actions)', ()
     expect(resolved.get(['a'])!.inputs()['i']).toBe('I');
     expect(resolved.get(['a'])!.props()['m']).toBeUndefined();
   });
+
+  it('类型: hooks 回调里的 field 与 builder.get(path) 完全等价', () => {
+    const builder = createBuilder(root);
+    const gB = builder.get(['b'])!;
+    const gC = builder.get(['list', 0, 'c'])!;
+    const calls: string[] = [];
+
+    const merged = typedFieldPipe(root, (d) => [
+      d(['b'], ($) => [
+        $.hooks.merge({
+          allFieldsResolved: (field) => {
+            const eq: Equal<typeof field, typeof gB> = true;
+            const selfV: Equal<Val<typeof field.form.control>, number> = true;
+            expect([eq, selfV]).toEqual([true, true]);
+            expect(field.fullPath).toEqual(['b']);
+            calls.push('b:all');
+          },
+          fieldResolved: (field) => {
+            const eq: Equal<typeof field, typeof gB> = true;
+            expect(eq).toBe(true);
+            calls.push('b:resolved');
+          },
+        }),
+      ]),
+      d(['list', 0, 'c'], ($) => [
+        $.hooks.patch({
+          allFieldsResolved: (field) => {
+            const eq: Equal<typeof field, typeof gC> = true;
+
+            const up = field.get(['..'])!;
+            const upV: Equal<
+              Val<typeof up.form.control>,
+              { c: number; s: string }
+            > = true;
+
+            const rootF = field.get(['#'])!;
+            const rootV: Equal<Val<typeof rootF.form.control>, RootT> = true;
+
+            const alias = field.get(['@ss'])!;
+            const aliasV: Equal<Val<typeof alias.form.control>, string> = true;
+
+            // @ts-expect-error 自身是 number, 不是 string
+            const wrong: string = field.form.control!.value;
+
+            expect([eq, upV, rootV, aliasV]).toEqual([true, true, true, true]);
+            calls.push('c:all');
+          },
+        }),
+      ]),
+    ]);
+
+    const resolved = createBuilder(merged);
+    resolved.form.control?.updateValue({
+      a: 'x',
+      b: 1,
+      list: [{ c: 1, s: 'y' }],
+    });
+
+    expect(calls).toEqual(['b:resolved', 'b:all', 'c:all']);
+  });
+
+
 });
 
 describe('typedFieldPipe 合并语义: 字段顺序与 pipe 嵌套', () => {
