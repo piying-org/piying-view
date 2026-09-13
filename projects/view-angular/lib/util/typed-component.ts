@@ -69,27 +69,27 @@ type ComponentInstance<TComponent> =
   TComponent extends Type<infer Instance> ? Instance : never;
 
 // inputs
-type GetComponentInputs<TComponent> = ComponentInputs<
+export type GetComponentInputs<TComponent> = ComponentInputs<
   ComponentInstance<TComponent>
 >;
 
-type GetComponentInputsOrigin<TComponent> = Partial<
+export type GetComponentInputsOrigin<TComponent> = Partial<
   ComponentInputsOrigin<GetComponentInputs<TComponent>>
 >;
 
-type GetComponentInputsAsync<TComponent> = Partial<
+export type GetComponentInputsAsync<TComponent> = Partial<
   ComponentInputsAsync<GetComponentInputs<TComponent>>
 >;
 // outputs
-type GetComponentOutputs<TComponent> = ComponentOutputs<
+export type GetComponentOutputs<TComponent> = ComponentOutputs<
   ComponentInstance<TComponent>
 >;
 
-type GetComponentOutputsOrigin<TComponent> = Partial<
+export type GetComponentOutputsOrigin<TComponent> = Partial<
   ComponentOutputsOrigin<GetComponentOutputs<TComponent>>
 >;
 
-type GetComponentOutputsAsync<TComponent> = Partial<
+export type GetComponentOutputsAsync<TComponent> = Partial<
   ComponentOutputsAsync<GetComponentOutputs<TComponent>>
 >;
 type ReturnAction<Input> = RawConfigAction<
@@ -142,7 +142,7 @@ type ComponentActions<TComponent> = {
   };
 };
 
-type ActionComponent<A extends PiTypeConfig> =
+export type ActionComponent<A extends PiTypeConfig> =
   A['type'] extends Type<any>
     ? A['type']
     : NonNullable<A['actions']>[0]['__type'];

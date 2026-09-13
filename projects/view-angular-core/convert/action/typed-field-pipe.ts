@@ -111,7 +111,7 @@ type SpecialKey = '#' | '..' | `@${string}`;
  * 由 schema 的输出类型逐段展开「合法路径联合」, 让写错的路径在编译期就报错。
  * D 用于限深, 防止宽 schema 发生组合爆炸。
  */
-type PathsOf<V, D extends readonly unknown[] = [0, 0, 0, 0, 0, 0]> = D extends [
+export type PathsOf<V, D extends readonly unknown[] = [0, 0, 0, 0, 0, 0]> = D extends [
   unknown,
   ...infer R,
 ]
