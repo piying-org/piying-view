@@ -25,7 +25,7 @@ describe('custom-bind', () => {
     const mode1Input = fixture.nativeElement.querySelector('.mode1');
     expect(mode1Input).toBeTruthy();
     htmlInput(mode1Input, '1234');
-    let field=fixture.componentRef.instance.bind1()
-    expect(field?.form.root.value).toEqual(1234)
+    const field = fixture.componentRef.instance.bind1();
+    expect(field?.form.root.value).toEqual(1234);
   });
 });

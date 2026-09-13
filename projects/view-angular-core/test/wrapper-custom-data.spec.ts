@@ -45,9 +45,10 @@ describe('wrapper 默认 actions 走 CustomDataSymbol 数据源', () => {
   it('mapAsync 映射已有值', async () => {
     const field = await buildWrapper([
       actions.slots.set({ s: 'raw' }),
-      actions.slots.mapAsync<{ s: string }>(
-        () => (value: { s: string }) => ({ ...value, s: `${value.s}-mapped` }),
-      ),
+      actions.slots.mapAsync<{ s: string }>(() => (value: { s: string }) => ({
+        ...value,
+        s: `${value.s}-mapped`,
+      })),
     ]);
     const wrapper = field.wrappers()[0];
     expect(wrapper.slots()['s']).toBe('raw-mapped');
@@ -77,9 +78,10 @@ describe('wrapper 默认 actions 走 CustomDataSymbol 数据源', () => {
       actions.attributes.set({ 'data-k': 'v' }),
       actions.outputs.patchAsync({ ownOut: () => () => 9 }),
       actions.slots.set({ s: 'a' }),
-      actions.slots.mapAsync<string>(
-        () => (value: { s: string }) => ({ ...value, s: `${value.s}!` }),
-      ),
+      actions.slots.mapAsync<string>(() => (value: { s: string }) => ({
+        ...value,
+        s: `${value.s}!`,
+      })),
       actions.inputs.remove(['del']),
     );
     createBuilder(schema);

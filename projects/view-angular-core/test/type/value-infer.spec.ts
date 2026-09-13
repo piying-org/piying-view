@@ -23,14 +23,14 @@ describe('强类型推断: schema 输出类型', () => {
     const result = createBuilder(v.object({ key1: v.string() }));
     const value = result.form.control!.value;
     // 正例: 正确类型可赋值
-    let xxx: { key1: string } = value;
+    const xxx: { key1: string } = value;
     // 类型完全相等(既不是 any 也不是 unknown, 也不是更宽的类型)
     const equal: Equal<typeof value, { key1: string }> = true;
     const notAny: IsAny<typeof value> = false;
     const notUnknown: IsUnknown<typeof value> = false;
     // 反例: 错误类型赋值必须报错
     // @ts-expect-error value 不是 number
-    let wrong: number = value;
+    const wrong: number = value;
     expect(equal).toBe(true);
     expect(notAny).toBe(false);
     expect(notUnknown).toBe(false);
@@ -44,11 +44,11 @@ describe('强类型推断: schema 输出类型', () => {
       ),
     );
     const value = result.form.control!.value;
-    let xxx: number = value;
+    const xxx: number = value;
     const equal: Equal<typeof value, number> = true;
     const notAny: IsAny<typeof value> = false;
     // @ts-expect-error value 不是 string
-    let wrong: string = value;
+    const wrong: string = value;
     expect(equal).toBe(true);
     expect(notAny).toBe(false);
   });
@@ -56,11 +56,11 @@ describe('强类型推断: schema 输出类型', () => {
   it('根array: 推断数组类型', () => {
     const result = createBuilder(v.pipe(v.array(v.string())));
     const value = result.form.control!.value;
-    let xxx: string[] = value;
+    const xxx: string[] = value;
     const equal: Equal<typeof value, string[]> = true;
     const notAny: IsAny<typeof value> = false;
     // @ts-expect-error value 不是 string
-    let wrong: string = value;
+    const wrong: string = value;
     expect(equal).toBe(true);
     expect(notAny).toBe(false);
   });
@@ -68,30 +68,30 @@ describe('强类型推断: schema 输出类型', () => {
   it('根tuple: 推断元组类型', () => {
     const result = createBuilder(v.pipe(v.tuple([v.string(), v.number()])));
     const value = result.form.control!.value;
-    let xxx: [string, number] = value;
+    const xxx: [string, number] = value;
     const equal: Equal<typeof value, [string, number]> = true;
     // @ts-expect-error 元组顺序相反则报错
-    let wrong: [number, string] = value;
+    const wrong: [number, string] = value;
     expect(equal).toBe(true);
   });
 
   it('根union: 推断联合类型', () => {
     const result = createBuilder(v.union([v.string(), v.number()]));
     const value = result.form.control!.value;
-    let xxx: string | number = value;
+    const xxx: string | number = value;
     const equal: Equal<typeof value, string | number> = true;
     // @ts-expect-error value 不是 boolean
-    let wrong: boolean = value;
+    const wrong: boolean = value;
     expect(equal).toBe(true);
   });
 
   it('根nullable: 推断可空类型', () => {
     const result = createBuilder(v.nullable(v.string()));
     const value = result.form.control!.value;
-    let xxx: string | null = value;
+    const xxx: string | null = value;
     const equal: Equal<typeof value, string | null> = true;
     // @ts-expect-error 不能赋给非空 string
-    let wrong: string = value;
+    const wrong: string = value;
     expect(equal).toBe(true);
   });
 
@@ -104,11 +104,11 @@ describe('强类型推断: schema 输出类型', () => {
     result.form.control?.updateValue({ key1: '1' });
     const field = await field$.promise;
     const value = field.form.control!.value;
-    let xxx: string = value;
+    const xxx: string = value;
     expect(xxx).toBe('1');
     const notAny: IsAny<typeof value> = false;
     // @ts-expect-error value 不是 number
-    let wrong: number = value;
+    const wrong: number = value;
     expect(notAny).toBe(false);
   });
 
@@ -121,10 +121,10 @@ describe('强类型推断: schema 输出类型', () => {
     result.form.control?.updateValue({ key1: { sub: 1 } });
     const field = await field$.promise;
     const value = field.form.control!.value;
-    let xxx: { sub: number } = value;
+    const xxx: { sub: number } = value;
     expect(xxx).toEqual({ sub: 1 });
     // @ts-expect-error 子字段类型必须精确匹配
-    let wrong: { sub: string } = value;
+    const wrong: { sub: string } = value;
   });
 
   it('formConfig pipe.toModel 不影响最终输出类型(以schema为准)', async () => {
@@ -143,10 +143,10 @@ describe('强类型推断: schema 输出类型', () => {
     const field = await field$.promise;
     // 最终值类型仍是 schema 的输出类型 string
     const value = field.form.control!.value;
-    let xxx: string = value;
+    const xxx: string = value;
     const notAny: IsAny<typeof value> = false;
     // @ts-expect-error 即使配置了 toModel, 类型仍为 string
-    let wrong: number = value;
+    const wrong: number = value;
     expect(notAny).toBe(false);
   });
 
@@ -165,10 +165,10 @@ describe('强类型推断: schema 输出类型', () => {
     result.form.control?.updateValue({ key1: 'view' });
     const field = await field$.promise;
     const value = field.form.control!.value;
-    let xxx: string = value;
+    const xxx: string = value;
     const notAny: IsAny<typeof value> = false;
     // @ts-expect-error 即使配置了 transformer, 类型仍为 string
-    let wrong: number = value;
+    const wrong: number = value;
     expect(notAny).toBe(false);
   });
 
@@ -188,11 +188,11 @@ describe('强类型推断: schema 输出类型', () => {
       );
       const value = field.form.control!.value;
       // 最终类型 = v.transform 输出 => number
-      let xxx: number = value;
+      const xxx: number = value;
       const equal: Equal<typeof value, number> = true;
       const notAny: IsAny<typeof value> = false;
       // @ts-expect-error 最终类型是 number 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
       expect(notAny).toBe(false);
     });
@@ -209,10 +209,10 @@ describe('强类型推断: schema 输出类型', () => {
         ),
       );
       const value = field.form.control!.value;
-      let xxx: boolean = value;
+      const xxx: boolean = value;
       const equal: Equal<typeof value, boolean> = true;
       // @ts-expect-error 最终类型是 boolean 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     });
 
@@ -228,10 +228,10 @@ describe('强类型推断: schema 输出类型', () => {
         ),
       );
       const value = field.form.control!.value;
-      let xxx: number = value;
+      const xxx: number = value;
       const equal: Equal<typeof value, number> = true;
       // @ts-expect-error 最终类型是 number 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
     });
 
@@ -265,10 +265,10 @@ describe('强类型推断: schema 输出类型', () => {
       );
       const value = field.form.control!.value;
       // 最终类型 = schema 输出 = string
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error 最终类型是 string 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     });
 
@@ -286,10 +286,10 @@ describe('强类型推断: schema 输出类型', () => {
       );
       const value = field.form.control!.value;
       // 最终类型仍是 schema 输出 string(不是 transformer 的 number)
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error 最终类型是 string, 不是 transformer 产出的 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     });
 

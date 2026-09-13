@@ -1,9 +1,6 @@
 import { signal } from '@angular/core';
 import { createSchemaComponent } from './util/create-component';
-import {
-  NgDirectiveConfig,
-  PiResolvedViewFieldConfig,
-} from '../lib/type';
+import { NgDirectiveConfig, PiResolvedViewFieldConfig } from '../lib/type';
 import { D1Directive } from './directive/d1.directive';
 import * as v from 'valibot';
 import { getField, mergeHooks } from './util/action';

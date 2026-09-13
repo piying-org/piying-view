@@ -34,8 +34,9 @@ describe('field-template onInit 输入', () => {
   it('onInit 在初始化时以解析后的字段调用一次', async () => {
     const { field$, fixture, el } = setup(v.string());
     const calls: PiResolvedViewFieldConfig[] = [];
-    fixture.componentRef.setInput('onInit', (field: PiResolvedViewFieldConfig) =>
-      calls.push(field),
+    fixture.componentRef.setInput(
+      'onInit',
+      (field: PiResolvedViewFieldConfig) => calls.push(field),
     );
     fixture.detectChanges();
     await fixture.whenStable();
@@ -83,9 +84,9 @@ describe('field-template onInit 输入', () => {
     fixture.detectChanges();
 
     await field$.promise;
-    expect(
-      el.querySelector('.test1-div-input1')!.textContent!.trim(),
-    ).toEqual('initialValue');
+    expect(el.querySelector('.test1-div-input1')!.textContent!.trim()).toEqual(
+      'initialValue',
+    );
   });
 
   it('未提供 onInit 时不报错', async () => {

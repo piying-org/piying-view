@@ -56,7 +56,7 @@ describe('valibot 结构适配层提取', () => {
   it('OptionsOf: intersect / union 可提取', () => {
     const i = v.intersect([v.object({ a: v.string() })]);
     const u = v.union([v.string(), v.number()]);
-    type _1 = Assert<Eq<OutOf<EntriesOf<OptionsOf<typeof i>[0]>["a"]>, string>>;
+    type _1 = Assert<Eq<OutOf<EntriesOf<OptionsOf<typeof i>[0]>['a']>, string>>;
     type _2 = Assert<Eq<OutOf<OptionsOf<typeof u>[1]>, number>>;
     expect(1).toBe(1);
   });
@@ -88,13 +88,21 @@ describe('valibot 结构适配层提取', () => {
   });
 
   it('PipeOf: pipe 首项可提取', () => {
-    const p = v.pipe(v.object({ a: v.string() }), v.custom(() => true));
+    const p = v.pipe(
+      v.object({ a: v.string() }),
+      v.custom(() => true),
+    );
     type _1 = Assert<Eq<OutOf<EntriesOf<PipeOf<typeof p>[0]>['a']>, string>>;
     expect(1).toBe(1);
   });
 
   it('嵌套: optional(pipe(object)) 可穿透取 entries', () => {
-    const s = v.optional(v.pipe(v.object({ a: v.string() }), v.custom(() => true)));
+    const s = v.optional(
+      v.pipe(
+        v.object({ a: v.string() }),
+        v.custom(() => true),
+      ),
+    );
     type Inner = WrappedOf<typeof s>;
     type _1 = Assert<Eq<OutOf<EntriesOf<PipeOf<Inner>[0]>['a']>, string>>;
     expect(1).toBe(1);

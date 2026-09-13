@@ -17,7 +17,9 @@ describe('toObservable', () => {
     const source = computed(() => `${label()}-${trigger()}`);
 
     const values: string[] = [];
-    toObservable(trigger, source, { injector }).subscribe((v) => values.push(v));
+    toObservable(trigger, source, { injector }).subscribe((v) =>
+      values.push(v),
+    );
     expect(values).toEqual(['a-0']);
 
     label.set('b');
@@ -47,7 +49,9 @@ describe('toObservable', () => {
     const source = computed(() => trigger() * 2);
 
     const values: number[] = [];
-    toObservable(trigger, source, { injector }).subscribe((n) => values.push(n));
+    toObservable(trigger, source, { injector }).subscribe((n) =>
+      values.push(n),
+    );
     flushEffects(injector);
     expect(values).toEqual([0]);
   });
@@ -57,7 +61,9 @@ describe('toObservable', () => {
     const source = computed(() => trigger() * 2);
 
     const values: number[] = [];
-    toObservable(trigger, source, { injector }).subscribe((n) => values.push(n));
+    toObservable(trigger, source, { injector }).subscribe((n) =>
+      values.push(n),
+    );
     trigger.set(5);
     flushEffects(injector);
     expect(values).toEqual([0, 10]);

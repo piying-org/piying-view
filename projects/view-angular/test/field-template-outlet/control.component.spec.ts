@@ -34,18 +34,14 @@ describe('formControl(fieldControlBind) 异常输出绑定', () => {
   }
 
   it('valibotIssueSummary$$ 快速显示异常文本', async () => {
-    const { field$, fixture, el } = setup(
-      v.pipe(v.string(), v.minLength(5)),
-    );
+    const { field$, fixture, el } = setup(v.pipe(v.string(), v.minLength(5)));
     await field$.promise;
 
     // 先输入有效值,确保无异常文本
     htmlInput(input(el), 'valid');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(el.querySelector('.valibot-issue')!.textContent!.trim()).toEqual(
-      '',
-    );
+    expect(el.querySelector('.valibot-issue')!.textContent!.trim()).toEqual('');
 
     // 输入无效值触发异常
     htmlInput(input(el), 'ab');
@@ -79,9 +75,7 @@ describe('formControl(fieldControlBind) 异常输出绑定', () => {
   });
 
   it('恢复有效值后异常文本清空', async () => {
-    const { field$, fixture, el } = setup(
-      v.pipe(v.string(), v.minLength(5)),
-    );
+    const { field$, fixture, el } = setup(v.pipe(v.string(), v.minLength(5)));
     await field$.promise;
 
     htmlInput(input(el), 'ab');
@@ -94,9 +88,7 @@ describe('formControl(fieldControlBind) 异常输出绑定', () => {
     htmlInput(input(el), 'valid');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(el.querySelector('.valibot-issue')!.textContent!.trim()).toEqual(
-      '',
-    );
+    expect(el.querySelector('.valibot-issue')!.textContent!.trim()).toEqual('');
     expect(el.querySelector('.summary-count')!.textContent!.trim()).toEqual(
       '0',
     );

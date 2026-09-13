@@ -72,7 +72,12 @@ describe('typedFieldComponentPipe（typedFieldPipe + typedComponent 组合）', 
             // @ts-expect-error 自身是 number, 不是 string
             const wrong: string = field.form.control!.value;
 
-            expect([self, upV, rootV, aliasV]).toEqual([true, true, true, true]);
+            expect([self, upV, rootV, aliasV]).toEqual([
+              true,
+              true,
+              true,
+              true,
+            ]);
             expect(up.fullPath).toEqual(['list', 0]);
             expect(rootF.fullPath).toEqual([]);
             expect(alias.fullPath).toEqual(['list', 0, 's']);

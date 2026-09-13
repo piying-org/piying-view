@@ -239,8 +239,6 @@ describe('typedFieldPipe 精确写法(schema 实参 + 路径合并 actions)', ()
 
     expect(calls).toEqual(['b:resolved', 'b:all', 'c:all']);
   });
-
-
 });
 
 describe('typedFieldPipe 合并语义: 字段顺序与 pipe 嵌套', () => {

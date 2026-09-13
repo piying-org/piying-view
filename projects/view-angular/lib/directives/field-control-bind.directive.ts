@@ -39,8 +39,9 @@ export class PiyingFieldControlBindDirective<
       | undefined;
   });
 
-  field$$ = computed((): PiFieldGet<S, P> | undefined =>
-    this.#resolved() as unknown as PiFieldGet<S, P> | undefined,
+  field$$ = computed(
+    (): PiFieldGet<S, P> | undefined =>
+      this.#resolved() as unknown as PiFieldGet<S, P> | undefined,
   );
   override fieldControl$$ = computed<PiFieldControlGet<S, P>>(() => {
     const control = this.#resolved()?.form.control;
@@ -55,10 +56,11 @@ export class PiyingFieldControlBindDirective<
     return control;
   });
 
-  summaryList$$ = computed(() => {
-    return errorSummary(this.#resolved()?.form.control);
-  });
-  valibotIssueSummary$$ = computed(() => {
-    return this.summaryList$$().map((item) => item.valibotIssueSummary!).filter(Boolean).join('\n');
-  });
+  summaryList$$ = computed(() => errorSummary(this.#resolved()?.form.control));
+  valibotIssueSummary$$ = computed(() =>
+    this.summaryList$$()
+      .map((item) => item.valibotIssueSummary!)
+      .filter(Boolean)
+      .join('\n'),
+  );
 }

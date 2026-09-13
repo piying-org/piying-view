@@ -25,6 +25,5 @@ export const createInjector = () => {
   return instance;
 };
 
-
 export const flushEffects = (injector: Injector) =>
   injector.get(ɵEffectScheduler).flush();

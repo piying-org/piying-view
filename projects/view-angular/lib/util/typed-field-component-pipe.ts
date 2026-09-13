@@ -151,7 +151,9 @@ export function typedFieldComponentPipe<
 >(
   schema: S,
   config: C,
-  cb: (define: DefineComponentEntry<S, UnwrapConfig<C>>) => readonly FieldEntry[],
+  cb: (
+    define: DefineComponentEntry<S, UnwrapConfig<C>>,
+  ) => readonly FieldEntry[],
 ): S {
   const define: any = (path: KeyPath, component: any, fn: any): FieldEntry => ({
     path,

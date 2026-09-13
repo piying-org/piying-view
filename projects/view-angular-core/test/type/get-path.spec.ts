@@ -12,10 +12,10 @@ describe('强类型推断: get 路径查询', () => {
     if (key1Field) {
       // get(['key1']) 应返回 value 类型为 string 的字段
       const value = key1Field.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error get(['key1']) 的 value 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
   });
@@ -26,10 +26,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(bField).toBeDefined();
     if (bField) {
       const value = bField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error get(['a','b']) 的 value 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
   });
@@ -47,10 +47,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(subField).toBeDefined();
     if (subField) {
       const value = subField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error 数组元素字段 sub 的 value 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
   });
@@ -64,10 +64,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(tagField).toBeDefined();
     if (tagField) {
       const value = tagField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error 数组元素 value 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
   });
@@ -88,11 +88,11 @@ describe('强类型推断: get 路径查询', () => {
     expect(aField).toBeDefined();
     if (aField) {
       const value = aField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       const notAny: IsAny<typeof value> = false;
       // @ts-expect-error intersect 第 0 个成员的 a 字段是 string 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
       expect(notAny).toBe(false);
     }
@@ -100,11 +100,11 @@ describe('强类型推断: get 路径查询', () => {
     expect(bField).toBeDefined();
     if (bField) {
       const value = bField.form.control!.value;
-      let xxx: number = value;
+      const xxx: number = value;
       const equal: Equal<typeof value, number> = true;
       const notAny: IsAny<typeof value> = false;
       // @ts-expect-error intersect 第 1 个成员的 b 字段是 number 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
       expect(notAny).toBe(false);
     }
@@ -125,10 +125,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(aField).toBeDefined();
     if (aField) {
       const value = aField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error 多层 intersect 内层 a 是 string 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
     // key1(intersect) -> 1(对象) -> b
@@ -136,10 +136,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(bField).toBeDefined();
     if (bField) {
       const value = bField.form.control!.value;
-      let xxx: number = value;
+      const xxx: number = value;
       const equal: Equal<typeof value, number> = true;
       // @ts-expect-error 多层 intersect 外层 b 是 number 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
     }
   });
@@ -159,10 +159,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(aField).toBeDefined();
     if (aField) {
       const value = aField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error intersect-union 内层 a 是 string 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
     // key1(intersect) -> 0(union) -> 1(对象) -> c
@@ -170,10 +170,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(cField).toBeDefined();
     if (cField) {
       const value = cField.form.control!.value;
-      let xxx: boolean = value;
+      const xxx: boolean = value;
       const equal: Equal<typeof value, boolean> = true;
       // @ts-expect-error intersect-union 内层 c 是 boolean 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
     }
     // key1(intersect) -> 1(对象) -> b
@@ -181,10 +181,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(bField).toBeDefined();
     if (bField) {
       const value = bField.form.control!.value;
-      let xxx: number = value;
+      const xxx: number = value;
       const equal: Equal<typeof value, number> = true;
       // @ts-expect-error intersect-union 外层 b 是 number 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
     }
   });
@@ -202,10 +202,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(dField).toBeDefined();
     if (dField) {
       const value = dField.form.control!.value;
-      let xxx: number = value;
+      const xxx: number = value;
       const equal: Equal<typeof value, number> = true;
       // @ts-expect-error 根级 intersect-union 的 d 是 number 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
     }
     // 根(intersect) -> 1(对象) -> e
@@ -213,10 +213,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(eField).toBeDefined();
     if (eField) {
       const value = eField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error 根级 intersect-union 的 e 是 string 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
   });
@@ -232,10 +232,10 @@ describe('强类型推断: get 路径查询', () => {
       if (rootField) {
         // 根级 value 类型 = {key1: string}
         const value = rootField.form.control!.value;
-        let xxx: { key1: string } = value;
+        const xxx: { key1: string } = value;
         const equal: Equal<typeof value, { key1: string }> = true;
         // @ts-expect-error 根级 value 不是 number
-        let wrong: number = value;
+        const wrong: number = value;
         expect(equal).toBe(true);
       }
     }
@@ -250,10 +250,10 @@ describe('强类型推断: get 路径查询', () => {
       expect(rootKey1).toBeDefined();
       if (rootKey1) {
         const value = rootKey1.form.control!.value;
-        let xxx: string = value;
+        const xxx: string = value;
         const equal: Equal<typeof value, string> = true;
         // @ts-expect-error 根级 key1 的 value 不是 number
-        let wrong: number = value;
+        const wrong: number = value;
         expect(equal).toBe(true);
       }
     }
@@ -270,10 +270,10 @@ describe('强类型推断: get 路径查询', () => {
       if (parentField) {
         // 父级 a 的 value 类型 = {b: string}
         const value = parentField.form.control!.value;
-        let xxx: { b: string } = value;
+        const xxx: { b: string } = value;
         const equal: Equal<typeof value, { b: string }> = true;
         // @ts-expect-error 父级 a 的 value 不是 string
-        let wrong: string = value;
+        const wrong: string = value;
         expect(equal).toBe(true);
       }
     }
@@ -291,10 +291,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(aField).toBeDefined();
     if (aField) {
       const value = aField.form.control!.value;
-      let xxx: string = value;
+      const xxx: string = value;
       const equal: Equal<typeof value, string> = true;
       // @ts-expect-error @a 的 value 不是 number
-      let wrong: number = value;
+      const wrong: number = value;
       expect(equal).toBe(true);
     }
     // get(['@b']) 返回别名为 'b' 的字段(key2), value 类型 number
@@ -302,10 +302,10 @@ describe('强类型推断: get 路径查询', () => {
     expect(bField).toBeDefined();
     if (bField) {
       const value = bField.form.control!.value;
-      let xxx: number = value;
+      const xxx: number = value;
       const equal: Equal<typeof value, number> = true;
       // @ts-expect-error @b 的 value 不是 string
-      let wrong: string = value;
+      const wrong: string = value;
       expect(equal).toBe(true);
     }
   });

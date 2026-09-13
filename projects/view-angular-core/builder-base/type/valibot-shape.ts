@@ -26,7 +26,9 @@ export type VsTupleHost =
   | v.TupleWithRestSchema<any, any, any>;
 
 /** intersect / union */
-export type VsOptionsHost = v.IntersectSchema<any, any> | v.UnionSchema<any, any>;
+export type VsOptionsHost =
+  | v.IntersectSchema<any, any>
+  | v.UnionSchema<any, any>;
 
 /** optional / nullable / nullish */
 export type VsWrappedHost =
@@ -73,9 +75,8 @@ export type OptionsOf<S> = S extends
   : never;
 
 /** record 的 value */
-export type RecordValueOf<S> = S extends v.RecordSchema<any, infer V, any>
-  ? V
-  : never;
+export type RecordValueOf<S> =
+  S extends v.RecordSchema<any, infer V, any> ? V : never;
 
 /** object_with_rest / tuple_with_rest 的 rest */
 export type RestOf<S> = S extends
@@ -93,9 +94,9 @@ export type WrappedOf<S> = S extends
   : never;
 
 /** pipe 的元组 */
-export type PipeOf<S> = S extends v.SchemaWithPipe<
-  infer P extends readonly [v.BaseSchema<any, any, any>, ...any[]]
->
-  ? P
-  : never;
-
+export type PipeOf<S> =
+  S extends v.SchemaWithPipe<
+    infer P extends readonly [v.BaseSchema<any, any, any>, ...any[]]
+  >
+    ? P
+    : never;

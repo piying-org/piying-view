@@ -63,8 +63,14 @@ describe('createImpasseAction', () => {
   });
 
   it('不同 key 生成不同 label', () => {
-    const a = v.safeParse(v.pipe(v.number(), createImpasseAction<number>('a')), 1);
-    const b = v.safeParse(v.pipe(v.number(), createImpasseAction<number>('b')), 1);
+    const a = v.safeParse(
+      v.pipe(v.number(), createImpasseAction<number>('a')),
+      1,
+    );
+    const b = v.safeParse(
+      v.pipe(v.number(), createImpasseAction<number>('b')),
+      1,
+    );
     expect(firstIssue(a.issues!).message).toContain('impasse:a');
     expect(firstIssue(b.issues!).message).toContain('impasse:b');
   });

@@ -130,7 +130,9 @@ describe('typedFieldPipe 容器重建: 覆盖全部 schema 类型', () => {
     expect(merged.type).toBe('map');
     expect(merged.key).toBe(source.key);
     expect(merged.value.type).toBe('object');
-    expect(v.safeParse(merged, new Map([['k', { b: '1' }]])).success).toBeTrue();
+    expect(
+      v.safeParse(merged, new Map([['k', { b: '1' }]])).success,
+    ).toBeTrue();
   });
 
   it('set 值 schema 重建生效', () => {
@@ -192,9 +194,7 @@ describe('typedFieldPipe 兑底报错与空值兜底', () => {
   it('tuple 下标越界会报错', () => {
     const source = v.tuple([v.string()]);
     expect(() =>
-      typedFieldPipe(source, (d) => [
-        d([5], ($) => [$.props.patch({ x: 1 })]),
-      ]),
+      typedFieldPipe(source, (d) => [d([5], ($) => [$.props.patch({ x: 1 })])]),
     ).toThrowMatching((e: Error) => e.message.includes('tuple 下标越界: 5'));
   });
 

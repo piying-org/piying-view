@@ -29,9 +29,7 @@ interface TypedKeyGroup<F> {
     dataObj: Data,
   ) => ConfigAction<any>;
   remove: <T = any>(list: string[]) => ConfigAction<T>;
-  mapAsync: <T = any>(
-    fn: (field: F) => (value: any) => any,
-  ) => ConfigAction<T>;
+  mapAsync: <T = any>(fn: (field: F) => (value: any) => any) => ConfigAction<T>;
 }
 
 interface TypedOutputs<F> extends Omit<TypedKeyGroup<F>, 'patchAsync'> {
@@ -111,10 +109,10 @@ type SpecialKey = '#' | '..' | `@${string}`;
  * 由 schema 的输出类型逐段展开「合法路径联合」, 让写错的路径在编译期就报错。
  * D 用于限深, 防止宽 schema 发生组合爆炸。
  */
-export type PathsOf<V, D extends readonly unknown[] = [0, 0, 0, 0, 0, 0]> = D extends [
-  unknown,
-  ...infer R,
-]
+export type PathsOf<
+  V,
+  D extends readonly unknown[] = [0, 0, 0, 0, 0, 0],
+> = D extends [unknown, ...infer R]
   ?
       | []
       | [SpecialKey, ...PathsOf<any, R>]
@@ -221,7 +219,8 @@ type RebuildSchema =
 
 const isPipeSchema = (s: AnySchema): s is PipeSchema => 'pipe' in s;
 const isEntriesSchema = (s: AnySchema): s is EntriesSchema => 'entries' in s;
-const isItemSchema = (s: AnySchema): s is v.ArraySchema<any, any> => 'item' in s;
+const isItemSchema = (s: AnySchema): s is v.ArraySchema<any, any> =>
+  'item' in s;
 const isItemsSchema = (s: AnySchema): s is ItemsSchema => 'items' in s;
 /** options 只有 intersect/union 是子 schema 列表(picklist/enum 的是值列表) */
 const isOptionsSchema = (s: AnySchema): s is OptionsSchema =>

@@ -29,5 +29,4 @@ export class FieldTemplateOnInitComponent {
   bind = computed(() =>
     untracked(() => convertToField(this.schema, this.injector, this.options)),
   );
-  
 }

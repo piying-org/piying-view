@@ -6,7 +6,9 @@ import { FieldControl } from '../../field/field-control';
 import { createBuilder } from '../util/create-builder';
 
 type Assert<T extends true> = T;
-type Ctrl<F> = F extends { form: { control?: infer C } } ? NonNullable<C> : never;
+type Ctrl<F> = F extends { form: { control?: infer C } }
+  ? NonNullable<C>
+  : never;
 type IsFieldArray<T> = [T] extends [FieldArray<any, any>] ? true : false;
 type IsFieldControl<T> = [T] extends [FieldControl<any>] ? true : false;
 

@@ -24,9 +24,12 @@ const bind = (): BindT => null!;
  * 复刻 Angular TCB 对泛型指令的实例化: `_ctorN({ 输入名: 绑定表达式 })`。
  * 未绑定的输入不参与推断, 故用 Partial 表达。
  */
-type TcbInit<D, Req extends keyof D, Opt extends keyof D> =
-  ɵUnwrapDirectiveSignalInputs<D, Req> &
-    Partial<ɵUnwrapDirectiveSignalInputs<D, Opt>>;
+type TcbInit<
+  D,
+  Req extends keyof D,
+  Opt extends keyof D,
+> = ɵUnwrapDirectiveSignalInputs<D, Req> &
+  Partial<ɵUnwrapDirectiveSignalInputs<D, Opt>>;
 
 const fieldTemplateCtor = <S, P extends KeyPath = []>(
   _init: TcbInit<PiyingFieldTemplateDirective<S, P>, 'fieldTemplate', 'path'>,
@@ -44,8 +47,10 @@ type ControlOf<F> = F extends { form: { control?: infer C } } ? C : never;
 describe('typed export 类型推断: #x="fieldTemplate" / #x="formControl"', () => {
   it('fieldTemplate 未绑定 path 时, field$$() 即绑定字段自身', () => {
     const t = fieldTemplateCtor({ fieldTemplate: bind() });
-    const eq: Equal<GotField<typeof t>, PiFieldAtPath<typeof typedRoot, []>> =
-      true;
+    const eq: Equal<
+      GotField<typeof t>,
+      PiFieldAtPath<typeof typedRoot, []>
+    > = true;
     const notAny: IsAny<GotField<typeof t>> = false;
     expect([eq, notAny]).toEqual([true, false]);
   });
@@ -96,8 +101,10 @@ describe('typed export 类型推断: #x="fieldTemplate" / #x="formControl"', () 
 
   it('formControl 未绑定 path 时, field$$() 即绑定字段自身', () => {
     const f = formControlCtor({ formControl: bind() });
-    const eq: Equal<GotField<typeof f>, PiFieldAtPath<typeof typedRoot, []>> =
-      true;
+    const eq: Equal<
+      GotField<typeof f>,
+      PiFieldAtPath<typeof typedRoot, []>
+    > = true;
     expect(eq).toBe(true);
   });
 

@@ -27,22 +27,21 @@ export class PiyingFieldTemplateDirective<
       | undefined;
   });
 
-  field$$ = computed((): PiFieldGet<S, P> | undefined =>
-    this.#resolved() as unknown as PiFieldGet<S, P> | undefined,
+  field$$ = computed(
+    (): PiFieldGet<S, P> | undefined =>
+      this.#resolved() as unknown as PiFieldGet<S, P> | undefined,
   );
   override field = computed(() => this.#resolved()!);
   override inputInjector = computed(() => this.injector);
 
   #initialized = false;
-  summaryList$$ = computed(() => {
-    return errorSummary(this.#resolved()?.form.control);
-  });
-  valibotIssueSummary$$ = computed(() => {
-    return this.summaryList$$()
+  summaryList$$ = computed(() => errorSummary(this.#resolved()?.form.control));
+  valibotIssueSummary$$ = computed(() =>
+    this.summaryList$$()
       .map((item) => item.valibotIssueSummary!)
       .filter(Boolean)
-      .join('\n');
-  });
+      .join('\n'),
+  );
   override ngOnChanges(): void {
     let field;
     if (!this.#initialized && (field = this.#resolved())) {

@@ -1,6 +1,9 @@
 import * as v from 'valibot';
 import { InjectionToken } from '@angular/core';
-import { actions, _PiResolvedCommonViewFieldConfig } from '@piying/view-angular-core';
+import {
+  actions,
+  _PiResolvedCommonViewFieldConfig,
+} from '@piying/view-angular-core';
 import { createBuilder } from './util/create-builder';
 import { getField } from './util/action';
 
@@ -23,7 +26,9 @@ describe('providers', () => {
   });
 
   it('patch 在未设置时自动初始化', async () => {
-    const field = await build(v.pipe(v.string(), actions.providers.patch([p2])));
+    const field = await build(
+      v.pipe(v.string(), actions.providers.patch([p2])),
+    );
     expect(field.origin.providers).toEqual([[p2]]);
     expect(field.injector.get(P2)).toBe('v2');
   });

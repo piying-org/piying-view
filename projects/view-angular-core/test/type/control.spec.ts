@@ -127,25 +127,25 @@ describe('控件类型细分(control)', () => {
       k5: { o1: 'a' },
     });
     const k1 = result.get(['k1'])!;
-    let v1: string = k1.form.control!.value;
+    const v1: string = k1.form.control!.value;
     // @ts-expect-error k1 的 value 不是 number
-    let w1: number = k1.form.control!.value;
+    const w1: number = k1.form.control!.value;
 
     const k2 = result.get(['k2'])!;
-    let v2: string[] = k2.form.control!.value;
+    const v2: string[] = k2.form.control!.value;
 
     const k3 = result.get(['k3'])!;
-    let v3: { o1: string } = k3.form.control!.value;
+    const v3: { o1: string } = k3.form.control!.value;
     // @ts-expect-error k3 的 value 不是 string
-    let w3: string = k3.form.control!.value;
+    const w3: string = k3.form.control!.value;
 
     const k4 = result.get(['k4'])!;
-    let v4: { o1: string } = k4.form.control!.value;
+    const v4: { o1: string } = k4.form.control!.value;
 
     const k5 = result.get(['k5'])!;
-    let v5: { o1: string } = k5.form.control!.value;
+    const v5: { o1: string } = k5.form.control!.value;
     // @ts-expect-error k5 的 value 不是 number
-    let w5: number = k5.form.control!.value;
+    const w5: number = k5.form.control!.value;
 
     expect(v1).toBe('x');
     expect(v2).toEqual(['a']);

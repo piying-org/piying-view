@@ -52,6 +52,7 @@ export default [
       '@typescript-eslint/no-unsafe-declaration-merging': 'off',
       'no-prototype-builtins': 'off',
       '@typescript-eslint/no-this-alias': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
     },
   },
   {

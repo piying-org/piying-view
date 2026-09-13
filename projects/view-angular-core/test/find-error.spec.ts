@@ -13,7 +13,10 @@ describe('findError', () => {
 
   const list: ValidationErrors2[] = [
     { kind: 'validation', message: 'other' },
-    { kind: 'valibot', metadata: valibotIssues as ValidationValibotError2['metadata'] },
+    {
+      kind: 'valibot',
+      metadata: valibotIssues as ValidationValibotError2['metadata'],
+    },
     { kind: 'error', metadata: new Error('boom') },
   ];
 
@@ -36,8 +39,10 @@ describe('findError', () => {
     const err = findError(list, 'error');
     const common = findError(list, 'validation');
 
-    const isValibot: Equal<typeof valibot, ValidationValibotError2 | undefined> =
-      true;
+    const isValibot: Equal<
+      typeof valibot,
+      ValidationValibotError2 | undefined
+    > = true;
     const isError: Equal<typeof err, ValidationErrorError2 | undefined> = true;
     const isCommon: Equal<typeof common, ValidationCommonError2 | undefined> =
       true;
