@@ -50,7 +50,8 @@ export const createRemovePropertyFn =
               CustomDataSymbol in args[args.length - 1]
             ) {
               data$ = (args[args.length - 1] as any)[CustomDataSymbol](
-                rawField,
+                undefined,
+                field,
               );
             } else {
               data$ = (() => field) as any;

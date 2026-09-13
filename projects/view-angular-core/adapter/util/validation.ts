@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 
-export function createImpasseAction(key: string, value?: any) {
-  return v.rawCheck(({ dataset, addIssue }) => {
+export function createImpasseAction<T = unknown>(key: string, value?: any) {
+  return v.rawCheck<T>(({ dataset, addIssue }) => {
     if (dataset.issues) {
       return;
     }
