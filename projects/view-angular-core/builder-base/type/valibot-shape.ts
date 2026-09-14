@@ -25,16 +25,28 @@ export type VsTupleHost =
   | v.StrictTupleSchema<any, any>
   | v.TupleWithRestSchema<any, any, any>;
 
-/** intersect / union */
+/** intersect / union / variant */
 export type VsOptionsHost =
   | v.IntersectSchema<any, any>
-  | v.UnionSchema<any, any>;
+  | v.UnionSchema<any, any>
+  | v.VariantSchema<any, any, any>;
 
-/** optional / nullable / nullish */
+/** wrapped 家族: 只包一层 wrapped 子 schema 的包装器 */
 export type VsWrappedHost =
   | v.OptionalSchema<any, any>
   | v.NullableSchema<any, any>
-  | v.NullishSchema<any, any>;
+  | v.NullishSchema<any, any>
+  | v.ExactOptionalSchema<any, any>
+  | v.UndefinedableSchema<any, any>
+  | v.NonNullableSchema<any, any>
+  | v.NonNullishSchema<any, any>
+  | v.NonOptionalSchema<any, any>;
+
+/** record / map / set: 带单个「值节点」的容器 */
+export type VsValueHost =
+  | v.RecordSchema<any, any, any>
+  | v.MapSchema<any, any, any>
+  | v.SetSchema<any, any>;
 
 /** pipe */
 export type VsPipeHost = v.SchemaWithPipe<
@@ -67,16 +79,37 @@ export type ItemsOf<S> = S extends
   ? I
   : never;
 
-/** intersect / union 的 options */
-export type OptionsOf<S> = S extends
-  | v.IntersectSchema<infer O, any>
-  | v.UnionSchema<infer O, any>
-  ? O
-  : never;
+/**
+ * intersect / union / variant 的 options
+ *
+ * 必须用嵌套条件而不是 `A<infer O> | B<infer O> | C<infer O>`:
+ * `VariantSchema<any, infer O, any>` 的 TKey 为 any 时约束退化,
+ * 会让 union 形式多喂一个候选 O, 冲突后整个推断塌成 never。
+ */
+export type OptionsOf<S> =
+  S extends v.IntersectSchema<infer O, any>
+    ? O
+    : S extends v.UnionSchema<infer O, any>
+      ? O
+      : S extends v.VariantSchema<any, infer O, any>
+        ? O
+        : never;
+
+/** variant 的判别 key */
+export type VariantKeyOf<S> =
+  S extends v.VariantSchema<infer K, any, any> ? K : never;
 
 /** record 的 value */
 export type RecordValueOf<S> =
   S extends v.RecordSchema<any, infer V, any> ? V : never;
+
+/** record / map / set 的 value 节点 */
+export type ValueNodeOf<S> = S extends
+  | v.RecordSchema<any, infer V, any>
+  | v.MapSchema<any, infer V, any>
+  | v.SetSchema<infer V, any>
+  ? V
+  : never;
 
 /** object_with_rest / tuple_with_rest 的 rest */
 export type RestOf<S> = S extends
@@ -85,13 +118,25 @@ export type RestOf<S> = S extends
   ? R
   : never;
 
-/** optional / nullable / nullish 的 wrapped */
-export type WrappedOf<S> = S extends
-  | v.OptionalSchema<infer W, any>
-  | v.NullableSchema<infer W, any>
-  | v.NullishSchema<infer W, any>
-  ? W
-  : never;
+/** wrapped 家族的 wrapped */
+export type WrappedOf<S> =
+  S extends v.OptionalSchema<infer W, any>
+    ? W
+    : S extends v.NullableSchema<infer W, any>
+      ? W
+      : S extends v.NullishSchema<infer W, any>
+        ? W
+        : S extends v.ExactOptionalSchema<infer W, any>
+          ? W
+          : S extends v.UndefinedableSchema<infer W, any>
+            ? W
+            : S extends v.NonNullableSchema<infer W, any>
+              ? W
+              : S extends v.NonNullishSchema<infer W, any>
+                ? W
+                : S extends v.NonOptionalSchema<infer W, any>
+                  ? W
+                  : never;
 
 /** pipe 的元组 */
 export type PipeOf<S> =

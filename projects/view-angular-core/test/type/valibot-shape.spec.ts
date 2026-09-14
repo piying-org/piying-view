@@ -8,6 +8,7 @@ import {
   PipeOf,
   RecordValueOf,
   RestOf,
+  VariantKeyOf,
   WrappedOf,
 } from '../../builder-base/type/valibot-shape';
 
@@ -105,6 +106,53 @@ describe('valibot 结构适配层提取', () => {
     );
     type Inner = WrappedOf<typeof s>;
     type _1 = Assert<Eq<OutOf<EntriesOf<PipeOf<Inner>[0]>['a']>, string>>;
+    expect(1).toBe(1);
+  });
+
+  it('OptionsOf: variant 可提取, 与 intersect/union 同形', () => {
+    const va = v.variant('kind', [
+      v.object({ kind: v.literal('a'), x: v.string() }),
+      v.object({ kind: v.literal('b'), y: v.number() }),
+    ]);
+    type _1 = Assert<
+      Eq<OutOf<EntriesOf<OptionsOf<typeof va>[0]>['x']>, string>
+    >;
+    type _2 = Assert<
+      Eq<OutOf<EntriesOf<OptionsOf<typeof va>[1]>['y']>, number>
+    >;
+    // 非 options 容器仍为 never
+    type _3 = Assert<Eq<IsNever<OptionsOf<v.StringSchema<undefined>>>, true>>;
+    expect(1).toBe(1);
+  });
+
+  it('VariantKeyOf: 取到判别 key, 非 variant 为 never', () => {
+    const va = v.variant('kind', [v.object({ kind: v.literal('a') })]);
+    type _1 = Assert<Eq<VariantKeyOf<typeof va>, 'kind'>>;
+    type _2 = Assert<Eq<IsNever<VariantKeyOf<v.UnionSchema<any, any>>>, true>>;
+    expect(1).toBe(1);
+  });
+
+  it('WrappedOf: wrapped 家族 8 个变体全部可提取', () => {
+    const inner = v.object({ a: v.string() });
+    const cases = [
+      v.optional(inner),
+      v.nullable(inner),
+      v.nullish(inner),
+      v.exactOptional(inner),
+      v.undefinedable(inner),
+      v.nonNullable(inner),
+      v.nonNullish(inner),
+      v.nonOptional(inner),
+    ] as const;
+    type _1 = Assert<Eq<OutOf<WrappedOf<(typeof cases)[number]>>['a'], string>>;
+    // 非 wrapped 节点为 never
+    type _2 = Assert<Eq<IsNever<WrappedOf<typeof inner>>, true>>;
+    expect(1).toBe(1);
+  });
+
+  it('WrappedOf: 嵌套 wrapped 可逐层剥开', () => {
+    const s = v.nonNullish(v.exactOptional(v.object({ a: v.string() })));
+    type _1 = Assert<Eq<OutOf<WrappedOf<WrappedOf<typeof s>>>['a'], string>>;
     expect(1).toBe(1);
   });
 });

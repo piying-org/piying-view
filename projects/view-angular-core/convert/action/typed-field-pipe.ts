@@ -4,7 +4,23 @@ import { Observable } from 'rxjs';
 import {
   HookConfig,
   PiFieldAtPath,
+  PiFieldTypeRef,
 } from '../../builder-base/type/common-field-config';
+import {
+  EntriesOf,
+  ItemOf,
+  ItemsOf,
+  OptionsOf,
+  PipeOf,
+  ValueNodeOf,
+  VsEntriesHost,
+  VsOptionsHost,
+  VsPipeHost,
+  VsTupleHost,
+  VsValueHost,
+  VsWrappedHost,
+  WrappedOf,
+} from '../../builder-base/type/valibot-shape';
 import { KeyPath } from '../../util';
 import { __actions } from './input-common';
 import type { ConfigAction } from './input-common';
@@ -19,70 +35,80 @@ import { valueChange } from './value-change';
 
 type AsyncResult<T = any> = Promise<T> | Observable<T> | Signal<T> | (T & {});
 
-/* ---------------- 类型: 把 field 回调绑定到指定 F ---------------- */
+/* ---------------- 类型: 未绑定 field 的 action 工厂 ---------------- */
 
-/** 可挂 field 的通用 key 组(props / inputs / models / slots) */
-interface TypedKeyGroup<F> {
-  patch: <T = any>(value: Record<string, any>) => ConfigAction<T>;
-  set: <T = any>(value: Record<string, any>) => ConfigAction<T>;
-  patchAsync: <Data extends Record<string, (field: F) => AsyncResult<any>>>(
+/**
+ * 与「已绑定 field」的写法同构, 但 F 不写在类型上,
+ * 而是由 `d(path, [...])` 的期望元素类型 `ConfigAction<F>` 反推。
+ *
+ * 两条铁律(改这里之前先看):
+ * 1. F 不给默认值 —— 反推不到时落到 unknown, 用错会直接报错, 不会静默退化;
+ * 2. F 必须出现在返回类型里 —— 只藏在实参里, TS 拿不到上下文候选。
+ */
+interface KeyGroupFactory {
+  patch: <F>(value: Record<string, any>) => ConfigAction<F>;
+  set: <F>(value: Record<string, any>) => ConfigAction<F>;
+  patchAsync: <F, Data extends Record<string, (field: F) => AsyncResult<any>>>(
     dataObj: Data,
-  ) => ConfigAction<any>;
-  remove: <T = any>(list: string[]) => ConfigAction<T>;
-  mapAsync: <T = any>(fn: (field: F) => (value: any) => any) => ConfigAction<T>;
+  ) => ConfigAction<F>;
+  remove: <F>(list: string[]) => ConfigAction<F>;
+  mapAsync: <F>(fn: (field: F) => (value: any) => any) => ConfigAction<F>;
 }
 
-interface TypedOutputs<F> extends Omit<TypedKeyGroup<F>, 'patchAsync'> {
+interface OutputsGroupFactory extends Omit<KeyGroupFactory, 'patchAsync'> {
+  patch: <F>(value: Record<string, (...args: any[]) => any>) => ConfigAction<F>;
+  set: <F>(value: Record<string, (...args: any[]) => any>) => ConfigAction<F>;
   patchAsync: <
+    F,
     Data extends Record<string, (field: F) => (...args: any[]) => any>,
   >(
     dataObj: Data,
-  ) => ConfigAction<any>;
+  ) => ConfigAction<F>;
   merge: typeof mergeOutputs;
   mergeAsync: typeof asyncMergeOutputs;
 }
 
-interface TypedEvents<F> extends Omit<TypedKeyGroup<F>, 'patchAsync'> {
+interface EventsGroupFactory extends Omit<KeyGroupFactory, 'patchAsync'> {
+  patch: <F>(value: Record<string, (event: Event) => any>) => ConfigAction<F>;
+  set: <F>(value: Record<string, (event: Event) => any>) => ConfigAction<F>;
   patchAsync: <
+    F,
     Data extends Record<string, (field: F) => (event: Event) => any>,
   >(
     dataObj: Data,
-  ) => ConfigAction<any>;
+  ) => ConfigAction<F>;
 }
 
-interface TypedAttributes<F> extends TypedKeyGroup<F> {
+interface AttributesGroupFactory extends KeyGroupFactory {
   top: {
-    set: <T = any>(value: Record<string, any>) => ConfigAction<T>;
-    patch: <T = any>(value: Record<string, any>) => ConfigAction<T>;
+    set: <F>(value: Record<string, any>) => ConfigAction<F>;
+    patch: <F>(value: Record<string, any>) => ConfigAction<F>;
   };
 }
 
-interface TypedHooks<F> {
-  set: <B>(hooks: HookConfig<F>) => ConfigAction<B>;
-  patch: <B>(hooks: HookConfig<F>) => ConfigAction<B>;
-  merge: <B>(
+interface HooksGroupFactory {
+  set: <F>(hooks: HookConfig<F>) => ConfigAction<F>;
+  patch: <F>(hooks: HookConfig<F>) => ConfigAction<F>;
+  merge: <F>(
     hooks: HookConfig<F>,
     options?: { position: 'top' | 'bottom' },
-  ) => ConfigAction<B>;
-  remove: <T>(list: (keyof HookConfig<F>)[]) => ConfigAction<T>;
+  ) => ConfigAction<F>;
+  remove: <F>(list: (keyof HookConfig<F>)[]) => ConfigAction<F>;
 }
 
-/** 所有 action 的强类型形态, F = 该路径对应的 field 类型 */
-export interface TypedActions<
-  Root extends v.BaseSchema<any, any, any>,
-  P extends KeyPath,
-> {
-  props: TypedKeyGroup<PiFieldAtPath<Root, P>>;
-  inputs: TypedKeyGroup<PiFieldAtPath<Root, P>>;
-  models: TypedKeyGroup<PiFieldAtPath<Root, P>>;
-  slots: TypedKeyGroup<PiFieldAtPath<Root, P>>;
-  attributes: TypedAttributes<PiFieldAtPath<Root, P>>;
-  outputs: TypedOutputs<PiFieldAtPath<Root, P>>;
-  events: TypedEvents<PiFieldAtPath<Root, P>>;
-  hooks: TypedHooks<PiFieldAtPath<Root, P>>;
+/** 挂在 `d` 上的全部 action 工厂, F 由每条 entry 的期望元素类型各自反推 */
+export interface ActionFactories {
+  props: KeyGroupFactory;
+  inputs: KeyGroupFactory;
+  models: KeyGroupFactory;
+  slots: KeyGroupFactory;
+  attributes: AttributesGroupFactory;
+  outputs: OutputsGroupFactory;
+  events: EventsGroupFactory;
+  hooks: HooksGroupFactory;
   createOptions: {
-    patch: <T = any>(value: any) => ConfigAction<T>;
-    set: <T = any>(value: any) => ConfigAction<T>;
+    patch: <F>(value: any) => ConfigAction<F>;
+    set: <F>(value: any) => ConfigAction<F>;
   };
   providers: {
     set: typeof setProviders;
@@ -102,64 +128,206 @@ export interface FieldEntry {
   readonly actions: readonly any[];
 }
 
-/** 特殊路径段: 根 / 父级 / 别名, 静态无法校验, 直接放行 */
-type SpecialKey = '#' | '..' | `@${string}`;
+/**
+ * 递归深度上限, 防止宽 schema 组合爆炸。
+ * 一个元素 = 一次「容器跳转」(pipe / wrapped / array / record / map / set),
+ * 预算耗尽后 `PathsOfCore` 直接收到 `[]`, 不再往下展开。
+ */
+type PathDepth = [0, 0, 0, 0, 0, 0, 0, 0];
 
 /**
- * 由 schema 的输出类型逐段展开「合法路径联合」, 让写错的路径在编译期就报错。
+ * 不透明节点: 自带改变自身行为的附加属性, 重建会静默丢失, 因此禁止下钻。
+ * (节点自身仍是合法终点, 只是不能再往里走)
+ */
+type VsOpaqueHost =
+  | { readonly fallback: unknown }
+  | { readonly cache: unknown };
+
+/** 元组的下标 key: '0' | '1' ... */
+type IndexKey<T extends readonly any[]> = Extract<keyof T, `${number}`>;
+
+/** '0' -> 0 */
+type ToIndex<K> = K extends `${infer N extends number}` ? N : never;
+
+/** 下标型容器(tuple / intersect / union / variant)的单条路径: [下标, 该成员的后续路径] */
+type IdxPath<T, K, D extends readonly unknown[]> = [
+  ToIndex<K>,
+  ...NodePathsOf<T[K & keyof T], D>,
+];
+
+/** 下标型容器(tuple / intersect / union / variant): 下标 -> 该下标的后续路径 */
+type IndexedPathsOf<T, D extends readonly unknown[]> = T extends readonly any[]
+  ? { [K in IndexKey<T>]: IdxPath<T, K, D> }[IndexKey<T>]
+  : never;
+
+/** object 族的单条路径: [key, 该字段的后续路径] */
+type EntryPath<
+  E extends Record<string, any>,
+  K extends keyof E & string,
+  D extends readonly unknown[],
+> = [K, ...NodePathsOf<E[K], D>];
+
+/** object 族: key -> 该字段的后续路径 */
+type EntriesPathsOf<E, D extends readonly unknown[]> =
+  E extends Record<string, any>
+    ? { [K in keyof E & string]: EntryPath<E, K, D> }[keyof E & string]
+    : never;
+
+/**
+ * 到达某个 schema 节点后「还能继续往下写」的路径。
+ * 每个节点自身也是合法终点, 所以固定并上 `[]` ——
+ * 否则叶子节点的 `never` 会把 `[K, ...never]` 整条路径吞掉。
+ */
+type NodePathsOf<S, D extends readonly unknown[]> = [] | NodeDeepPaths<S, D>;
+
+/**
+ * 单个 schema 节点的「下钻路径」, 与运行时 `mergeAt` 的分支顺序严格一一对应:
+ * pipe -> 只进第一个成员; wrapped -> 向内; entries -> 按 key;
+ * array -> 一段进 item; tuple / intersect / union / variant -> 按下标;
+ * record / map / set -> 一段进 value 节点。
+ *
+ * 必须先认 pipe: `SchemaWithPipe` 在类型上保留了首成员的 entries 等字段。
+ *
+ * pipe / wrapped 走 `PathsOfCore` 而非 `NodePathsOf`: 它们虽然不消耗 key,
+ * 但改成不消耗深度预算会让 wrapped 链上的每个节点重复展开整个内层子树, 直接 OOM。
+ * 所以预算靠 `PathDepth` 给足来兼容长 wrapped/pipe 链。
+ * 每个提取结果均经 `extends infer X` 绑定一次再往下传: 提取类(如 `WrappedOf`)返回的是
+ * 未解析的条件类型, 直接当 `S` 传下去会让 `S extends VsPipeHost`(交叉类型)做昂贵的
+ * 结构比较, 直接 TS2589。
+ */
+type NodeDeepPaths<S, D extends readonly unknown[]> = S extends VsOpaqueHost
+  ? never
+  : S extends VsPipeHost
+    ? PipeOf<S> extends readonly [infer H, ...any[]]
+      ? PathsOfCore<H, D>
+      : never
+    : S extends VsWrappedHost
+      ? WrappedOf<S> extends infer W
+        ? PathsOfCore<W, D>
+        : never
+      : S extends VsEntriesHost
+        ? EntriesOf<S> extends infer E
+          ? EntriesPathsOf<E, D>
+          : never
+        : S extends v.ArraySchema<any, any>
+          ? ItemOf<S> extends infer I
+            ? [number, ...PathsOfCore<I, D>]
+            : never
+          : S extends VsTupleHost
+            ? ItemsOf<S> extends infer IT
+              ? IndexedPathsOf<IT, D>
+              : never
+            : S extends VsOptionsHost
+              ? OptionsOf<S> extends infer OP
+                ? IndexedPathsOf<OP, D>
+                : never
+              : S extends VsValueHost
+                ? ValueNodeOf<S> extends infer VN
+                  ? [string | number, ...PathsOfCore<VN, D>]
+                  : never
+                : never;
+
+/**
+ * 路径联合的核心实现。
+ *
+ * 注意: 参数是 **schema 本身**, 不是 `v.InferOutput`。
+ * 值类型上不存在「intersect/union 的第 N 个成员」这类结构路径(交叉类型会被合并、
+ * Map/Set 无隐式索引签名), 基于值类型推导根本写不出 `[0, 'a']`。
+ *
+ * 也不包含 '#' / '..' / '@alias': pipe 只按结构下钻合并,
+ * 这些「作用域解析」专用的段在合并侧没有落点, 写了就是运行期抱错。
+ * 回调里的 `field.get([...])` 走 `KeyPath`, 不受此约束, 依旧可用。
+ */
+type PathsOfCore<S, D extends readonly unknown[]> = D extends [
+  unknown,
+  ...infer R,
+]
+  ? [] | NodePathsOf<S, R>
+  : [];
+
+/**
+ * 由 schema 结构逐段展开「合法路径联合」, 让写错的路径在编译期就报错。
  * D 用于限深, 防止宽 schema 发生组合爆炸。
  */
-export type PathsOf<
-  V,
-  D extends readonly unknown[] = [0, 0, 0, 0, 0, 0],
-> = D extends [unknown, ...infer R]
-  ?
-      | []
-      | [SpecialKey, ...PathsOf<any, R>]
-      | (V extends readonly (infer E)[] ? [number, ...PathsOf<E, R>] : never)
-      | (V extends Record<string, any>
-          ? {
-              [K in keyof V & string]: [K, ...PathsOf<V[K], R>];
-            }[keyof V & string]
-          : never)
-  : [];
+export type PathsOf<S, D extends readonly unknown[] = PathDepth> = PathsOfCore<
+  S,
+  D
+>;
 
 /**
- * 不含特殊段('#' / '..' / '@alias')的「纯字段路径」联合。
- *
- * pipe 是从根级逐层往下合并 actions, `mergeAt` 只认 entries / item / items / options / value / wrapped,
- * 特殊段在合并侧根本没有落点(写了就是运行期抱错), 所以定义路径时只保留「一层一个字段」的正常路径。
- *
- * 注意: 回调里的 `field.get([...])` 走的是 `KeyPath`, 不受此类型约束,
- * '#' / '..' / '@alias' 依旧可用。
+ * 不含特殊段('#' / '..' / '@alias')的「纯字段路径」联合, 与 `PathsOf` 同构。
+ * 保留这个名字给组件版 pipe(typedFieldComponentPipe)使用。
  */
 export type FieldPathsOf<
-  V,
-  D extends readonly unknown[] = [0, 0, 0, 0, 0, 0],
-> = D extends [unknown, ...infer R]
-  ?
-      | []
-      | (V extends readonly (infer E)[]
-          ? [number, ...FieldPathsOf<E, R>]
-          : never)
-      | (V extends Record<string, any>
-          ? {
-              [K in keyof V & string]: [K, ...FieldPathsOf<V[K], R>];
-            }[keyof V & string]
-          : never)
-  : [];
+  S,
+  D extends readonly unknown[] = PathDepth,
+> = PathsOfCore<S, D>;
 
-/** 定义单条 entry; 泛型 P 在这里独立推断, 所以每条路径各自精确 */
-export type DefineEntry<Root extends v.BaseSchema<any, any, any>> = <
-  P extends PathsOf<v.InferOutput<Root>>,
->(
-  path: [...P],
-  fn: ($: TypedActions<Root, P>) => readonly any[],
-) => FieldEntry;
+/** 从字段类型反查 schema, 再取其输出类型(pipe 之后的 value) */
+export type ValueOfField<F> =
+  (
+    F extends { __piTypes?: PiFieldTypeRef<infer S, any, any, any> } ? S : never
+  ) extends v.BaseSchema<any, infer O, any>
+    ? O
+    : never;
+
+/**
+ * 官方通用 action。
+ *
+ * 靠 valibot 的 `kind` 判别式与 ConfigAction 分流, 两者不抢推断候选:
+ * - validation / transformation 的回调参数拿到该路径的精确 value 类型;
+ * - metadata 类只能用泛型擦除结构兜底 —— 它的 kind 与 ConfigAction 同为 'metadata',
+ *   若改用 BaseMetadata<V> 会双喂候选, 把 F 污染成 `V | Field`。
+ */
+export type ValibotAction<V> =
+  | v.BaseSchema<V, any, v.BaseIssue<unknown>>
+  | v.BaseSchemaAsync<V, any, v.BaseIssue<unknown>>
+  | v.BaseValidation<V, V, v.BaseIssue<unknown>>
+  | v.BaseValidationAsync<V, V, v.BaseIssue<unknown>>
+  | v.BaseTransformation<V, unknown, v.BaseIssue<unknown>>
+  | v.BaseTransformationAsync<V, unknown, v.BaseIssue<unknown>>
+  | { readonly kind: 'metadata'; readonly type: string };
+
+/**
+ * 该路径下 action 的期望元素类型。
+ *
+ * - 专用工厂(ConfigAction): 决定回调里 field 的具体类型;
+ * - 官方 action: 按 valibot 定义直接可塞, 回调参数按该路径的 value 精确。
+ */
+export type FieldActionOf<
+  Root extends v.BaseSchema<any, any, any>,
+  P extends KeyPath,
+> =
+  | ConfigAction<PiFieldAtPath<Root, P>>
+  | ValibotAction<ValueOfField<PiFieldAtPath<Root, P>>>;
+
+/**
+ * 定义单条 entry: 路径 + 该路径下的 actions。
+ *
+ * - 路径 P 由第一个实参推断, 写错编译期报错;
+ * - actions 的期望类型是 `ConfigAction<PiFieldAtPath<Root, P>>`,
+ *   工厂上的 F 由此反推, 所以 `d.props.patchAsync({ x: (field) => ... })`
+ *   里的 field 与 `builder.get(path)` 完全等价(自身 / 父级 / 根级 / 别名)。
+ *
+ * 注意: 工厂调用必须写在本次的 actions 数组里, 提前存到变量会丢上下文。
+ */
+export interface DefineEntry<
+  Root extends v.BaseSchema<any, any, any>,
+> extends ActionFactories {
+  <P extends PathsOf<Root>>(
+    path: [...P],
+    actions: readonly FieldActionOf<Root, P>[],
+  ): FieldEntry;
+}
 
 /* ---------------- 运行时: 把 actions 按路径合并进 schema ---------------- */
 
-const allActions: any = {
+/**
+ * pipe 可用的完整 action 表。
+ * 组件版(typedFieldComponentPipe)要复用同一份, 所以导出复用而不是另拼一份,
+ * 避免两边集合不同步(比如漏了 hideWhen / disableWhen)。
+ */
+export const ɵtypedFieldActions: any = {
   ...__actions,
   hooks: {
     merge: mergeHooks,
@@ -195,18 +363,26 @@ type ItemsSchema =
   | v.LooseTupleSchema<any, any>
   | v.StrictTupleSchema<any, any>
   | v.TupleWithRestSchema<any, any, any>;
-/** intersect / union */
-type OptionsSchema = v.IntersectSchema<any, any> | v.UnionSchema<any, any>;
+/** intersect / union / variant */
+type OptionsSchema =
+  | v.IntersectSchema<any, any>
+  | v.UnionSchema<any, any>
+  | v.VariantSchema<any, any, any>;
 /** record / map / set */
 type ValueSchema =
   | v.RecordSchema<any, any, any>
   | v.MapSchema<any, any, any>
   | v.SetSchema<any, any>;
-/** optional / nullable / nullish */
+/** wrapped 家族 */
 type WrappedSchema =
   | v.OptionalSchema<any, any>
   | v.NullableSchema<any, any>
-  | v.NullishSchema<any, any>;
+  | v.NullishSchema<any, any>
+  | v.ExactOptionalSchema<any, any>
+  | v.UndefinedableSchema<any, any>
+  | v.NonNullableSchema<any, any>
+  | v.NonNullishSchema<any, any>
+  | v.NonOptionalSchema<any, any>;
 
 /** 可重建的非 pipe 容器节点, 全部取自 valibot 自带的 schema 类型 */
 type RebuildSchema =
@@ -222,9 +398,10 @@ const isEntriesSchema = (s: AnySchema): s is EntriesSchema => 'entries' in s;
 const isItemSchema = (s: AnySchema): s is v.ArraySchema<any, any> =>
   'item' in s;
 const isItemsSchema = (s: AnySchema): s is ItemsSchema => 'items' in s;
-/** options 只有 intersect/union 是子 schema 列表(picklist/enum 的是值列表) */
+/** options 只有 intersect/union/variant 是子 schema 列表(picklist/enum 的是值列表) */
 const isOptionsSchema = (s: AnySchema): s is OptionsSchema =>
-  'options' in s && (s.type === 'intersect' || s.type === 'union');
+  'options' in s &&
+  (s.type === 'intersect' || s.type === 'union' || s.type === 'variant');
 const isValueSchema = (s: AnySchema): s is ValueSchema => 'value' in s;
 /** wrapped 只出现在 optional/nullable/nullish, 不会与其他子结构字段共存 */
 const isWrappedSchema = (s: AnySchema): s is WrappedSchema => 'wrapped' in s;
@@ -246,6 +423,10 @@ function appendActions(s: AnySchema, actions: readonly any[]) {
 
 /** 重建容器节点: 只能用 valibot 公开构造函数, 浅拷贝会让 ~standard 仍指向旧结构 */
 function rebuild(s: RebuildSchema, changed: RebuildPatch) {
+  // fallback / cache 挂在节点自身上, 公开构造函数无法还原, 重建会静默丢行为
+  if ('fallback' in s || 'cache' in s) {
+    throw new Error('[typedFieldPipe] 不支持在 fallback/cache 节点下下钻');
+  }
   switch (s.type) {
     case 'object':
       return v.object(changed.entries, s.message);
@@ -269,12 +450,24 @@ function rebuild(s: RebuildSchema, changed: RebuildPatch) {
       return v.intersect(changed.options, s.message);
     case 'union':
       return v.union(changed.options, s.message);
+    case 'variant':
+      return v.variant(s.key, changed.options, s.message);
     case 'optional':
       return v.optional(changed.wrapped, s.default);
     case 'nullable':
       return v.nullable(changed.wrapped, s.default);
     case 'nullish':
       return v.nullish(changed.wrapped, s.default);
+    case 'exact_optional':
+      return v.exactOptional(changed.wrapped, s.default);
+    case 'undefinedable':
+      return v.undefinedable(changed.wrapped, s.default);
+    case 'non_nullable':
+      return v.nonNullable(changed.wrapped, s.message);
+    case 'non_nullish':
+      return v.nonNullish(changed.wrapped, s.message);
+    case 'non_optional':
+      return v.nonOptional(changed.wrapped, s.message);
     case 'record':
       return v.record(s.key, changed.value, s.message);
     case 'map':
@@ -378,10 +571,11 @@ export function typedFieldPipe<S extends v.BaseSchema<any, any, any>>(
   schema: S,
   cb: (define: DefineEntry<S>) => readonly FieldEntry[],
 ): S {
-  const define: DefineEntry<S> = (path: KeyPath, fn: any) => ({
+  const define: any = (path: KeyPath, actions: readonly any[]) => ({
     path,
-    actions: fn(allActions) ?? [],
+    actions: actions ?? [],
   });
+  Object.assign(define, ɵtypedFieldActions);
 
   let result: AnySchema = schema;
   for (const entry of cb(define) ?? []) {
