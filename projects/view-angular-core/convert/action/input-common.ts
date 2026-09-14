@@ -1,9 +1,8 @@
-import { Signal, WritableSignal } from '@angular/core';
+import { WritableSignal } from '@angular/core';
 import {
   PiFieldWithValue,
   _PiResolvedCommonViewFieldConfig,
 } from '../../builder-base';
-import { Observable } from 'rxjs';
 import { RawConfigAction } from '@piying/valibot-visit';
 import { mergeHooksFn } from './hook';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
@@ -11,8 +10,8 @@ import { rawConfig } from './raw-config';
 
 import { asyncMergeOutputs, mergeOutputs } from './output';
 import { top } from './position-common';
+import { AsyncResult } from './type/async-callback';
 
-type AsyncResult<T = any> = Promise<T> | Observable<T> | Signal<T> | (T & {});
 export type AsyncProperty<T = any> = (
   field: _PiResolvedCommonViewFieldConfig,
 ) => AsyncResult<T>;

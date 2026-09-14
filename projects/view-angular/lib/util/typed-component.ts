@@ -114,9 +114,7 @@ type ComponentActions<TComponent> = {
     mapAsync: <Input>(
       value: (
         field: _PiResolvedCommonViewFieldConfig,
-      ) => (
-        value: GetComponentInputs<TComponent>,
-      ) => GetComponentInputs<TComponent>,
+      ) => (value: GetComponentInputsOrigin<TComponent>) => any,
     ) => ReturnAction<Input>;
   };
   outputs: {
@@ -135,9 +133,7 @@ type ComponentActions<TComponent> = {
     mapAsync: <Input>(
       value: (
         field: _PiResolvedCommonViewFieldConfig,
-      ) => (
-        value: GetComponentOutputs<TComponent>,
-      ) => GetComponentOutputs<TComponent>,
+      ) => (value: GetComponentOutputsOrigin<TComponent>) => any,
     ) => ReturnAction<Input>;
   };
 };

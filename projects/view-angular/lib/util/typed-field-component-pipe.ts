@@ -1,15 +1,13 @@
 import * as v from 'valibot';
-import { Observable } from 'rxjs';
-import { Signal, Type } from '@angular/core';
+import { Type } from '@angular/core';
 import {
-  asyncMergeOutputs,
-  mergeOutputs,
   setComponent,
   typedFieldPipe,
   ɵtypedFieldActions,
 } from '@piying/view-angular-core';
 import type {
   ActionFactories,
+  AsyncResult,
   ConfigAction,
   FieldEntry,
   FieldPathsOf,
@@ -28,12 +26,27 @@ import type {
   GetComponentOutputsOrigin,
 } from './typed-component';
 
-type AsyncResult<T = any> = Promise<T> | Observable<T> | Signal<T> | (T & {});
+/**
+ * 组件零 input / 零 output 时, 映射类型会退化成 `{}`。
+ * TS 对 `{}` 目标不做多余属性检查, `patch({ 随便写: 1 })` 会静默通过,
+ * 所以空映射一律换成 `Record<string, never>` 把 key 封住(空对象仍合法)。
+ */
+type TightenEmpty<T extends Record<string, any>> = [keyof T] extends [never]
+  ? Record<string, never>
+  : T;
 
 /** 组件的「值 -> 异步回调」映射: key 锁定为组件的输入/输出名, 回调里拿到路径推导出的 field */
-type AsyncValueMap<Values extends Record<string, any>, Field> = {
+type AsyncValueMap<Values extends Record<string, any>, Field> = TightenEmpty<{
   [K in keyof Values]?: (field: Field) => AsyncResult<Values[K]>;
-};
+}>;
+
+/**
+ * 「值 -> 同步产出该值的回调」映射(mergeAsync 用)。
+ * mergeAsync 运行时是同步取 handler, 不走 Promise/Observable, 所以不包 AsyncResult。
+ */
+type HandlerValueMap<Values extends Record<string, any>, Field> = TightenEmpty<{
+  [K in keyof Values]?: (field: Field) => NonNullable<Values[K]>;
+}>;
 
 /**
  * 组件版 action 的类型。
@@ -69,14 +82,10 @@ type FallbackOutputs = Record<string, (...args: any[]) => any>;
 /** C 为 never(推不出组件) 时降级, 否则走组件精确类型 */
 type InputsOriginOf<C> = [C] extends [never]
   ? FallbackInputs
-  : GetComponentInputsOrigin<C>;
+  : TightenEmpty<GetComponentInputsOrigin<C>>;
 type OutputsOriginOf<C> = [C] extends [never]
   ? FallbackOutputs
-  : GetComponentOutputsOrigin<C>;
-type InputsOf<C> = [C] extends [never] ? FallbackInputs : GetComponentInputs<C>;
-type OutputsOf<C> = [C] extends [never]
-  ? FallbackOutputs
-  : GetComponentOutputs<C>;
+  : TightenEmpty<GetComponentOutputsOrigin<C>>;
 type InputKeysOf<C> = [C] extends [never]
   ? string
   : keyof GetComponentInputs<C>;
@@ -92,8 +101,12 @@ export interface TypedComponentInputActionsFactory {
     dataObj: Data,
   ) => CompAction<F, C>;
   remove: <F, C>(list: InputKeysOf<C>[]) => CompAction<F, C>;
+  /**
+   * map 运行时拿到的是「已解析的普通值对象」, 不是 InputSignal 引用,
+   * 所以 value 用 origin 形态; 返回不做约束(就是返回一个新的值对象)。
+   */
   mapAsync: <F, C>(
-    fn: (field: F) => (value: InputsOf<C>) => InputsOf<C>,
+    fn: (field: F) => (value: InputsOriginOf<C>) => any,
   ) => CompAction<F, C>;
 }
 
@@ -105,10 +118,13 @@ export interface TypedComponentOutputActionsFactory {
     dataObj: Data,
   ) => CompAction<F, C>;
   remove: <F, C>(list: OutputKeysOf<C>[]) => CompAction<F, C>;
-  merge: typeof mergeOutputs;
-  mergeAsync: typeof asyncMergeOutputs;
+  /** merge / mergeAsync 与 patch 同族, key 同样按组件 output 名约束 */
+  merge: <F, C>(outputs: OutputsOriginOf<C>) => CompAction<F, C>;
+  mergeAsync: <F, C>(
+    outputs: HandlerValueMap<OutputsOriginOf<C>, F>,
+  ) => CompAction<F, C>;
   mapAsync: <F, C>(
-    fn: (field: F) => (value: OutputsOf<C>) => OutputsOf<C>,
+    fn: (field: F) => (value: OutputsOriginOf<C>) => any,
   ) => CompAction<F, C>;
 }
 
@@ -189,15 +205,13 @@ export function typedFieldComponentPipe<
     define: DefineComponentEntry<S, UnwrapConfig<C>>,
   ) => readonly FieldEntry[],
 ): S {
-  const define: any = (
-    path: KeyPath,
-    component: any,
-    actions: readonly any[],
-  ): FieldEntry => ({
-    path,
-    actions: [setComponent(component), ...(actions ?? [])],
-  });
-  Object.assign(define, ɵtypedFieldActions);
+  const define = Object.assign(
+    (path: KeyPath, component: any, actions: readonly any[]): FieldEntry => ({
+      path,
+      actions: [setComponent(component), ...(actions ?? [])],
+    }),
+    ɵtypedFieldActions,
+  ) as unknown as DefineComponentEntry<S, UnwrapConfig<C>>;
 
   return typedFieldPipe(schema, () => cb(define));
 }
