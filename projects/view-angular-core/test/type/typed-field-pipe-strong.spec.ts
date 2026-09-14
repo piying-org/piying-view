@@ -259,32 +259,60 @@ describe('强类型改造 - 路径深度预算 (#6)', () => {
   });
 });
 
-describe('强类型改造 - record / map key 段 (#9)', () => {
+describe('强类型改造 - 关键字路径段 [value] / [key] / [rest]', () => {
   const keyRoot = v.object({
     rec: v.record(v.string(), v.object({ x: v.number() })),
     mapNum: v.map(v.number(), v.object({ y: v.number() })),
+    st: v.set(v.object({ z: v.number() })),
+    arr: v.array(v.object({ c: v.number() })),
+    tup: v.tuple([v.string(), v.number()]),
+    tupRest: v.tupleWithRest([v.string()], v.number()),
+    objRest: v.objectWithRest({ k: v.string() }, v.number()),
   });
   type KP = PathsOf<typeof keyRoot>;
 
-  it('string key 的 record 只收 string 段', () => {
-    const okStr: ['rec', 'anyKey', 'x'] extends KP ? true : false = true;
-    const badNum: ['rec', 1, 'x'] extends KP ? true : false = false;
-    expect(okStr).toBe(true);
-    expect(badNum).toBe(false);
+  it('类型: [value] 只出现在 record / map / set / array', () => {
+    const a: ['rec', '[value]', 'x'] extends KP ? true : false = true;
+    const b: ['mapNum', '[value]', 'y'] extends KP ? true : false = true;
+    const c: ['st', '[value]', 'z'] extends KP ? true : false = true;
+    const d: ['arr', '[value]', 'c'] extends KP ? true : false = true;
+    const e: ['tup', '[value]', 'y'] extends KP ? true : false = false;
+    const f: ['tupRest', '[value]'] extends KP ? true : false = false;
+    expect([a, b, c, d, e, f]).toEqual([true, true, true, true, false, false]);
   });
 
-  it('number key 的 map 只收 number 段', () => {
-    const okNum: ['mapNum', 7, 'y'] extends KP ? true : false = true;
-    const badStr: ['mapNum', 'k', 'y'] extends KP ? true : false = false;
-    expect(okNum).toBe(true);
-    expect(badStr).toBe(false);
+  it('类型: [key] 只出现在 record / map(set 无 key 节点)', () => {
+    const a: ['rec', '[key]'] extends KP ? true : false = true;
+    const b: ['mapNum', '[key]'] extends KP ? true : false = true;
+    const c: ['st', '[key]'] extends KP ? true : false = false;
+    const d: ['arr', '[key]'] extends KP ? true : false = false;
+    const e: ['tupRest', '[key]'] extends KP ? true : false = false;
+    expect([a, b, c, d, e]).toEqual([true, true, false, false, false]);
   });
 
-  it('record: key 段是运行时丢弃的占位符, action 落在 value 模板上(对所有 entry 生效)', () => {
+  it('类型: [rest] 只出现在 *WithRest', () => {
+    const a: ['tupRest', '[rest]'] extends KP ? true : false = true;
+    const b: ['objRest', '[rest]'] extends KP ? true : false = true;
+    const c: ['tup', '[rest]'] extends KP ? true : false = false;
+    const d: ['rec', '[rest]'] extends KP ? true : false = false;
+    const e: ['arr', '[rest]'] extends KP ? true : false = false;
+    expect([a, b, c, d, e]).toEqual([true, true, false, false, false]);
+  });
+
+  it('类型: 任意 key 段下钻已移除(不再需要写假 k1)', () => {
+    const a: ['rec', 'k1', 'x'] extends KP ? true : false = false;
+    const b: ['mapNum', 3, 'y'] extends KP ? true : false = false;
+    // 普通结构路径不受影响
+    const c: ['arr', 0, 'c'] extends KP ? true : false = true;
+    const d: ['tup', 1] extends KP ? true : false = true;
+    expect([a, b, c, d]).toEqual([false, false, true, true]);
+  });
+
+  it('运行时: [value] 对 record 的所有 entry 生效', () => {
     const hits: string[] = [];
     const merged = typedFieldPipe(keyRoot, (d) => [
       d(
-        ['rec', 'k1', 'x'],
+        ['rec', '[value]', 'x'],
         [
           d.props.patchAsync({
             tag: (field) => {
@@ -301,41 +329,99 @@ describe('强类型改造 - record / map key 段 (#9)', () => {
       rec: { k1: { x: 1 }, k2: { x: 2 }, k3: { x: 3 } },
     });
 
-    // mergeAt 对 record 走 isValueSchema 分支, 直接进 s.value, key 段不参与重建;
-    // record 只有一个 value 节点, 所以 action 对 k1/k2/k3 全量生效。
     expect(hits.sort()).toEqual(['rec/k1/x', 'rec/k2/x', 'rec/k3/x']);
-    expect(builder.get(['rec', 'k1', 'x'])!.props()['tag']).toBe('a');
     expect(builder.get(['rec', 'k2', 'x'])!.props()['tag']).toBe('a');
-    expect(builder.get(['rec', 'k3', 'x'])!.props()['tag']).toBe('a');
   });
 
-  it('map: 类型可达但运行时不建 field —— 挂上去的 action 不会触发', () => {
-    const hits: string[] = [];
+  it('运行时: [value] 对 array 的每个 item 生效', () => {
     const merged = typedFieldPipe(keyRoot, (d) => [
-      d(
-        ['mapNum', 3, 'y'],
-        [
-          d.props.patchAsync({
-            tag: (field) => {
-              hits.push(field.fullPath.join('/'));
-              return 'b';
-            },
-          }),
-        ],
-      ),
+      d(['arr', '[value]', 'c'], [d.props.patchAsync({ tag: () => 'arrTag' })]),
     ]);
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({ arr: [{ c: 1 }, { c: 2 }] });
+
+    expect(builder.get(['arr', 0, 'c'])!.props()['tag']).toBe('arrTag');
+    expect(builder.get(['arr', 1, 'c'])!.props()['tag']).toBe('arrTag');
+  });
+
+  it('运行时: [key] 把 action 合进 record 的 key schema', () => {
+    const merged = typedFieldPipe(keyRoot, (d) => [
+      d(['rec', '[key]'], [v.metadata({ onKey: true })]),
+    ]);
+    const rec: any = (merged as any).entries.rec;
+    expect(rec.type).toBe('record');
+    // key 被重建为 pipe, 且 metadata 真的落在 key 上
+    expect(Array.isArray(rec.key.pipe)).toBe(true);
+    expect(v.getMetadata(rec.key)).toEqual({ onKey: true });
+    // value 节点没被动过(getMetadata 无元数据时返回空对象)
+    expect(v.getMetadata(rec.value)).toEqual({});
+  });
+
+  it('运行时: [rest] 把 action 合进 tupleWithRest 的 rest schema', () => {
+    const merged = typedFieldPipe(keyRoot, (d) => [
+      d(['tupRest', '[rest]'], [v.metadata({ onRest: true })]),
+    ]);
+    const t: any = (merged as any).entries.tupRest;
+    expect(t.type).toBe('tuple_with_rest');
+    expect(Array.isArray(t.rest.pipe)).toBe(true);
+    expect(v.getMetadata(t.rest)).toEqual({ onRest: true });
+    // 固定部分不受影响
+    expect(t.items.length).toBe(1);
+    expect(v.getMetadata(t.items[0])).toEqual({});
+  });
+
+  it('运行时: [rest] 对 objectWithRest 同样生效, 固定 entries 保留', () => {
+    const merged = typedFieldPipe(keyRoot, (d) => [
+      d(['objRest', '[rest]'], [v.metadata({ onRest: true })]),
+    ]);
+    const o: any = (merged as any).entries.objRest;
+    expect(o.type).toBe('object_with_rest');
+    expect(Object.keys(o.entries)).toEqual(['k']);
+    expect(v.getMetadata(o.rest)).toEqual({ onRest: true });
+    expect(v.getMetadata(o.entries.k)).toEqual({});
+  });
+
+  it('运行时: entries 里真有同名字段时, 真实字段优先于关键字', () => {
+    const clash = v.object({ '[key]': v.string(), other: v.number() });
+    const merged = typedFieldPipe(clash, (d) => [
+      d(['[key]'], [d.props.patchAsync({ tag: () => 'real-field' })]),
+    ]);
+    const m: any = merged;
+    // 仍然是普通 object, 没被当成 record 的 key 节点处理
+    expect(m.type).toBe('object');
+    expect(Object.keys(m.entries)).toEqual(['[key]', 'other']);
 
     const builder = createBuilder(merged);
-    const m = new Map<number, { y: number }>([
-      [3, { y: 1 }],
-      [7, { y: 2 }],
-    ]);
-    builder.form.control?.updateValue({ mapNum: m });
+    builder.form.control?.updateValue({ '[key]': 'v', other: 1 });
+    expect(builder.get(['[key]'])!.props()['tag']).toBe('real-field');
+  });
 
-    // 现状(本次未改): map 的 entry 不会生成可寻址 field,
-    // 所以类型上合法的 ['mapNum', 3, 'y'] 在运行时是空转。
-    expect(hits).toEqual([]);
-    expect(builder.get(['mapNum', 3, 'y'] as any)).toBeUndefined();
+  it('类型: 在不支持关键字的节点上写关键字直接报错', () => {
+    const plain = v.object({ a: v.object({ b: v.string() }) });
+    typedFieldPipe(plain, (d) => [
+      d(['a', 'b'], [d.props.patchAsync({ ok: () => 1 })]),
+    ]);
+
+    expect(() =>
+      typedFieldPipe(plain, (d) => [
+        // @ts-expect-error 普通 object 没有 key 节点
+        d(['a', '[key]'], []),
+      ]),
+    ).toThrowError(/不存在 key: \[key\]/);
+
+    expect(() =>
+      typedFieldPipe(plain, (d) => [
+        // @ts-expect-error 普通 object 没有 value 节点
+        d(['a', '[value]'], []),
+      ]),
+    ).toThrowError(/不存在 key: \[value\]/);
+
+    expect(() =>
+      typedFieldPipe(plain, (d) => [
+        // @ts-expect-error 普通 object 没有 rest 节点
+        d(['a', '[rest]'], []),
+      ]),
+    ).toThrowError(/没有 rest 节点/);
   });
 });
 

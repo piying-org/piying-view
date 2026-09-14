@@ -124,7 +124,7 @@ describe('typedFieldPipe 容器重建: 覆盖全部 schema 类型', () => {
   it('map 值 schema 重建后 key 保留', () => {
     const source = v.map(v.string(), v.object({ b: v.string() }));
     const merged = typedFieldPipe(source, (d) => [
-      d(['k', 'b'], [d.props.patchAsync({ x: () => 1 })]),
+      d(['[value]', 'b'], [d.props.patchAsync({ x: () => 1 })]),
     ]);
     expect(merged.type).toBe('map');
     expect(merged.key).toBe(source.key);
@@ -137,7 +137,7 @@ describe('typedFieldPipe 容器重建: 覆盖全部 schema 类型', () => {
   it('set 值 schema 重建生效', () => {
     const source = v.set(v.object({ b: v.string() }));
     const merged = typedFieldPipe(source, (d) => [
-      d(['k', 'b'], [d.props.patchAsync({ x: () => 1 })]),
+      d(['[value]', 'b'], [d.props.patchAsync({ x: () => 1 })]),
     ]);
     expect(merged.type).toBe('set');
     expect(v.safeParse(merged, new Set([{ b: '1' }])).success).toBeTrue();

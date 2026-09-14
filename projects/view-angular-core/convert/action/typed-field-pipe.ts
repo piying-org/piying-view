@@ -10,8 +10,10 @@ import {
   EntriesOf,
   ItemOf,
   ItemsOf,
+  KeyNodeOf,
   OptionsOf,
   PipeOf,
+  RestOf,
   ValueNodeOf,
   VsEntriesHost,
   VsOptionsHost,
@@ -242,41 +244,50 @@ type EntriesPathsOf<E, D extends readonly unknown[]> =
 type NodePathsOf<S, D extends readonly unknown[]> = [] | NodeDeepPaths<S, D>;
 
 /**
- * record / map 的 key 节点 -> 可寻址的路径段类型。
- * 运行时该段只是「进 value 节点」的占位, 不参与重建:
- * record 只有一个 value 节点, 所以挂在 `['rec', 'k1', 'x']` 上的 action
- * 实际对**所有** entry 生效, `k1` 本身被丢弃。
- * 但类型上按 key schema 的输出收窄, 避免一律 `string | number`。
- * set 没有 key 节点, 落到 `string | number`。
+ * 特殊路径段: 显式指向容器 schema 的子节点。
  *
- * 已知缺口: map 的 entry 在运行时不会生成可寻址 field,
- * 所以 `['map', k, 'x']` 类型上合法但 action 不触发(见对应 spec)。
+ * 普通字段名不会长成 `[xxx]` 这样, 所以拿它当关键字;
+ * entries 里真的命中同名字段时仍以真实字段优先(见 `mergeAt`)。
+ *
+ * 关键: 这三段只在**对应节点存在**的 schema 上才会进入补全 ——
+ * 普通 object 不会冒出 `[key]`, 普通 tuple 不会冒出 `[rest]`。
  */
-type KeySegmentOf<S> = (
-  S extends v.RecordSchema<infer K, any, any>
-    ? K
-    : S extends v.MapSchema<infer K, any, any>
-      ? K
+const KEY_SEG = '[key]';
+const VALUE_SEG = '[value]';
+const REST_SEG = '[rest]';
+
+/** `[value]` 段: 进 record / map / set 的 value 节点, 或 array 的 item 模板 */
+type ValuePathsOf<S, D extends readonly unknown[]> = S extends VsValueHost
+  ? ValueNodeOf<S> extends infer VN
+    ? [typeof VALUE_SEG, ...PathsOfCore<VN, D>]
+    : never
+  : S extends v.ArraySchema<any, any>
+    ? ItemOf<S> extends infer I
+      ? [typeof VALUE_SEG, ...PathsOfCore<I, D>]
       : never
-) extends infer K
-  ? [K] extends [never]
-    ? string | number
-    : K extends v.BaseSchema<any, infer KO, any>
-      ? [KO] extends [never]
-        ? string | number
-        : KO extends string
-          ? string
-          : KO extends number
-            ? number
-            : string | number
-      : string | number
-  : string | number;
+    : never;
+
+/** `[key]` 段: 进 record / map 的 key schema(set 无 key, 不会出现) */
+type KeyPathsOf<S, D extends readonly unknown[]> =
+  KeyNodeOf<S> extends infer K
+    ? [K] extends [never]
+      ? never
+      : [typeof KEY_SEG, ...PathsOfCore<K, D>]
+    : never;
+
+/** `[rest]` 段: 进 objectWithRest / tupleWithRest 的 rest schema */
+type RestPathsOf<S, D extends readonly unknown[]> =
+  RestOf<S> extends infer R
+    ? [R] extends [never]
+      ? never
+      : [typeof REST_SEG, ...PathsOfCore<R, D>]
+    : never;
 
 /**
  * 单个 schema 节点的「下钻路径」, 与运行时 `mergeAt` 的分支顺序严格一一对应:
- * pipe -> 只进第一个成员; wrapped -> 向内; entries -> 按 key;
- * array -> 一段进 item; tuple / intersect / union / variant -> 按下标;
- * record / map / set -> 一段进 value 节点。
+ * pipe -> 只进第一个成员; wrapped -> 向内; entries -> 按 key, 外加 [rest];
+ * array -> 下标或 [value] 进 item; tuple / intersect / union / variant -> 按下标;
+ * record / map / set -> [value] 进 value 节点, record/map 外加 [key]。
  *
  * 必须先认 pipe: `SchemaWithPipe` 在类型上保留了首成员的 entries 等字段。
  *
@@ -299,24 +310,20 @@ type NodeDeepPaths<S, D extends readonly unknown[]> = S extends VsOpaqueHost
         : never
       : S extends VsEntriesHost
         ? EntriesOf<S> extends infer E
-          ? EntriesPathsOf<E, D>
+          ? EntriesPathsOf<E, D> | RestPathsOf<S, D>
           : never
         : S extends v.ArraySchema<any, any>
-          ? ItemOf<S> extends infer I
-            ? [number, ...PathsOfCore<I, D>]
-            : never
+          ? [number, ...PathsOfCore<ItemOf<S>, D>] | ValuePathsOf<S, D>
           : S extends VsTupleHost
             ? ItemsOf<S> extends infer IT
-              ? IndexedPathsOf<IT, D>
+              ? IndexedPathsOf<IT, D> | RestPathsOf<S, D>
               : never
             : S extends VsOptionsHost
               ? OptionsOf<S> extends infer OP
                 ? IndexedPathsOf<OP, D>
                 : never
               : S extends VsValueHost
-                ? ValueNodeOf<S> extends infer VN
-                  ? [KeySegmentOf<S>, ...PathsOfCore<VN, D>]
-                  : never
+                ? ValuePathsOf<S, D> | KeyPathsOf<S, D>
                 : never;
 
 /**
@@ -517,10 +524,31 @@ const isOptionsSchema = (s: AnySchema): s is OptionsSchema =>
 const isValueSchema = (s: AnySchema): s is ValueSchema => 'value' in s;
 /** wrapped 只出现在 optional/nullable/nullish, 不会与其他子结构字段共存 */
 const isWrappedSchema = (s: AnySchema): s is WrappedSchema => 'wrapped' in s;
+/**
+ * 带 key 子 schema 的容器: 只有 record / map。
+ * variant 也有 `key`, 但那是判别用的字串而不是 schema, 必须按 type 排除。
+ */
+type KeyedSchema = v.RecordSchema<any, any, any> | v.MapSchema<any, any, any>;
+const isKeyedSchema = (s: AnySchema): s is KeyedSchema =>
+  'key' in s && (s.type === 'record' || s.type === 'map');
+/** 带 rest 子 schema 的容器 */
+type RestSchemaNode =
+  | v.ObjectWithRestSchema<any, any, any>
+  | v.TupleWithRestSchema<any, any, any>;
+const isRestSchemaNode = (s: AnySchema): s is RestSchemaNode =>
+  'rest' in s &&
+  (s.type === 'object_with_rest' || s.type === 'tuple_with_rest');
 
-/** 重建补丁: key 必须是容器节点的子结构字段名 */
+/** 重建补丁: 字段名必须是容器节点的子结构字段 */
 type RebuildPatch = {
-  [K in 'entries' | 'item' | 'items' | 'options' | 'value' | 'wrapped']?: any;
+  entries?: any;
+  item?: any;
+  items?: any;
+  options?: any;
+  value?: any;
+  wrapped?: any;
+  key?: any;
+  rest?: any;
 };
 
 /**
@@ -547,7 +575,11 @@ function rebuild(s: RebuildSchema, changed: RebuildPatch) {
     case 'strict_object':
       return v.strictObject(changed.entries, s.message);
     case 'object_with_rest':
-      return v.objectWithRest(changed.entries, s.rest, s.message);
+      return v.objectWithRest(
+        changed.entries ?? s.entries,
+        changed.rest ?? s.rest,
+        s.message,
+      );
     case 'array':
       return v.array(changed.item, s.message);
     case 'tuple':
@@ -557,7 +589,11 @@ function rebuild(s: RebuildSchema, changed: RebuildPatch) {
     case 'strict_tuple':
       return v.strictTuple(changed.items, s.message);
     case 'tuple_with_rest':
-      return v.tupleWithRest(changed.items, s.rest, s.message);
+      return v.tupleWithRest(
+        changed.items ?? s.items,
+        changed.rest ?? s.rest,
+        s.message,
+      );
     case 'intersect':
       return v.intersect(changed.options, s.message);
     case 'union':
@@ -581,11 +617,15 @@ function rebuild(s: RebuildSchema, changed: RebuildPatch) {
     case 'non_optional':
       return v.nonOptional(changed.wrapped, s.message);
     case 'record':
-      return v.record(s.key, changed.value, s.message);
+      return v.record(
+        changed.key ?? s.key,
+        changed.value ?? s.value,
+        s.message,
+      );
     case 'map':
-      return v.map(s.key, changed.value, s.message);
+      return v.map(changed.key ?? s.key, changed.value ?? s.value, s.message);
     case 'set':
-      return v.set(changed.value, s.message);
+      return v.set(changed.value ?? s.value, s.message);
     default:
       throw new Error(
         `[typedFieldPipe] 暂不支持重建的 schema 类型: ${(s as AnySchema).type}`,
@@ -605,6 +645,23 @@ function replaceEntry(
   }
   return next;
 }
+
+/**
+ * `[rest]` 段: 把 action 合进 *WithRest 的 rest 子节点。
+ *
+ * 两个调用点不可合并: object_with_rest 带 entries, 会被 entries 分支吸收而不会
+ * fall through 到通用关键字分支; tuple_with_rest 没有 entries, 只能走通用分支。
+ */
+const mergeRestSeg = (
+  s: AnySchema,
+  restPath: KeyPath,
+  actions: readonly any[],
+) => {
+  if (!isRestSchemaNode(s)) {
+    throw new Error(`[typedFieldPipe] ${s.type} 没有 rest 节点`);
+  }
+  return rebuild(s, { rest: mergeAt(s.rest, restPath, actions) });
+};
 
 // 递归函数, 返回值无法推导, 必须显式声明
 function mergeAt(
@@ -630,12 +687,46 @@ function mergeAt(
 
   if (isEntriesSchema(s)) {
     const k = String(key);
-    if (!(k in s.entries)) {
-      throw new Error(`[typedFieldPipe] schema 中不存在 key: ${k}`);
+    // 真实字段名优先: entries 命中就不再看关键字
+    if (k in s.entries) {
+      return rebuild(s, {
+        entries: replaceEntry(
+          s.entries,
+          k,
+          mergeAt(s.entries[k], rest, actions),
+        ),
+      });
     }
-    return rebuild(s, {
-      entries: replaceEntry(s.entries, k, mergeAt(s.entries[k], rest, actions)),
-    });
+    if (k === REST_SEG) {
+      return mergeRestSeg(s, rest, actions);
+    }
+    throw new Error(`[typedFieldPipe] schema 中不存在 key: ${k}`);
+  }
+
+  // 关键字段: 只在对应节点上展开, 其他情况落到下面的常规分支
+  if (key === VALUE_SEG) {
+    if (isItemSchema(s)) {
+      return rebuild(s, { item: mergeAt(s.item, rest, actions) });
+    }
+    if (isValueSchema(s)) {
+      return rebuild(s, { value: mergeAt(s.value, rest, actions) });
+    }
+    throw new Error(
+      `[typedFieldPipe] ${(s as AnySchema).type} 没有 value/item 节点`,
+    );
+  }
+
+  if (key === KEY_SEG) {
+    if (!isKeyedSchema(s)) {
+      throw new Error(
+        `[typedFieldPipe] ${(s as AnySchema).type} 没有 key 节点`,
+      );
+    }
+    return rebuild(s, { key: mergeAt(s.key, rest, actions) });
+  }
+
+  if (key === REST_SEG) {
+    return mergeRestSeg(s, rest, actions);
   }
 
   if (isItemSchema(s)) {

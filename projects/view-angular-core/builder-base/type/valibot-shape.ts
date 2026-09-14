@@ -111,6 +111,14 @@ export type ValueNodeOf<S> = S extends
   ? V
   : never;
 
+/** record / map 的 key 节点(set 无 key 节点, 落到 never) */
+export type KeyNodeOf<S> =
+  S extends v.RecordSchema<infer K, any, any>
+    ? K
+    : S extends v.MapSchema<infer K, any, any>
+      ? K
+      : never;
+
 /** object_with_rest / tuple_with_rest 的 rest */
 export type RestOf<S> = S extends
   | v.ObjectWithRestSchema<any, infer R, any>
