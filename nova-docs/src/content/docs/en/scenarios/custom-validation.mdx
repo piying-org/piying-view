@@ -19,25 +19,11 @@ This page shows how to use custom validators in Piying-View, covering synchronou
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-sync" />
 </SchemaPreview>
 
-## Validator Function Signature
+## What a Validator Receives and Returns
 
-```typescript
-interface ValidatorFn {
-  (control: AbstractControl):
-    | ValidationErrorsLegacy // old format: { [key: string]: any }
-    | ValidationErrors2[] // new format: structured error array
-    | null
-    | undefined;
-}
+**Input**: the current field control `control`; read the current value via `control.value`.
 
-// ValidationErrors2 is a union type including:
-type ValidationErrors2 =
-  | { kind: 'valibot'; metadata: v.BaseIssue<unknown>[] } // Valibot validation failure
-  | { kind: 'error'; metadata: Error } // captured exception
-  | { kind: string; metadata?: any; message?: string }; // custom error
-```
-
-**Return values:**
+**Output**:
 
 - Return `null` / `undefined`: validation passed
 - Return `{ [errorKey]: errorValue }`: old-format error (backward compatible)

@@ -97,23 +97,9 @@ const schema = typeDefine.nfcComponent('string', (actions) => [
 ]);
 ```
 
-## Returned Actions Type
+## What the `actions` Argument Gives You
 
-The `actions` argument received by the `fn` callback merges `PresetActions` with the `inputs` operations derived from the component type:
-
-```typescript
-type ComponentActions<TComponent> = {
-  inputs: {
-    patch: <Input>(value: ComponentInputs<TComponent>) => ReturnAction<Input>;
-    set: <Input>(value: ComponentInputs<TComponent>) => ReturnAction<Input>;
-    patchAsync: <Input>(value: ComponentInputsAsync<TComponent>) => ReturnAction<Input>;
-    remove: <Input>(value: (keyof ComponentInputs<TComponent>)[]) => ReturnAction<Input>;
-    mapAsync: <Input>(value: (field) => (value) => value) => ReturnAction<Input>;
-  };
-};
-```
-
-`ComponentInputs<TComponent>` is the input prop type derived from the Vue component's `$props` (excluding VNodeProps / AllowedComponentProps).
+The `actions` argument received by the `fn` callback contains the usual `PresetActions`, and on top of that its `set` / `patch` / `patchAsync` / `remove` / `mapAsync` under `inputs` are automatically constrained to the registered component's `$props` (excluding VNodeProps / AllowedComponentProps) — field names and value types.
 
 ## Using `markRaw`
 

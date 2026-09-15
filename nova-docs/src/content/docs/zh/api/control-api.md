@@ -332,15 +332,14 @@ if (control.errors) {
 const status = control.status$$(); // 'VALID' | 'INVALID' | 'PENDING'
 ```
 
-**错误类型系统：**
+**错误类型（看 `err.kind` 区分）：**
 
-```typescript
-type ValidationErrors2 =
-  | ValidationValibotError2 // schema 验证失败 { kind: 'valibot', metadata: BaseIssue[] }
-  | ValidationErrorError2 // 自定义验证器抛出异常 { kind: 'error', metadata: Error }
-  | ValidationDescendantError2 // 子字段错误 { kind: 'descendant', key: string, field: AbstractControl, metadata: ValidationCommonError2[] }
-  | ValidationCommonError2; // 自定义验证器返回 { kind: string, metadata?, message? }
-```
+| `kind`         | 来源                     | 错误内容                                       |
+| -------------- | ------------------------ | ---------------------------------------------- |
+| `'valibot'`    | schema 验证失败         | `metadata` 为 valibot 的 issue 列表         |
+| `'error'`      | 自定义验证器抛异常      | `metadata` 为异常对象                       |
+| `'descendant'` | 子字段错误              | `key` 为子字段名，`metadata` 为其错误列表  |
+| 其他自定义值   | 自定义验证器返回        | `metadata` / `message` 由验证器自己定     |
 
 ### 验证器配置
 
@@ -503,32 +502,27 @@ control.config$.update((c) => ({ ...c, updateOn: 'blur' }));
 
 **`FieldFormConfig` 完整字段说明：**
 
-```typescript
-interface FieldFormConfig<T = any> {
-  disabled?: boolean; // 禁用此字段
-  disabledValue?: 'reserve' | 'delete'; // 禁用时值处理策略
-  transformer?: {
-    toView?: (value: any, control: AbstractControl) => any; // 模型 → 视图
-    toModel?: (value: any, control: AbstractControl) => any; // 视图 → 模型
-  };
-  pipe?: {
-    toModel?: UnaryFunction<Observable<any>, Observable<T>>; // RxJS 管道
-  };
-  defaultValue?: any; // 默认值
-  validators?: ValidatorFn[]; // 同步验证器数组
-  asyncValidators?: AsyncValidatorFn[]; // 异步验证器数组
-  updateOn?: 'change' | 'blur' | 'submit'; // 更新触发时机
-  required?: boolean; // 是否必填
-  undefinedable?: boolean; // 允许 undefined
-  nullable?: boolean; // 允许 null
-  emptyValue?: any; // group/array 空值
-  deletionMode?: 'shrink' | 'mark'; // 数组删除模式
-  groupMode?: 'loose' | 'default' | 'strict' | 'reset'; // 组模式
-  groupKeySchema?: BaseSchema; // Record 键 schema
-  groupValueSchema?: BaseSchema; // 组值 schema
-  disableOrUpdateActivate?: boolean; // LogicGroup 自动切换
-}
-```
+| 配置项                    | 适用                | 说明                                       |
+| ------------------------- | ------------------- | ------------------------------------------ |
+| `disabled`                | 全部                | 禁用此字段                                 |
+| `disabledValue`           | 全部                | 禁用时值处理：`reserve` 保留 / `delete` 不输出 |
+| `transformer`             | 全部                | 同步值转换，`toView` / `toModel` 两个方向   |
+| `pipe`                    | 全部                | 对值流套 RxJS 管道，仅 `toModel` 方向     |
+| `defaultValue`            | 全部                | 默认值                                     |
+| `validators`              | 全部                | 同步验证器                                 |
+| `asyncValidators`         | 全部                | 异步验证器                                 |
+| `updateOn`                | 全部                | 更新时机：`change` / `blur` / `submit`      |
+| `required`                | 全部                | 是否必填                                   |
+| `undefinedable`           | 全部                | 允许 `undefined`                          |
+| `nullable`                | 全部                | 允许 `null`                               |
+| `emptyValue`              | group / array       | 聚合结果为空时的最终值                     |
+| `deletionMode`            | array               | `shrink` 缩短 / `mark` 置空不缩            |
+| `groupMode`               | group / array       | 多余键值处理：`loose` / `default` / `strict` / `reset` |
+| `groupKeySchema`          | group（record）     | 键的类型约束                               |
+| `groupValueSchema`        | group / array       | 值 / 元素的类型约束                        |
+| `disableOrUpdateActivate` | 逻辑组              | 关闭 `or` 类型的自动分支激活              |
+
+各项详细用法见 [formConfig](zh/api/form-config/)。
 
 ---
 

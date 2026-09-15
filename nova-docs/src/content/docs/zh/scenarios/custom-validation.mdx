@@ -19,25 +19,11 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
   <SchemaDemoComponent slot="preview" client:only="angular" name="validation-sync" />
 </SchemaPreview>
 
-## 验证器函数签名
+## 验证器的输入与输出
 
-```typescript
-interface ValidatorFn {
-  (control: AbstractControl):
-    | ValidationErrorsLegacy // 旧格式：{ [key: string]: any }
-    | ValidationErrors2[] // 新格式：结构化错误数组
-    | null
-    | undefined;
-}
+**输入**：当前字段控件 `control`，通过 `control.value` 读当前值。
 
-// ValidationErrors2 是一个联合类型，包括：
-type ValidationErrors2 =
-  | { kind: 'valibot'; metadata: v.BaseIssue<unknown>[] } // Valibot 校验失败
-  | { kind: 'error'; metadata: Error } // 异常捕获
-  | { kind: string; metadata?: any; message?: string }; // 自定义错误
-```
-
-**返回值说明：**
+**输出**：
 
 - 返回 `null` / `undefined`：验证通过
 - 返回 `{ [errorKey]: errorValue }`：旧格式错误（向后兼容）

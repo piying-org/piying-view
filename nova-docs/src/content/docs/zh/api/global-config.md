@@ -4,24 +4,16 @@ title: "fieldGlobalConfig — 全局配置"
 
 `fieldGlobalConfig` 在 `options` 中配置，提供 types、wrappers 的全局默认值。
 
-## 类型签名
+## 输入
 
-```typescript
-interface PiViewConfig {
-  types?: Record<string, PiTypeConfig<TComponent>>;
-  wrappers?: Record<string, PiWrapperConfig<TWrapperComponent>>;
-}
+两个「名字 → 配置对象」的映射：
 
-interface PiTypeConfig<TComponent> {
-  type?: TComponent;                     // 组件引用
-  actions?: BaseMetadata[];              // 此类型的默认 Actions
-}
+| 字段       | 说明                                       |
+| ---------- | ------------------------------------------ |
+| `types`    | 类型名 → 组件配置                       |
+| `wrappers` | 包装器名 → 包装器组件配置               |
 
-interface PiWrapperConfig<TWrapperComponent> {
-  type: TWrapperComponent;               // 包装器组件引用（必填）
-  actions?: RawConfigAction[];           // 此包装器的默认 Actions
-}
-```
+每个配置对象包含 `type`（组件引用，wrapper 必填）与可选的 `actions`（该类型 / 包装器的默认 Actions）。
 
 ## types — 全局类型映射
 

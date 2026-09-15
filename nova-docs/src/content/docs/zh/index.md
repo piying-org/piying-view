@@ -132,7 +132,7 @@ Schema 定义是固定的，但渲染顺序与位置可以动态调整。通过 
 | [attributes](zh/api/attributes/)                             | `actions.attributes` HTML 原生属性设置：set/patch/remove/patchAsync，含 attributes vs inputs 区别表、ARIA/data-\* 属性                                                              |
 | [CSS class](zh/api/css-class/)                               | `actions.class` CSS Class 设置：top（最外层 wrapper）/ bottom・component（字段组件本身）/ asyncTop・asyncBottom                                                                                           |
 | [Layout metadata](zh/api/layout/)                            | `layout` Action：priority 排序权重 + keyPath 查询表达式（'#'/'..'/'@alias'），Intersect + Layout 配合改变字段排列                                                                   |
-| [hideWhen / disableWhen / valueChange](zh/api/hide-disable/) | hideWhen/disableWhen/valueChange/outputChange 完整 API 签名、listenFields 数组机制、skipInitValue、生命周期时机说明                                                                 |
+| [hideWhen / disableWhen / valueChange](zh/api/hide-disable/) | hideWhen/disableWhen/valueChange/outputChange 参数说明、listenFields 数组机制、skipInitValue、生命周期时机说明                                                                 |
 | [路径查询](zh/api/path-querying/)                            | KeyPath 类型定义、field.get() 用法：`['..']`(父级开始)/`'#'`(根字段开始)/`'@alias'`(别名定位)、命名冲突处理规则                                                                     |
 | [formConfig](zh/api/form-config/)                          | `FieldFormConfig` 字段表：禁用 / 值转换 / 校验 / 更新时机 / 数组与表单组行为                                                     |
 | [renderConfig](zh/api/render-config/)                      | `hidden` 配置：字段是否渲染，与 hideWhen 的区别                                                                                  |

@@ -7,45 +7,27 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 
 
-This page documents the full API signatures, parameters and implementation details of the three Actions.
+This page documents the parameters and usage of these Actions.
 
 ## hideWhen — Hiding Fields Dynamically
 
-### Type Signature
-
-```typescript
-interface HideWhenOption {
-  disabled?: boolean; // whether to disable the field while hidden
-  listen: (
-    fn: (input: ValueChangFnOptions) => Observable<{
-      field: _PiResolvedCommonViewFieldConfig;
-      list: any[];
-      listenFields: _PiResolvedCommonViewFieldConfig[];
-    }>,
-    field: _PiResolvedCommonViewFieldConfig,
-  ) => Observable<boolean>;
-}
-
-function hideWhen<TInput>(options: HideWhenOption): RawConfigAction<TInput>;
-```
-
 ### Parameters
 
-| Parameter  | Type       | Required | Description                             |
-| ---------- | ---------- | ---- | ------------------------------------ |
-| `listen`   | `Function` | ✅   | Listener callback returning `Observable<boolean>` |
-| `disabled` | `boolean`  | ❌   | Whether to disable the field while hiding it |
+| Parameter  | Required | Description                                                                |
+| ---------- | ---- | -------------------------------------------------------------------------- |
+| `listen`   | ✅   | Listener callback returning an Observable of `boolean`: `true` → hide, `false` → show |
+| `disabled` | ❌   | Whether to disable the field while hiding it                                 |
 
 ### listen Callback Arguments
 
-```typescript
-interface ValueChangFnOptions {
-  list?: (KeyPath | undefined)[]; // paths of the fields to listen to
-  skipInitValue?: boolean; // skip the initial emission
-}
-```
+`listen` receives two arguments:
 
-Returns `Observable<boolean>`: `true` → hide, `false` → show.
+- `fn`: a function that subscribes to other fields' values; pass it
+  - `list`: array of field paths to listen to
+  - `skipInitValue`: when `true`, the callback does not fire on component initialization
+- `field`: the current field
+
+The object returned by `fn(...)` gives you `field` (the current field), `list` (the current value of each listened field) and `listenFields` (the field instance of each listened field).
 
 ### The listenFields Array
 
@@ -92,22 +74,7 @@ When `enable = false`, `name` is **hidden and disabled at the same time**.
 
 ## disableWhen — Disabling Fields Dynamically
 
-### Type Signature
-
-```typescript
-interface DisableWhenOption {
-  listen: (
-    fn: (input: ValueChangFnOptions) => Observable<{
-      field: _PiResolvedCommonViewFieldConfig;
-      list: any[];
-      listenFields: _PiResolvedCommonViewFieldConfig[];
-    }>,
-    field: _PiResolvedCommonViewFieldConfig,
-  ) => Observable<boolean>;
-}
-
-function disableWhen<TInput>(options: DisableWhenOption): RawConfigAction<TInput>;
-```
+Same parameters as `hideWhen`, only `listen` is required: the callback returns `true` → disabled, `false` → enabled.
 
 ### disableWhen vs hideWhen.disabled
 
@@ -142,20 +109,7 @@ const schema = v.object({
 
 ## valueChange — Value Listening (Side-Effect Free)
 
-### Type Signature
-
-```typescript
-type ValueChangeFn = (
-  fn: (input?: ValueChangFnOptions) => Observable<{
-    field: _PiResolvedCommonViewFieldConfig;
-    list: any[];
-    listenFields: _PiResolvedCommonViewFieldConfig[];
-  }>,
-  field: _PiResolvedCommonViewFieldConfig,
-) => void;
-
-function valueChange<TInput>(listenFn: ValueChangeFn): RawConfigAction<TInput>;
-```
+You pass in a listener callback with the same arguments as `hideWhen`'s `listen`; `subscribe` inside the callback and handle the value yourself, no result to return.
 
 `valueChange` **only listens** to value changes and produces no side effects (it never changes hidden/disabled), which suits custom linkage logic.
 
@@ -218,21 +172,10 @@ This means these three Actions **can only be set up after every field has been r
 
 `outputChange` listens to custom output events of the component (such as `@Output()` / emit events) and supports listening to multiple fields.
 
-### Type Signature
+You pass in a callback that receives `fn`; call `fn(list)` to subscribe to output events. Each entry of `list` contains:
 
-```typescript
-function outputChange<TInput>(
-  fn: (
-    input: (list: {
-      list: KeyPath | undefined; // path of the target field, undefined means the current field itself
-      output: string; // name of the output event to listen to
-    }[]) => Observable<{
-      list: any[];
-      field: _PiResolvedCommonViewFieldConfig;
-      listenFields: _PiResolvedCommonViewFieldConfig[];
-    }>),
-): RawConfigAction<TInput>;
-```
+- `list`: path of the target field, `undefined` means the current field itself
+- `output`: name of the output event to listen to
 
 > Note: the event handlers are actually merged into the outputs of **the current field itself**; the fields listed in `list` only affect how `listenFields` is mapped.
 

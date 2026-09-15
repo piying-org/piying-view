@@ -71,7 +71,7 @@ const schema = v.pipe(
 
 ## actions.attributes.mapAsync — map attribute values
 
-Unlike `patchAsync`, which assigns **per key**, `mapAsync` receives the **whole attributes object** and transforms it functionally. The signature is `(field) => (value) => newValue`:
+Unlike `patchAsync`, which assigns **per key**, `mapAsync` receives the **whole attributes object** and transforms it functionally. It takes the shape `(field) => (value) => newValue`:
 
 ```typescript
 const schema = v.pipe(

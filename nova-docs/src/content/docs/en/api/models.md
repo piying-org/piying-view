@@ -6,11 +6,7 @@ This page explains how to establish **two-way model binding** for a field compon
 
 ## Concept
 
-`actions.models` resembles `inputs` but is dedicated to **two-way binding** (Angular's `ngModel` / `model()`, Vue's `v-model`, ...). Its configuration value is a `Record<string, WritableSignal<any>>` where each key maps to one model input of the component.
-
-```typescript
-type ViewModels = Record<string, WritableSignal<any>>;
-```
+`actions.models` resembles `inputs` but is dedicated to **two-way binding** (Angular's `ngModel` / `model()`, Vue's `v-model`, ...). Its input is an object where each key maps to one model input of the component and the value is the matching external signal.
 
 When the component fires the model change event, the external signal updates automatically; conversely, changes to the external signal propagate into the component. This is a real **two-way data flow**, whereas `inputs` is one-way.
 

@@ -7,45 +7,27 @@ import { SchemaDemoComponent } from '../../../../angular/components/schema-demo.
 
 
 
-本文介绍三个 Action 的完整 API 签名、参数说明和实现细节。
+本文介绍这几个 Action 的参数说明和使用方式。
 
 ## hideWhen — 动态隐藏字段
 
-### 类型签名
-
-```typescript
-interface HideWhenOption {
-  disabled?: boolean; // 隐藏时是否同时禁用
-  listen: (
-    fn: (input: ValueChangFnOptions) => Observable<{
-      field: _PiResolvedCommonViewFieldConfig;
-      list: any[];
-      listenFields: _PiResolvedCommonViewFieldConfig[];
-    }>,
-    field: _PiResolvedCommonViewFieldConfig,
-  ) => Observable<boolean>;
-}
-
-function hideWhen<TInput>(options: HideWhenOption): RawConfigAction<TInput>;
-```
-
 ### 参数说明
 
-| 参数       | 类型       | 必填 | 说明                                 |
-| ---------- | ---------- | ---- | ------------------------------------ |
-| `listen`   | `Function` | ✅   | 监听回调，返回 `Observable<boolean>` |
-| `disabled` | `boolean`  | ❌   | 隐藏时是否同时禁用字段               |
+| 参数       | 必填 | 说明                                                         |
+| ---------- | ---- | ------------------------------------------------------------ |
+| `listen`   | ✅   | 监听回调，返回 `boolean` 形式的 Observable：`true` → 隐藏，`false` → 显示 |
+| `disabled` | ❌   | 隐藏时是否同时禁用字段                                       |
 
 ### listen 回调参数
 
-```typescript
-interface ValueChangFnOptions {
-  list?: (KeyPath | undefined)[]; // 监听字段路径
-  skipInitValue?: boolean; // 跳过初始值触发
-}
-```
+`listen` 接收两个参数：
 
-返回 `Observable<boolean>`：`true` → 隐藏，`false` → 显示。
+- `fn`：订阅其他字段值的函数，调用时传入
+  - `list`：要监听的字段路径数组
+  - `skipInitValue`：为 `true` 时组件初始化不触发回调
+- `field`：当前字段
+
+`fn(...)` 返回的对象里能拿到 `field`（当前字段）、`list`（各监听字段的当前值）、`listenFields`（各监听字段的字段实例）。
 
 ### listenFields 数组
 
@@ -92,22 +74,7 @@ const schema = v.object({
 
 ## disableWhen — 动态禁用字段
 
-### 类型签名
-
-```typescript
-interface DisableWhenOption {
-  listen: (
-    fn: (input: ValueChangFnOptions) => Observable<{
-      field: _PiResolvedCommonViewFieldConfig;
-      list: any[];
-      listenFields: _PiResolvedCommonViewFieldConfig[];
-    }>,
-    field: _PiResolvedCommonViewFieldConfig,
-  ) => Observable<boolean>;
-}
-
-function disableWhen<TInput>(options: DisableWhenOption): RawConfigAction<TInput>;
-```
+参数与 `hideWhen` 一致，只需要 `listen`：回调返回 `true` → 禁用，`false` → 启用。
 
 ### disableWhen vs hideWhen.disabled
 
@@ -142,20 +109,7 @@ const schema = v.object({
 
 ## valueChange — 值变化监听（无副作用）
 
-### 类型签名
-
-```typescript
-type ValueChangeFn = (
-  fn: (input?: ValueChangFnOptions) => Observable<{
-    field: _PiResolvedCommonViewFieldConfig;
-    list: any[];
-    listenFields: _PiResolvedCommonViewFieldConfig[];
-  }>,
-  field: _PiResolvedCommonViewFieldConfig,
-) => void;
-
-function valueChange<TInput>(listenFn: ValueChangeFn): RawConfigAction<TInput>;
-```
+输入一个监听回调，参数与 `hideWhen` 的 `listen` 相同；在回调里自行 `subscribe` 处理，不需要返回结果。
 
 `valueChange` **只监听**值变化，不产生任何副作用（不改 hidden/disabled），适用于自定义联动逻辑。
 
@@ -218,21 +172,10 @@ mergeHooksFn(
 
 `outputChange` 监听组件的自定义输出事件（如 `@Output()` / emit 事件），支持多字段监听。
 
-### 类型签名
+输入一个回调，回调接收 `fn`；调用 `fn(list)` 订阅输出事件，`list` 每一项包含：
 
-```typescript
-function outputChange<TInput>(
-  fn: (
-    input: (list: {
-      list: KeyPath | undefined; // 目标字段路径，undefined 表示当前字段自身
-      output: string; // 要监听的输出事件名
-    }[]) => Observable<{
-      list: any[];
-      field: _PiResolvedCommonViewFieldConfig;
-      listenFields: _PiResolvedCommonViewFieldConfig[];
-    }>),
-): RawConfigAction<TInput>;
-```
+- `list`：目标字段路径，`undefined` 表示当前字段自身
+- `output`：要监听的输出事件名
 
 > 注意：事件处理器实际上是合并到**当前字段自身**的 outputs 上，`list` 中指定的字段只影响 `listenFields` 的映射关系。
 

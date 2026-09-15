@@ -6,11 +6,7 @@ title: "setComponent — Component Registration"
 
 `setComponent` chooses the component used to render a field.
 
-## Type Signature
-
-```typescript
-function setComponent<T, D>(type: D): D extends string ? DefineTypeAction<T> : RawConfigAction<'viewRawConfig', T, AnyCoreSchemaHandle>;
-```
+Input: a type key from `fieldGlobalConfig.types` (a string), or the component class itself.
 
 ## Usage 1: String Reference (recommended)
 

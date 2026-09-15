@@ -4,24 +4,16 @@ title: "fieldGlobalConfig — Global Configuration"
 
 `fieldGlobalConfig` is configured inside `options` and provides global defaults for types and wrappers.
 
-## Type Signature
+## Input
 
-```typescript
-interface PiViewConfig {
-  types?: Record<string, PiTypeConfig<TComponent>>;
-  wrappers?: Record<string, PiWrapperConfig<TWrapperComponent>>;
-}
+Two "name → config object" maps:
 
-interface PiTypeConfig<TComponent> {
-  type?: TComponent;                     // component reference
-  actions?: BaseMetadata[];              // default Actions for this type
-}
+| Field      | Description                              |
+| ---------- | ---------------------------------------- |
+| `types`    | type name → component config         |
+| `wrappers` | wrapper name → wrapper component config |
 
-interface PiWrapperConfig<TWrapperComponent> {
-  type: TWrapperComponent;               // wrapper component reference (required)
-  actions?: RawConfigAction[];           // default Actions for this wrapper
-}
-```
+Each config object holds `type` (the component reference, required for wrappers) plus optional `actions` (the default Actions for that type / wrapper).
 
 ## types — global type map
 

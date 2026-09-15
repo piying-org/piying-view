@@ -16,40 +16,9 @@ const schema = v.object({
 });
 ```
 
-## Type signature
+## Available options
 
-```typescript
-interface FieldFormConfig<T = any> {
-  // common
-  disabled?: boolean; // disable this field
-  disabledValue?: 'reserve' | 'delete'; // how value is handled while disabled
-  transformer?: FieldTransformerConfig; // value transformer (toModel / toView)
-  pipe?: { toModel?: UnaryFunction<Observable<any>, Observable<T>> }; // value stream pipeline
-  defaultValue?: any; // default value
-  validators?: ValidatorFn[]; // synchronous validators
-  asyncValidators?: AsyncValidatorFn[]; // asynchronous validators
-  updateOn?: 'change' | 'blur' | 'submit'; // when the value is updated
-
-  // derived from the schema
-  required?: boolean;
-  undefinedable?: boolean;
-  nullable?: boolean;
-
-  // array / group / logic group
-  emptyValue?: any;
-
-  // array
-  deletionMode?: 'shrink' | 'mark';
-
-  // group / array
-  groupMode?: 'loose' | 'default' | 'strict' | 'reset';
-  groupKeySchema?: BaseSchema<any, any, any>;
-  groupValueSchema?: BaseSchema<any, any, any>;
-
-  // logic group
-  disableOrUpdateActivate?: boolean;
-}
-```
+`disabled` / `disabledValue` / `transformer` / `pipe` / `defaultValue` / `validators` / `asyncValidators` / `updateOn` / `emptyValue` / `deletionMode` / `groupMode` / `groupKeySchema` / `groupValueSchema` / `disableOrUpdateActivate` — each one is explained in its own section below.
 
 ## Disabling
 
@@ -67,14 +36,12 @@ To disable a field depending on the value of another one, use [`disableWhen`](en
 
 ## Value transformation
 
-`transformer` performs synchronous conversions and supports both directions; `pipe` wraps the value stream in an RxJS pipeline (debounce, filter, ...) and currently only supports the `toModel` direction:
+`transformer` performs synchronous conversions and supports both directions; `pipe` wraps the value stream in an RxJS pipeline (debounce, filter, ...) and currently only supports the `toModel` direction.
 
-```typescript
-interface FieldTransformerConfig {
-  toModel?: (value: any, control: AbstractControl) => any; // view → model
-  toView?: (value: any, control: AbstractControl) => any; // model → view
-}
-```
+Both direction callbacks receive the current value plus the current control, and return the new value:
+
+- `toModel`: view → model
+- `toView`: model → view
 
 ```typescript
 import { pipe, debounceTime, filter, map } from 'rxjs';
@@ -115,33 +82,17 @@ formConfig({
 
 ## Validation
 
-Pass an array of validator functions through `validators` / `asyncValidators`. The signatures are:
+Pass an array of validator functions through `validators` / `asyncValidators`.
 
-```typescript
-interface ValidatorFn {
-  (control: AbstractControl):
-    ValidationErrorsLegacy | ValidationErrors2[] | undefined;
-}
+**Input**: the current field control `control`; read the current value via `control.value`.
 
-interface AsyncValidatorFn {
-  (control: AbstractControl):
-    | Promise<ValidationErrorsLegacy | ValidationErrors2[] | undefined>
-    | Observable<ValidationErrorsLegacy | ValidationErrors2[] | undefined>
-    | Signal<ValidationErrorsLegacy | ValidationErrors2[] | undefined>;
-}
-```
+**Output**: return `undefined` when the value is valid; otherwise return one of the two shapes:
 
-Return `undefined` when the value is valid; otherwise return one of the two shapes:
-
-```typescript
-type ValidationErrorsLegacy = { [key: string]: any };
-
-type ValidationErrors2 =
-  | { kind: 'valibot'; metadata: [v.BaseIssue<unknown>, ...v.BaseIssue<unknown>[]] }
-  | { kind: 'error'; metadata: Error }
-  | { kind: 'descendant'; key: string | number; field: AbstractControl; metadata: ValidationCommonError2[] }
-  | { kind: string; metadata?: any; message?: string };
-```
+- Legacy shape (kept for backward compatibility): `{ [errorName]: errorMessage }`
+- Recommended shape: an array whose entries look like `{ kind, metadata?, message? }`
+  - `kind`: the error type identifier
+  - `metadata`: extra data (e.g. required length, actual value)
+  - `message`: text shown to the user
 
 ```typescript
 formConfig({

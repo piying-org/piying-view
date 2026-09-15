@@ -10,14 +10,12 @@ The `layout` Action controls the order and position of fields in the form, letti
 
 On modern browsers (everything but IE11) the field order follows the definition order; use priority to change it.
 
-## Type Signature
+## Input
 
-```typescript
-function layout<TInput>(value: {
-  keyPath?: KeyPath; // target path or special query expression
-  priority?: number; // sort weight (smaller comes first)
-}): LayoutAction<TInput>;
-```
+| Parameter  | Required | Description                                                        |
+| ---------- | ---- | ------------------------------------------------------------------ |
+| `priority` | ❌   | Sort weight, smaller comes first                                   |
+| `keyPath`  | ❌   | Target path or query expression, moves the field to that position |
 
 ## priority — sort weight
 

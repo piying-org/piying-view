@@ -332,15 +332,14 @@ if (control.errors) {
 const status = control.status$$(); // 'VALID' | 'INVALID' | 'PENDING'
 ```
 
-**Error type system:**
+**Error kinds (distinguish by `err.kind`):**
 
-```typescript
-type ValidationErrors2 =
-  | ValidationValibotError2 // schema validation failed { kind: 'valibot', metadata: BaseIssue[] }
-  | ValidationErrorError2 // a custom validator threw { kind: 'error', metadata: Error }
-  | ValidationDescendantError2 // child field error { kind: 'descendant', key: string, field: AbstractControl, metadata: ValidationCommonError2[] }
-  | ValidationCommonError2; // returned by a custom validator { kind: string, metadata?, message? }
-```
+| `kind`              | Where it comes from       | What the error holds                                |
+| ------------------- | ----------------------- | --------------------------------------------------- |
+| `'valibot'`         | schema validation failed  | `metadata` holds the valibot issue list          |
+| `'error'`           | a custom validator threw  | `metadata` holds the exception object            |
+| `'descendant'`      | child field error         | `key` is the child field name, `metadata` its errors |
+| any custom value    | returned by a validator   | `metadata` / `message` are up to the validator   |
 
 ### Configuring Validators
 
@@ -503,32 +502,27 @@ control.config$.update((c) => ({ ...c, updateOn: 'blur' }));
 
 **Complete `FieldFormConfig` field reference:**
 
-```typescript
-interface FieldFormConfig<T = any> {
-  disabled?: boolean; // disable this field
-  disabledValue?: 'reserve' | 'delete'; // value strategy while disabled
-  transformer?: {
-    toView?: (value: any, control: AbstractControl) => any; // model → view
-    toModel?: (value: any, control: AbstractControl) => any; // view → model
-  };
-  pipe?: {
-    toModel?: UnaryFunction<Observable<any>, Observable<T>>; // RxJS pipe
-  };
-  defaultValue?: any; // default value
-  validators?: ValidatorFn[]; // synchronous validators
-  asyncValidators?: AsyncValidatorFn[]; // asynchronous validators
-  updateOn?: 'change' | 'blur' | 'submit'; // when updates are applied
-  required?: boolean; // whether the field is required
-  undefinedable?: boolean; // allow undefined
-  nullable?: boolean; // allow null
-  emptyValue?: any; // empty value for group/array
-  deletionMode?: 'shrink' | 'mark'; // array deletion mode
-  groupMode?: 'loose' | 'default' | 'strict' | 'reset'; // group mode
-  groupKeySchema?: BaseSchema; // record key schema
-  groupValueSchema?: BaseSchema; // group value schema
-  disableOrUpdateActivate?: boolean; // LogicGroup automatic switching
-}
-```
+| Option                    | Applies to          | Description                                            |
+| ------------------------- | ------------------- | ------------------------------------------------------ |
+| `disabled`                | everything          | disable this field                                     |
+| `disabledValue`           | everything          | value strategy while disabled: `reserve` / `delete`    |
+| `transformer`             | everything          | synchronous value conversion, `toView` / `toModel`     |
+| `pipe`                    | everything          | RxJS pipeline on the value stream, `toModel` only      |
+| `defaultValue`            | everything          | default value                                          |
+| `validators`              | everything          | synchronous validators                                 |
+| `asyncValidators`         | everything          | asynchronous validators                                |
+| `updateOn`                | everything          | when updates apply: `change` / `blur` / `submit`       |
+| `required`                | everything          | whether the field is required                          |
+| `undefinedable`           | everything          | allow `undefined`                                    |
+| `nullable`                | everything          | allow `null`                                         |
+| `emptyValue`              | group / array       | final value when the aggregated result is empty        |
+| `deletionMode`            | array               | `shrink` shortens / `mark` blanks without shrinking   |
+| `groupMode`               | group / array       | extra keys handling: `loose` / `default` / `strict` / `reset` |
+| `groupKeySchema`          | group (record)      | constraint on the key type                             |
+| `groupValueSchema`        | group / array       | constraint on the value / element type                 |
+| `disableOrUpdateActivate` | logic group         | turns off automatic branch activation for `or` types   |
+
+Detailed usage of every option lives in [formConfig](en/api/form-config/).
 
 ---
 

@@ -12,15 +12,7 @@ const schema = v.object({
 });
 ```
 
-## 类型签名
-
-```typescript
-interface FieldRenderConfig {
-  hidden?: boolean;
-}
-```
-
-`hidden: true` 时字段组件不渲染。字段仍然参与表单，值保留在模型里。
+输入：`{ hidden }`，`hidden: true` 时字段组件不渲染。字段仍然参与表单，值保留在模型里。
 
 ## 与 hideWhen 的区别
 

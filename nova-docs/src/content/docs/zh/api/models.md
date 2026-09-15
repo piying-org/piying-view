@@ -6,11 +6,7 @@ title: "models — 双向绑定模型设置"
 
 ## 概念
 
-`actions.models` 与 `inputs` 类似，但它专门用于**双向绑定**（如 Angular 的 `ngModel` / `model()`、Vue 的 `v-model`）。配置值是一个 `Record<string, WritableSignal<any>>`，每个键对应组件的一个 model 输入。
-
-```typescript
-type ViewModels = Record<string, WritableSignal<any>>;
-```
+`actions.models` 与 `inputs` 类似，但它专门用于**双向绑定**（如 Angular 的 `ngModel` / `model()`、Vue 的 `v-model`）。输入是一个对象，每个键对应组件的一个 model 输入，值是对应的外部 Signal。
 
 当组件触发 model 的变更事件时，外部 Signal 会自动更新；反之，外部 Signal 变化也会同步到组件。这实现了真正的**双向数据流**，而 `inputs` 是单向的。
 

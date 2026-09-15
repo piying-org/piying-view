@@ -132,7 +132,7 @@ Detailed reference for every Action, configuration item and helper; the logic is
 | [attributes](en/api/attributes/)                                    | `actions.attributes` for native HTML attributes: set/patch/remove/patchAsync, attributes vs inputs comparison, ARIA/data-\* attributes |
 | [CSS class](en/api/css-class/)                                      | `actions.class`: top (outermost wrapper) / bottom・component (the field component itself) / asyncTop・asyncBottom  |
 | [Layout metadata](en/api/layout/)                                   | The `layout` Action: priority weighting + keyPath expressions ('#'/'..'/'@alias'), Intersect + Layout rearranging fields |
-| [hideWhen / disableWhen / valueChange](en/api/hide-disable/)        | Full API signatures of hideWhen/disableWhen/valueChange/outputChange, the listenFields mechanism, skipInitValue, lifecycle timing |
+| [hideWhen / disableWhen / valueChange](en/api/hide-disable/)        | Parameters of hideWhen/disableWhen/valueChange/outputChange, the listenFields mechanism, skipInitValue, lifecycle timing |
 | [Path Querying](en/api/path-querying/)                              | KeyPath type definition, `field.get()` usage: `['..']` (from the parent) / `'#'` (from the root) / `'@alias'` (alias lookup), naming conflict rules |
 | [formConfig](en/api/form-config/)                          | The `FieldFormConfig` field table: disabling / value transformation / validation / update timing / array & group behaviour        |
 | [renderConfig](en/api/render-config/)                      | The `hidden` option: whether a field is rendered, and how it differs from hideWhen                                               |

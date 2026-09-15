@@ -12,15 +12,7 @@ const schema = v.object({
 });
 ```
 
-## Type signature
-
-```typescript
-interface FieldRenderConfig {
-  hidden?: boolean;
-}
-```
-
-`hidden: true` keeps the component from rendering. The field still takes part in the form and its value stays in the model.
+Input: `{ hidden }`. `hidden: true` keeps the component from rendering. The field still takes part in the form and its value stays in the model.
 
 ## Difference from hideWhen
 

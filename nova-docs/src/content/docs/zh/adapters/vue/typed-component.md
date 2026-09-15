@@ -97,23 +97,9 @@ const schema = typeDefine.nfcComponent('string', (actions) => [
 ]);
 ```
 
-## 返回的 Actions 类型
+## `actions` 参数能做什么
 
-`fn` 回调接收的 `actions` 参数是 `PresetActions` 与组件类型推导出的 `inputs` 操作合并后的对象：
-
-```typescript
-type ComponentActions<TComponent> = {
-  inputs: {
-    patch: <Input>(value: ComponentInputs<TComponent>) => ReturnAction<Input>;
-    set: <Input>(value: ComponentInputs<TComponent>) => ReturnAction<Input>;
-    patchAsync: <Input>(value: ComponentInputsAsync<TComponent>) => ReturnAction<Input>;
-    remove: <Input>(value: (keyof ComponentInputs<TComponent>)[]) => ReturnAction<Input>;
-    mapAsync: <Input>(value: (field) => (value) => value) => ReturnAction<Input>;
-  };
-};
-```
-
-其中 `ComponentInputs<TComponent>` 是从 Vue 组件的 `$props`（排除 VNodeProps / AllowedComponentProps）推导出的输入属性类型。
+`fn` 回调接收的 `actions` 参数，除了常规的 `PresetActions`，其 `inputs` 上的 `set` / `patch` / `patchAsync` / `remove` / `mapAsync` 还会根据注册组件的 `$props`（排除 VNodeProps / AllowedComponentProps）自动约束字段名与值类型。
 
 ## 使用 `markRaw`
 

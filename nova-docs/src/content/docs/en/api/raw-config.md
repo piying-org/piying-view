@@ -14,14 +14,9 @@ const schema = v.pipe(
 );
 ```
 
-## Type signature
+## Input
 
-```typescript
-rawConfig<T>(
-  value: (field: AnyCoreSchemaHandle, context?: any) => void,
-  workOn?: 'afterSchemaType',
-);
-```
+You pass in a callback whose argument is the mutable config object `field` (see the common properties below). Just modify it directly; there is nothing to return.
 
 ## Commonly used field properties
 

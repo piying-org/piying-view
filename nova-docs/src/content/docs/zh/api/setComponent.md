@@ -6,11 +6,7 @@ title: "setComponent — 组件设置"
 
 `setComponent` 指定字段渲染时使用的组件。
 
-## 类型签名
-
-```typescript
-function setComponent<T, D>(type: D): D extends string ? DefineTypeAction<T> : RawConfigAction<'viewRawConfig', T, AnyCoreSchemaHandle>;
-```
+输入：`fieldGlobalConfig.types` 中的类型 key（字符串），或组件类本身。
 
 ## 用法一：字符串引用（推荐）
 

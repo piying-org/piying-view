@@ -14,14 +14,9 @@ const schema = v.pipe(
 );
 ```
 
-## 类型签名
+## 输入
 
-```typescript
-rawConfig<T>(
-  value: (field: AnyCoreSchemaHandle, context?: any) => void,
-  workOn?: 'afterSchemaType',
-);
-```
+输入一个回调函数，参数是可变的配置对象 `field`（常用属性见下表），直接改它就行，不需要返回值。
 
 ## field 常用属性
 

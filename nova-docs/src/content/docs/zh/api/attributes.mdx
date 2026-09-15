@@ -71,7 +71,7 @@ const schema = v.pipe(
 
 ## actions.attributes.mapAsync — 映射属性值
 
-与 `patchAsync`「按 key 赋值」不同，`mapAsync` 拿到**整个 attributes 对象**做函数式变换。签名是 `(field) => (value) => 新值`：
+与 `patchAsync`「按 key 赋值」不同，`mapAsync` 拿到**整个 attributes 对象**做函数式变换。写法是 `(field) => (value) => 新值`：
 
 ```typescript
 const schema = v.pipe(

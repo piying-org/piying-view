@@ -10,14 +10,12 @@ title: "Layout metadata — 布局控制"
 
 现代浏览器（除 IE11）字段顺序一般为定义顺序;如果你想修改,可以使用priority
 
-## 类型签名
+## 输入
 
-```typescript
-function layout<TInput>(value: {
-  keyPath?: KeyPath; // 目标路径或特殊查询表达式
-  priority?: number; // 排序权重（数值越小越靠前）
-}): LayoutAction<TInput>;
-```
+| 参数       | 必填 | 说明                                       |
+| ---------- | ---- | ------------------------------------------ |
+| `priority` | ❌   | 排序权重，数值越小越靠前                   |
+| `keyPath`  | ❌   | 目标路径或查询表达式，用于把字段移到指定位置 |
 
 ## priority — 排序权重
 

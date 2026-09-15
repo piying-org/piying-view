@@ -16,40 +16,9 @@ const schema = v.object({
 });
 ```
 
-## 类型签名
+## 可用配置项
 
-```typescript
-interface FieldFormConfig<T = any> {
-  // 通用
-  disabled?: boolean; // 禁用此字段
-  disabledValue?: 'reserve' | 'delete'; // 禁用时 value 的处理策略
-  transformer?: FieldTransformerConfig; // 值转换器（toModel / toView）
-  pipe?: { toModel?: UnaryFunction<Observable<any>, Observable<T>> }; // 值流管道
-  defaultValue?: any; // 默认值
-  validators?: ValidatorFn[]; // 同步验证器
-  asyncValidators?: AsyncValidatorFn[]; // 异步验证器
-  updateOn?: 'change' | 'blur' | 'submit'; // 值更新时机
-
-  // 由 schema 写法推导
-  required?: boolean;
-  undefinedable?: boolean;
-  nullable?: boolean;
-
-  // array / group / logic group
-  emptyValue?: any;
-
-  // array
-  deletionMode?: 'shrink' | 'mark';
-
-  // group / array
-  groupMode?: 'loose' | 'default' | 'strict' | 'reset';
-  groupKeySchema?: BaseSchema<any, any, any>;
-  groupValueSchema?: BaseSchema<any, any, any>;
-
-  // logic group
-  disableOrUpdateActivate?: boolean;
-}
-```
+`disabled` / `disabledValue` / `transformer` / `pipe` / `defaultValue` / `validators` / `asyncValidators` / `updateOn` / `emptyValue` / `deletionMode` / `groupMode` / `groupKeySchema` / `groupValueSchema` / `disableOrUpdateActivate`，各项含义见下文分节说明。
 
 ## 禁用
 
@@ -67,14 +36,12 @@ formConfig({ disabled: true, disabledValue: 'delete' });
 
 ## 值转换
 
-`transformer` 做同步的值转换，两个方向都可以配置；`pipe` 对值流套一层 RxJS 管道（去抖、过滤等），目前只支持 `toModel` 方向：
+`transformer` 做同步的值转换，两个方向都可以配置；`pipe` 对值流套一层 RxJS 管道（去抖、过滤等），目前只支持 `toModel` 方向。
 
-```typescript
-interface FieldTransformerConfig {
-  toModel?: (value: any, control: AbstractControl) => any; // 视图 → 模型
-  toView?: (value: any, control: AbstractControl) => any; // 模型 → 视图
-}
-```
+两个方向的回调都接收「当前值 + 当前控件」，返回转换后的新值：
+
+- `toModel`：视图 → 模型
+- `toView`：模型 → 视图
 
 ```typescript
 import { pipe, debounceTime, filter, map } from 'rxjs';
@@ -115,33 +82,17 @@ formConfig({
 
 ## 校验
 
-`validators` / `asyncValidators` 接受验证函数数组，签名如下：
+`validators` / `asyncValidators` 接受验证函数数组。
 
-```typescript
-interface ValidatorFn {
-  (control: AbstractControl):
-    ValidationErrorsLegacy | ValidationErrors2[] | undefined;
-}
+**输入**：当前字段控件 `control`，通过 `control.value` 读当前值。
 
-interface AsyncValidatorFn {
-  (control: AbstractControl):
-    | Promise<ValidationErrorsLegacy | ValidationErrors2[] | undefined>
-    | Observable<ValidationErrorsLegacy | ValidationErrors2[] | undefined>
-    | Signal<ValidationErrorsLegacy | ValidationErrors2[] | undefined>;
-}
-```
+**输出**：返回 `undefined` 表示通过；需要报错时返回两种格式之一：
 
-通过时返回 `undefined`；需要报错时返回两种格式之一：
-
-```typescript
-type ValidationErrorsLegacy = { [key: string]: any };
-
-type ValidationErrors2 =
-  | { kind: 'valibot'; metadata: [v.BaseIssue<unknown>, ...v.BaseIssue<unknown>[]] }
-  | { kind: 'error'; metadata: Error }
-  | { kind: 'descendant'; key: string | number; field: AbstractControl; metadata: ValidationCommonError2[] }
-  | { kind: string; metadata?: any; message?: string };
-```
+- 旧格式（向后兼容）：`{ [错误名]: 错误信息 }`
+- 新格式（推荐）：错误数组，每一项形如 `{ kind, metadata?, message? }`
+  - `kind`：错误类型标识
+  - `metadata`：附加数据（如最小长度、实际值）
+  - `message`：展示用文案
 
 ```typescript
 formConfig({
