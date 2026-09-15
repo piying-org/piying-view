@@ -3,7 +3,7 @@ import { ClassValue } from 'clsx';
 import {
   HookConfig,
   PiFieldAtPath,
-  PiFieldTypeRef,
+  PiFieldValueOf,
   _PiResolvedCommonViewFieldConfig,
 } from '../../builder-base/type/common-field-config';
 import {
@@ -36,6 +36,8 @@ import { disableWhen } from './disable-when';
 import type { DisableWhenOption } from './disable-when';
 import { valueChange } from './value-change';
 import type { ValueChangeFn } from './value-change';
+import { outputChange } from './output';
+import type { EventChangeFn } from './output';
 import type { AsyncCallback, AsyncResult } from './type/async-callback';
 
 /* ---------------- 类型: 未绑定 field 的 action 工厂 ---------------- */
@@ -155,6 +157,8 @@ export interface ActionFactories {
   valueChange: <F extends AnyField>(
     listenFn: ValueChangeFn<F>,
   ) => ConfigAction<F>;
+  /** 监听其他字段的 output: 回调里 list/listenFields 与监听项逐位对齐 */
+  outputChange: <F extends AnyField>(fn: EventChangeFn<F>) => ConfigAction<F>;
 }
 
 /** 收集到的一条「路径 -> actions」 */
@@ -364,12 +368,7 @@ export type FieldPathsOf<S, D extends readonly unknown[] = PathDepth> = PathsOf<
 >;
 
 /** 从字段类型反查 schema, 再取其输出类型(pipe 之后的 value) */
-export type ValueOfField<F> =
-  (
-    F extends { __piTypes?: PiFieldTypeRef<infer S, any, any, any> } ? S : never
-  ) extends v.BaseSchema<any, infer O, any>
-    ? O
-    : never;
+export type ValueOfField<F> = PiFieldValueOf<F>;
 
 /**
  * 官方通用 action。
@@ -447,6 +446,7 @@ export const ɵtypedFieldActions = {
   hideWhen,
   disableWhen,
   valueChange,
+  outputChange,
 };
 
 /**

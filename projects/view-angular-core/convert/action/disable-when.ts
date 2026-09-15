@@ -1,19 +1,13 @@
 import { Observable } from 'rxjs';
 import { _PiResolvedCommonViewFieldConfig } from '../../builder-base';
 import { mergeHooksFn } from './hook';
-import {
-  ValueChangeStream,
-  valueChangeFn,
-  ValueChangFnOptions,
-} from './value-change';
+import { ValueChangeListenFn, valueChangeFn } from './value-change';
 import { rawConfig } from './raw-config';
+
 export interface DisableWhenOption<
   T extends _PiResolvedCommonViewFieldConfig = _PiResolvedCommonViewFieldConfig,
 > {
-  listen: (
-    fn: (input: ValueChangFnOptions) => Observable<ValueChangeStream<T>>,
-    field: T,
-  ) => Observable<boolean>;
+  listen: (fn: ValueChangeListenFn<T>, field: T) => Observable<boolean>;
 }
 
 // 同 valueChange: TInput 只出现在返回类型, 保证 v.pipe 上下文能反推.

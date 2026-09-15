@@ -472,11 +472,23 @@ export interface PiFieldTypeRef<Schema, RootSchema, ParentSchema, AliasMap> {
 }
 
 /** 从字段配置类型反查 schema 泛型; 拿不到时给宽松兜底 */
-type FieldSchemaParts<F> = F extends {
+/** 字段配置 F 携带的作用域 schema(自身/根/父/别名链), 拿不到时给宽松兜底 */
+export type PiFieldScopeOf<F> = F extends {
   __piTypes?: PiFieldTypeRef<infer S, infer R, infer Pa, infer A>;
 }
   ? { schema: S; root: R; parent: Pa; alias: A }
   : { schema: any; root: any; parent: any; alias: {} };
+
+type FieldSchemaParts<F> = PiFieldScopeOf<F>;
+
+/**
+ * 字段配置 F 的 value 类型(由携带的 schema 反查)。
+ * 拿不到 schema 时落到 any, 保证未绑定泛型的场景依旧宽松。
+ */
+export type PiFieldValueOf<F> =
+  FieldSchemaParts<F>['schema'] extends v.BaseSchema<any, infer O, any>
+    ? O
+    : any;
 
 /**
  * 对字段配置 F 执行 `.get(P)` 的等价类型。

@@ -4,6 +4,17 @@ import { UnWrapSignal } from './unwrap-signal';
 export type KeyPath = (string | number)[];
 export type RawKeyPath = string | number;
 
+/**
+ * 只读路径: 与 KeyPath 同构, 但能被 `const` 类型参数原样推断成字面量元组。
+ * 监听类 action(valueChange / hideWhen / disableWhen / outputChange)的 list 用它承接路径。
+ */
+export type ListenPath = readonly (string | number)[];
+
+/** 只读路径 -> 可变 KeyPath, 供 `field.get` / `PiFieldGet` 使用 */
+export type ToKeyPath<P> = P extends readonly (string | number)[]
+  ? [...P]
+  : never;
+
 export type SetOptional<OBJ, K extends keyof OBJ> = Omit<OBJ, K> &
   Partial<Pick<OBJ, K>>;
 export type SetRequired<OBJ, K extends keyof OBJ> = Omit<OBJ, K> &

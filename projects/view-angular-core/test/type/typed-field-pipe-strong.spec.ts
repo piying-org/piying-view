@@ -1,12 +1,14 @@
 import * as v from 'valibot';
 import { signal, Signal } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import {
   typedFieldPipe,
   PiFieldAtPath,
   PathsOf,
   FieldPathsOf,
   AsyncResult,
+  ListenPathOf,
+  setAlias,
   ɵtypedFieldActions,
 } from '@piying/view-angular-core';
 import { createBuilder } from '../util/create-builder';
@@ -199,6 +201,7 @@ describe('强类型改造 - 门面与运行时对齐 (#5)', () => {
       'inputs',
       'models',
       'outputs',
+      'outputChange',
       'props',
       'providers',
       'slots',
@@ -459,5 +462,368 @@ describe('强类型改造 - AsyncResult 统一 (#18)', () => {
   it('FieldPathsOf 与 PathsOf 完全等价', () => {
     const eq: Equal<FieldPathsOf<typeof root>, PathsOf<typeof root>> = true;
     expect(eq).toBe(true);
+  });
+});
+
+describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
+  const listenRoot = v.object({
+    flag: v.boolean(),
+    name: v.string(),
+    nested: v.object({ age: v.number(), city: v.string() }),
+  });
+  type LRoot = typeof listenRoot;
+
+  /**
+   * valueChanges 经 Angular effect 异步派发, 断言前先等到「至少 min 次发射且不再有新增」。
+   */
+  async function waitQuiet(emissions: unknown[], min: number) {
+    let guard = 0;
+    while (emissions.length < min && guard++ < 500) {
+      await new Promise((r) => setTimeout(r, 0));
+    }
+    let last = -1;
+    let stable = 0;
+    while (stable < 3) {
+      await new Promise((r) => setTimeout(r, 0));
+      if (emissions.length === last) stable++;
+      else {
+        stable = 0;
+        last = emissions.length;
+      }
+    }
+  }
+
+  it('类型: valueChange 的 list / listenFields 与路径元组逐位对齐', () => {
+    typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.valueChange((fn) => {
+            fn({
+              list: [undefined, ['..', 'city'], ['#', 'flag'], ['#', 'name']],
+            }).subscribe((s) => {
+              // 值类型逐位精确, 不再是 any
+              const shape: Equal<
+                typeof s.list,
+                [number, string, boolean, string]
+              > = true;
+              const notAny: IsAny<(typeof s.list)[1]> = false;
+              // 字段类型与 builder.get(path) 完全等价
+              const f0: Equal<
+                (typeof s.listenFields)[0],
+                PiFieldAtPath<LRoot, ['nested', 'age']>
+              > = true;
+              const f1: Equal<
+                (typeof s.listenFields)[1],
+                PiFieldAtPath<LRoot, ['nested', 'city']>
+              > = true;
+              const f2: Equal<
+                (typeof s.listenFields)[2],
+                PiFieldAtPath<LRoot, ['flag']>
+              > = true;
+              const f3: Equal<
+                (typeof s.listenFields)[3],
+                PiFieldAtPath<LRoot, ['name']>
+              > = true;
+              const lfNotAny: IsAny<(typeof s.listenFields)[2]> = false;
+              expect([shape, notAny, f0, f1, f2, f3, lfNotAny]).toEqual([
+                true,
+                false,
+                true,
+                true,
+                true,
+                true,
+                false,
+              ]);
+            });
+          }),
+        ],
+      ),
+    ]);
+  });
+
+  it('类型: 不传 list 时退化为「只监听自身」', () => {
+    typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.valueChange((fn, field) => {
+            fn().subscribe((s) => {
+              const shape: Equal<typeof s.list, [number]> = true;
+              const self: Equal<
+                (typeof s.listenFields)[0],
+                PiFieldAtPath<LRoot, ['nested', 'age']>
+              > = true;
+              const sameAsField: Equal<typeof s.field, typeof field> = true;
+              expect([shape, self, sameAsField]).toEqual([true, true, true]);
+            });
+          }),
+        ],
+      ),
+    ]);
+  });
+
+  it('类型: 路径写错会被直接拦下, 不再静默退化成 any', () => {
+    typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.valueChange((fn) => {
+            // @ts-expect-error 'nope' 不在父级 nested 的路径集合里
+            fn({ list: [['..', 'nope']] }).subscribe((s) => {
+              const wrongIsAny: IsAny<(typeof s.list)[0]> = false;
+              expect(wrongIsAny).toBe(false);
+            });
+          }),
+        ],
+      ),
+    ]);
+  });
+
+  it('类型: list 候选路径 = 自身往下 / # 根级 / .. 父级', () => {
+    // 首段候选(即编辑器补全项)
+    type Head<T> = T extends readonly [infer H, ...unknown[]] ? H : never;
+
+    typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.valueChange((fn, field) => {
+            type C = Exclude<ListenPathOf<typeof field>, undefined>;
+            // 数字字段自身无子路径, 首段只剩 # 与 ..
+            const heads: Equal<Head<C>, '#' | '..'> = true;
+            const ok: ListenPathOf<typeof field>[] = [
+              undefined,
+              [],
+              ['..', 'city'],
+              ['..', 'age'],
+              ['#', 'flag'],
+              ['#', 'nested', 'age'],
+            ];
+            expect([heads, ok.length]).toEqual([true, 6]);
+          }),
+        ],
+      ),
+      d(
+        ['nested'],
+        [
+          d.valueChange((fn, field) => {
+            type C = Exclude<ListenPathOf<typeof field>, undefined>;
+            // 对象字段自身往下的 key 同样进入候选
+            const heads: Equal<Head<C>, '#' | '..' | 'age' | 'city'> = true;
+            expect(heads).toBe(true);
+          }),
+        ],
+      ),
+    ]);
+  });
+
+  it('类型: 别名路径 @xxx 也在候选内, 并解析出目标字段类型', () => {
+    const aliasRoot = v.object({
+      key1: v.pipe(v.string(), setAlias('ss')),
+      other: v.number(),
+    });
+
+    typedFieldPipe(aliasRoot, (d) => [
+      d(
+        ['other'],
+        [
+          d.valueChange((fn, field) => {
+            type Head<T> = T extends readonly [infer H, ...unknown[]]
+              ? H
+              : never;
+            type C = Exclude<ListenPathOf<typeof field>, undefined>;
+            const heads: Equal<Head<C>, '#' | '..' | '@ss'> = true;
+            fn({ list: [['@ss']] }).subscribe((s) => {
+              const aliasValue: Equal<(typeof s.list)[0], string> = true;
+              expect([heads, aliasValue]).toEqual([true, true]);
+            });
+          }),
+        ],
+      ),
+    ]);
+  });
+
+  it('类型: outputChange 的 entry.list 同样获得路径候选', () => {
+    typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.outputChange((fn) => {
+            fn([
+              { list: undefined, output: 'fire' },
+              { list: ['..', 'city'], output: 'fire' },
+              { list: ['#', 'flag'], output: 'fire' },
+            ]).subscribe((s) => {
+              const f1: Equal<
+                (typeof s.listenFields)[1],
+                PiFieldAtPath<LRoot, ['nested', 'city']>
+              > = true;
+              const f2: Equal<
+                (typeof s.listenFields)[2],
+                PiFieldAtPath<LRoot, ['flag']>
+              > = true;
+              expect([f1, f2]).toEqual([true, true]);
+            });
+          }),
+        ],
+      ),
+    ]);
+  });
+
+  it('运行时: listenFields 逐位解析成真实字段, list 是对应 value', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.valueChange((fn) => {
+            fn({
+              list: [undefined, ['..', 'city'], ['#', 'flag']],
+            }).subscribe((s) => {
+              emissions.push(s);
+            });
+          }),
+        ],
+      ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 7, city: 'sh' },
+    });
+    await waitQuiet(emissions, 1);
+
+    const s = emissions[emissions.length - 1];
+    expect(s.field.fullPath).toEqual(['nested', 'age']);
+    expect(s.listenFields.map((f: any) => f.fullPath)).toEqual([
+      ['nested', 'age'],
+      ['nested', 'city'],
+      ['flag'],
+    ]);
+    expect(s.list).toEqual([7, 'sh', true]);
+  });
+
+  it('运行时: hideWhen 依据 list 里其他字段的值切换 hidden', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'city'],
+        [
+          d.hideWhen({
+            listen: (fn) =>
+              fn({ list: [['..', 'age']] }).pipe(
+                map((s) => {
+                  emissions.push(s.list[0]);
+                  return s.list[0] > 10;
+                }),
+              ),
+          }),
+        ],
+      ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 3, city: 'sh' },
+    });
+    await waitQuiet(emissions, 1);
+    expect(builder.get(['nested', 'city'])!.renderConfig().hidden).toBeFalsy();
+
+    const before = emissions.length;
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 20, city: 'sh' },
+    });
+    await waitQuiet(emissions, before + 1);
+    expect(builder.get(['nested', 'city'])!.renderConfig().hidden).toBe(true);
+  });
+
+  it('运行时: disableWhen 依据 list 里根级字段的值切换 disabled', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['name'],
+        [
+          d.disableWhen({
+            listen: (fn) =>
+              fn({ list: [['#', 'flag']] }).pipe(
+                map((s) => {
+                  emissions.push(s.list[0]);
+                  return s.list[0];
+                }),
+              ),
+          }),
+        ],
+      ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: false,
+      name: 'n',
+      nested: { age: 1, city: 'c' },
+    });
+    await waitQuiet(emissions, 1);
+    expect(builder.get(['name'])!.formConfig().disabled).toBe(false);
+
+    const before = emissions.length;
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 1, city: 'c' },
+    });
+    await waitQuiet(emissions, before + 1);
+    expect(builder.get(['name'])!.formConfig().disabled).toBe(true);
+  });
+
+  it('运行时: outputChange 的 listenFields 与监听项逐位对齐', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.outputs.set({ fire: () => {} }),
+          d.outputChange((fn) => {
+            fn([
+              { list: undefined, output: 'fire' },
+              { list: ['..', 'city'], output: 'fire' },
+            ]).subscribe((s) => {
+              emissions.push(s);
+            });
+          }),
+        ],
+      ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 1, city: 'c' },
+    });
+    builder.get(['nested', 'age'])!.outputs()['fire']('x', 2);
+    await waitQuiet(emissions, 1);
+
+    const s = emissions[emissions.length - 1];
+    expect(s.listenFields.map((f: any) => f.fullPath)).toEqual([
+      ['nested', 'age'],
+      ['nested', 'city'],
+    ]);
+    // list 是 output 触发时的原始参数数组(mergeOutputFn 会在尾部追加 field)
+    expect(s.list[0][0]).toBe('x');
+    expect(s.list[0][1]).toBe(2);
+  });
+
+  it('类型: 门面已暴露 outputChange(与 hideWhen/disableWhen/valueChange 同族)', () => {
+    type FacadeKeys = keyof import('@piying/view-angular-core').ActionFactories;
+    const has: 'outputChange' extends FacadeKeys ? true : false = true;
+    expect(has).toBe(true);
+    expect(typeof (ɵtypedFieldActions as any).outputChange).toBe('function');
   });
 });
