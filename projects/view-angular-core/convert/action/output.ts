@@ -134,7 +134,7 @@ function createOutputChangeListenFn(
     for (const item of list as readonly OutputChangeListenEntry<any>[]) {
       const emitField = resolveListenField(field, item.list);
       const subject = new Subject();
-      mergeOutputFn(field, {
+      mergeOutputFn(emitField, {
         [item.output]: (...args: any[]) => {
           subject.next(args);
         },

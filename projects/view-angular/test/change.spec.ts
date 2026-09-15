@@ -18,6 +18,7 @@ import {
 import { map, skip } from 'rxjs';
 import { Emit1Component } from './emit-1/component';
 import { Emit2Component } from './emit-2/component';
+import { Emit3Component } from './emit-3/component';
 
 // 用于测试fields和model变动时,数值是否正确
 describe('change', () => {
@@ -359,6 +360,97 @@ describe('change', () => {
       '.emit2-output1',
     ) as HTMLElement;
     emit2Output1Btn.click();
+    // k1 上被点的是 output1, 而 entry 监听的是 output2: 不应再产生发射
+    expect(valueChangeIndex).toBe(1);
+  });
+  it('跨字段 output 监听: 事件名在视图内唯一, 只能由目标字段触发', async () => {
+    const emissions: any[] = [];
+    const define = v.object({
+      // k1 用 Emit3: onlyEmit3 / otherEmit3 这两个事件名整个视图里只它有
+      k1: v.pipe(NFCSchema, setComponent('test-emit3')),
+      // k2 用 Emit1: 它没有任何叫 onlyEmit3 的输出
+      k2: v.pipe(
+        NFCSchema,
+        setComponent('test-emit1'),
+        outputChange((fn) => {
+          fn([{ list: ['..', 'k1'], output: 'onlyEmit3' }]).subscribe((value) =>
+            emissions.push(value),
+          );
+        }),
+      ),
+    });
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(define),
+      signal({ enable: true }),
+      {
+        types: {
+          'test-emit1': { type: Emit1Component },
+          'test-emit3': { type: Emit3Component },
+        },
+      },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(emissions.length).toBe(0);
+
+    // 监听方自身 emit: 视图里不存在同名事件, 不可能误中
+    (element.querySelector('.emit1-output1') as HTMLElement).click();
+    (element.querySelector('.emit1-output2') as HTMLElement).click();
+    await fixture.whenStable();
+    expect(emissions.length).toBe(0);
+
+    // 目标字段上「没被监听」的事件: 同样不应触发
+    (element.querySelector('.emit3-other') as HTMLElement).click();
+    await fixture.whenStable();
+    expect(emissions.length).toBe(0);
+
+    // 只有目标字段上被监听的那个事件会触发
+    (element.querySelector('.emit3-only') as HTMLElement).click();
+    await fixture.whenStable();
+
+    expect(emissions.length).toBe(1);
+    const s = emissions[0];
+    expect(s.field.fullPath).toEqual(['k2']);
+    expect(s.listenFields.map((f: any) => f.fullPath)).toEqual([['k1']]);
+    expect(s.list[0][0]).toBe('emit3-only-data');
+  });
+  it('跨字段监听了目标组件上不存在的事件名: 渲染期抛 NG0316(不做静默兜底)', async () => {
+    const emissions: any[] = [];
+    const define = v.object({
+      k1: v.pipe(NFCSchema, setComponent('test-emit3')),
+      k2: v.pipe(
+        NFCSchema,
+        setComponent('test-emit1'),
+        outputChange((fn) => {
+          fn([{ list: ['..', 'k1'], output: 'ghostEvent' }]).subscribe(
+            (value) => emissions.push(value),
+          );
+        }),
+      ),
+    });
+
+    let err: any = null;
+    try {
+      const { fixture } = await createSchemaComponent(
+        signal(define),
+        signal({ enable: true }),
+        {
+          types: {
+            'test-emit1': { type: Emit1Component },
+            'test-emit3': { type: Emit3Component },
+          },
+        },
+      );
+      await fixture.whenStable();
+      fixture.detectChanges();
+    } catch (e) {
+      err = e;
+    }
+    // mergeOutputFn 会往目标字段的 outputs 上加 key, 组件没声明这个 output 就会炸
+    expect(String(err?.message ?? err)).toContain('NG0316');
+    expect(emissions.length).toBe(0);
   });
   it('array变化产生了hook循环', async () => {
     let index = 0;

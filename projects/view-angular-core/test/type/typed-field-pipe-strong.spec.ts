@@ -961,6 +961,149 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
     expect(s.list[0][1]).toBe(2);
   });
 
+  it('运行时: 跨字段监听由「被监听字段」触发, 自身同名 output 不误触发', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
+      d(['nested', 'city'], [d.outputs.set({ fire: () => {} })]),
+      d(
+        ['nested', 'age'],
+        [
+          // 自身也声明同名 output: 它不该被「监听 city」的这条 entry 捕获
+          d.outputs.set({ fire: () => {} }),
+          d.outputChange((fn) => {
+            fn([{ list: ['..', 'city'], output: 'fire' }]).subscribe((s) => {
+              emissions.push(s);
+            });
+          }),
+        ],
+      ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 1, city: 'c' },
+    });
+    await waitQuiet(emissions, 0);
+    // 合成的首帧已被 skip, 目标字段没触发前不应有发射
+    expect(emissions.length).toBe(0);
+
+    builder.get(['nested', 'age'])!.outputs()['fire']('from-self');
+    await waitQuiet(emissions, 0);
+    expect(emissions.length).toBe(0);
+
+    builder.get(['nested', 'city'])!.outputs()['fire']('from-city', 9);
+    await waitQuiet(emissions, 1);
+
+    expect(emissions.length).toBe(1);
+    const s = emissions[0];
+    // 订阅方仍是声明处字段, 监听目标是 city
+    expect(s.field.fullPath).toEqual(['nested', 'age']);
+    expect(s.listenFields.map((f: any) => f.fullPath)).toEqual([
+      ['nested', 'city'],
+    ]);
+    expect(s.list[0][0]).toBe('from-city');
+    expect(s.list[0][1]).toBe(9);
+  });
+
+  it('运行时: 自身监听(undefined 与空路径)仍然生效', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
+      d(
+        ['nested', 'age'],
+        [
+          d.outputs.set({ fire: () => {} }),
+          d.outputChange((fn) => {
+            fn([
+              { list: undefined, output: 'fire' },
+              { list: [], output: 'fire' },
+            ]).subscribe((s) => {
+              emissions.push(s.list.map((a: any) => a?.[0]));
+            });
+          }),
+        ],
+      ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 1, city: 'c' },
+    });
+    await waitQuiet(emissions, 0);
+    expect(emissions.length).toBe(0);
+
+    builder.get(['nested', 'age'])!.outputs()['fire']('from-self');
+    await waitQuiet(emissions, 1);
+
+    // 两条 entry 共用同一个 output 名, combineLatest 会逐个级联发射;
+    // 真正要保证的是「终态」两位都拿到了自身参数
+    expect(emissions.length).toBeGreaterThanOrEqual(1);
+    expect(emissions[emissions.length - 1]).toEqual(['from-self', 'from-self']);
+  });
+
+  it('运行时: 多位监听逐位汇总, 未监听的 output 名不触发', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
+      d(['flag'], [d.outputs.set({ zap: () => {} })]),
+      d(
+        ['nested', 'city'],
+        [d.outputs.set({ pong: () => {}, other: () => {} })],
+      ),
+      d(
+        ['nested', 'age'],
+        [
+          d.outputs.set({ ping: () => {} }),
+          d.outputChange((fn) => {
+            fn([
+              { list: undefined, output: 'ping' },
+              { list: ['..', 'city'], output: 'pong' },
+              { list: ['#', 'flag'], output: 'zap' },
+            ]).subscribe((s) => {
+              emissions.push(s.list.map((a: any) => a?.[0] ?? null));
+            });
+          }),
+        ],
+      ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 1, city: 'c' },
+    });
+    await waitQuiet(emissions, 0);
+    expect(emissions.length).toBe(0);
+
+    // 目标字段上未被监听的 output 名: 不应触发
+    builder.get(['nested', 'city'])!.outputs()['other']('nope');
+    await waitQuiet(emissions, 0);
+    expect(emissions.length).toBe(0);
+
+    builder.get(['nested', 'city'])!.outputs()['pong']('from-city');
+    await waitQuiet(emissions, 1);
+    expect(emissions[emissions.length - 1]).toEqual([null, 'from-city', null]);
+
+    builder.get(['flag'])!.outputs()['zap']('from-flag');
+    await waitQuiet(emissions, 2);
+    expect(emissions[emissions.length - 1]).toEqual([
+      null,
+      'from-city',
+      'from-flag',
+    ]);
+
+    builder.get(['nested', 'age'])!.outputs()['ping']('from-self');
+    await waitQuiet(emissions, 3);
+    expect(emissions[emissions.length - 1]).toEqual([
+      'from-self',
+      'from-city',
+      'from-flag',
+    ]);
+  });
+
   it('类型: 门面已暴露 outputChange(与 hideWhen/disableWhen/valueChange 同族)', () => {
     type FacadeKeys = keyof import('@piying/view-angular-core').ActionFactories;
     const has: 'outputChange' extends FacadeKeys ? true : false = true;
