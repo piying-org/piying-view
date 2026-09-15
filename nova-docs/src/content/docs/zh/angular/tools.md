@@ -30,6 +30,8 @@ const schema = v.object({
 - 返回的 `nfcComponent(key, fn)` 基于 `NFCSchema`（非表单控件）生成 `v.pipe` Schema。
 - 推导规则：从组件实例的 `InputSignal` / `InputSignalWithTransform` 推导 inputs 类型，从 `OutputEmitterRef` 推导 outputs 类型。
 
+> 想把 Action 集中到 schema 之外一处写完，并让回调里的 `field` 也拿到精确类型，见 [typedFieldComponentPipe](zh/angular/typed-field-component-pipe/)。
+
 ## convertToField — 转换 Schema
 
 将 Valibot Schema 转换为已解析的字段配置：

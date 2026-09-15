@@ -28,6 +28,7 @@ title: "Angular 包 API 参考（@piying/view-angular）"
 | 文档                     | 说明                                                           |
 | ------------------------ | -------------------------------------------------------------- |
 | [工具函数](zh/angular/tools/) | `typedComponent` / `nfcComponent`、`convertToField`、`NgSchemaHandle` / `AngularFormBuilder`、`actions.directives` |
+| [typedFieldComponentPipe](zh/angular/typed-field-component-pipe/) | 按路径集中写 Action，组件 + field 双强类型 |
 
 ## 基类
 

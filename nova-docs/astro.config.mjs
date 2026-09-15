@@ -213,6 +213,11 @@ export default defineConfig({
               'Action Cheatsheet',
               '/api/action-cheatsheet/',
             ),
+            nav(
+              'typedFieldPipe 按路径写 Action',
+              'typedFieldPipe Path-based Actions',
+              '/api/typed-field-pipe/',
+            ),
             nav('setComponent', 'setComponent', '/api/setcomponent/'),
             nav('inputs', 'inputs', '/api/inputs/'),
             nav('outputs', 'outputs', '/api/outputs/'),
@@ -257,6 +262,11 @@ export default defineConfig({
             ),
             nav('Token', 'Tokens', '/angular/tokens/'),
             nav('工具函数', 'Utilities', '/angular/tools/'),
+            nav(
+              'typedFieldComponentPipe',
+              'typedFieldComponentPipe',
+              '/angular/typed-field-component-pipe/',
+            ),
             nav('BaseControl', 'BaseControl', '/angular/base-control/'),
           ],
         },

@@ -28,6 +28,7 @@ This page is the **index** of the public API of `@piying/view-angular`. Componen
 | Document                   | Description                                                          |
 | ------------------------ | -------------------------------------------------------------- |
 | [Utilities](en/angular/tools/) | `typedComponent` / `nfcComponent`, `convertToField`, `NgSchemaHandle` / `AngularFormBuilder`, `actions.directives` |
+| [typedFieldComponentPipe](en/angular/typed-field-component-pipe/) | Path-based actions with both component and field typing |
 
 ## Base Classes
 

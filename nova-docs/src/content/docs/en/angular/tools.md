@@ -30,6 +30,8 @@ const schema = v.object({
 - The returned `nfcComponent(key, fn)` produces a `v.pipe` schema based on `NFCSchema` (non-form control).
 - Inference rules: input types come from `InputSignal` / `InputSignalWithTransform` on the component instance, output types from `OutputEmitterRef`.
 
+> To keep actions outside the schema in one place and get an exact `field` type inside callbacks, see [typedFieldComponentPipe](en/angular/typed-field-component-pipe/).
+
 ## convertToField — converting a schema
 
 Converts a Valibot schema into a resolved field configuration:
