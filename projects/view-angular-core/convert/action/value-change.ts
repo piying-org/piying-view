@@ -7,7 +7,7 @@ import {
 } from '../../builder-base';
 import { mergeHooksFn } from './hook';
 import { rawConfig } from './raw-config';
-import { ListenPath, ToKeyPath } from '../../util';
+import { ListenPath, resolveListenField, ToKeyPath } from '../../util';
 import type { PathsOf } from './typed-field-pipe';
 
 type IsAny<T> = 0 extends 1 & T ? true : false;
@@ -104,7 +104,7 @@ export function valueChangeFn<const L extends AnyListenList = [undefined]>(
 ): Observable<ValueChangeStream<_PiResolvedCommonViewFieldConfig, L>> {
   const paths = (input.list ?? DefaultSelfList) as AnyListenList;
   const listenFields = paths.map((keyPath) =>
-    !keyPath ? field : field.get([...keyPath])!,
+    resolveListenField(field, keyPath),
   );
 
   return combineLatest(

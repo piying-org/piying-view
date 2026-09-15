@@ -178,84 +178,139 @@ describe('强类型改造 - outputs.merge / mergeAsync (#12)', () => {
     expect(captured).toEqual(['emit1-output1-data']);
   });
 
-  it('类型: merge / mergeAsync 的 key 必须是组件真实存在的 output', () => {
-    typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
-      d(['e'], 'emit1', [d.outputs.merge({ output1: () => {} })]),
-      d(['e'], 'emit1', [d.outputs.mergeAsync({ output2: () => () => {} })]),
+  it('类型: merge / mergeAsync 的 key 必须是组件真实存在的 output', async () => {
+    const captured: string[] = [];
+    const valid = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+      d(['e'], 'emit1', [
+        d.outputs.merge({
+          output1: (input: string) => captured.push('merge:' + input),
+        }),
+      ]),
+      d(['e'], 'emit1', [
+        d.outputs.mergeAsync({
+          output2: () => (input: string) => captured.push('mergeAsync:' + input),
+        }),
+      ]),
     ]);
 
-    typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+    const badMerge = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
       d(['e'], 'emit1', [
         // @ts-expect-error emit1 没有 output3
         d.outputs.merge({ output3: () => {} }),
       ]),
     ]);
 
-    typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+    const badMergeAsync = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
       d(['e'], 'emit1', [
         // @ts-expect-error emit1 没有 output3
         d.outputs.mergeAsync({ output3: () => () => {} }),
       ]),
     ]);
+
+    // 运行时: 合法 key 的 handler 真的接上了, 且收到组件 emit 的原值
+    const { fixture, element } = await createSchemaComponent(
+      signal(valid),
+      signal({ num: 5 }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    (element.querySelector('.emit1-output1') as HTMLElement).click();
+    (element.querySelector('.emit1-output2') as HTMLElement).click();
+    expect(captured).toEqual([
+      'merge:emit1-output1-data',
+      'mergeAsync:emit1-output2-data',
+    ]);
+
+    // 非法 key 只在编译期有意义(编译不过就是失败), 运行时不会凭空多出 output3
+    expect(badMerge).toBeTruthy();
+    expect(badMergeAsync).toBeTruthy();
   });
 });
 
 describe('强类型改造 - 零 input / 零 output 组件 (#10)', () => {
+  // EmptyComponent 不是真组件, 渲染不了, 这两条只能靠编译期断言
   it('类型: 空对象合法', () => {
-    typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
+    const merged = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
       d(['num'], 'empty', [d.inputs.patch({})]),
       d(['num'], 'empty', [d.outputs.patch({})]),
       d(['num'], 'empty', [d.inputs.remove([])]),
     ]);
+
+    expect(merged).toBeTruthy();
   });
 
   it('类型: 写了不存在的 key 直接报错(旧实现会静默放行)', () => {
-    typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
+    const patchFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
       d(['num'], 'empty', [
         // @ts-expect-error 组件没有任何 input
         d.inputs.patch({ shouldFail: 1 }),
       ]),
     ]);
 
-    typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
+    const patchAsyncFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
       d(['num'], 'empty', [
         // @ts-expect-error 组件没有任何 input
         d.inputs.patchAsync({ shouldFail: () => 1 }),
       ]),
     ]);
 
-    typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
+    const outPatchFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
       d(['num'], 'empty', [
         // @ts-expect-error 组件没有任何 output
         d.outputs.patch({ shouldFail: () => {} }),
       ]),
     ]);
 
-    typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
+    const mergeFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
       d(['num'], 'empty', [
         // @ts-expect-error 组件没有任何 output
         d.outputs.merge({ shouldFail: () => {} }),
       ]),
     ]);
 
-    typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
+    const mergeAsyncFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
       d(['num'], 'empty', [
         // @ts-expect-error 组件没有任何 output
         d.outputs.mergeAsync({ shouldFail: () => () => {} }),
       ]),
     ]);
+
+    expect(
+      [
+        patchFail,
+        patchAsyncFail,
+        outPatchFail,
+        mergeFail,
+        mergeAsyncFail,
+      ].every(Boolean),
+    ).toBe(true);
   });
 
-  it('类型: 有 input 的组件仍然正常收窄到具体 key', () => {
-    typedFieldComponentPipe(numOnly, typeDefine, (d) => [
+  it('类型: 有 input 的组件仍然正常收窄到具体 key', async () => {
+    const narrowed = typedFieldComponentPipe(numOnly, typeDefine, (d) => [
       d(['num'], 'test1', [d.inputs.patch({ input1: 'ok' })]),
     ]);
 
-    typedFieldComponentPipe(numOnly, typeDefine, (d) => [
+    const badPatch = typedFieldComponentPipe(numOnly, typeDefine, (d) => [
       d(['num'], 'test1', [
         // @ts-expect-error test1 没有 input3
         d.inputs.patch({ input3: 'x' }),
       ]),
     ]);
+
+    // 运行时: 收窄到 input1 的 patch 真的下发到了组件
+    const { fixture, element } = await createSchemaComponent(
+      signal(narrowed),
+      signal({ num: 5 }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(
+      (element.querySelector('.test1-div-input1') as HTMLElement).innerHTML,
+    ).toBe('ok');
+    // 非法 key 由编译期保证, 运行时不报意外
+    expect(badPatch).toBeTruthy();
   });
 });

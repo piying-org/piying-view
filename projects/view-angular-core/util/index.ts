@@ -11,6 +11,7 @@ export * from './create-view-control-link';
 export * from './control-status-to-class';
 export * from './init-listen';
 export * from './get-error';
+export * from './resolve-listen-field';
 export * from './create-observable-signal';
 export * from './create-async-object-signal';
 export * from './create-combine-signal';

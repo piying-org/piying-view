@@ -7,7 +7,7 @@ import {
 import { combineLatest, map, Observable, skip, startWith, Subject } from 'rxjs';
 import { AnyCoreSchemaHandle } from '../handle/core.schema-handle';
 import { mergeHooksFn } from './hook';
-import { ToKeyPath } from '../../util';
+import { resolveListenField, ToKeyPath } from '../../util';
 import { ListenPathOf } from './value-change';
 
 export function mergeOutputFn(
@@ -122,7 +122,7 @@ function createOutputChangeListenFn(
       field: _PiResolvedCommonViewFieldConfig;
     }[] = [];
     for (const item of list as readonly OutputChangeListenEntry<any>[]) {
-      const emitField = !item.list ? field : field.get([...item.list])!;
+      const emitField = resolveListenField(field, item.list);
       const subject = new Subject();
       mergeOutputFn(field, {
         [item.output]: (...args: any[]) => {

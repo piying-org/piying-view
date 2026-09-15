@@ -466,6 +466,9 @@ describe('强类型改造 - AsyncResult 统一 (#18)', () => {
 });
 
 describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
+  // Equal / IsAny 这类断言只在编译期生效(运行时就是个写死的字面量),
+  // 所以「类型:」用例额外驱动一次 builder, 把真实解析出的值与路径也断言掉,
+  // 并用 emissions.length 兜底确认回调真的跑过(而不是 0 次静默通过)
   const listenRoot = v.object({
     flag: v.boolean(),
     name: v.string(),
@@ -493,8 +496,9 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
     }
   }
 
-  it('类型: valueChange 的 list / listenFields 与路径元组逐位对齐', () => {
-    typedFieldPipe(listenRoot, (d) => [
+  it('类型: valueChange 的 list / listenFields 与路径元组逐位对齐', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
       d(
         ['nested', 'age'],
         [
@@ -502,13 +506,13 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
             fn({
               list: [undefined, ['..', 'city'], ['#', 'flag'], ['#', 'name']],
             }).subscribe((s) => {
-              // 值类型逐位精确, 不再是 any
+              // 编译期: 值类型逐位精确, 不再是 any
               const shape: Equal<
                 typeof s.list,
                 [number, string, boolean, string]
               > = true;
               const notAny: IsAny<(typeof s.list)[1]> = false;
-              // 字段类型与 builder.get(path) 完全等价
+              // 编译期: 字段类型与 builder.get(path) 完全等价
               const f0: Equal<
                 (typeof s.listenFields)[0],
                 PiFieldAtPath<LRoot, ['nested', 'age']>
@@ -526,24 +530,42 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
                 PiFieldAtPath<LRoot, ['name']>
               > = true;
               const lfNotAny: IsAny<(typeof s.listenFields)[2]> = false;
-              expect([shape, notAny, f0, f1, f2, f3, lfNotAny]).toEqual([
-                true,
-                false,
-                true,
-                true,
-                true,
-                true,
-                false,
-              ]);
+              emissions.push({
+                types: [shape, notAny, f0, f1, f2, f3, lfNotAny],
+                list: s.list,
+                paths: s.listenFields.map((f: any) => f.fullPath),
+              });
             });
           }),
         ],
       ),
     ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 7, city: 'sh' },
+    });
+    await waitQuiet(emissions, 1);
+
+    // 兜底: 内部断言确实执行过, 不是 0 次静默通过
+    expect(emissions.length).toBeGreaterThan(0);
+    const last = emissions[emissions.length - 1];
+    expect(last.types).toEqual([true, false, true, true, true, true, false]);
+    // 运行时逐位对齐: 值与字段路径一一对上
+    expect(last.list).toEqual([7, 'sh', true, 'n']);
+    expect(last.paths).toEqual([
+      ['nested', 'age'],
+      ['nested', 'city'],
+      ['flag'],
+      ['name'],
+    ]);
   });
 
-  it('类型: 不传 list 时退化为「只监听自身」', () => {
-    typedFieldPipe(listenRoot, (d) => [
+  it('类型: 不传 list 时退化为「只监听自身」', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
       d(
         ['nested', 'age'],
         [
@@ -555,16 +577,37 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
                 PiFieldAtPath<LRoot, ['nested', 'age']>
               > = true;
               const sameAsField: Equal<typeof s.field, typeof field> = true;
-              expect([shape, self, sameAsField]).toEqual([true, true, true]);
+              emissions.push({
+                types: [shape, self, sameAsField],
+                list: s.list,
+                paths: s.listenFields.map((f: any) => f.fullPath),
+                sameRef: s.field === field,
+              });
             });
           }),
         ],
       ),
     ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 7, city: 'sh' },
+    });
+    await waitQuiet(emissions, 1);
+
+    expect(emissions.length).toBeGreaterThan(0);
+    const last = emissions[emissions.length - 1];
+    expect(last.types).toEqual([true, true, true]);
+    // 只监听自身: 只有一位, 且就是自己
+    expect(last.list).toEqual([7]);
+    expect(last.paths).toEqual([['nested', 'age']]);
+    expect(last.sameRef).toBe(true);
   });
 
   it('类型: 路径写错会被直接拦下, 不再静默退化成 any', () => {
-    typedFieldPipe(listenRoot, (d) => [
+    const merged = typedFieldPipe(listenRoot, (d) => [
       d(
         ['nested', 'age'],
         [
@@ -578,13 +621,23 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
         ],
       ),
     ]);
+
+    // 编译期已把错误路径拦下; 运行时同样解析不到, 与编译期的拒绍一致
+    // (用原始 schema 建 builder, 避开这条注定解不到的 action)
+    const self = createBuilder(listenRoot).get(['nested', 'age'])!;
+    expect(self.get(['..', 'nope'])).toBeUndefined();
+    // 对照: 合法路径确实解析得到
+    expect(self.get(['..', 'city'])!.fullPath).toEqual(['nested', 'city']);
+    expect(merged).toBeTruthy();
   });
 
-  it('类型: list 候选路径 = 自身往下 / # 根级 / .. 父级', () => {
+  it('类型: list 候选路径 = 自身往下 / # 根级 / .. 父级', async () => {
     // 首段候选(即编辑器补全项)
     type Head<T> = T extends readonly [infer H, ...unknown[]] ? H : never;
+    const declared: any[] = [];
+    const resolved: any[] = [];
 
-    typedFieldPipe(listenRoot, (d) => [
+    const merged = typedFieldPipe(listenRoot, (d) => [
       d(
         ['nested', 'age'],
         [
@@ -600,7 +653,23 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
               ['#', 'flag'],
               ['#', 'nested', 'age'],
             ];
-            expect([heads, ok.length]).toEqual([true, 6]);
+            declared.push({ heads, okLen: ok.length });
+            // 把候选路径逐条解析, 验证运行时确实落到预期字段上
+            fn({
+              list: [
+                undefined,
+                [],
+                ['..', 'city'],
+                ['..', 'age'],
+                ['#', 'flag'],
+                ['#', 'nested', 'age'],
+              ],
+            }).subscribe((s) => {
+              resolved.push({
+                paths: s.listenFields.map((f: any) => f.fullPath),
+                list: s.list,
+              });
+            });
           }),
         ],
       ),
@@ -611,20 +680,46 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
             type C = Exclude<ListenPathOf<typeof field>, undefined>;
             // 对象字段自身往下的 key 同样进入候选
             const heads: Equal<Head<C>, '#' | '..' | 'age' | 'city'> = true;
-            expect(heads).toBe(true);
+            declared.push({ heads });
           }),
         ],
       ),
     ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 7, city: 'sh' },
+    });
+    await waitQuiet(resolved, 1);
+
+    // 两个字段上的回调都跑过, 且编译期断言为预期值
+    expect(declared.length).toBeGreaterThanOrEqual(2);
+    expect(declared.every((c) => c.heads === true)).toBe(true);
+    expect(declared.find((c) => c.okLen !== undefined)?.okLen).toBe(6);
+
+    const last = resolved[resolved.length - 1];
+    // [] 与 undefined 一样解析成自身
+    expect(last.paths).toEqual([
+      ['nested', 'age'],
+      ['nested', 'age'],
+      ['nested', 'city'],
+      ['nested', 'age'],
+      ['flag'],
+      ['nested', 'age'],
+    ]);
+    expect(last.list).toEqual([7, 7, 'sh', 7, true, 7]);
   });
 
-  it('类型: 别名路径 @xxx 也在候选内, 并解析出目标字段类型', () => {
+  it('类型: 别名路径 @xxx 也在候选内, 并解析出目标字段类型', async () => {
     const aliasRoot = v.object({
       key1: v.pipe(v.string(), setAlias('ss')),
       other: v.number(),
     });
+    const emissions: any[] = [];
 
-    typedFieldPipe(aliasRoot, (d) => [
+    const merged = typedFieldPipe(aliasRoot, (d) => [
       d(
         ['other'],
         [
@@ -636,24 +731,42 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
             const heads: Equal<Head<C>, '#' | '..' | '@ss'> = true;
             fn({ list: [['@ss']] }).subscribe((s) => {
               const aliasValue: Equal<(typeof s.list)[0], string> = true;
-              expect([heads, aliasValue]).toEqual([true, true]);
+              emissions.push({
+                types: [heads, aliasValue],
+                list: s.list,
+                paths: s.listenFields.map((f: any) => f.fullPath),
+              });
             });
           }),
         ],
       ),
     ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({ key1: 'alias-target', other: 1 });
+    await waitQuiet(emissions, 1);
+
+    expect(emissions.length).toBeGreaterThan(0);
+    const last = emissions[emissions.length - 1];
+    expect(last.types).toEqual([true, true]);
+    // @ss 真的解到 key1 上, 值也是 key1 的值
+    expect(last.list).toEqual(['alias-target']);
+    expect(last.paths).toEqual([['key1']]);
   });
 
-  it('类型: outputChange 的 entry.list 同样获得路径候选', () => {
-    typedFieldPipe(listenRoot, (d) => [
+  it('类型: outputChange 的 entry.list 同样获得路径候选', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldPipe(listenRoot, (d) => [
       d(
         ['nested', 'age'],
         [
+          d.outputs.set({ fire: () => {} }),
           d.outputChange((fn) => {
             fn([
               { list: undefined, output: 'fire' },
               { list: ['..', 'city'], output: 'fire' },
               { list: ['#', 'flag'], output: 'fire' },
+              { list: [], output: 'fire' },
             ]).subscribe((s) => {
               const f1: Equal<
                 (typeof s.listenFields)[1],
@@ -663,11 +776,39 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
                 (typeof s.listenFields)[2],
                 PiFieldAtPath<LRoot, ['flag']>
               > = true;
-              expect([f1, f2]).toEqual([true, true]);
+              // 空路径与 undefined 一样表示自身
+              const f3: Equal<
+                (typeof s.listenFields)[3],
+                PiFieldAtPath<LRoot, ['nested', 'age']>
+              > = true;
+              emissions.push({
+                types: [f1, f2, f3],
+                paths: s.listenFields.map((f: any) => f.fullPath),
+              });
             });
           }),
         ],
       ),
+    ]);
+
+    const builder = createBuilder(merged);
+    builder.form.control?.updateValue({
+      flag: true,
+      name: 'n',
+      nested: { age: 7, city: 'sh' },
+    });
+    builder.get(['nested', 'age'])!.outputs()['fire']('x', 2);
+    await waitQuiet(emissions, 1);
+
+    expect(emissions.length).toBeGreaterThan(0);
+    const last = emissions[emissions.length - 1];
+    expect(last.types).toEqual([true, true, true]);
+    // 三个候选路径 + 空路径, 都解到了真实字段
+    expect(last.paths).toEqual([
+      ['nested', 'age'],
+      ['nested', 'city'],
+      ['flag'],
+      ['nested', 'age'],
     ]);
   });
 
