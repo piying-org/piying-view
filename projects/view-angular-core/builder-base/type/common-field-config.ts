@@ -427,7 +427,6 @@ export type PiResolvedCommonViewFieldConfig<
    * 类型占位, 运行时不存在。
    * 把 schema 相关泛型以「类型引用」形式携带,
    * 供下游(如模板指令)反查后复用 GetResult 做路径推导。
-   * @internal
    */
   readonly __piTypes?: PiFieldTypeRef<
     Schema,
