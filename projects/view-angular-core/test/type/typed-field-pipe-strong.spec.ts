@@ -967,4 +967,16 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
     expect(has).toBe(true);
     expect(typeof (ɵtypedFieldActions as any).outputChange).toBe('function');
   });
+
+  it('类型: 非组件版的 output 名保持宽松(默认 string, 不受组件约束)', () => {
+    type Entry = import('@piying/view-angular-core').OutputChangeListenEntry;
+    const loose: Entry = { list: undefined, output: 'any-name' };
+    const looseList: import('@piying/view-angular-core').EventChangeFn = (
+      fn,
+    ) => {
+      fn([{ list: undefined, output: 'any-name' }]);
+    };
+    expect(loose.output).toBe('any-name');
+    expect(typeof looseList).toBe('function');
+  });
 });

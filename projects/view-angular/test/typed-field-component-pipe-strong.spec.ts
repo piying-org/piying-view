@@ -1,11 +1,17 @@
 import { isSignal, signal } from '@angular/core';
 import * as v from 'valibot';
-import { NFCSchema } from '@piying/view-angular-core';
+import { NFCSchema, type PiFieldAtPath } from '@piying/view-angular-core';
 import { typedComponent } from '../lib/util/typed-component';
 import { typedFieldComponentPipe } from '../lib/util/typed-field-component-pipe';
 import { Test1Component } from './test1/test1.component';
 import { Emit1Component } from './emit-1/component';
 import { createSchemaComponent } from './util/create-component';
+
+/** 类型工具: 判断两个类型是否完全相等 */
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+    ? true
+    : false;
 
 const numOnly = v.object({ num: v.number() });
 
@@ -188,7 +194,8 @@ describe('强类型改造 - outputs.merge / mergeAsync (#12)', () => {
       ]),
       d(['e'], 'emit1', [
         d.outputs.mergeAsync({
-          output2: () => (input: string) => captured.push('mergeAsync:' + input),
+          output2: () => (input: string) =>
+            captured.push('mergeAsync:' + input),
         }),
       ]),
     ]);
@@ -248,12 +255,16 @@ describe('强类型改造 - 零 input / 零 output 组件 (#10)', () => {
       ]),
     ]);
 
-    const patchAsyncFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
-      d(['num'], 'empty', [
-        // @ts-expect-error 组件没有任何 input
-        d.inputs.patchAsync({ shouldFail: () => 1 }),
-      ]),
-    ]);
+    const patchAsyncFail = typedFieldComponentPipe(
+      numOnly,
+      emptyDefine,
+      (d) => [
+        d(['num'], 'empty', [
+          // @ts-expect-error 组件没有任何 input
+          d.inputs.patchAsync({ shouldFail: () => 1 }),
+        ]),
+      ],
+    );
 
     const outPatchFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
       d(['num'], 'empty', [
@@ -269,12 +280,16 @@ describe('强类型改造 - 零 input / 零 output 组件 (#10)', () => {
       ]),
     ]);
 
-    const mergeAsyncFail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
-      d(['num'], 'empty', [
-        // @ts-expect-error 组件没有任何 output
-        d.outputs.mergeAsync({ shouldFail: () => () => {} }),
-      ]),
-    ]);
+    const mergeAsyncFail = typedFieldComponentPipe(
+      numOnly,
+      emptyDefine,
+      (d) => [
+        d(['num'], 'empty', [
+          // @ts-expect-error 组件没有任何 output
+          d.outputs.mergeAsync({ shouldFail: () => () => {} }),
+        ]),
+      ],
+    );
 
     expect(
       [
@@ -312,5 +327,100 @@ describe('强类型改造 - 零 input / 零 output 组件 (#10)', () => {
     ).toBe('ok');
     // 非法 key 由编译期保证, 运行时不报意外
     expect(badPatch).toBeTruthy();
+  });
+});
+
+describe('强类型改造 - outputChange 的 output 名', () => {
+  it('类型: 监听项的 output 名锁定到本条 entry 组件的 output()', () => {
+    const ok = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+      d(['e'], 'emit1', [
+        d.outputChange((fn) => {
+          fn([
+            { list: undefined, output: 'output1' },
+            { list: [], output: 'output2' },
+            { list: ['..', 'e'], output: 'output1' },
+          ]);
+        }),
+      ]),
+    ]);
+
+    const bad = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+      d(['e'], 'emit1', [
+        d.outputChange((fn) => {
+          // @ts-expect-error emit1 没有 output3
+          fn([{ list: undefined, output: 'output3' }]);
+        }),
+      ]),
+    ]);
+
+    expect(ok && bad).toBeTruthy();
+  });
+
+  it('类型: 零 output 组件下写不出任何监听项', () => {
+    const fail = typedFieldComponentPipe(numOnly, emptyDefine, (d) => [
+      d(['num'], 'empty', [
+        d.outputChange((fn) => {
+          // @ts-expect-error 组件没有任何 output
+          fn([{ list: undefined, output: 'whatever' }]);
+        }),
+      ]),
+    ]);
+
+    expect(fail).toBeTruthy();
+  });
+
+  it('类型: 直接传组件类同样锁定 output 名', () => {
+    const ok = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+      d(['e'], Emit1Component, [
+        d.outputChange((fn) => {
+          fn([{ list: undefined, output: 'output2' }]);
+        }),
+      ]),
+    ]);
+
+    const bad = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+      d(['e'], Emit1Component, [
+        d.outputChange((fn) => {
+          // @ts-expect-error emit1 没有 output3
+          fn([{ list: undefined, output: 'output3' }]);
+        }),
+      ]),
+    ]);
+
+    expect(ok && bad).toBeTruthy();
+  });
+
+  it('类型 + 运行时: field / listenFields 逐位对齐, 事件值原样送达', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldComponentPipe(nfcOnly, typeDefine, (d) => [
+      d(['e'], 'emit1', [
+        d.outputChange((fn) => {
+          fn([{ list: undefined, output: 'output1' }]).subscribe((s) => {
+            const sameSelf: Equal<
+              (typeof s)['field'],
+              PiFieldAtPath<typeof nfcOnly, ['e']>
+            > = true;
+            const sameListen: Equal<
+              (typeof s.listenFields)[0],
+              PiFieldAtPath<typeof nfcOnly, ['e']>
+            > = true;
+            expect([sameSelf, sameListen]).toEqual([true, true]);
+            emissions.push(s.list[0]);
+          });
+        }),
+      ]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ num: 5 }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    (element.querySelector('.emit1-output1') as HTMLElement).click();
+
+    expect(emissions.length).toBe(1);
+    expect(emissions[0][0]).toBe('emit1-output1-data');
   });
 });

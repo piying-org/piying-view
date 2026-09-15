@@ -9,6 +9,7 @@ import type {
   ActionFactories,
   AsyncResult,
   ConfigAction,
+  EventChangeFn,
   FieldEntry,
   FieldPathsOf,
   KeyPath,
@@ -128,13 +129,23 @@ export interface TypedComponentOutputActionsFactory {
   ) => CompAction<F, C>;
 }
 
+/**
+ * outputChange 的组件形态: 监听项的 output 名锁定在本组件的 output() 上。
+ *
+ * 运行时 handler 挂在「本条 entry 的 field」的 outputs 上,
+ * 所以按本条 entry 的组件约束就是准确的。
+ */
+type CompOutputChangeFn<F, C> = EventChangeFn<F, OutputKeysOf<C>>;
+
 /** 组件版 action 工厂集合: inputs / outputs 换成组件约束形态, 其余沿用通用工厂 */
 export type TypedComponentActionFactories = Omit<
   ActionFactories,
-  'inputs' | 'outputs'
+  'inputs' | 'outputs' | 'outputChange'
 > & {
   inputs: TypedComponentInputActionsFactory;
   outputs: TypedComponentOutputActionsFactory;
+  /** 与 outputs 同族: 靠 CompAction 别名配对把 C 送进回调内部的 output 名约束 */
+  outputChange: <F, C>(fn: CompOutputChangeFn<F, C>) => CompAction<F, C>;
 };
 
 type TypesOf<Cfg> = NonNullable<Cfg extends { types?: infer T } ? T : never>;

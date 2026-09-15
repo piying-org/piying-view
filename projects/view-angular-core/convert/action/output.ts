@@ -72,14 +72,23 @@ export const asyncMergeOutputs = <T>(
     );
   });
 
-/** outputChange 的单条监听项: 路径(undefined 即自身) + 要监听的 output 名 */
-export interface OutputChangeListenEntry<F = unknown> {
+/**
+ * outputChange 的单条监听项: 路径(undefined 即自身) + 要监听的 output 名。
+ *
+ * `OutputName` 默认 string(裸函数形态保持宽松),
+ * 组件版门面把它换成「该组件 output() 的名字联合」即可精确约束。
+ */
+export interface OutputChangeListenEntry<
+  F = unknown,
+  OutputName extends string = string,
+> {
   list?: ListenPathOf<F>;
-  output: string;
+  output: OutputName;
 }
 
 /** 未绑定具体监听项时的兜底形态(保持宽松) */
-export type AnyOutputListenList = readonly OutputChangeListenEntry[];
+export type AnyOutputListenList<OutputName extends string = string> =
+  readonly OutputChangeListenEntry<any, OutputName>[];
 
 /** 监听项 E -> 对应的字段类型(未给路径即自身) */
 export type OutputListenFieldOf<F, E> = E extends { list?: infer P }
@@ -102,15 +111,16 @@ export interface OutputChangeStream<
  * 监听函数: 传入监听项元组, 返回与该元组逐位对齐的强类型流。
  * `const L` 保证 `['..', 'k1']` 这类字面量不会被拓宽成 `string[]`。
  */
-export interface OutputChangeListenFn<F> {
-  <const L extends readonly OutputChangeListenEntry<F>[]>(
+export interface OutputChangeListenFn<F, OutputName extends string = string> {
+  <const L extends readonly OutputChangeListenEntry<F, OutputName>[]>(
     list: [...L],
   ): Observable<OutputChangeStream<F, L>>;
 }
 
-export type EventChangeFn<F = _PiResolvedCommonViewFieldConfig> = (
-  fn: OutputChangeListenFn<F>,
-) => void;
+export type EventChangeFn<
+  F = _PiResolvedCommonViewFieldConfig,
+  OutputName extends string = string,
+> = (fn: OutputChangeListenFn<F, OutputName>) => void;
 
 /** 按当前 field 造出带强类型的监听函数, 供 outputChange 注入回调 */
 function createOutputChangeListenFn(
