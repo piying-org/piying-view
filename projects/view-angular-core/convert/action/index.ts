@@ -32,6 +32,7 @@ export {
 };
 export * from './type/async-callback';
 export * from './typed-field-pipe';
+export * from './typed-component-common';
 export const actions = {
   ...__actions,
   class: classAction,
