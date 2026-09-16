@@ -1,3 +1,10 @@
+## [2.16.4](https://github.com/piying-org/piying-view/compare/2.16.3...2.16.4) (2026-09-16)
+
+### Bug Fixes
+
+* lazy typed ([f9f3766](https://github.com/piying-org/piying-view/commit/f9f37669980dea5643b51bb6d0a34b12519a4b11))
+* type ([5e119b2](https://github.com/piying-org/piying-view/commit/5e119b2d849c69c9705920e1df44763ddf87c931))
+
 ## [2.16.3](https://github.com/piying-org/piying-view/compare/2.16.2...2.16.3) (2026-09-16)
 
 ### Bug Fixes
