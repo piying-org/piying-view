@@ -1,3 +1,9 @@
+## [2.16.3](https://github.com/piying-org/piying-view/compare/2.16.2...2.16.3) (2026-09-16)
+
+### Bug Fixes
+
+* outputChange ([cc21aec](https://github.com/piying-org/piying-view/commit/cc21aec680ecc12ff266ef27ab8cea49d1a4ad0e))
+
 ## [2.16.2](https://github.com/piying-org/piying-view/compare/2.16.1...2.16.2) (2026-09-15)
 
 ### Bug Fixes
