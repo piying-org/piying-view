@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { Type } from '@angular/core';
+import { Type, WritableSignal } from '@angular/core';
 import {
   setComponent,
   typedFieldPipe,
@@ -24,6 +24,8 @@ import type {
   ActionComponent,
   GetComponentInputs,
   GetComponentInputsOrigin,
+  GetComponentModelKeys,
+  GetComponentModelsOrigin,
   GetComponentOutputs,
   GetComponentOutputsHandlerMap,
   GetComponentOutputsOrigin,
@@ -81,6 +83,7 @@ export type CompEntryAction<
  */
 type FallbackInputs = Record<string, any>;
 type FallbackOutputs = Record<string, (...args: any[]) => any>;
+type FallbackModels = Record<string, WritableSignal<any>>;
 
 /** C 为 never(推不出组件) 时降级, 否则走组件精确类型 */
 type InputsOriginOf<C> = [C] extends [never]
@@ -95,6 +98,10 @@ type InputKeysOf<C> = [C] extends [never]
 type OutputKeysOf<C> = [C] extends [never]
   ? string
   : keyof GetComponentOutputs<C>;
+type ModelsOriginOf<C> = [C] extends [never]
+  ? FallbackModels
+  : TightenEmpty<GetComponentModelsOrigin<C>>;
+type ModelKeysOf<C> = [C] extends [never] ? string : GetComponentModelKeys<C>;
 
 /** inputs: 值类型来自组件 input(), field 类型由 entry 的期望元素类型反推 */
 export interface TypedComponentInputActionsFactory {
@@ -110,6 +117,61 @@ export interface TypedComponentInputActionsFactory {
    */
   mapAsync: <F, C>(
     fn: (field: F) => (value: InputsOriginOf<C>) => any,
+  ) => CompAction<F, C>;
+}
+
+/**
+ * models: key 锁在「`model()` 声明的 ∪ `xxx` + `xxxChange` 配对的」上,
+ * 值是宿主侧的 WritableSignal —— 运行时走 `twoWayBinding(key, signal)`。
+ */
+export interface TypedComponentModelActionsFactory {
+  patch: <F, C>(value: ModelsOriginOf<C>) => CompAction<F, C>;
+  set: <F, C>(value: ModelsOriginOf<C>) => CompAction<F, C>;
+  patchAsync: <F, C, Data extends AsyncValueMap<ModelsOriginOf<C>, F>>(
+    dataObj: Data,
+  ) => CompAction<F, C>;
+  remove: <F, C>(list: ModelKeysOf<C>[]) => CompAction<F, C>;
+  mapAsync: <F, C>(
+    fn: (field: F) => (value: ModelsOriginOf<C>) => any,
+  ) => CompAction<F, C>;
+}
+
+/**
+ * events 的 key: 标准 DOM 事件名(lib.dom.d.ts 的 HTMLElementEventMap)保留补全与精确参数,
+ * `string & {}` 放行自定义名 —— Web Component 的 `my-changed`、Angular 的
+ * `window:resize` / `document:x` / `key.control.a` 都不在标准表里, 必须留口子。
+ *
+ * 代价: 自定义名与「标准名拼错」在类型上无法区分, 所以 clickk 不会报错。
+ */
+type DomEventName = keyof HTMLElementEventMap;
+type EventName = DomEventName | (string & {});
+
+/**
+ * 标准事件参数精确到 Event 子类(click -> PointerEvent)。
+ *
+ * 自定义名必须用 `(...args: any[]) => any` 而不是 `(event: Event) => any`:
+ * 索引签名比标准名的参数窄时, 逆变会让 `click: (e: PointerEvent) => void`
+ * 反而过不了索引签名检查。放宽后顺带能直接标 `CustomEvent<Detail>`。
+ */
+type DomEventHandler<K> = K extends DomEventName
+  ? (event: HTMLElementEventMap[K]) => any
+  : (...args: any[]) => any;
+
+type EventsHandlerMap = { [K in EventName]?: DomEventHandler<K> };
+type EventsAsyncHandlerMap<F> = {
+  [K in EventName]?: (field: F) => DomEventHandler<K>;
+};
+
+/** events 与组件无关, 只把 key 收在「标准 DOM 事件 ∪ 任意自定义名」 */
+export interface TypedComponentEventsActionsFactory {
+  patch: <F, C>(value: EventsHandlerMap) => CompAction<F, C>;
+  set: <F, C>(value: EventsHandlerMap) => CompAction<F, C>;
+  patchAsync: <F, C, Data extends EventsAsyncHandlerMap<F>>(
+    dataObj: Data,
+  ) => CompAction<F, C>;
+  remove: <F, C>(list: EventName[]) => CompAction<F, C>;
+  mapAsync: <F, C>(
+    fn: (field: F) => (value: EventsHandlerMap) => any,
   ) => CompAction<F, C>;
 }
 
@@ -149,13 +211,57 @@ type CompOutputChangeFn<F, C> = EventChangeFn<
   OutputsHandlerMapOf<C>
 >;
 
+/**
+ * wrappers 的 key: 对齐配置里 `wrappers` 的 key。
+ * 运行时 `defaultWrapperMetadataGroup` 就是 `fieldGlobalConfig.wrappers`,
+ * 合法名只有这一份, 没有内置魔法名; 配置里没声明时降级成裸 string, 不封死。
+ */
+type WrappersOf<Cfg> = NonNullable<
+  Cfg extends { wrappers?: infer W } ? W : never
+>;
+type WrapperNameOf<Cfg> = keyof WrappersOf<Cfg> & string;
+type WrapperNameInput<Cfg> = [WrapperNameOf<Cfg>] extends [never]
+  ? string
+  : WrapperNameOf<Cfg>;
+
+/** 对象形态的 wrapper 定义(`{ type: X, ... }`), 从通用工厂参数里扣出来复用 */
+type WrapperEntryObj = Exclude<
+  Parameters<ActionFactories['wrappers']['set']>[0][number],
+  string
+>;
+
+/** wrappers: 名字形态收在配置声明的 key 上, 对象形态原样保留 */
+export interface TypedWrappersActionsFactory<Cfg> {
+  set: <F, C>(
+    wrappers: (WrapperEntryObj | WrapperNameInput<Cfg>)[],
+  ) => CompAction<F, C>;
+  patch: <F, C>(
+    wrappers: (WrapperEntryObj | WrapperNameInput<Cfg>)[],
+  ) => CompAction<F, C>;
+  patchAsync: <F, C>(
+    type: WrapperEntryObj | WrapperNameInput<Cfg>,
+    actions?: ConfigAction<any>[],
+    options?: { insertIndex?: number },
+  ) => CompAction<F, C>;
+  remove: <F, C>(
+    list: WrapperNameInput<Cfg>[] | ((list: any) => any),
+  ) => CompAction<F, C>;
+}
+
 /** 组件版 action 工厂集合: inputs / outputs 换成组件约束形态, 其余沿用通用工厂 */
-export type TypedComponentActionFactories = Omit<
+export type TypedComponentActionFactories<Cfg = unknown> = Omit<
   ActionFactories,
-  'inputs' | 'outputs' | 'outputChange'
+  'inputs' | 'outputs' | 'models' | 'outputChange' | 'events' | 'wrappers'
 > & {
   inputs: TypedComponentInputActionsFactory;
   outputs: TypedComponentOutputActionsFactory;
+  models: TypedComponentModelActionsFactory;
+  events: TypedComponentEventsActionsFactory;
+  wrappers: Omit<
+    ActionFactories['wrappers'],
+    'set' | 'patch' | 'patchAsync' | 'remove'
+  > &
+    TypedWrappersActionsFactory<Cfg>;
   /** 与 outputs 同族: 靠 CompAction 别名配对把 C 送进回调内部的 output 名约束 */
   outputChange: <F, C>(fn: CompOutputChangeFn<F, C>) => CompAction<F, C>;
 };
@@ -195,7 +301,7 @@ export type ComponentOf<Cfg, K> = K extends keyof TypesOf<Cfg>
 export type DefineComponentEntry<
   Root extends v.BaseSchema<any, any, any>,
   Cfg,
-> = TypedComponentActionFactories & {
+> = TypedComponentActionFactories<Cfg> & {
   <P extends FieldPathsOf<Root>, K extends ComponentKeyOf<Cfg>>(
     path: [...P],
     component: K,

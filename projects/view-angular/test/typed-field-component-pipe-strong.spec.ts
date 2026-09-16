@@ -5,6 +5,9 @@ import { typedComponent } from '../lib/util/typed-component';
 import { typedFieldComponentPipe } from '../lib/util/typed-field-component-pipe';
 import { Test1Component } from './test1/test1.component';
 import { Emit1Component } from './emit-1/component';
+import { Models1Component } from './models1/component';
+import { Event1Component } from './event1/component';
+import { Wrapper1Component } from './wrapper1/component';
 import { createSchemaComponent } from './util/create-component';
 
 /** 类型工具: 判断两个类型是否完全相等 */
@@ -422,5 +425,213 @@ describe('强类型改造 - outputChange 的 output 名', () => {
 
     expect(emissions.length).toBe(1);
     expect(emissions[0][0]).toBe('emit1-output1-data');
+  });
+});
+
+/** models 用: input1+input1Change 配对, input2 是 model() */
+const modelsDefine = typedComponent({
+  types: { models1: { type: Models1Component } },
+});
+
+/** wrappers 用: 配置里声明了 wrapper1 */
+const wrapperDefine = typedComponent({
+  types: { test1: { type: Test1Component } },
+  wrappers: { wrapper1: { type: Wrapper1Component } },
+});
+
+/** events 用 */
+const eventDefine = typedComponent({
+  types: { event1: { type: Event1Component } },
+});
+
+describe('强类型改造 - models (#13)', () => {
+  it('运行时: input + xxxChange 配对的 key 两向绑定生效', async () => {
+    const a = signal(0);
+    const merged = typedFieldComponentPipe(nfcOnly, modelsDefine, (d) => [
+      d(['e'], 'models1', [d.models.patch({ input1: a })]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal(undefined),
+      modelsDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    (element.querySelector('.btn1') as HTMLElement).click();
+    expect(a()).toBe(1);
+  });
+
+  it('运行时: model() 声明的 key 两向绑定生效', async () => {
+    const a = signal(0);
+    const merged = typedFieldComponentPipe(nfcOnly, modelsDefine, (d) => [
+      d(['e'], 'models1', [d.models.patch({ input2: a })]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal(undefined),
+      modelsDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    (element.querySelector('.btn2') as HTMLElement).click();
+    expect(a()).toBe(1);
+  });
+
+  it('类型: key 锁在可两向绑定的名字上, 值锁 WritableSignal<T>', () => {
+    const legal = typedFieldComponentPipe(nfcOnly, modelsDefine, (d) => [
+      d(['e'], 'models1', [
+        d.models.patch({ input1: signal(0), input2: signal(0) }),
+      ]),
+      d(['e'], 'models1', [
+        d.models.patchAsync({ input1: () => signal(0) }),
+      ]),
+      d(['e'], 'models1', [d.models.remove(['input1', 'input2'])]),
+    ]);
+
+    const badKey = typedFieldComponentPipe(nfcOnly, modelsDefine, (d) => [
+      d(['e'], 'models1', [
+        // @ts-expect-error models1 没有 nope 这个可两向绑定的 key
+        d.models.patch({ nope: signal(0) }),
+      ]),
+    ]);
+
+    const badValue = typedFieldComponentPipe(nfcOnly, modelsDefine, (d) => [
+      d(['e'], 'models1', [
+        // @ts-expect-error input1 是 number, 不能塞 WritableSignal<string>
+        d.models.patch({ input1: signal('str') }),
+      ]),
+    ]);
+
+    const badRemove = typedFieldComponentPipe(nfcOnly, modelsDefine, (d) => [
+      d(['e'], 'models1', [
+        // @ts-expect-error remove 的 key 同样受限
+        d.models.remove(['nope']),
+      ]),
+    ]);
+
+    expect(legal && badKey && badValue && badRemove).toBeTruthy();
+  });
+});
+
+describe('强类型改造 - wrappers key (#14)', () => {
+  it('运行时: 配置里声明的 wrapper 名真的套上了', async () => {
+    const merged = typedFieldComponentPipe(numOnly, wrapperDefine, (d) => [
+      d(['num'], 'test1', [d.wrappers.set(['wrapper1'])]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ num: 5 }),
+      wrapperDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelector('app-wrapper1')).toBeTruthy();
+  });
+
+  it('类型: 名字形态收在配置声明的 key 上, 对象形态保留', () => {
+    const legal = typedFieldComponentPipe(numOnly, wrapperDefine, (d) => [
+      d(['num'], 'test1', [d.wrappers.set(['wrapper1'])]),
+      d(['num'], 'test1', [d.wrappers.patch(['wrapper1'])]),
+      d(['num'], 'test1', [d.wrappers.remove(['wrapper1'])]),
+      d(['num'], 'test1', [
+        d.wrappers.set([{ type: Wrapper1Component }]),
+      ]),
+    ]);
+
+    const bad = typedFieldComponentPipe(numOnly, wrapperDefine, (d) => [
+      d(['num'], 'test1', [
+        // @ts-expect-error 配置里没有 no_such_wrapper
+        d.wrappers.set(['no_such_wrapper']),
+      ]),
+    ]);
+
+    expect(legal && bad).toBeTruthy();
+  });
+
+  it('类型: 配置没声明 wrappers 时降级成裸 string, 不封死', () => {
+    const merged = typedFieldComponentPipe(numOnly, modelsDefine, (d) => [
+      d(['num'], 'models1', [d.wrappers.set(['anything'])]),
+    ]);
+
+    expect(merged).toBeTruthy();
+  });
+});
+
+describe('强类型改造 - events (#15)', () => {
+  it('类型: 标准 DOM 事件参数精确到 Event 子类', () => {
+    const merged = typedFieldComponentPipe(numOnly, typeDefine, (d) => [
+      d(['num'], 'test1', [
+        d.events.patch({
+          click: (e) => {
+            const isPointer: Equal<typeof e, PointerEvent> = true;
+            expect(isPointer).toBe(true);
+          },
+          keydown: (e) => {
+            const isKeyboard: Equal<typeof e, KeyboardEvent> = true;
+            expect(isKeyboard).toBe(true);
+          },
+        }),
+      ]),
+    ]);
+
+    expect(merged).toBeTruthy();
+  });
+
+  it('类型: 自定义事件名放行(WC / window: 前缀 / key 组合)', () => {
+    const merged = typedFieldComponentPipe(numOnly, typeDefine, (d) => [
+      d(['num'], 'test1', [
+        d.events.patch({
+          'my-app-changed': () => {},
+          'window:resize': () => {},
+          'document:visibilitychange': () => {},
+          'keydown.control.a': () => {},
+        }),
+      ]),
+      d(['num'], 'test1', [d.events.remove(['whatever', 'click'])]),
+    ]);
+
+    expect(merged).toBeTruthy();
+  });
+
+  it('类型: 事件值必须是 handler', () => {
+    const bad = typedFieldComponentPipe(numOnly, typeDefine, (d) => [
+      d(['num'], 'test1', [
+        // @ts-expect-error 事件值必须是函数
+        d.events.patch({ click: 123 }),
+      ]),
+    ]);
+
+    expect(bad).toBeTruthy();
+  });
+
+  it('运行时: 标准事件名真的绑上并收到真实 Event', async () => {
+    let received: Event | null = null;
+    const merged = typedFieldComponentPipe(nfcOnly, eventDefine, (d) => [
+      d(['e'], 'event1', [
+        d.events.patch({
+          click: (e) => {
+            received = e;
+          },
+        }),
+      ]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal(undefined),
+      eventDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    (element.querySelector('.click-btn') as HTMLButtonElement).click();
+    expect(received).toBeTruthy();
+    expect(received).toBeInstanceOf(Event);
   });
 });

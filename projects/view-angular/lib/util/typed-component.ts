@@ -12,8 +12,11 @@ import {
 import {
   InputSignal,
   InputSignalWithTransform,
+  ModelSignal,
   OutputEmitterRef,
+  OutputRef,
   Type,
+  WritableSignal,
 } from '@angular/core';
 import {
   metadataList,
@@ -100,6 +103,47 @@ export type GetComponentOutputsHandlerMap<TComponent> = ComponentOutputsOrigin<
 export type GetComponentOutputsAsync<TComponent> = Partial<
   ComponentOutputsAsync<GetComponentOutputs<TComponent>>
 >;
+
+/**
+ * 可两向绑定的 key。
+ *
+ * 两个来源:
+ * 1. `model()` 声明的字段(ModelSignal);
+ * 2. `xxx` 是 input 且 `xxxChange` 是 output —— Angular `[(xxx)]` 的命名约定,
+ *    这里按 OutputRef 取 output, 所以 `output()` 与 `@Output() EventEmitter` 都算。
+ *
+ * 值统一是宿主侧的 WritableSignal: 运行时走 `twoWayBinding(key, signal)`。
+ */
+type ComponentOutputRefs<Component> = GetKeyWithType<Component, OutputRef<any>>;
+
+type ChangeToBase<K> = K extends `${infer Base}Change` ? Base : never;
+
+type PairedModelKeys<Instance> = Extract<
+  ChangeToBase<keyof ComponentOutputRefs<Instance> & string>,
+  keyof ComponentInputs<Instance>
+>;
+
+type ModelKeysOfInstance<Instance> =
+  | keyof GetKeyWithType<Instance, ModelSignal<any>>
+  | PairedModelKeys<Instance>;
+
+type ModelValueOf<Instance, K> = K extends keyof Instance
+  ? Instance[K] extends ModelSignal<infer T>
+    ? T
+    : Instance[K] extends InputSignalWithTransform<infer _T, infer D>
+      ? D
+      : never
+  : never;
+
+export type GetComponentModelKeys<TComponent> = ModelKeysOfInstance<
+  ComponentInstance<TComponent>
+>;
+
+export type GetComponentModelsOrigin<TComponent> = Partial<{
+  [K in GetComponentModelKeys<TComponent>]: WritableSignal<
+    ModelValueOf<ComponentInstance<TComponent>, K>
+  >;
+}>;
 type ReturnAction<Input> = RawConfigAction<
   'viewRawConfig',
   Input,
