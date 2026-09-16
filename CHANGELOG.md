@@ -1,3 +1,13 @@
+## [2.16.5](https://github.com/piying-org/piying-view/compare/2.16.4...2.16.5) (2026-09-16)
+
+### Bug Fixes
+
+* outputChange ([cb997dc](https://github.com/piying-org/piying-view/commit/cb997dce386e3d57f2e1a582b61744e732065273))
+
+### Features
+
+* vue typed ([89796c2](https://github.com/piying-org/piying-view/commit/89796c286dbe5d88b78deb251e5407cd0efd28cd))
+
 ## [2.16.4](https://github.com/piying-org/piying-view/compare/2.16.3...2.16.4) (2026-09-16)
 
 ### Bug Fixes
