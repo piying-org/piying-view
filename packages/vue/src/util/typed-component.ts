@@ -4,77 +4,71 @@ import {
   actions,
   setComponent,
   type AnyCoreSchemaHandle,
-  type AsyncProperty,
   type PiCommonConfig,
   type PiTypeConfig,
   type _PiResolvedCommonViewFieldConfig,
 } from '@piying/view-core';
-
 import { metadataList, type MetadataListAction, type RawConfigAction } from '@piying/valibot-visit';
-import type { AllowedComponentProps, DefineComponent, VNodeProps } from 'vue';
+import type { VueComponentKey } from './component-types';
 import * as v from 'valibot';
-type ComponentInputs<TComponent> = TComponent extends new (...args: any[]) => any
-  ? InstanceType<TComponent> extends { $props: any }
-    ? Omit<InstanceType<TComponent>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
-    : Record<string, any>
-  : Record<string, any>;
-
-type ComponentInputsAsync<T> = {
-  [K in keyof T]: AsyncProperty<T[K]>;
-};
-
-// inputs
-type GetComponentInputs<TComponent> = ComponentInputs<TComponent>;
-
-type GetComponentInputsAsync<TComponent> = Partial<
-  ComponentInputsAsync<GetComponentInputs<TComponent>>
->;
+import type {
+  ActionComponent,
+  GetComponentInputsAsync,
+  GetComponentInputsKeys,
+  GetComponentInputsOrigin,
+  GetComponentOutputsAsync,
+  GetComponentOutputsKeys,
+  GetComponentOutputsOrigin,
+} from './component-types';
 
 type ReturnAction<Input> = RawConfigAction<'viewRawConfig', Input, AnyCoreSchemaHandle>;
+
+/** 组件相关的 action 分组: key 与值类型全部由组件的 props / emits 推导 */
 type ComponentActions<TComponent> = {
   inputs: {
-    patch: <Input>(value: ComponentInputs<TComponent>) => ReturnAction<Input>;
-    set: <Input>(value: ComponentInputs<TComponent>) => ReturnAction<Input>;
+    patch: <Input>(value: GetComponentInputsOrigin<TComponent>) => ReturnAction<Input>;
+    set: <Input>(value: GetComponentInputsOrigin<TComponent>) => ReturnAction<Input>;
     patchAsync: <Input>(value: GetComponentInputsAsync<TComponent>) => ReturnAction<Input>;
-    remove: <Input>(value: (keyof GetComponentInputs<TComponent>)[]) => ReturnAction<Input>;
+    remove: <Input>(value: GetComponentInputsKeys<TComponent>[]) => ReturnAction<Input>;
     mapAsync: <Input>(
       value: (
         field: _PiResolvedCommonViewFieldConfig,
-      ) => (value: GetComponentInputs<TComponent>) => GetComponentInputs<TComponent>,
+      ) => (value: GetComponentInputsOrigin<TComponent>) => any,
+    ) => ReturnAction<Input>;
+  };
+  outputs: {
+    patch: <Input>(value: GetComponentOutputsOrigin<TComponent>) => ReturnAction<Input>;
+    set: <Input>(value: GetComponentOutputsOrigin<TComponent>) => ReturnAction<Input>;
+    patchAsync: <Input>(value: GetComponentOutputsAsync<TComponent>) => ReturnAction<Input>;
+    remove: <Input>(value: GetComponentOutputsKeys<TComponent>[]) => ReturnAction<Input>;
+    mapAsync: <Input>(
+      value: (
+        field: _PiResolvedCommonViewFieldConfig,
+      ) => (value: GetComponentOutputsOrigin<TComponent>) => any,
     ) => ReturnAction<Input>;
   };
 };
 
-type ActionComponent<A extends PiTypeConfig> =
-  A['type'] extends DefineComponent<any, any, any>
-    ? A['type']
-    : NonNullable<A['actions']>[0]['__type'];
+type TypesOfCfg<Cfg> = NonNullable<Cfg extends { types?: infer T } ? T : never>;
+
+type ResolveTarget<T, Cfg> = T extends keyof TypesOfCfg<Cfg>
+  ? ActionComponent<Extract<TypesOfCfg<Cfg>[T], PiTypeConfig<any, any>>>
+  : T;
+
+type ActionsOf<T, Cfg> = Omit<typeof PresetActions, 'inputs' | 'outputs' | 'models'> &
+  ComponentActions<ResolveTarget<T, Cfg>>;
 
 export function typedComponent<T extends PiCommonConfig>(
   input: T,
 ): {
   define: T;
-  setComponent: <TCName extends keyof T['types'] | DefineComponent<any, any, any>, K>(
+  setComponent: <TCName extends keyof T['types'] | VueComponentKey, K>(
     input: TCName,
-    fn?: (
-      actions: Omit<typeof PresetActions, 'inputs'> &
-        ComponentActions<
-          TCName extends keyof T['types']
-            ? ActionComponent<NonNullable<T['types']>[TCName]>
-            : TCName
-        >,
-    ) => any[],
+    fn?: (actions: ActionsOf<TCName, T>) => any[],
   ) => MetadataListAction<K>;
-  nfcComponent: <TCName extends keyof T['types'] | DefineComponent<any, any, any>>(
+  nfcComponent: <TCName extends keyof T['types'] | VueComponentKey>(
     input: TCName,
-    fn?: (
-      actions: Omit<typeof PresetActions, 'inputs'> &
-        ComponentActions<
-          TCName extends keyof T['types']
-            ? ActionComponent<NonNullable<T['types']>[TCName]>
-            : TCName
-        >,
-    ) => any[],
+    fn?: (actions: ActionsOf<TCName, T>) => any[],
   ) => v.SchemaWithPipe<
     readonly [
       v.OptionalSchema<v.VoidSchema<undefined>, undefined>,
