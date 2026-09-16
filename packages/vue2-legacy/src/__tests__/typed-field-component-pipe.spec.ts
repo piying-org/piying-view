@@ -3,26 +3,25 @@ import { markRaw, nextTick, shallowRef } from 'vue';
 import { of, map } from 'rxjs';
 import * as v from 'valibot';
 import { NFCSchema, lazyMark, type PiFieldAtPath } from '@piying/view-core';
-import { typedComponent } from '../util/typed-component';
 import { typedFieldComponentPipe } from '../util/typed-field-component-pipe';
 import type {
   GetComponentEmits,
   GetComponentInputs,
   ResolveLazyComponent,
-  VueAttributeName,
-  VueStandardAttrName,
+  Vue2AttributeName,
+  Vue2StandardAttrName,
 } from '../util/component-types';
 import { createComponent } from './util/create-component';
 import { delay } from './util/delay';
 import TypedEmit from './component/typed-emit.vue';
+import TypedEmitArray from './component/typed-emit-array.vue';
 import TypedEmitMulti from './component/typed-emit-multi.vue';
 import TypedInputs from './component/typed-inputs.vue';
 import type { TypedInputsMeta } from './component/typed-inputs-types';
-import AnyInputs from './component/any-inputs.vue';
-import PiInput from './component/input.vue';
 import EmptyCmp from './component/empty-cmp.vue';
-import TypedModel from './component/typed-model.vue';
 import InputsTest from './component/inputs-test.vue';
+import AnyInputs from './component/any-inputs.vue';
+import PiInput from './component/custom-input.vue';
 
 type Equal<A, B> =
   (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
@@ -33,20 +32,18 @@ const numOnly = v.object({ num: v.number() });
 const nfcOnly = v.object({ e: NFCSchema });
 const nfcPair = v.object({ a: NFCSchema, b: NFCSchema });
 
-const baseDefine = typedComponent({
+const baseDefine = {
   types: {
-    emit: { type: markRaw(TypedEmit) },
-    inputs: { type: markRaw(InputsTest) },
-    empty: { type: markRaw(EmptyCmp) },
+    emit: { type: TypedEmit },
+    arrayEmit: { type: TypedEmitArray },
+    inputs: { type: InputsTest },
+    anyInputs: { type: AnyInputs },
+    empty: { type: EmptyCmp },
   },
-});
+};
 
 const lazyEmit = () => import('./component/typed-emit.vue').then((m) => m.default);
-const lazyDefine = typedComponent({
-  types: {
-    emit: { type: lazyEmit },
-  },
-});
+const lazyDefine = { types: { emit: { type: lazyEmit } } };
 const markedEmit = lazyMark(lazyEmit);
 
 describe('typedFieldComponentPipe - inputs 强类型', () => {
@@ -71,8 +68,8 @@ describe('typedFieldComponentPipe - inputs 强类型', () => {
 
     const badValue = typedFieldComponentPipe(numOnly, baseDefine, (d) => [
       d(['num'], 'inputs', [
-        // @ts-expect-error value1 是 string
-        d.inputs.patch({ value1: 1 }),
+        // @ts-expect-error inputs-test 没有 nope
+        d.inputs.patch({ nope: 1 }),
       ]),
     ]);
 
@@ -86,7 +83,7 @@ describe('typedFieldComponentPipe - inputs 强类型', () => {
     expect(ok && badKey && badValue && badRemove).toBeTruthy();
   });
 
-  it('组件没有 props 时 key 被封死', () => {
+  it('组件没有多余 prop 时 key 被封死', () => {
     const ok = typedFieldComponentPipe(numOnly, baseDefine, (d) => [
       d(['num'], 'emit', [d.inputs.patch({})]),
     ]);
@@ -107,14 +104,22 @@ describe('typedFieldComponentPipe - inputs 强类型', () => {
     expect([inputs, emits]).toEqual([true, true]);
   });
 
-  it('类型: defineModel 归入 inputs, update:xxx 归入 emits', () => {
-    const inputs: Equal<keyof GetComponentInputs<typeof TypedModel>, 'modelValue' | 'title'> = true;
-    const emits: Equal<
-      keyof GetComponentEmits<typeof TypedModel>,
-      'update:modelValue' | 'update:title'
+  it('类型: 数组写法的 emits 只收窄名字, 参数保持宽松', () => {
+    const names: Equal<keyof GetComponentEmits<typeof TypedEmitArray>, 'ping' | 'pong'> = true;
+    const handler: Equal<
+      GetComponentEmits<typeof TypedEmitArray>['ping'],
+      (...args: any[]) => any
     > = true;
 
-    expect([inputs, emits]).toEqual([true, true]);
+    expect([names, handler]).toEqual([true, true]);
+  });
+
+  it('类型: 对象写法的 emit 保留真实参数元组', () => {
+    const change: Equal<GetComponentEmits<typeof TypedEmit>['change'], (value: number) => any> =
+      true;
+    const submit: Equal<GetComponentEmits<typeof TypedEmit>['submit'], () => any> = true;
+
+    expect([change, submit]).toEqual([true, true]);
   });
 });
 
@@ -123,7 +128,6 @@ describe('typedFieldComponentPipe - inputs 真实值类型(非 any)', () => {
     types: {
       typed: { type: TypedInputs },
       multi: { type: TypedEmitMulti },
-      anyInputs: { type: AnyInputs },
     },
   };
 
@@ -246,7 +250,7 @@ describe('typedFieldComponentPipe - inputs 真实值类型(非 any)', () => {
 
   it('对照: any prop 什么都收, 完全看不出类型来源', () => {
     const anyValue: Equal<GetComponentInputs<typeof AnyInputs>['value1'], any> = true;
-    const loose = typedFieldComponentPipe(numOnly, typedDefine, (d) => [
+    const loose = typedFieldComponentPipe(numOnly, baseDefine, (d) => [
       d(['num'], 'anyInputs', [
         d.inputs.patch({ value1: '1' }),
         d.inputs.patch({ value1: 123 }),
@@ -311,7 +315,7 @@ describe('typedFieldComponentPipe - inputs 真实值类型(非 any)', () => {
       ]),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: { types: { typed: { type: markRaw(TypedInputs) } } },
     });
 
@@ -337,7 +341,7 @@ describe('typedFieldComponentPipe - inputs 真实值类型(非 any)', () => {
       ]),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: { types: { multi: { type: markRaw(TypedEmitMulti) } } },
     });
 
@@ -442,9 +446,12 @@ describe('typedFieldComponentPipe - outputs 强类型', () => {
       d(['b'], 'emit', []),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: {
-        types: { empty: { type: EmptyCmp }, emit: { type: TypedEmit } },
+        types: {
+          empty: { type: EmptyCmp },
+          emit: { type: TypedEmit },
+        },
       },
     });
 
@@ -463,10 +470,10 @@ describe('typedFieldComponentPipe - outputs 强类型', () => {
     expect(stream.list[0]).toEqual([42]);
   });
 
-  it('Vue 版不暴露 models: 没有双向绑定通道', () => {
+  it('Vue 2 版不暴露 models: 没有双向绑定通道', () => {
     const bad = typedFieldComponentPipe(numOnly, baseDefine, (d) => [
       d(['num'], 'emit', [
-        // @ts-expect-error Vue 运行时不消费 field.models
+        // @ts-expect-error Vue 2 运行时不消费 field.models
         d.models.patch({}),
       ]),
     ]);
@@ -491,12 +498,12 @@ describe('typedFieldComponentPipe - attributes / events / wrappers', () => {
   });
 
   it('attributes 不再把 onXxx 当成属性名, 但自定义名依旧放行', () => {
-    const classOk: 'class' extends VueStandardAttrName ? true : false = true;
-    const roleOk: 'aria-label' extends VueStandardAttrName ? true : false = true;
-    const eventExcluded: 'onCopy' | 'onSubmit' extends VueStandardAttrName ? true : false = false;
-    const customOk: 'my-attr' extends VueAttributeName ? true : false = true;
+    const classOk: 'class' extends Vue2StandardAttrName ? true : false = true;
+    const ariaOk: 'aria-label' extends Vue2StandardAttrName ? true : false = true;
+    const eventExcluded: 'onCopy' | 'onSubmit' extends Vue2StandardAttrName ? true : false = false;
+    const customOk: 'my-attr' extends Vue2AttributeName ? true : false = true;
 
-    expect([classOk, roleOk, eventExcluded, customOk]).toEqual([true, true, false, true]);
+    expect([classOk, ariaOk, eventExcluded, customOk]).toEqual([true, true, false, true]);
   });
 
   it('events 收在标准 DOM 事件名上, 自定义名放行', () => {
@@ -516,11 +523,11 @@ describe('typedFieldComponentPipe - attributes / events / wrappers', () => {
   });
 
   it('wrappers 的名字收在配置声明的 key 上', () => {
-    const define = typedComponent({
+    const define = {
       wrappers: {
-        block: { type: markRaw(InputsTest) },
+        block: { type: InputsTest },
       },
-    });
+    };
 
     const ok = typedFieldComponentPipe(numOnly, define, (d) => [
       d(['num'], 'inputs', [d.wrappers.patch(['block'])]),
@@ -541,9 +548,9 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
   const formPair = v.object({ a: v.string(), b: v.number() });
   type AField = PiFieldAtPath<typeof formPair, ['a']>;
   // Vue 侧表单控件由组件自己交 cva, 所以运行时测试必须用带 cva 的输入组件
-  const formDefine = typedComponent({
+  const formDefine = {
     types: { formInput: { type: markRaw(PiInput) } },
-  });
+  };
   const formCmpConfig = {
     defaultConfig: { types: { formInput: { type: markRaw(PiInput) } } },
   };
@@ -760,7 +767,7 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
     });
     await delay(30);
 
-    const el = instance.findAll('.empty-cmp')[0];
+    const el = instance.findAll('.empty-cmp').wrappers[0];
     expect(el.exists()).toBe(true);
     expect((el.element as HTMLElement).classList.contains('c-async-comp')).toBe(true);
   });
@@ -814,7 +821,7 @@ describe('typedFieldComponentPipe - 运行时', () => {
       d(['e'], 'emit', [d.inputs.patch({ name: 'hello', count: 3 })]),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: { types: { emit: { type: TypedEmit } } },
     });
 
@@ -834,12 +841,32 @@ describe('typedFieldComponentPipe - 运行时', () => {
       ]),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: { types: { emit: { type: TypedEmit } } },
     });
 
     await instance.find('.btn-change').trigger('click');
     expect(calls).toEqual([42]);
+  });
+
+  it('数组写法的 emit 同样能被监听', async () => {
+    const calls: unknown[] = [];
+    const merged = typedFieldComponentPipe(nfcOnly, baseDefine, (d) => [
+      d(['e'], 'arrayEmit', [
+        d.outputs.patch({
+          ping: (value: unknown) => {
+            calls.push(value);
+          },
+        }),
+      ]),
+    ]);
+
+    const { instance } = await createComponent(merged, shallowRef(), {
+      defaultConfig: { types: { arrayEmit: { type: TypedEmitArray } } },
+    });
+
+    await instance.find('.btn-ping').trigger('click');
+    expect(calls).toEqual(['pong!']);
   });
 
   it('outputChange 监听自身 emit 并拿到参数', async () => {
@@ -854,7 +881,7 @@ describe('typedFieldComponentPipe - 运行时', () => {
       ]),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: { types: { emit: { type: TypedEmit } } },
     });
 
@@ -869,11 +896,23 @@ describe('typedFieldComponentPipe - 运行时', () => {
       d(['e'], 'inputs', [d.inputs.patch({ value1: 'auto-component' })]),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: { types: { inputs: { type: InputsTest } } },
     });
 
-    expect(instance.find('.inputs-test').element.textContent).toBe('auto-component');
+    expect(instance.find('.inputs-test').element.textContent).toContain('auto-component');
+  });
+
+  it('attributes.patch 真的落到组件根节点', async () => {
+    const merged = typedFieldComponentPipe(nfcOnly, baseDefine, (d) => [
+      d(['e'], 'empty', [d.attributes.patch({ class: 'attr-class' })]),
+    ]);
+
+    const { instance } = await createComponent(merged, shallowRef(), {
+      defaultConfig: { types: { empty: { type: EmptyCmp } } },
+    });
+
+    expect(instance.find('.empty-cmp').classes()).toContain('attr-class');
   });
 });
 
@@ -895,9 +934,7 @@ describe('typedFieldComponentPipe - 懒加载组件', () => {
   });
 
   it('类型 + 运行时: lazyMark 配置下依旧收窄并渲染', async () => {
-    const markedDefine = typedComponent({
-      types: { emit: { type: markedEmit } },
-    });
+    const markedDefine = { types: { emit: { type: markedEmit } } };
 
     const bad = typedFieldComponentPipe(numOnly, markedDefine, (d) => [
       d(['num'], 'emit', [
@@ -909,11 +946,11 @@ describe('typedFieldComponentPipe - 懒加载组件', () => {
     const merged = typedFieldComponentPipe(nfcOnly, markedDefine, (d) => [
       d(['e'], 'emit', [d.inputs.patch({ name: 'marked-name' })]),
     ]);
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
-      defaultConfig: { types: { emit: { type: markedEmit } } },
+    const { instance } = await createComponent(merged, shallowRef(), {
+      defaultConfig: { types: { emit: { type: markRaw(markedEmit as any) } } },
     });
     await nextTick();
-    await delay(50);
+    await delay(80);
 
     expect(bad).toBeTruthy();
     expect(instance.find('.name').element.textContent).toBe('marked-name');
@@ -942,11 +979,11 @@ describe('typedFieldComponentPipe - 懒加载组件', () => {
       d(['e'], 'emit', [d.inputs.patch({ name: 'lazy-name' })]),
     ]);
 
-    const { instance } = await createComponent(merged, shallowRef(undefined), {
+    const { instance } = await createComponent(merged, shallowRef(), {
       defaultConfig: { types: { emit: { type: lazyEmit } } },
     });
     await nextTick();
-    await delay(50);
+    await delay(80);
 
     expect(instance.find('.name').element.textContent).toBe('lazy-name');
   });

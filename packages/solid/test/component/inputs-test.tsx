@@ -1,5 +1,4 @@
-
-export function InputsTest(props: { value1?: any; value2?: any }) {
+export function InputsTest(props: { value1?: string; value2?: number }) {
   return (
     <div class="inputs-test">
       {props.value1}

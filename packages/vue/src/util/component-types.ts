@@ -1,4 +1,10 @@
-import type { AllowedComponentProps, ComponentCustomProps, DefineComponent, VNodeProps } from 'vue';
+import type {
+  AllowedComponentProps,
+  ComponentCustomProps,
+  DefineComponent,
+  HTMLAttributes,
+  VNodeProps,
+} from 'vue';
 import type { AsyncProperty, LazyImport, LazyMarkType, PiTypeConfig } from '@piying/view-core';
 
 /** 组件实例 $props 上的框架内置 key, 既不是业务 input 也不是业务 output */
@@ -83,8 +89,17 @@ export type GetComponentOutputsKeys<C> = keyof GetComponentEmits<C>;
  */
 export type GetComponentOutputsHandlerMap<C> = GetComponentEmits<C>;
 
-/** 可作为「组件标识」传入的形态 */
-export type VueComponent = DefineComponent<any, any, any> | LazyImport<any>;
+/**
+ * 可作为「组件标识」传入的形态。
+ *
+ * `DefineComponent` 必须按全量 13 个类型参数写 any:
+ * 只给前几个时, 后面几位的默认值会把 Props 约成具体类型,
+ * 带「必填 prop」的 `<script setup>` 组件反而匹配不上, 会被当成「非组件」而降级成宽松表。
+ */
+export type VueComponent =
+  | DefineComponent<any, any, any>
+  | (abstract new (...args: any) => { $props: any })
+  | LazyImport<any>;
 
 /** 组件标识的完整集合: 额外放行 lazyMark 包装形态 */
 export type VueComponentKey = VueComponent | LazyMarkType<any>;
@@ -100,3 +115,15 @@ export type ActionComponent<A extends PiTypeConfig> = A['type'] extends VueCompo
   : [ResolveLazyComponent<A['type']>] extends [never]
     ? NonNullable<A['actions']>[0]['__type']
     : ResolveLazyComponent<A['type']>;
+
+/**
+ * attributes 的标准名: 直接借 vue/runtime-dom 的 HTMLAttributes。
+ *
+ * attributes 走 fallthrough 落到组件根元素上, 拿不到「根元素是哪个标签」,
+ * 所以只能按「通用 HTML + ARIA 属性名」给补全;
+ * `onXxx` 必须摘掉 —— 那是 events 的地盘。
+ */
+export type VueStandardAttrName = Exclude<Extract<keyof HTMLAttributes, string>, `on${string}`>;
+
+/** 标准名 ∪ 任意自定义名(data-* 与组件自有的 fallthrough 属性等) */
+export type VueAttributeName = VueStandardAttrName | (string & {});

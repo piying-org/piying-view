@@ -1,5 +1,9 @@
 import * as v from 'valibot';
-import { setComponent, typedFieldPipe, ɵtypedFieldActions } from '@piying/view-core';
+import {
+  setComponent,
+  typedFieldPipe,
+  ɵtypedFieldActions,
+} from '@piying/view-core';
 import type {
   AnyOutputsHandlerMap,
   AsyncValueMap,
@@ -21,18 +25,18 @@ import type {
   GetComponentInputsOrigin,
   GetComponentOutputsHandlerMap,
   GetComponentOutputsOrigin,
-  VueAttributeName,
-  VueComponentKey,
+  ReactAttributeName,
+  ReactComponentKey,
 } from './component-types';
 
 /**
  * 组件类型 -> 表。
  *
- * 这是 Vue 侧唯一需要写的「读组件」逻辑:
- * 把 `$props` 里的普通 prop 与 `onXxx` 处理器打包成 `CompTables` 的形状,
+ * 这是 React 侧唯一需要写的「读组件」逻辑:
+ * 把组件 props 里的非函数 prop 与函数 prop 打包成 `CompTables` 的形状,
  * 之后骨架(工厂 / entry / outputChange)全在 core 里复用一份。
  *
- * Vue 没有独立的双向绑定通道(v-model 就是 prop + `update:xxx`),
+ * React 没有独立的双向绑定通道(受控 value + onChange 只是约定, 运行时不消费 field.models),
  * 所以 models 两项直接置 never, 工厂那一侧一并摘掉。
  *
  * 推不出组件时落到宽松表: 降级不等于封死,
@@ -51,7 +55,7 @@ type TablesOfComponent<C> = [C] extends [never]
   : {
       inputKeys: Extract<keyof GetComponentInputs<C>, string>;
       inputsOrigin: TightenEmpty<GetComponentInputsOrigin<C>>;
-      outputKeys: Extract<keyof GetComponentOutputsOrigin<C>, string>;
+      outputKeys: Extract<keyof GetComponentOutputsHandlerMap<C>, string>;
       outputsOrigin: TightenEmpty<GetComponentOutputsOrigin<C>>;
       outputsHandlerMap: GetComponentOutputsHandlerMap<C>;
       modelKeys: never;
@@ -61,8 +65,8 @@ type TablesOfComponent<C> = [C] extends [never]
 /**
  * attributes 工厂: key 收在「标准 HTML 属性名 ∪ 任意自定义名」上。
  *
- * Vue 的 attributes 走 fallthrough 落到组件根元素,
- * 所以标准名取自 vue/runtime-dom 的 HTMLAttributes(摘掉 onXxx), 值仍保持宽松。
+ * React 的 attributes 最终也是 spread 成 props 落到根元素上,
+ * 所以标准名直接取自 React 自带的 HTMLAttributes(摘掉 onXxx), 值仍保持宽松。
  */
 export interface TypedAttributesActionsFactory<AttrName extends string> {
   patch: <F, T extends CompTables = CompTables>(
@@ -74,14 +78,14 @@ export interface TypedAttributesActionsFactory<AttrName extends string> {
   patchAsync: <
     F,
     T extends CompTables = CompTables,
-    Data extends AsyncValueMap<Partial<Record<AttrName, any>>, F> = AsyncValueMap<
-      Partial<Record<AttrName, any>>,
-      F
-    >,
+    Data extends AsyncValueMap<Partial<Record<AttrName, any>>, F> =
+      AsyncValueMap<Partial<Record<AttrName, any>>, F>,
   >(
     dataObj: Data,
   ) => CompAction<F, T>;
-  remove: <F, T extends CompTables = CompTables>(list: AttrName[]) => CompAction<F, T>;
+  remove: <F, T extends CompTables = CompTables>(
+    list: AttrName[],
+  ) => CompAction<F, T>;
   mapAsync: <F, T extends CompTables = CompTables>(
     fn: (field: F) => (value: Partial<Record<AttrName, any>>) => any,
   ) => CompAction<F, T>;
@@ -100,22 +104,22 @@ export interface TypedAttributesActionsFactory<AttrName extends string> {
  *
  * `Tables` 只当配对通道上的上界, 真正生效的表由 entry 的期望元素类型反推,
  * 所以这里直接复用 core 的骨架。
- * Vue 侧额外摘掉 `models`(运行时不消费 field.models) 与 `attributes`(换成 HTML 名约束)。
+ * React 侧额外摘掉 `models`(运行时不消费) 与 `attributes`(换成 HTML 名约束)。
  */
 export type TypedComponentActionFactories<Cfg = unknown> = Omit<
   CompActionFactoriesOf<CompTables, Cfg>,
   'models' | 'attributes'
 > & {
-  attributes: TypedAttributesActionsFactory<VueAttributeName>;
+  attributes: TypedAttributesActionsFactory<ReactAttributeName>;
 };
 
 /** 可用的组件标识: 配置里注册的类型 key, 直接传组件, 或者直接传懒加载函数 */
-export type ComponentKeyOf<Cfg> = keyof TypesOfKey<Cfg> | VueComponentKey;
+export type ComponentKeyOf<Cfg> = keyof TypesOfKey<Cfg> | ReactComponentKey;
 
 type TypesOfKey<Cfg> = NonNullable<Cfg extends { types?: infer T } ? T : never>;
 
 /** 能不能从配置项里解析出组件: 直接给 type(含懒加载), 要么给了非空 actions */
-type IsComponentLike<A> = A extends { type: VueComponentKey }
+type IsComponentLike<A> = A extends { type: ReactComponentKey }
   ? true
   : A extends { actions: readonly [any, ...any[]] }
     ? true
@@ -147,7 +151,11 @@ export type DefineComponentEntry<
   <P extends FieldPathsOf<Root>, K extends ComponentKeyOf<Cfg>>(
     path: [...P],
     component: K,
-    actions: readonly CompEntryAction<Root, P, TablesOfComponent<ComponentOf<Cfg, K>>>[],
+    actions: readonly CompEntryAction<
+      Root,
+      P,
+      TablesOfComponent<ComponentOf<Cfg, K>>
+    >[],
   ): FieldEntry;
 };
 
@@ -156,7 +164,7 @@ export type DefineComponentEntry<
  *
  * 按「路径 + 组件」写配置:
  * - 回调里的 field 与 `builder.get(path)` 类型完全等价, 可以直接 get;
- * - `d.inputs` 的 key 来自组件 props, `d.outputs` 的 key 来自组件 emits。
+ * - `d.inputs` 的 key 来自组件的非函数 props, `d.outputs` 的 key 来自函数 props。
  *
  * 每条 entry 都会下发 `setComponent(component)`, 保证「校验用的类型」就是「真正渲染的组件」。
  * 不需要组件类型时, 直接用 `typedFieldPipe`。
@@ -170,7 +178,9 @@ export function typedFieldComponentPipe<
   schema: S,
   // 只参与类型推断, 运行时不需要配置
   _config: C,
-  cb: (define: DefineComponentEntry<S, UnwrapConfig<C>>) => readonly FieldEntry[],
+  cb: (
+    define: DefineComponentEntry<S, UnwrapConfig<C>>,
+  ) => readonly FieldEntry[],
 ): S {
   const define = Object.assign(
     (path: KeyPath, component: any, actions: readonly any[]): FieldEntry => ({
