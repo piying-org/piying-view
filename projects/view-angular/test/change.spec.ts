@@ -323,14 +323,14 @@ describe('change', () => {
           ]).subscribe((value) => {
             expect(Array.isArray(value.list)).toBeTrue();
             if (valueChangeIndex === 0) {
-              expect(value.list[0][0]).toBe('emit1-output1-data');
-              expect(value.list[0].length).toBe(2);
+              expect(value.list[0]?.[0]).toBe('emit1-output1-data');
+              expect(value.list[0]?.length).toBe(1);
               expect(value.list[1]).toBeFalsy();
             } else if (valueChangeIndex === 1) {
-              expect(value.list[0][0]).toBe('emit1-output1-data');
-              expect(value.list[0].length).toBe(2);
+              expect(value.list[0]?.[0]).toBe('emit1-output1-data');
+              expect(value.list[0]?.length).toBe(1);
               expect(value.list[1]).toBeTruthy();
-              expect(value.list[1][0]).toBe('emit2-output1-data');
+              expect(value.list[1]?.[0]).toBe('emit2-output1-data');
             }
             valueChangeIndex++;
           });

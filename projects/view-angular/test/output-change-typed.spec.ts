@@ -1,0 +1,267 @@
+import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import * as v from 'valibot';
+import { NFCSchema, type PiFieldAtPath } from '@piying/view-angular-core';
+import { typedComponent } from '../lib/util/typed-component';
+import { typedFieldComponentPipe } from '../lib/util/typed-field-component-pipe';
+import { createSchemaComponent } from './util/create-component';
+
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+    ? true
+    : false;
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+/** 每个 output 的 payload 类型互不相同, 用来证明 list 类型确实跟着 output<T>() 走 */
+@Component({
+  selector: 'test-typed-emit',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <button class="te-str" (click)="strOut.emit('hello')"></button>
+    <button class="te-num" (click)="numOut.emit(42)"></button>
+    <button class="te-obj" (click)="objOut.emit({ id: 7, tag: 'x' })"></button>
+    <button class="te-arr" (click)="arrOut.emit(['a', 'b'])"></button>
+  `,
+})
+export class TypedEmitComponent {
+  strOut = output<string>();
+  numOut = output<number>();
+  objOut = output<{ id: number; tag: string }>();
+  arrOut = output<string[]>();
+}
+
+const typeDefine = typedComponent({
+  types: { typedEmit: { type: TypedEmitComponent } },
+});
+
+const root = v.object({ a: NFCSchema, b: NFCSchema });
+
+describe('outputChange — list 类型来自 Angular output<T>()', () => {
+  it('类型: 每一位精确等于该 output 的 payload 元组', () => {
+    typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputChange((fn) => {
+          fn([
+            { list: undefined, output: 'strOut' },
+            { list: undefined, output: 'numOut' },
+            { list: undefined, output: 'objOut' },
+            { list: undefined, output: 'arrOut' },
+          ]).subscribe(({ list }) => {
+            const t1: Equal<(typeof list)[0], [string] | undefined> = true;
+            const t2: Equal<(typeof list)[1], [number] | undefined> = true;
+            const t3: Equal<
+              (typeof list)[2],
+              [{ id: number; tag: string }] | undefined
+            > = true;
+            const t4: Equal<(typeof list)[3], [string[]] | undefined> = true;
+            expect([t1, t2, t3, t4]).toEqual([true, true, true, true]);
+          });
+        }),
+      ]),
+    ]);
+  });
+
+  it('类型: 没有退化成 any, 且各位互不相同(不是统一塞的宽松类型)', () => {
+    typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputChange((fn) => {
+          fn([
+            { list: undefined, output: 'strOut' },
+            { list: undefined, output: 'numOut' },
+          ]).subscribe(({ list }) => {
+            const notAny: [
+              IsAny<(typeof list)[0]>,
+              IsAny<NonNullable<(typeof list)[0]>[0]>,
+            ] = [false, false];
+            const distinct: Equal<(typeof list)[0], (typeof list)[1]> = false;
+            expect(notAny).toEqual([false, false]);
+            expect(distinct).toBe(false);
+          });
+        }),
+      ]),
+    ]);
+  });
+
+  it('类型: payload 用错类型直接报错(类型退化成 any 时这条会失效)', () => {
+    typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputChange((fn) => {
+          fn([
+            { list: undefined, output: 'strOut' },
+            { list: undefined, output: 'numOut' },
+            { list: undefined, output: 'objOut' },
+          ]).subscribe(({ list }) => {
+            // @ts-expect-error numOut 的 payload 是 number, 不是 string
+            const wrong1: string = list[1]?.[0];
+            // @ts-expect-error strOut 的 payload 是 string, 不是 number
+            const wrong2: number = list[0]?.[0];
+            // @ts-expect-error objOut 的 payload 没有 name 属性
+            const wrong3: string = list[2]?.[0]?.name;
+            expect([wrong1, wrong2, wrong3]).toBeTruthy();
+          });
+        }),
+      ]),
+    ]);
+  });
+
+  it('类型: listenFields 逐位精确到路径对应的 field', () => {
+    typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputChange((fn) => {
+          fn([
+            { list: undefined, output: 'strOut' },
+            { list: ['..', 'b'], output: 'numOut' },
+          ]).subscribe(({ listenFields }) => {
+            const f0: Equal<
+              (typeof listenFields)[0],
+              PiFieldAtPath<typeof root, ['a']>
+            > = true;
+            const f1: Equal<
+              (typeof listenFields)[1],
+              PiFieldAtPath<typeof root, ['b']>
+            > = true;
+            const notAny: IsAny<(typeof listenFields)[1]> = false;
+            expect([f0, f1, notAny]).toEqual([true, true, false]);
+          });
+        }),
+      ]),
+    ]);
+  });
+
+  it('运行时: emit 值原样落在对应位, 未触发的位是 undefined', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputChange((fn) => {
+          fn([
+            { list: undefined, output: 'strOut' },
+            { list: undefined, output: 'numOut' },
+            { list: undefined, output: 'objOut' },
+            { list: undefined, output: 'arrOut' },
+          ]).subscribe((s) => emissions.push(s));
+        }),
+      ]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ a: undefined, b: undefined }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(emissions.length).toBe(0);
+
+    element.querySelector<HTMLElement>('.te-str')!.click();
+    expect(emissions.length).toBe(1);
+    let list = emissions[0].list;
+    expect(list[0]).toEqual(['hello']);
+    expect(list[1]).toBeUndefined();
+    expect(list[2]).toBeUndefined();
+    expect(list[3]).toBeUndefined();
+
+    element.querySelector<HTMLElement>('.te-obj')!.click();
+    list = emissions[emissions.length - 1].list;
+    expect(list[0]).toEqual(['hello']);
+    expect(list[2]).toEqual([{ id: 7, tag: 'x' }]);
+    expect(list[1]).toBeUndefined();
+  });
+
+  it('运行时: list 里没有多余的 field, field 统一从 listenFields 取', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputChange((fn) => {
+          fn([{ list: undefined, output: 'numOut' }]).subscribe((s) =>
+            emissions.push(s),
+          );
+        }),
+      ]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ a: undefined, b: undefined }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    element.querySelector<HTMLElement>('.te-num')!.click();
+    const s = emissions[emissions.length - 1];
+    expect(s.list[0].length).toBe(1);
+    expect(s.list[0][0]).toBe(42);
+    expect(s.listenFields[0].fullPath).toEqual(['a']);
+  });
+
+  it('运行时: 同一 output 被多个 outputChange 监听, 每位只含 emit 参数(不累积 field)', async () => {
+    const first: any[] = [];
+    const second: any[] = [];
+    const userArgCount: number[] = [];
+    const merged = typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputs.set({
+          strOut: (...args: any[]) => userArgCount.push(args.length),
+        }),
+        d.outputChange((fn) => {
+          fn([{ list: undefined, output: 'strOut' }]).subscribe((s) =>
+            first.push(s.list[0]),
+          );
+        }),
+        d.outputChange((fn) => {
+          fn([{ list: undefined, output: 'strOut' }]).subscribe((s) =>
+            second.push(s.list[0]),
+          );
+        }),
+      ]),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ a: undefined, b: undefined }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    element.querySelector<HTMLElement>('.te-str')!.click();
+    expect(first[0]).toEqual(['hello']);
+    expect(second[0]).toEqual(['hello']);
+    // 用户 handler 也只收到 emit 参数, 没有追加的 field
+    expect(userArgCount).toEqual([1]);
+  });
+
+  it('运行时: 跨字段监听, 只有被监听字段触发才发射', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'typedEmit', [
+        d.outputChange((fn) => {
+          fn([{ list: ['..', 'b'], output: 'arrOut' }]).subscribe((s) =>
+            emissions.push(s),
+          );
+        }),
+      ]),
+      d(['b'], 'typedEmit', []),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ a: undefined, b: undefined }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const arrBtns = element.querySelectorAll<HTMLElement>('.te-arr');
+    expect(arrBtns.length).toBe(2);
+
+    arrBtns[0].click();
+    expect(emissions.length).toBe(0);
+
+    arrBtns[1].click();
+    expect(emissions.length).toBe(1);
+    expect(emissions[0].field.fullPath).toEqual(['a']);
+    expect(emissions[0].listenFields[0].fullPath).toEqual(['b']);
+    expect(emissions[0].list[0]).toEqual([['a', 'b']]);
+  });
+});

@@ -89,6 +89,14 @@ export type GetComponentOutputsOrigin<TComponent> = Partial<
   ComponentOutputsOrigin<GetComponentOutputs<TComponent>>
 >;
 
+/**
+ * 非 Partial 形态的「output 名 -> 处理器签名」映射。
+ * 用于把 outputChange 的 list 逐位推成真实 emit 参数元组。
+ */
+export type GetComponentOutputsHandlerMap<TComponent> = ComponentOutputsOrigin<
+  GetComponentOutputs<TComponent>
+>;
+
 export type GetComponentOutputsAsync<TComponent> = Partial<
   ComponentOutputsAsync<GetComponentOutputs<TComponent>>
 >;

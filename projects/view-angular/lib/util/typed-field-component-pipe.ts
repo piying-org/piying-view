@@ -7,6 +7,7 @@ import {
 } from '@piying/view-angular-core';
 import type {
   ActionFactories,
+  AnyOutputsHandlerMap,
   AsyncResult,
   ConfigAction,
   EventChangeFn,
@@ -24,6 +25,7 @@ import type {
   GetComponentInputs,
   GetComponentInputsOrigin,
   GetComponentOutputs,
+  GetComponentOutputsHandlerMap,
   GetComponentOutputsOrigin,
 } from './typed-component';
 
@@ -134,8 +136,18 @@ export interface TypedComponentOutputActionsFactory {
  *
  * 运行时 handler 挂在「本条 entry 的 field」的 outputs 上,
  * 所以按本条 entry 的组件约束就是准确的。
+ *
+ * 第三个泛型把组件 output() 的 emit 参数送进 stream, 让 list 每一位也是强类型。
  */
-type CompOutputChangeFn<F, C> = EventChangeFn<F, OutputKeysOf<C>>;
+type OutputsHandlerMapOf<C> = [C] extends [never]
+  ? AnyOutputsHandlerMap
+  : GetComponentOutputsHandlerMap<C>;
+
+type CompOutputChangeFn<F, C> = EventChangeFn<
+  F,
+  OutputKeysOf<C>,
+  OutputsHandlerMapOf<C>
+>;
 
 /** 组件版 action 工厂集合: inputs / outputs 换成组件约束形态, 其余沿用通用工厂 */
 export type TypedComponentActionFactories = Omit<

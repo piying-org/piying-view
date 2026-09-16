@@ -956,7 +956,7 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
       ['nested', 'age'],
       ['nested', 'city'],
     ]);
-    // list 是 output 触发时的原始参数数组(mergeOutputFn 会在尾部追加 field)
+    // list 是 output 触发时的原始参数数组(尾部追加的 field 已剔除, 取 field 走 listenFields)
     expect(s.list[0][0]).toBe('x');
     expect(s.list[0][1]).toBe(2);
   });

@@ -19,8 +19,11 @@ export function mergeOutputFn(
     for (const key in outputs) {
       const oldFn = (originOutputs as any)[key];
       (originOutputs as any)[key] = (...args: any[]) => {
-        oldFn?.(...args, field);
-        (outputs as any)[key](...args, field);
+        // 与 mergeOutputs / asyncMergeOutputs 保持一致: 原样透传 emit 参数。
+        // 以前这里会往尾部追加 field, 但多包一层就多追加一颗(多个监听器合并时会累积),
+        // 且 field 已经能从 patchAsync 回调 / listenFields 拿到, 故去掉。
+        oldFn?.(...args);
+        (outputs as any)[key](...args);
       };
     }
     return originOutputs;
@@ -90,6 +93,25 @@ export interface OutputChangeListenEntry<
 export type AnyOutputListenList<OutputName extends string = string> =
   readonly OutputChangeListenEntry<any, OutputName>[];
 
+/**
+ * 「output 名 -> 处理器签名」的映射。
+ * 拿不到组件信息时退成宽松形态, list 元素仍是 any[]。
+ */
+export type AnyOutputsHandlerMap = Record<string, (...args: any[]) => any>;
+
+/** 监听项 E -> 它监听的 output 名 */
+type OutputNameOf<E> = E extends { output: infer N extends string } ? N : string;
+
+/** output 名 -> 该 output 被 emit 时的参数元组 */
+type EmitArgsOf<Outputs, Name> = Name extends keyof Outputs
+  ? NonNullable<Outputs[Name]> extends (...args: infer A) => any
+    ? A
+    : any[]
+  : any[];
+
+/** 监听项 E -> 该 output 的 emit 参数元组 */
+export type OutputEmitArgsOf<Outputs, E> = EmitArgsOf<Outputs, OutputNameOf<E>>;
+
 /** 监听项 E -> 对应的字段类型(未给路径即自身) */
 export type OutputListenFieldOf<F, E> = E extends { list?: infer P }
   ? [Exclude<P, undefined>] extends [never]
@@ -97,13 +119,20 @@ export type OutputListenFieldOf<F, E> = E extends { list?: infer P }
     : PiFieldGet<F, ToKeyPath<Exclude<P, undefined>>>
   : F;
 
-/** outputChange 回调流: list 为每项 output 触发时的参数数组, listenFields 与监听项逐位对齐 */
+/**
+ * outputChange 回调流: list 为每项 output 触发时的参数数组, listenFields 与监听项逐位对齐。
+ *
+ * `Outputs` 是「output 名 -> 处理器签名」映射:
+ * 组件版门面把组件的 output() 传进来, list 每一位就是对应事件的 emit 参数元组。
+ * 某项还没触发过时是 undefined(合成首帧已被 skip, 但同批其他项可能仍未 emit)。
+ */
 export interface OutputChangeStream<
   F,
   L extends AnyOutputListenList = AnyOutputListenList,
+  Outputs extends AnyOutputsHandlerMap = AnyOutputsHandlerMap,
 > {
   field: F;
-  list: { [I in keyof L]: any[] };
+  list: { [I in keyof L]: OutputEmitArgsOf<Outputs, L[I]> | undefined };
   listenFields: { [I in keyof L]: OutputListenFieldOf<F, L[I]> };
 }
 
@@ -111,16 +140,21 @@ export interface OutputChangeStream<
  * 监听函数: 传入监听项元组, 返回与该元组逐位对齐的强类型流。
  * `const L` 保证 `['..', 'k1']` 这类字面量不会被拓宽成 `string[]`。
  */
-export interface OutputChangeListenFn<F, OutputName extends string = string> {
+export interface OutputChangeListenFn<
+  F,
+  OutputName extends string = string,
+  Outputs extends AnyOutputsHandlerMap = AnyOutputsHandlerMap,
+> {
   <const L extends readonly OutputChangeListenEntry<F, OutputName>[]>(
     list: [...L],
-  ): Observable<OutputChangeStream<F, L>>;
+  ): Observable<OutputChangeStream<F, L, Outputs>>;
 }
 
 export type EventChangeFn<
   F = _PiResolvedCommonViewFieldConfig,
   OutputName extends string = string,
-> = (fn: OutputChangeListenFn<F, OutputName>) => void;
+  Outputs extends AnyOutputsHandlerMap = AnyOutputsHandlerMap,
+> = (fn: OutputChangeListenFn<F, OutputName, Outputs>) => void;
 
 /** 按当前 field 造出带强类型的监听函数, 供 outputChange 注入回调 */
 function createOutputChangeListenFn(
