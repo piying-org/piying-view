@@ -1,3 +1,13 @@
+## [2.16.6](https://github.com/piying-org/piying-view/compare/2.16.5...2.16.6) (2026-09-16)
+
+### Bug Fixes
+
+* build ([187363f](https://github.com/piying-org/piying-view/commit/187363f5d33869231ecc1dd993c0b3432cf4e71c))
+
+### Features
+
+* react solid svelte vue2-legacy typed ([5e01b27](https://github.com/piying-org/piying-view/commit/5e01b27169f584a057778dae4ff414f01f8231a5))
+
 ## [2.16.5](https://github.com/piying-org/piying-view/compare/2.16.4...2.16.5) (2026-09-16)
 
 ### Bug Fixes
