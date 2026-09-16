@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { markRaw, nextTick, shallowRef } from 'vue';
 import * as v from 'valibot';
-import { NFCSchema, lazyMark } from '@piying/view-core';
+import { NFCSchema, lazyMark, type PiFieldAtPath } from '@piying/view-core';
 import { typedComponent } from '../util/typed-component';
 import { typedFieldComponentPipe } from '../util/typed-field-component-pipe';
 import type {
@@ -12,6 +12,7 @@ import type {
 import { createComponent } from './util/create-component';
 import { delay } from './util/delay';
 import TypedEmit from './component/typed-emit.vue';
+import EmptyCmp from './component/empty-cmp.vue';
 import TypedModel from './component/typed-model.vue';
 import InputsTest from './component/inputs-test.vue';
 
@@ -20,11 +21,13 @@ type Equal<A, B> =
 
 const numOnly = v.object({ num: v.number() });
 const nfcOnly = v.object({ e: NFCSchema });
+const nfcPair = v.object({ a: NFCSchema, b: NFCSchema });
 
 const baseDefine = typedComponent({
   types: {
     emit: { type: markRaw(TypedEmit) },
     inputs: { type: markRaw(InputsTest) },
+    empty: { type: markRaw(EmptyCmp) },
   },
 });
 
@@ -152,6 +155,74 @@ describe('typedFieldComponentPipe - outputs 强类型', () => {
     ]);
 
     expect(ok && bad).toBeTruthy();
+  });
+
+  it('类型: 零 emit 组件跨字段监听, output 名不再塌成 never', () => {
+    const ok = typedFieldComponentPipe(nfcPair, baseDefine, (d) => [
+      d(['a'], 'empty', [
+        d.outputChange((fn) => {
+          fn([{ list: ['..', 'b'], output: 'change' }]).subscribe(
+            ({ listenFields }) => {
+              const f0: Equal<
+                (typeof listenFields)[0],
+                PiFieldAtPath<typeof nfcPair, ['b']>
+              > = true;
+              expect(f0).toBe(true);
+            },
+          );
+        }),
+      ]),
+      d(['b'], 'emit', []),
+    ]);
+
+    expect(ok).toBeTruthy();
+  });
+
+  it('类型: 监听自身(list 缺省)仍然锁在本组件 emits 上', () => {
+    const bad = typedFieldComponentPipe(nfcPair, baseDefine, (d) => [
+      d(['a'], 'empty', [
+        d.outputChange((fn) => {
+          // @ts-expect-error empty-cmp 一个 emit 也没有
+          fn([{ list: undefined, output: 'change' }]);
+        }),
+      ]),
+    ]);
+
+    expect(bad).toBeTruthy();
+  });
+
+  it('运行时: 零 emit 组件跨字段监听, 照样收到对方 emit 的参数', async () => {
+    const received: unknown[] = [];
+    const merged = typedFieldComponentPipe(nfcPair, baseDefine, (d) => [
+      d(['a'], 'empty', [
+        d.outputChange((fn) => {
+          fn([{ list: ['..', 'b'], output: 'change' }]).subscribe((stream) => {
+            received.push(stream);
+          });
+        }),
+      ]),
+      d(['b'], 'emit', []),
+    ]);
+
+    const { instance } = await createComponent(merged, shallowRef(undefined), {
+      defaultConfig: {
+        types: { empty: { type: EmptyCmp }, emit: { type: TypedEmit } },
+      },
+    });
+
+    expect(instance.findAll('.empty-cmp').length).toBe(1);
+    await instance.find('.btn-change').trigger('click');
+    await nextTick();
+
+    expect(received.length).toBe(1);
+    const stream = received[0] as {
+      field: { fullPath: unknown };
+      listenFields: { fullPath: unknown }[];
+      list: unknown[];
+    };
+    expect(stream.field.fullPath).toEqual(['a']);
+    expect(stream.listenFields[0].fullPath).toEqual(['b']);
+    expect(stream.list[0]).toEqual([42]);
   });
 
   it('Vue 版不暴露 models: 没有双向绑定通道', () => {

@@ -30,8 +30,20 @@ export class TypedEmitComponent {
   arrOut = output<string[]>();
 }
 
+/** 零 output 组件: 跨字段监听时拿不到目标组件, 自身监听又没名字可收 */
+@Component({
+  selector: 'test-no-out',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span class="no-out"></span>`,
+})
+export class NoOutComponent {}
+
 const typeDefine = typedComponent({
-  types: { typedEmit: { type: TypedEmitComponent } },
+  types: {
+    typedEmit: { type: TypedEmitComponent },
+    plain: { type: NoOutComponent },
+  },
 });
 
 const root = v.object({ a: NFCSchema, b: NFCSchema });
@@ -263,5 +275,65 @@ describe('outputChange — list 类型来自 Angular output<T>()', () => {
     expect(emissions[0].field.fullPath).toEqual(['a']);
     expect(emissions[0].listenFields[0].fullPath).toEqual(['b']);
     expect(emissions[0].list[0]).toEqual([['a', 'b']]);
+  });
+
+  it('类型: 零 output 组件跨字段监听, output 名不再塌成 never', () => {
+    typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'plain', [
+        d.outputChange((fn) => {
+          fn([{ list: ['..', 'b'], output: 'arrOut' }]).subscribe(
+            ({ listenFields }) => {
+              const f0: Equal<
+                (typeof listenFields)[0],
+                PiFieldAtPath<typeof root, ['b']>
+              > = true;
+              expect(f0).toBe(true);
+            },
+          );
+        }),
+      ]),
+      d(['b'], 'typedEmit', []),
+    ]);
+  });
+
+  it('类型: 监听自身(list 缺省)仍然锁在本组件 output() 上', () => {
+    typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'plain', [
+        d.outputChange((fn) => {
+          // @ts-expect-error NoOutComponent 一个 output 也没有
+          fn([{ list: undefined, output: 'arrOut' }]);
+        }),
+      ]),
+    ]);
+  });
+
+  it('运行时: 零 output 组件跨字段监听, 照样收到对方 emit 的参数', async () => {
+    const emissions: any[] = [];
+    const merged = typedFieldComponentPipe(root, typeDefine, (d) => [
+      d(['a'], 'plain', [
+        d.outputChange((fn) => {
+          fn([{ list: ['..', 'b'], output: 'numOut' }]).subscribe((s) =>
+            emissions.push(s),
+          );
+        }),
+      ]),
+      d(['b'], 'typedEmit', []),
+    ]);
+
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ a: undefined, b: undefined }),
+      typeDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelectorAll('.no-out').length).toBe(1);
+    element.querySelector<HTMLElement>('.te-num')!.click();
+
+    expect(emissions.length).toBe(1);
+    expect(emissions[0].field.fullPath).toEqual(['a']);
+    expect(emissions[0].listenFields[0].fullPath).toEqual(['b']);
+    expect(emissions[0].list[0]).toEqual([42]);
   });
 });

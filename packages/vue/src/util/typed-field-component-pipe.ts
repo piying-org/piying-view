@@ -1,14 +1,17 @@
 import * as v from 'valibot';
+import type { Observable } from 'rxjs';
 import { setComponent, typedFieldPipe, ɵtypedFieldActions } from '@piying/view-core';
 import type {
   ActionFactories,
   AnyOutputsHandlerMap,
   AsyncResult,
   ConfigAction,
-  EventChangeFn,
   FieldEntry,
   FieldPathsOf,
   KeyPath,
+  ListenPathOf,
+  OutputEmitArgsOf,
+  OutputListenFieldOf,
   PiCommonConfig,
   PiFieldAtPath,
   PiTypeConfig,
@@ -114,16 +117,35 @@ export interface TypedComponentOutputActionsFactory {
   mapAsync: <F, C>(fn: (field: F) => (value: OutputsOriginOf<C>) => any) => CompAction<F, C>;
 }
 
-/**
- * outputChange 的组件形态: 监听项的 emit 名锁定在本组件的 emits 上。
- *
- * 第三个泛型把组件 emit 的参数送进 stream, 让 list 每一位也是强类型。
- */
 type OutputsHandlerMapOf<C> = [C] extends [never]
   ? AnyOutputsHandlerMap
   : GetComponentOutputsHandlerMap<C>;
 
-type CompOutputChangeFn<F, C> = EventChangeFn<F, OutputKeysOf<C>, OutputsHandlerMapOf<C>>;
+/**
+ * 组件版监听项: 只有「监听自身(list 缺省)」才锁 emit 名。
+ *
+ * 跨字段时 list 只是 schema 路径, 类型层拿不到目标组件
+ * (`setComponent('radio')` 的 key 没进类型, 字段类型上的组件位是 any),
+ * 硬按本条 entry 的组件约束会误报, 所以放开成 string。
+ */
+type CompOutputChangeEntry<F, C> =
+  | { list?: undefined; output: OutputKeysOf<C> }
+  | { list: Exclude<ListenPathOf<F>, undefined>; output: string };
+
+/** 逐位对齐的回调流, 与 core 的 OutputChangeStream 同构 */
+interface CompOutputChangeStream<F, L, Outputs> {
+  field: F;
+  list: { [I in keyof L]: OutputEmitArgsOf<Outputs, L[I]> | undefined };
+  listenFields: { [I in keyof L]: OutputListenFieldOf<F, L[I]> };
+}
+
+interface CompOutputChangeListenFn<F, C> {
+  <const L extends readonly CompOutputChangeEntry<F, C>[]>(
+    list: [...L],
+  ): Observable<CompOutputChangeStream<F, L, OutputsHandlerMapOf<C>>>;
+}
+
+type CompOutputChangeFn<F, C> = (fn: CompOutputChangeListenFn<F, C>) => void;
 
 /**
  * events 的 key: 标准 DOM 事件名(lib.dom.d.ts 的 HTMLElementEventMap)保留补全与精确参数,

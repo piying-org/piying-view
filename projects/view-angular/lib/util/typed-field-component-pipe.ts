@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { Type, WritableSignal } from '@angular/core';
+import type { Observable } from 'rxjs';
 import {
   setComponent,
   typedFieldPipe,
@@ -10,11 +11,13 @@ import type {
   AnyOutputsHandlerMap,
   AsyncResult,
   ConfigAction,
-  EventChangeFn,
   FieldEntry,
   FieldPathsOf,
   KeyPath,
+  ListenPathOf,
   LazyImport,
+  OutputEmitArgsOf,
+  OutputListenFieldOf,
   PiCommonConfig,
   PiFieldAtPath,
   PiTypeConfig,
@@ -194,23 +197,35 @@ export interface TypedComponentOutputActionsFactory {
   ) => CompAction<F, C>;
 }
 
-/**
- * outputChange 的组件形态: 监听项的 output 名锁定在本组件的 output() 上。
- *
- * 运行时 handler 挂在「本条 entry 的 field」的 outputs 上,
- * 所以按本条 entry 的组件约束就是准确的。
- *
- * 第三个泛型把组件 output() 的 emit 参数送进 stream, 让 list 每一位也是强类型。
- */
 type OutputsHandlerMapOf<C> = [C] extends [never]
   ? AnyOutputsHandlerMap
   : GetComponentOutputsHandlerMap<C>;
 
-type CompOutputChangeFn<F, C> = EventChangeFn<
-  F,
-  OutputKeysOf<C>,
-  OutputsHandlerMapOf<C>
->;
+/**
+ * 组件版监听项: 只有「监听自身(list 缺省)」才锁 output 名。
+ *
+ * 跨字段时 list 只是 schema 路径, 类型层拿不到目标组件
+ * (`setComponent('radio')` 的 key 没进类型, 字段类型上的组件位是 any),
+ * 硬按本条 entry 的组件约束会误报, 所以放开成 string。
+ */
+type CompOutputChangeEntry<F, C> =
+  | { list?: undefined; output: OutputKeysOf<C> }
+  | { list: Exclude<ListenPathOf<F>, undefined>; output: string };
+
+/** 逐位对齐的回调流, 与 core 的 OutputChangeStream 同构 */
+interface CompOutputChangeStream<F, L, Outputs> {
+  field: F;
+  list: { [I in keyof L]: OutputEmitArgsOf<Outputs, L[I]> | undefined };
+  listenFields: { [I in keyof L]: OutputListenFieldOf<F, L[I]> };
+}
+
+interface CompOutputChangeListenFn<F, C> {
+  <const L extends readonly CompOutputChangeEntry<F, C>[]>(
+    list: [...L],
+  ): Observable<CompOutputChangeStream<F, L, OutputsHandlerMapOf<C>>>;
+}
+
+type CompOutputChangeFn<F, C> = (fn: CompOutputChangeListenFn<F, C>) => void;
 
 /**
  * wrappers 的 key: 对齐配置里 `wrappers` 的 key。
