@@ -9,9 +9,9 @@ export default function InputCustomBind({ field }: { field: _PiResolvedCommonVie
           <input
             class="mode1"
             type="text"
-            value={cvaa.value}
+            value={cvaa.value()}
             onChange={(e) => cvaa.valueChange(e.target.value)}
-            disabled={cvaa.disabled}
+            disabled={cvaa.disabled()}
             onBlur={() => cvaa.touchedChange()}
           />
         </div>

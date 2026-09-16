@@ -1,22 +1,32 @@
 import { createMemo, createEffect, onCleanup } from 'solid-js';
 import type { JSX } from 'solid-js/jsx-runtime';
-import type { KeyPath } from '@piying/view-core';
+import type { KeyPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
 import { createViewControlLink, isFieldControl } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type';
+import type { ControlValueAccessorAdapter } from '../util/use-control-value-accessor';
 import { useControlValueAccessor } from '../util/use-control-value-accessor';
 
-export interface FieldControlBindProps {
-  field: PiResolvedViewFieldConfig;
-  path?: KeyPath;
-  children: (props: {
-    cvaa: any;
-    field: PiResolvedViewFieldConfig;
-  }) => JSX.Element;
+/** 渲染作用域: cvaa / field 都按 path 指向的字段推导 */
+export type FieldControlBindScope<S, P extends KeyPath> = {
+  cvaa: ControlValueAccessorAdapter<PiFieldValueOf<PiFieldGet<S, P>>>;
+  field: PiFieldGet<S, P>;
+};
+
+export interface FieldControlBindProps<
+  S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig,
+  P extends KeyPath = [],
+> {
+  field: S;
+  path?: [...P];
+  children: (props: FieldControlBindScope<S, P>) => JSX.Element;
 }
 
 let disposeRef: ((destroy?: boolean) => void) | undefined = undefined;
 
-export function Field(props: FieldControlBindProps) {
+export function Field<
+  S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig,
+  P extends KeyPath = [],
+>(props: FieldControlBindProps<S, P>) {
   const { field, path, children } = props;
 
   // 清理之前的引用
@@ -51,5 +61,8 @@ export function Field(props: FieldControlBindProps) {
     disposeRef = undefined;
   });
 
-  return children({ cvaa, field: resolvedField()! });
+  return children({
+    cvaa: cvaa as unknown as FieldControlBindScope<S, P>['cvaa'],
+    field: resolvedField() as unknown as FieldControlBindScope<S, P>['field'],
+  });
 }

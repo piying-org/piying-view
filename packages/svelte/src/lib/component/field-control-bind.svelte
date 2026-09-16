@@ -1,13 +1,17 @@
-<script lang="ts">
+<script lang="ts" generics="S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig, P extends KeyPath = []">
 	import type { KeyPath } from '@piying/view-core';
 	import { createViewControlLink, isFieldControl } from '@piying/view-core';
 	import type { PiResolvedViewFieldConfig } from '../type/group';
+	import type { FieldControlBindScope } from '../util/field-control-bind-scope';
 	import { useControlValueAccessor } from '../util/use-control-value-accessor.svelte';
 
 	let props: {
-		field: PiResolvedViewFieldConfig;
-		path?: KeyPath;
-		children: (cvaa: any, field: PiResolvedViewFieldConfig) => any;
+		field: S;
+		path?: [...P];
+		children: (
+			cvaa: FieldControlBindScope<S, P>['cvaa'],
+			field: FieldControlBindScope<S, P>['field']
+		) => any;
 	} = $props();
 
 	let dispose: ((destroy?: boolean) => void) | undefined;
@@ -34,4 +38,4 @@
 	});
 </script>
 
-{@render props.children(cvaa, resolvedField)}
+{@render props.children(cvaa as never, resolvedField as never)}

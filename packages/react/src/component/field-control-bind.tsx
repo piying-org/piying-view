@@ -1,19 +1,29 @@
 import { useMemo, useEffect, useRef } from 'react';
-import type { KeyPath } from '@piying/view-core';
+import type { KeyPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
 import { createViewControlLink, isFieldControl } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type';
+import type { ControlValueAccessorAdapter } from '../util/use-control-value-accessor';
 import { useControlValueAccessor } from '../util/use-control-value-accessor';
 
-export interface FieldControlBindProps {
-  field: PiResolvedViewFieldConfig;
-  path?: KeyPath;
-  children: (props: {
-    cvaa: any;
-    field: PiResolvedViewFieldConfig;
-  }) => React.ReactNode;
+/** 渲染作用域: cvaa / field 都按 path 指向的字段推导 */
+export type FieldControlBindScope<S, P extends KeyPath> = {
+  cvaa: ControlValueAccessorAdapter<PiFieldValueOf<PiFieldGet<S, P>>>;
+  field: PiFieldGet<S, P>;
+};
+
+export interface FieldControlBindProps<
+  S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig,
+  P extends KeyPath = [],
+> {
+  field: S;
+  path?: [...P];
+  children: (props: FieldControlBindScope<S, P>) => React.ReactNode;
 }
 
-export function Field(props: FieldControlBindProps) {
+export function Field<
+  S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig,
+  P extends KeyPath = [],
+>(props: FieldControlBindProps<S, P>) {
   const { field, path, children } = props;
   const disposeRef = useRef<((destroy?: boolean) => void) | undefined>(
     undefined,
@@ -51,5 +61,8 @@ export function Field(props: FieldControlBindProps) {
     };
   }, []);
 
-  return children({ cvaa, field: resolvedField! });
+  return children({
+    cvaa: cvaa as unknown as FieldControlBindScope<S, P>['cvaa'],
+    field: resolvedField as unknown as FieldControlBindScope<S, P>['field'],
+  });
 }

@@ -1,8 +1,21 @@
 import type { ControlValueAccessor } from '@piying/view-core';
-import { ref, shallowRef, watch } from 'vue';
+import { ref, shallowRef, watch, type Ref, type ShallowRef } from 'vue';
 
-export function useControlValueAccessor(autoChange = true, optionalBind?: boolean) {
-  const value = shallowRef();
+export type ControlValueAccessorAdapter<V = any> = {
+  value: ShallowRef<V>;
+  disabled: Ref<boolean>;
+  touchedChange: () => void;
+  valueChange: (value: V) => void;
+};
+
+export function useControlValueAccessor<V = any>(
+  autoChange = true,
+  optionalBind?: boolean,
+): {
+  cva: ControlValueAccessor;
+  cvaa: ControlValueAccessorAdapter<V>;
+} {
+  const value = shallowRef() as ShallowRef<V>;
   const disabled = ref(false);
   let onChange: (input: any) => void;
   let touched: () => void;
@@ -31,7 +44,7 @@ export function useControlValueAccessor(autoChange = true, optionalBind?: boolea
     cvaa: {
       value: value,
       disabled: disabled,
-      valueChange: (input: any) => {
+      valueChange: (input: V) => {
         if (optionalBind) {
           onChange?.(input);
         } else {

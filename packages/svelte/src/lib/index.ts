@@ -14,4 +14,5 @@ export * from './util/convert-wrapper.svelte';
 export * from './util/use-control-value-accessor.svelte';
 export * from './util/signal-convert.svelte';
 export * from './util/component-types';
+export * from './util/field-control-bind-scope';
 export * from './util/typed-field-component-pipe';

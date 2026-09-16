@@ -1,13 +1,13 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig, P extends KeyPath = []">
 import { computed, onUnmounted, watch } from 'vue';
-import type { KeyPath } from '@piying/view-core';
+import type { KeyPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
 import { createViewControlLink, isFieldControl } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { useControlValueAccessor } from '../util/use-control-value-accessor';
 
 const props = defineProps<{
-  field: PiResolvedViewFieldConfig;
-  path?: KeyPath;
+  field: S;
+  path?: [...P];
 }>();
 
 const resolvedField = computed(() => {
@@ -16,7 +16,10 @@ const resolvedField = computed(() => {
 });
 
 let dispose: ((destroy?: boolean) => void) | undefined;
-const { cva, cvaa } = useControlValueAccessor();
+// cvaa 的值类型跟着 path 指向的字段走
+const { cva, cvaa } = useControlValueAccessor<
+  PiFieldValueOf<PiFieldGet<S, P>>
+>();
 
 watch(
   [resolvedField],

@@ -49,9 +49,9 @@ export function useControlValueAccessor(optionalBind?: boolean) {
   };
 }
 
-export type ControlValueAccessorAdapter = {
-  value: Accessor<any>;
+export type ControlValueAccessorAdapter<V = any> = {
+  value: Accessor<V>;
   disabled: Accessor<boolean>;
   touchedChange: () => void;
-  valueChange: (value: any) => void;
+  valueChange: (value: V) => void;
 };

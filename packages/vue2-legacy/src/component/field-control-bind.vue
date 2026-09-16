@@ -1,36 +1,43 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="S extends { get: (...args: any[]) => any } = PiResolvedViewFieldConfig, P extends KeyPath = []">
 import { computed, onUnmounted, watch } from 'vue';
-import type { KeyPath } from '@piying/view-core';
+import type { KeyPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
 import { createViewControlLink, isFieldControl } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { useControlValueAccessor } from '../util/use-control-value-accessor';
 
 const props = defineProps<{
-  field: PiResolvedViewFieldConfig;
-  path?: KeyPath;
+  field: S;
+  path?: [...P];
 }>();
 
 const resolvedField = computed(() => {
   const keyPath = props.path;
-  return keyPath ? props.field.get(keyPath) : props.field;
+  // 约束为弱类型(避开 Vue2 声明产出对自引用类型的爆炸), 故在此显式回到推导结果
+  return (keyPath ? props.field.get(keyPath) : props.field) as unknown as
+    | PiFieldGet<S, P>
+    | undefined;
 });
 
 let dispose: ((destroy?: boolean) => void) | undefined;
-const { cva, cvaa } = useControlValueAccessor();
+// cvaa 的值类型跟着 path 指向的字段走
+const { cva, cvaa } = useControlValueAccessor<
+  PiFieldValueOf<PiFieldGet<S, P>>
+>();
 
 watch(
   [resolvedField],
   ([field]) => {
     dispose?.();
-    if (field?.form?.control) {
-      const control = field.form.control;
+    const f = field as unknown as PiResolvedViewFieldConfig | undefined;
+    if (f?.form?.control) {
+      const control = f.form.control;
       if (!control) {
-        throw new Error(`📍 fieldControlBind:[${field.keyPath || ''}]->[${props.path || ''}]❗`);
+        throw new Error(`📍 fieldControlBind:[${f.keyPath || ''}]->[${props.path || ''}]❗`);
       }
       if (!isFieldControl(control)) {
         throw new Error(`🏷️ fieldControl❗`);
       }
-      dispose = createViewControlLink(() => control, cva, field.injector);
+      dispose = createViewControlLink(() => control, cva, f.injector);
     }
   },
   { immediate: true },
