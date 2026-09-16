@@ -14,6 +14,7 @@ import type {
   FieldEntry,
   FieldPathsOf,
   KeyPath,
+  LazyImport,
   PiCommonConfig,
   PiFieldAtPath,
   PiTypeConfig,
@@ -268,11 +269,16 @@ export type TypedComponentActionFactories<Cfg = unknown> = Omit<
 
 type TypesOf<Cfg> = NonNullable<Cfg extends { types?: infer T } ? T : never>;
 
-/** 可用的组件标识: 配置里注册的类型 key, 或者直接传组件类 */
-export type ComponentKeyOf<Cfg> = keyof TypesOf<Cfg> | Type<any>;
+/** 可用的组件标识: 配置里注册的类型 key, 直接传组件类, 或者直接传懒加载函数 */
+export type ComponentKeyOf<Cfg> =
+  | keyof TypesOf<Cfg>
+  | Type<any>
+  | LazyImport<any>;
 
-/** 能不能从配置项里解析出组件: 要么直接给 type, 要么给了非空 actions */
-type IsComponentLike<A> = A extends { type: Type<any> }
+/** 能不能从配置项里解析出组件: 直接给 type(含懒加载), 要么给了非空 actions */
+type IsComponentLike<A> = A extends {
+  type: Type<any> | LazyImport<any>;
+}
   ? true
   : A extends { actions: readonly [any, ...any[]] }
     ? true

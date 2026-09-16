@@ -7,6 +7,7 @@ import {
   PiTypeConfig,
   AsyncProperty,
   NFCSchema,
+  LazyImport,
 } from '@piying/view-angular-core';
 
 import {
@@ -68,8 +69,15 @@ type ComponentOutputsAsync<T> = {
     : never;
 };
 
+/** 懒加载约定恒为 `() => Promise<组件类型>`, 其他形态一律不处理 */
+export type ResolveLazyComponent<T> = T extends LazyImport<infer R> ? R : never;
+
 type ComponentInstance<TComponent> =
-  TComponent extends Type<infer Instance> ? Instance : never;
+  TComponent extends Type<infer Instance>
+    ? Instance
+    : TComponent extends LazyImport<infer R>
+      ? ComponentInstance<R>
+      : never;
 
 // inputs
 export type GetComponentInputs<TComponent> = ComponentInputs<
@@ -193,7 +201,9 @@ type ComponentActions<TComponent> = {
 export type ActionComponent<A extends PiTypeConfig> =
   A['type'] extends Type<any>
     ? A['type']
-    : NonNullable<A['actions']>[0]['__type'];
+    : [ResolveLazyComponent<A['type']>] extends [never]
+      ? NonNullable<A['actions']>[0]['__type']
+      : ResolveLazyComponent<A['type']>;
 
 export function typedComponent<T extends PiCommonConfig>(
   input: T,
