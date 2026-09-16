@@ -12,7 +12,10 @@ const props = defineProps<{
 
 const resolvedField = computed(() => {
   const keyPath = props.path;
-  return keyPath ? props.field.get(keyPath) : props.field;
+  // 显式收敛为推导结果, 避免 `[...P]` 直接传入 get() 时声明产出递归爆炸
+  return (keyPath ? props.field.get(keyPath) : props.field) as unknown as
+    | PiFieldGet<S, P>
+    | undefined;
 });
 
 let dispose: ((destroy?: boolean) => void) | undefined;

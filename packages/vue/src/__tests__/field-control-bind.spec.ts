@@ -37,4 +37,22 @@ describe('Field - cvaa/field 按 path 推导强类型', () => {
     await delay();
     expect(wrapper.find('.t-out').text()).toBe('from-outside');
   });
+
+  it('运行时: 不写 path 时类型断言成立 (P 落到默认值 [])', async () => {
+    const { wrapper } = setup();
+    await delay();
+    expect(wrapper.find('.t-nopath').text()).toBe('ok');
+    expect(wrapper.find('.t-nopath-field').text()).toBe('ok');
+    expect(wrapper.find('.t-nopath-change').text()).toBe('ok');
+  });
+
+  it('运行时: 不写 path 时直接绑定传入的叶子字段', async () => {
+    const { field, wrapper } = setup();
+    await delay();
+
+    await wrapper.find('.t-nopath-input').setValue('no-path');
+    await delay();
+    expect(field.get(['text1'])!.form.control!.value).toBe('no-path');
+    expect(wrapper.find('.t-nopath-out').text()).toBe('no-path');
+  });
 });
