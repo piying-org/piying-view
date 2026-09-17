@@ -1,3 +1,11 @@
+## [2.16.8](https://github.com/piying-org/piying-view/compare/2.16.7...2.16.8) (2026-09-17)
+
+### Features
+
+* type ([f7c8b0f](https://github.com/piying-org/piying-view/commit/f7c8b0f37eae106ea125755c925d6ec75e4b8783))
+* typedFieldComponentPipe component optional ([821751a](https://github.com/piying-org/piying-view/commit/821751ac702b81fe31c2732261ca23e42e51009a))
+* typedFieldComponentPipe component optional ([076c40c](https://github.com/piying-org/piying-view/commit/076c40c534426f27d6485b7e7fae5e1e4a1ba5c9))
+
 ## [2.16.7](https://github.com/piying-org/piying-view/compare/2.16.6...2.16.7) (2026-09-17)
 
 ### Bug Fixes
