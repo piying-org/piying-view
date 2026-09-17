@@ -5,6 +5,7 @@ import { typedComponent } from '../lib/util/typed-component';
 import { typedFieldComponentPipe } from '../lib/util/typed-field-component-pipe';
 import type { PiCommonConfig } from '@piying/view-angular-core';
 import { Test1Component } from './test1/test1.component';
+import { CustomInputComponent } from './custom-input/custom-input.component';
 import { createSchemaComponent } from './util/create-component';
 
 /** 类型工具: 判断两个类型是否完全相等 */
@@ -31,6 +32,14 @@ const typeDefine = typedComponent({
   types: { test1: { type: Test1Component } },
 });
 
+/** 把 valibot 的 schema type 当 key 注册 —— 「不指定组件」时的默认设计 */
+const stringDefine = typedComponent({
+  types: { string: { type: Test1Component } },
+});
+
+/** optional 包一层, 验证默认组件取的是内层的 'string' 而不是 'optional' */
+const optOnly = v.object({ s: v.optional(v.string()) });
+
 /** 泛型被降级成宽泛 PiCommonConfig 的场景(跨层传递 / 注入拿到的 config) */
 const looseDefine: PiCommonConfig = {
   types: { test1: { type: Test1Component } },
@@ -53,6 +62,83 @@ describe('typedFieldComponentPipe（typedFieldPipe + typedComponent 组合）', 
     const input1 = element.querySelector('.test1-div-input1') as HTMLElement;
     expect(input1).toBeTruthy();
     expect(input1.innerHTML).toEqual('from-pipe');
+  });
+
+  it('省略 component: 默认按 schema 的 type 查配置, inputs 照常生效', async () => {
+    const merged = typedFieldComponentPipe(root, stringDefine, (d) => [
+      d(['a'], [d.inputs.patch({ input1: 'by-schema-type' })]),
+    ]);
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ ...modelValue }),
+      stringDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const input1 = element.querySelector('.test1-div-input1') as HTMLElement;
+    expect(input1).toBeTruthy();
+    expect(input1.innerHTML).toEqual('by-schema-type');
+  });
+
+  it('显式传 undefined: 与省略 component 等价', async () => {
+    const merged = typedFieldComponentPipe(root, stringDefine, (d) => [
+      d(['a'], undefined, [d.inputs.patch({ input1: 'explicit-undefined' })]),
+    ]);
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ ...modelValue }),
+      stringDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const input1 = element.querySelector('.test1-div-input1') as HTMLElement;
+    expect(input1).toBeTruthy();
+    expect(input1.innerHTML).toEqual('explicit-undefined');
+  });
+
+  it('省略 component 不下发 setComponent: 保留 schema type 自己的组件', async () => {
+    const merged = typedFieldComponentPipe(numOnly, stringDefine, (d) => [
+      d(['num'], [d.props.patchAsync({ keep: () => true })]),
+    ]);
+    const { fixture, field$$ } = await createSchemaComponent(
+      signal(merged),
+      signal({ num: 5 }),
+      stringDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // number 仍然是 CustomInputComponent, 没被换成 string 的组件
+    expect(
+      fixture.debugElement.query(
+        (el) => el.componentInstance instanceof CustomInputComponent,
+      ),
+    ).toBeTruthy();
+    expect(
+      fixture.debugElement.query(
+        (el) => el.componentInstance instanceof Test1Component,
+      ),
+    ).toBeFalsy();
+    expect(field$$()!.get(['num'])!.props()['keep']).toBeTrue();
+  });
+
+  it('optional 包一层: 默认组件取内层 type(string -> Test1Component)', async () => {
+    const merged = typedFieldComponentPipe(optOnly, stringDefine, (d) => [
+      d(['s'], [d.inputs.patch({ input1: 'inner-type' })]),
+    ]);
+    const { fixture, element } = await createSchemaComponent(
+      signal(merged),
+      signal({ s: 'v' }),
+      stringDefine.define,
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const input1 = element.querySelector('.test1-div-input1') as HTMLElement;
+    expect(input1).toBeTruthy();
+    expect(input1.innerHTML).toEqual('inner-type');
   });
 
   it('类型: 回调 field 与路径一致, 自身/父级/根级/别名 全部强类型', async () => {
@@ -220,6 +306,19 @@ describe('typedFieldComponentPipe（typedFieldPipe + typedComponent 组合）', 
       d(['a'], 'test1', [d.inputs.patch({ input1: 'ok' })]),
     ]);
     expect(merged).toBeTruthy();
+  });
+
+  it('类型: 省略 component 时按 schema type 反推表, 错 key 照样报错', () => {
+    const typeOnlyChecks = () =>
+      typedFieldComponentPipe(root, stringDefine, (d) => [
+        d(['a'], [d.inputs.patch({ input1: 'x' })]),
+        d(['a'], undefined, [d.inputs.patchAsync({ input1: () => 'y' })]),
+        // @ts-expect-error string 对应的组件没有 notAnInput
+        d(['a'], [d.inputs.patch({ notAnInput: 'x' })]),
+        // @ts-expect-error 显式 undefined 时 output 名同样受限
+        d(['a'], undefined, [d.outputs.patch({ notAnOutput: () => {} })]),
+      ]);
+    expect(typeOnlyChecks).toBeDefined();
   });
 
   it('类型: 错误路径 / 未注册类型 / 组件不存在的输入输出 会报错', () => {

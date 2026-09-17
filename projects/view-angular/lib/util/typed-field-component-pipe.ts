@@ -16,6 +16,7 @@ import type {
   LazyImport,
   PiCommonConfig,
   PiTypeConfig,
+  SchemaTypeAt,
   TightenEmpty,
   UnwrapConfig,
 } from '@piying/view-angular-core';
@@ -101,26 +102,51 @@ export type ComponentOf<Cfg, K> = K extends keyof TypesOfKey<Cfg>
   : K;
 
 /**
+ * 省略 component 时的默认组件: 拿该路径 schema 的 `type` 去配置的 `types` 里查。
+ *
+ * 没注册时落到 never(= 宽松表), 而不是把 'string' 这种字串当成组件传下去 ——
+ * 后者会让表退化成 `Record<string, never>` 把 input/output 封死。
+ */
+type DefaultComponentOf<Cfg, K extends string> = K extends keyof TypesOfKey<Cfg>
+  ? ComponentOf<Cfg, K>
+  : never;
+
+type DefaultTables<
+  Root extends v.BaseSchema<any, any, any>,
+  Cfg,
+  P extends KeyPath,
+> = TablesOfComponent<DefaultComponentOf<Cfg, SchemaTypeAt<Root, P>>>;
+
+/**
  * 定义单条 entry: 路径 + 组件 + 该路径下的 actions。
  *
  * - 路径 P 由第一个实参推断, 组件 K 由第二个实参推断;
  * - 组件先翻成表再进 `CompEntryAction`, 工厂侧靠 `CompAction` 的配对通道拿到同一张表,
  *   所以 `d.inputs.patchAsync({...})` 的 key/值类型依旧由这条 entry 的组件决定。
+ *
+ * component 可省(或直接传 undefined): 走「默认设计」—— 用该路径 schema 的 `type`(如 'string') 当组件标识。
  */
-export type DefineComponentEntry<
+export interface DefineComponentEntry<
   Root extends v.BaseSchema<any, any, any>,
   Cfg,
-> = TypedComponentActionFactories<Cfg> & {
-  <P extends FieldPathsOf<Root>, K extends ComponentKeyOf<Cfg>>(
+> extends TypedComponentActionFactories<Cfg> {
+  <P extends FieldPathsOf<Root>, K extends ComponentKeyOf<Cfg> | undefined>(
     path: [...P],
     component: K,
     actions: readonly CompEntryAction<
       Root,
       P,
-      TablesOfComponent<ComponentOf<Cfg, K>>
+      [K] extends [undefined]
+        ? DefaultTables<Root, Cfg, P>
+        : TablesOfComponent<ComponentOf<Cfg, K>>
     >[],
   ): FieldEntry;
-};
+  /** 直接传 actions: 组件走默认的 schema `type` */
+  <P extends FieldPathsOf<Root>>(
+    path: [...P],
+    actions: readonly CompEntryAction<Root, P, DefaultTables<Root, Cfg, P>>[],
+  ): FieldEntry;
+}
 
 /**
  * typedFieldPipe + typedComponent 的组合形态。
@@ -129,7 +155,8 @@ export type DefineComponentEntry<
  * - 回调里的 field 与 `builder.get(path)` 类型完全等价, 可以直接 get;
  * - `d.inputs` / `d.outputs` 的 key 与值类型由该条 entry 的组件推导。
  *
- * 每条 entry 都会下发 `setComponent(component)`, 保证「校验用的类型」就是「真正渲染的组件」。
+ * component 可省: 不传时不下发 `setComponent`, 运行时自然按 schema 的 `type` 查配置,
+ * 类型层用同一个 `type` 反推表 —— 「校验用的类型」与「真正渲染的组件」依旧同源。
  * 不需要组件类型时, 直接用 `typedFieldPipe`。
  *
  * 注意: 必须使用返回值, 原 schema 不被修改。
@@ -144,13 +171,17 @@ export function typedFieldComponentPipe<
     define: DefineComponentEntry<S, UnwrapConfig<C>>,
   ) => readonly FieldEntry[],
 ): S {
-  const define = Object.assign(
-    (path: KeyPath, component: any, actions: readonly any[]): FieldEntry => ({
+  const define = Object.assign((path: KeyPath, ...args: any[]): FieldEntry => {
+    // d(path, actions) 与 d(path, component, actions) 共用一份实现
+    const [component, actions] = args.length > 1 ? args : [undefined, args[0]];
+    return {
       path,
-      actions: [setComponent(component), ...(actions ?? [])],
-    }),
-    ɵtypedFieldActions,
-  ) as unknown as DefineComponentEntry<S, UnwrapConfig<C>>;
+      actions:
+        component === undefined
+          ? (actions ?? [])
+          : [setComponent(component), ...(actions ?? [])],
+    };
+  }, ɵtypedFieldActions) as unknown as DefineComponentEntry<S, UnwrapConfig<C>>;
 
   return typedFieldPipe(schema, () => cb(define));
 }

@@ -1,6 +1,12 @@
 import type { Observable } from 'rxjs';
 import type * as v from 'valibot';
-import type { PiFieldAtPath } from '../../builder-base';
+import type { PiFieldAtPath, PiFieldScopeOf } from '../../builder-base';
+import type {
+  PipeOf,
+  VsPipeHost,
+  VsWrappedHost,
+  WrappedOf,
+} from '../../builder-base/type/valibot-shape';
 import type { KeyPath } from '../../util/type';
 import type { ConfigAction } from './input-common';
 import type { AsyncResult } from './type/async-callback';
@@ -333,3 +339,39 @@ export type CompActionFactoriesOf<
 
 /** 兼容直接传 fieldGlobalConfig, 也兼容 typedComponent() 的返回值 */
 export type UnwrapConfig<C> = C extends { define: infer D } ? D : C;
+
+/**
+ * 剥到「决定 type 的那一层」, 与 valibot-visit 的 flatSchema + defineSchema 对齐:
+ * - pipe 只看首成员, 其余成员是校验/转换, 不参与 type;
+ * - wrapped(optional/nullable/...) 只改 undefinedable/nullable 标记, 不改 type, 一路向内;
+ *   注意 `pipe(optional(x), ...)` 在类型上同样保留了 `wrapped`, 所以会走 wrapped 分支,
+ *   与运行时「wrapped 被摘出去」的行为一致。
+ */
+type PlainSchemaOf<S> = S extends VsPipeHost
+  ? PipeOf<S> extends readonly [infer H, ...any[]]
+    ? PlainSchemaOf<H>
+    : never
+  : S extends VsWrappedHost
+    ? WrappedOf<S> extends infer W
+      ? PlainSchemaOf<W>
+      : never
+    : S;
+
+/**
+ * 该路径 schema 节点的「运行时 type」, 也就是配置 `types` 的默认 key。
+ *
+ * 运行时 `builder` 就是拿 `field.type` 去 `globalConfig.types` 里查组件,
+ * 而 `field.type` 直接来自 schema 节点的 `type` 字段(见 defineSchema)。
+ * 所以「不指定组件」时, 类型层用同一个值去查配置, 两边不会跑偏。
+ */
+export type SchemaTypeAt<
+  Root extends v.BaseSchema<any, any, any>,
+  P extends KeyPath,
+> =
+  PlainSchemaOf<PiFieldScopeOf<PiFieldAtPath<Root, P>>['schema']> extends {
+    readonly type: infer T;
+  }
+    ? T extends string
+      ? T
+      : never
+    : never;
