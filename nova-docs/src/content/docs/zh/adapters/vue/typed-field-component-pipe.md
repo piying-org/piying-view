@@ -56,7 +56,7 @@ const merged = typedFieldComponentPipe(schema, fieldGlobalConfig, (d) => [
 ]);
 ```
 
-写错 key（`placeholder` 拼成 `placehold`）或写错值类型（`precision` 给字符串），**写的时候编译器就会提示错误**，自动补全也只给得出组件真实存在的那几个 —— 强类型就是为了把问题挡在写的时候，而不是等到跑起来。
+写错 key（`placeholder` 拼成 `placehold`）或写错值类型（`precision` 给字符串），**写的时候编辑器会报错提示**，自动补全也只给得出组件真实存在的那几个 —— 强类型就是为了把问题挡在写的时候，而不是等到跑起来。
 
 ## 省略 component
 

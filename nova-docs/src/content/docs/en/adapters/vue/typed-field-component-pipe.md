@@ -56,7 +56,7 @@ const merged = typedFieldComponentPipe(schema, fieldGlobalConfig, (d) => [
 ]);
 ```
 
-A wrong key (`placehold` instead of `placeholder`) or a wrong value type (`precision` given a string) means **the compiler reports an error as you type**, and autocompletion only offers the keys the component actually has — that is what the strong typing is for: catch it while writing, not once it is running.
+A wrong key (`placehold` instead of `placeholder`) or a wrong value type (`precision` given a string) means **the editor reports an error as you type**, and autocompletion only offers the keys the component actually has — that is what the strong typing is for: catch it while writing, not once it is running.
 
 ## Omitting the component
 

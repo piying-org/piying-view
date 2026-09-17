@@ -6,7 +6,7 @@ title: "Vue 强类型组件（typedComponent）"
 
 ## 为什么需要 typedComponent
 
-直接使用 `setComponent` / `actions.inputs.set` 时，`inputs` 的值是 `Record<string, any>`，没有任何类型约束。`typedComponent` 能从你注册的组件类型中**推导出 inputs 的字段名和值类型**，写错的时候编译器会提示错误。
+直接使用 `setComponent` / `actions.inputs.set` 时，`inputs` 的值是 `Record<string, any>`，没有任何类型约束。`typedComponent` 能从你注册的组件类型中**推导出 inputs 的字段名和值类型**，写错的时候编辑器会报错提示。
 
 ```typescript
 import { typedComponent } from '@piying/view-vue';

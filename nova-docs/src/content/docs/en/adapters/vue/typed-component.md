@@ -6,7 +6,7 @@ title: "Vue Typed Components (typedComponent)"
 
 ## Why typedComponent
 
-When using `setComponent` / `actions.inputs.set` directly, the `inputs` values are `Record<string, any>` with no type constraints. `typedComponent` **derives the input field names and value types** from the component type you registered, so the compiler reports an error as you type.
+When using `setComponent` / `actions.inputs.set` directly, the `inputs` values are `Record<string, any>` with no type constraints. `typedComponent` **derives the input field names and value types** from the component type you registered, so the editor reports an error as you type.
 
 ```typescript
 import { typedComponent } from '@piying/view-vue';
