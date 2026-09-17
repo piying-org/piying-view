@@ -3,6 +3,7 @@ import { ClassValue } from 'clsx';
 import {
   HookConfig,
   PiFieldAtPath,
+  PiFieldScopeOf,
   PiFieldValueOf,
   _PiResolvedCommonViewFieldConfig,
 } from '../../builder-base/type/common-field-config';
@@ -366,6 +367,25 @@ export type FieldPathsOf<S, D extends readonly unknown[] = PathDepth> = PathsOf<
   S,
   D
 >;
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+/**
+ * 绑定场景(`[path]` / `path` prop)的「可补全」路径类型。
+ *
+ * 必须把 root schema 的字面量路径联合并进**期望类型**, 编辑器才能在数组字面量里
+ * 枚举出候选 —— 裸泛型(`[...P]`)自身不含字面量信息, 补全引擎无从下手。
+ *
+ * 调用方仍应保留 `[...P]` 分支: `#` / `..` / `@alias` 这类作用域路径不在 `PathsOf`
+ * 的展开范围内, 靠 P 自由推断继续合法, 因此不会破坏既有用法。
+ * root 拿不到(any)时不贡献任何候选, 整体退化为改动前的形态。
+ *
+ * 注意: 不要把 `KeyPath` 并进 P 的**约束** —— 一旦约束含宽数组, 补全会整体失效。
+ */
+export type PiFieldBindPath<S> =
+  IsAny<PiFieldScopeOf<S>['root']> extends true
+    ? never
+    : PathsOf<PiFieldScopeOf<S>['root']>;
 
 /** 从字段类型反查 schema, 再取其输出类型(pipe 之后的 value) */
 export type ValueOfField<F> = PiFieldValueOf<F>;

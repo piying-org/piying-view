@@ -1,5 +1,5 @@
 <script lang="ts" generics="S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig, P extends KeyPath = []">
-	import type { KeyPath } from '@piying/view-core';
+	import type { KeyPath, PiFieldBindPath } from '@piying/view-core';
 	import { createViewControlLink, isFieldControl } from '@piying/view-core';
 	import type { PiResolvedViewFieldConfig } from '../type/group';
 	import type { FieldControlBindScope } from '../util/field-control-bind-scope';
@@ -7,7 +7,7 @@
 
 	let props: {
 		field: S;
-		path?: [...P];
+		path?: [...P] | PiFieldBindPath<S>;
 		children: (
 			cvaa: FieldControlBindScope<S, P>['cvaa'],
 			field: FieldControlBindScope<S, P>['field']
@@ -16,7 +16,10 @@
 
 	let dispose: ((destroy?: boolean) => void) | undefined;
 
-	const resolvedField = $derived(props.path ? props.field.get(props.path)! : props.field);
+	// path 的期望类型带了字面量联合(为了补全), 传进 get() 前先收敛成 KeyPath
+	const resolvedField = $derived(
+		props.path ? props.field.get(props.path as KeyPath)! : props.field
+	);
 
 	const { cva, cvaa } = useControlValueAccessor();
 	$effect.pre(() => {

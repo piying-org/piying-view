@@ -6,6 +6,7 @@ import {
   errorSummary,
   isFieldControl,
   KeyPath,
+  PiFieldBindPath,
   PiFieldControlGet,
   PiFieldGet,
 } from '@piying/view-angular-core';
@@ -27,14 +28,14 @@ export class PiyingFieldControlBindDirective<
   P extends KeyPath = [],
 > extends FieldControlBase {
   formControl = input.required<S>();
-  path = input<[...P]>();
+  path = input<[...P]| PiFieldBindPath<S>>();
 
   /** 运行时解析结果(宽松类型), 供内部逻辑使用 */
   #resolved = computed<_PiResolvedCommonViewFieldConfig | undefined>(() => {
     const base =
       this.formControl() as unknown as _PiResolvedCommonViewFieldConfig;
     const keyPath = this.path();
-    return (keyPath ? base.get(keyPath) : base) as
+    return (keyPath ? base.get(keyPath as KeyPath) : base) as
       | _PiResolvedCommonViewFieldConfig
       | undefined;
   });

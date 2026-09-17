@@ -1,19 +1,19 @@
 <script setup lang="ts" generic="S extends { get: (...args: any[]) => any } = PiResolvedViewFieldConfig, P extends KeyPath = []">
 import { computed, onUnmounted, watch } from 'vue';
-import type { KeyPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
+import type { KeyPath, PiFieldBindPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
 import { createViewControlLink, isFieldControl } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type/group';
 import { useControlValueAccessor } from '../util/use-control-value-accessor';
 
 const props = defineProps<{
   field: S;
-  path?: [...P];
+  path?: [...P]| PiFieldBindPath<S>;
 }>();
 
 const resolvedField = computed(() => {
   const keyPath = props.path;
   // 约束为弱类型(避开 Vue2 声明产出对自引用类型的爆炸), 故在此显式回到推导结果
-  return (keyPath ? props.field.get(keyPath) : props.field) as unknown as
+  return (keyPath ? props.field.get(keyPath as KeyPath) : props.field) as unknown as
     | PiFieldGet<S, P>
     | undefined;
 });

@@ -1,7 +1,12 @@
 import { inject, Injector, Directive, input, computed } from '@angular/core';
 
 import { PiResolvedViewFieldConfig } from '../type';
-import { errorSummary, KeyPath, PiFieldGet } from '@piying/view-angular-core';
+import {
+  errorSummary,
+  KeyPath,
+  PiFieldBindPath,
+  PiFieldGet,
+} from '@piying/view-angular-core';
 import { DynamicCreateDirective } from '../hook/dynamic-create';
 
 @Directive({
@@ -14,7 +19,7 @@ export class PiyingFieldTemplateDirective<
   P extends KeyPath = [],
 > extends DynamicCreateDirective {
   readonly fieldTemplate = input.required<S>();
-  readonly path = input<[...P]>();
+  readonly path = input<[...P] | PiFieldBindPath<S>>();
   onInit = input<(field: PiResolvedViewFieldConfig) => void>();
   injector = inject(Injector);
 
@@ -22,7 +27,7 @@ export class PiyingFieldTemplateDirective<
   #resolved = computed<PiResolvedViewFieldConfig | undefined>(() => {
     const base = this.fieldTemplate() as unknown as PiResolvedViewFieldConfig;
     const keyPath = this.path();
-    return (keyPath ? base.get(keyPath) : base) as
+    return (keyPath ? base.get(keyPath as KeyPath) : base) as
       | PiResolvedViewFieldConfig
       | undefined;
   });

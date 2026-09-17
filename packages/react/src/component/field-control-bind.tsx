@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useRef } from 'react';
-import type { KeyPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
+import type { KeyPath, PiFieldBindPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
 import { createViewControlLink, isFieldControl } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type';
 import type { ControlValueAccessorAdapter } from '../util/use-control-value-accessor';
@@ -16,7 +16,7 @@ export interface FieldControlBindProps<
   P extends KeyPath = [],
 > {
   field: S;
-  path?: [...P];
+  path?: [...P]| PiFieldBindPath<S>;
   children: (props: FieldControlBindScope<S, P>) => React.ReactNode;
 }
 
@@ -31,7 +31,7 @@ export function Field<
 
   const resolvedField = useMemo(() => {
     const keyPath = path;
-    return keyPath ? field.get(keyPath) : field;
+    return keyPath ? field.get(keyPath as KeyPath) : field;
   }, [field, path]);
 
   const { cva, cvaa } = useControlValueAccessor();

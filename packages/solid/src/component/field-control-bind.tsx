@@ -1,6 +1,11 @@
 import { createMemo, createEffect, onCleanup } from 'solid-js';
 import type { JSX } from 'solid-js/jsx-runtime';
-import type { KeyPath, PiFieldGet, PiFieldValueOf } from '@piying/view-core';
+import type {
+  KeyPath,
+  PiFieldBindPath,
+  PiFieldGet,
+  PiFieldValueOf,
+} from '@piying/view-core';
 import { createViewControlLink, isFieldControl } from '@piying/view-core';
 import type { PiResolvedViewFieldConfig } from '../type';
 import type { ControlValueAccessorAdapter } from '../util/use-control-value-accessor';
@@ -17,7 +22,7 @@ export interface FieldControlBindProps<
   P extends KeyPath = [],
 > {
   field: S;
-  path?: [...P];
+  path?: [...P] | PiFieldBindPath<S>;
   children: (props: FieldControlBindScope<S, P>) => JSX.Element;
 }
 
@@ -37,7 +42,7 @@ export function Field<
 
   const resolvedField = createMemo(() => {
     const keyPath = path;
-    return keyPath ? field.get(keyPath)! : field;
+    return keyPath ? field.get(keyPath as KeyPath)! : field;
   });
 
   const { cva, cvaa } = useControlValueAccessor();
