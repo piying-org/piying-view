@@ -201,7 +201,13 @@ describe('typedFieldComponentPipe - inputs 真实值类型(非 any)', () => {
 		const value1NotAny: 0 extends 1 & Inputs['value1'] ? true : false = false;
 		const value2NotAny: 0 extends 1 & Inputs['value2'] ? true : false = false;
 
-		expect([keys, value1, value2, value1NotAny, value2NotAny]).toEqual([true, true, true, false, false]);
+		expect([keys, value1, value2, value1NotAny, value2NotAny]).toEqual([
+			true,
+			true,
+			true,
+			false,
+			false
+		]);
 	});
 
 	it('类型: InputsTest 的值类型写错会被拦下', () => {
@@ -480,7 +486,8 @@ describe('typedFieldComponentPipe - attributes / events / wrappers', () => {
 	it('attributes 不再把 onXxx 当成属性名, 但自定义名依旧放行', () => {
 		const classOk: 'class' extends SvelteStandardAttrName ? true : false = true;
 		const ariaOk: 'aria-label' extends SvelteStandardAttrName ? true : false = true;
-		const eventExcluded: 'onclick' | 'onsubmit' extends SvelteStandardAttrName ? true : false = false;
+		const eventExcluded: 'onclick' | 'onsubmit' extends SvelteStandardAttrName ? true : false =
+			false;
 		const customOk: 'my-attr' extends SvelteAttributeName ? true : false = true;
 
 		expect([classOk, ariaOk, eventExcluded, customOk]).toEqual([true, true, false, true]);
@@ -533,8 +540,14 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
 			d(['a'], 'empty', [
 				d.valueChange((fn, field) => {
 					fn({ list: [undefined, ['..', 'b']] }).subscribe((s) => {
-						const f0: Equal<(typeof s.listenFields)[0], PiFieldAtPath<typeof formPair, ['a']>> = true;
-						const f1: Equal<(typeof s.listenFields)[1], PiFieldAtPath<typeof formPair, ['b']>> = true;
+						const f0: Equal<
+							(typeof s.listenFields)[0],
+							PiFieldAtPath<typeof formPair, ['a']>
+						> = true;
+						const f1: Equal<
+							(typeof s.listenFields)[1],
+							PiFieldAtPath<typeof formPair, ['b']>
+						> = true;
 						const notAny: IsAny<(typeof s.listenFields)[1]> = false;
 						const sameField: Equal<typeof s.field, typeof field> = true;
 						const values: Equal<typeof s.list, [string, number]> = true;
@@ -570,7 +583,10 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
 				d.valueChange((fn, field) => {
 					fn().subscribe((s) => {
 						const shape: Equal<typeof s.list, [string]> = true;
-						const self: Equal<(typeof s.listenFields)[0], PiFieldAtPath<typeof formPair, ['a']>> = true;
+						const self: Equal<
+							(typeof s.listenFields)[0],
+							PiFieldAtPath<typeof formPair, ['a']>
+						> = true;
 						const sameRef: Equal<typeof s.field, typeof field> = true;
 
 						expect([shape, self, sameRef]).toEqual([true, true, true]);
@@ -594,9 +610,13 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
 			])
 		]);
 
-		await createComponent(merged, { a: 'x', b: 1 }, {
-			defaultConfig: { types: { empty: { type: EmptyCmp } } }
-		});
+		await createComponent(
+			merged,
+			{ a: 'x', b: 1 },
+			{
+				defaultConfig: { types: { empty: { type: EmptyCmp } } }
+			}
+		);
 		await delay(20);
 
 		expect(lists.length).toBeGreaterThan(0);
@@ -634,8 +654,14 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
 					listen: (fn) =>
 						fn({ list: [undefined, ['..', 'b']] }).pipe(
 							map((s) => {
-								const f0: Equal<(typeof s.listenFields)[0], PiFieldAtPath<typeof formPair, ['a']>> = true;
-								const f1: Equal<(typeof s.listenFields)[1], PiFieldAtPath<typeof formPair, ['b']>> = true;
+								const f0: Equal<
+									(typeof s.listenFields)[0],
+									PiFieldAtPath<typeof formPair, ['a']>
+								> = true;
+								const f1: Equal<
+									(typeof s.listenFields)[1],
+									PiFieldAtPath<typeof formPair, ['b']>
+								> = true;
 								const values: Equal<typeof s.list, [string, number]> = true;
 								expect([f0, f1, values]).toEqual([true, true, true]);
 								return false;
@@ -677,9 +703,13 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
 			d(['a'], 'empty', [d.hideWhen({ listen: () => of(true) })])
 		]);
 
-		const { instance } = await createComponent(merged, { a: 'x', b: 1 }, {
-			defaultConfig: { types: { empty: { type: EmptyCmp } } }
-		});
+		const { instance } = await createComponent(
+			merged,
+			{ a: 'x', b: 1 },
+			{
+				defaultConfig: { types: { empty: { type: EmptyCmp } } }
+			}
+		);
 		await delay(20);
 
 		expect(instance.container.querySelector('.empty-cmp')).toBeNull();
@@ -718,9 +748,13 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
 			])
 		]);
 
-		const { instance } = await createComponent(merged, { a: 'x', b: 1 }, {
-			defaultConfig: { types: { empty: { type: EmptyCmp } } }
-		});
+		const { instance } = await createComponent(
+			merged,
+			{ a: 'x', b: 1 },
+			{
+				defaultConfig: { types: { empty: { type: EmptyCmp } } }
+			}
+		);
 		await delay(20);
 
 		const el = instance.container.querySelector('.empty-cmp');
@@ -744,9 +778,13 @@ describe('typedFieldComponentPipe - valueChange / hideWhen / disableWhen / class
 			])
 		]);
 
-		await createComponent(merged, { a: 'x', b: 1 }, {
-			defaultConfig: { types: { empty: { type: EmptyCmp } } }
-		});
+		await createComponent(
+			merged,
+			{ a: 'x', b: 1 },
+			{
+				defaultConfig: { types: { empty: { type: EmptyCmp } } }
+			}
+		);
 		await delay(20);
 
 		expect(seen).toContain('resolved@a');
@@ -920,5 +958,40 @@ describe('typedFieldComponentPipe - 懒加载组件', () => {
 		await delay(80);
 
 		expect(instance.container.querySelector('.name')?.textContent).toBe('lazy-name');
+	});
+});
+
+describe('typedFieldComponentPipe - 默认组件(省略 component)', () => {
+	const strOnly = v.object({ a: v.string() });
+	const strDefine = { types: { string: { type: InputsTest } } };
+
+	it('类型: 省略 component 时按 schema 的 type 反推表, 错 key 照样报错', () => {
+		const ok = typedFieldComponentPipe(strOnly, strDefine, (d) => [
+			d(['a'], [d.inputs.patch({ value1: 'x' })]),
+			d(['a'], undefined, [d.inputs.patchAsync({ value2: () => 2 })])
+		]);
+
+		const bad = typedFieldComponentPipe(strOnly, strDefine, (d) => [
+			d(
+				['a'],
+				[
+					// @ts-expect-error inputs-test 没有 nope
+					d.inputs.patch({ nope: 'x' })
+				]
+			)
+		]);
+
+		expect(ok && bad).toBeTruthy();
+	});
+
+	it('运行时: 省略 component 时按 schema 的 type 渲染默认组件', async () => {
+		const merged = typedFieldComponentPipe(strOnly, strDefine, (d) => [
+			d(['a'], [d.props.patchAsync({ keep: () => true })])
+		]);
+
+		const { instance } = await createComponent(merged, { a: 'x' }, {});
+		await delay(80);
+
+		expect(instance.container.querySelector('input[type="text"]')).toBeTruthy();
 	});
 });

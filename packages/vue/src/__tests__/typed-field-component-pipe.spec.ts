@@ -951,3 +951,39 @@ describe('typedFieldComponentPipe - 懒加载组件', () => {
     expect(instance.find('.name').element.textContent).toBe('lazy-name');
   });
 });
+
+describe('typedFieldComponentPipe - 默认组件(省略 component)', () => {
+  const strOnly = v.object({ a: v.string() });
+  const strDefine = { types: { string: { type: InputsTest } } };
+
+  it('类型: 省略 component 时按 schema 的 type 反推表, 错 key 照样报错', () => {
+    const ok = typedFieldComponentPipe(strOnly, strDefine, (d) => [
+      d(['a'], [d.inputs.patch({ value1: 'x' })]),
+      d(['a'], undefined, [d.inputs.patchAsync({ value2: () => 2 })]),
+    ]);
+
+    const bad = typedFieldComponentPipe(strOnly, strDefine, (d) => [
+      d(
+        ['a'],
+        [
+          // @ts-expect-error inputs-test 没有 nope
+          d.inputs.patch({ nope: 'x' }),
+        ],
+      ),
+    ]);
+
+    expect(ok && bad).toBeTruthy();
+  });
+
+  it('运行时: 省略 component 时按 schema 的 type 渲染默认组件', async () => {
+    const merged = typedFieldComponentPipe(strOnly, strDefine, (d) => [
+      d(['a'], [d.props.patchAsync({ keep: () => true })]),
+    ]);
+
+    const { instance } = await createComponent(merged, shallowRef({ a: 'x' }), {});
+    await delay(30);
+
+    // string 的默认组件是 PiInput; 若误下发 setComponent(undefined) 这里就渲染不出来
+    expect(instance.find('input[type="text"]').exists()).toBe(true);
+  });
+});

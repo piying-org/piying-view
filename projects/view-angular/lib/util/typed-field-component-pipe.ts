@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 import { Type, WritableSignal } from '@angular/core';
 import {
-  setComponent,
+  createDefineComponentEntry,
   typedFieldPipe,
   ɵtypedFieldActions,
 } from '@piying/view-angular-core';
@@ -18,6 +18,7 @@ import type {
   PiTypeConfig,
   SchemaTypeAt,
   TightenEmpty,
+  TypesOf,
   UnwrapConfig,
 } from '@piying/view-angular-core';
 import type {
@@ -67,17 +68,14 @@ type TablesOfComponent<C> = [C] extends [never]
  * `Tables` 只当配对通道上的上界, 真正生效的表由 entry 的期望元素类型反推,
  * 所以这里直接复用 core 的骨架, 不再按组件重写一遍。
  */
-export type TypedComponentActionFactories<
-  Cfg = unknown,
-> = CompActionFactoriesOf<CompTables, Cfg>;
+export type TypedComponentActionFactories<Cfg = unknown> =
+  CompActionFactoriesOf<CompTables, Cfg>;
 
 /** 可用的组件标识: 配置里注册的类型 key, 直接传组件类, 或者直接传懒加载函数 */
 export type ComponentKeyOf<Cfg> =
-  | keyof TypesOfKey<Cfg>
+  | keyof TypesOf<Cfg>
   | Type<any>
   | LazyImport<any>;
-
-type TypesOfKey<Cfg> = NonNullable<Cfg extends { types?: infer T } ? T : never>;
 
 /** 能不能从配置项里解析出组件: 直接给 type(含懒加载), 要么给了非空 actions */
 type IsComponentLike<A> = A extends {
@@ -95,9 +93,9 @@ type IsComponentLike<A> = A extends {
  * `any` 会让 `GetComponentInputsOrigin<any>` 退化成宽松对象,
  * 配置项写错(比如把 type 拼成别的 key)时不报错, input/output 的 key 约束整体静默失效。
  */
-export type ComponentOf<Cfg, K> = K extends keyof TypesOfKey<Cfg>
-  ? IsComponentLike<TypesOfKey<Cfg>[K]> extends true
-    ? ActionComponent<Extract<TypesOfKey<Cfg>[K], PiTypeConfig<any, any>>>
+export type ComponentOf<Cfg, K> = K extends keyof TypesOf<Cfg>
+  ? IsComponentLike<TypesOf<Cfg>[K]> extends true
+    ? ActionComponent<Extract<TypesOf<Cfg>[K], PiTypeConfig<any, any>>>
     : never
   : K;
 
@@ -107,7 +105,7 @@ export type ComponentOf<Cfg, K> = K extends keyof TypesOfKey<Cfg>
  * 没注册时落到 never(= 宽松表), 而不是把 'string' 这种字串当成组件传下去 ——
  * 后者会让表退化成 `Record<string, never>` 把 input/output 封死。
  */
-type DefaultComponentOf<Cfg, K extends string> = K extends keyof TypesOfKey<Cfg>
+type DefaultComponentOf<Cfg, K extends string> = K extends keyof TypesOf<Cfg>
   ? ComponentOf<Cfg, K>
   : never;
 
@@ -171,17 +169,9 @@ export function typedFieldComponentPipe<
     define: DefineComponentEntry<S, UnwrapConfig<C>>,
   ) => readonly FieldEntry[],
 ): S {
-  const define = Object.assign((path: KeyPath, ...args: any[]): FieldEntry => {
-    // d(path, actions) 与 d(path, component, actions) 共用一份实现
-    const [component, actions] = args.length > 1 ? args : [undefined, args[0]];
-    return {
-      path,
-      actions:
-        component === undefined
-          ? (actions ?? [])
-          : [setComponent(component), ...(actions ?? [])],
-    };
-  }, ɵtypedFieldActions) as unknown as DefineComponentEntry<S, UnwrapConfig<C>>;
+  const define = createDefineComponentEntry(
+    ɵtypedFieldActions,
+  ) as unknown as DefineComponentEntry<S, UnwrapConfig<C>>;
 
   return typedFieldPipe(schema, () => cb(define));
 }

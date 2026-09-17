@@ -12,9 +12,11 @@ import type { ConfigAction } from './input-common';
 import type { AsyncResult } from './type/async-callback';
 import type {
   ActionFactories,
+  FieldEntry,
   ValibotAction,
   ValueOfField,
 } from './typed-field-pipe';
+import { setComponent } from './component';
 import type {
   AnyOutputsHandlerMap,
   OutputEmitArgsOf,
@@ -27,12 +29,17 @@ import type { ListenPathOf } from './value-change';
  * TS 对 `{}` 目标不做多余属性检查, `patch({ 随便写: 1 })` 会静默通过,
  * 所以空映射一律换成 `Record<string, never>` 把 key 封住(空对象仍合法)。
  */
-export type TightenEmpty<T extends Record<string, any>> = [keyof T] extends [never]
+export type TightenEmpty<T extends Record<string, any>> = [keyof T] extends [
+  never,
+]
   ? Record<string, never>
   : T;
 
 /** 组件的「值 -> 异步回调」映射: key 锁定为表上的名字, 回调里拿到路径推导出的 field */
-export type AsyncValueMap<Values extends Record<string, any>, Field> = TightenEmpty<{
+export type AsyncValueMap<
+  Values extends Record<string, any>,
+  Field,
+> = TightenEmpty<{
   [K in keyof Values]?: (field: Field) => AsyncResult<Values[K]>;
 }>;
 
@@ -40,10 +47,12 @@ export type AsyncValueMap<Values extends Record<string, any>, Field> = TightenEm
  * 「值 -> 同步产出该值的回调」映射(mergeAsync 用)。
  * mergeAsync 运行时是同步取 handler, 不走 Promise/Observable, 所以不包 AsyncResult。
  */
-export type HandlerValueMap<Values extends Record<string, any>, Field> =
-  TightenEmpty<{
-    [K in keyof Values]?: (field: Field) => NonNullable<Values[K]>;
-  }>;
+export type HandlerValueMap<
+  Values extends Record<string, any>,
+  Field,
+> = TightenEmpty<{
+  [K in keyof Values]?: (field: Field) => NonNullable<Values[K]>;
+}>;
 
 /**
  * 组件类型解析后的「表」基型 —— 框架与骨架的分界线。
@@ -89,7 +98,9 @@ export type CompEntryAction<
   | ValibotAction<ValueOfField<PiFieldAtPath<Root, P>>>;
 
 /** inputs 工厂: 值类型取自表, field 类型由 entry 的期望元素类型反推 */
-export interface CompInputActionsFactory<Tables extends CompTables = CompTables> {
+export interface CompInputActionsFactory<
+  Tables extends CompTables = CompTables,
+> {
   patch: <F, T extends Tables = Tables>(
     value: T['inputsOrigin'],
   ) => CompAction<F, T>;
@@ -119,7 +130,9 @@ export interface CompInputActionsFactory<Tables extends CompTables = CompTables>
 }
 
 /** outputs 工厂: 值类型取自表, 与 inputs 同族 */
-export interface CompOutputActionsFactory<Tables extends CompTables = CompTables> {
+export interface CompOutputActionsFactory<
+  Tables extends CompTables = CompTables,
+> {
   patch: <F, T extends Tables = Tables>(
     value: T['outputsOrigin'],
   ) => CompAction<F, T>;
@@ -152,7 +165,9 @@ export interface CompOutputActionsFactory<Tables extends CompTables = CompTables
 }
 
 /** models 工厂: 值是宿主侧的可写信号, 运行时走 twoWayBinding(key, signal) */
-export interface CompModelActionsFactory<Tables extends CompTables = CompTables> {
+export interface CompModelActionsFactory<
+  Tables extends CompTables = CompTables,
+> {
   patch: <F, T extends Tables = Tables>(
     value: T['modelsOrigin'],
   ) => CompAction<F, T>;
@@ -184,10 +199,7 @@ export interface CompModelActionsFactory<Tables extends CompTables = CompTables>
  * (`setComponent('radio')` 的 key 没进类型, 字段类型上的组件位是 any),
  * 硬按本条 entry 的组件约束会误报, 所以放开成 string。
  */
-export type CompOutputChangeEntry<
-  F,
-  OutputName extends string = string,
-> =
+export type CompOutputChangeEntry<F, OutputName extends string = string> =
   | { list?: undefined; output: OutputName }
   | { list: Exclude<ListenPathOf<F>, undefined>; output: string };
 
@@ -375,3 +387,76 @@ export type SchemaTypeAt<
       ? T
       : never
     : never;
+
+/**
+ * attributes 的共通骨架: 只把「属性名」参数化, 值一律 any。
+ *
+ * 各框架 HTML 属性名的来源不同(Vue 的 HTMLAttributes / React 的 HTMLAttributes / ...),
+ * 但 action 的形状完全一致, 所以新框架接进来时只要传自己的 AttrName, 不必重抄这一份。
+ */
+export interface TypedAttributesActionsFactory<AttrName extends string> {
+  patch: <F, T extends CompTables = CompTables>(
+    value: Partial<Record<AttrName, any>>,
+  ) => CompAction<F, T>;
+  set: <F, T extends CompTables = CompTables>(
+    value: Partial<Record<AttrName, any>>,
+  ) => CompAction<F, T>;
+  patchAsync: <
+    F,
+    T extends CompTables = CompTables,
+    Data extends AsyncValueMap<Partial<Record<AttrName, any>>, F> =
+      AsyncValueMap<Partial<Record<AttrName, any>>, F>,
+  >(
+    dataObj: Data,
+  ) => CompAction<F, T>;
+  remove: <F, T extends CompTables = CompTables>(
+    list: AttrName[],
+  ) => CompAction<F, T>;
+  mapAsync: <F, T extends CompTables = CompTables>(
+    fn: (field: F) => (value: Partial<Record<AttrName, any>>) => any,
+  ) => CompAction<F, T>;
+  top: {
+    set: <F, T extends CompTables = CompTables>(
+      value: Partial<Record<AttrName, any>>,
+    ) => CompAction<F, T>;
+    patch: <F, T extends CompTables = CompTables>(
+      value: Partial<Record<AttrName, any>>,
+    ) => CompAction<F, T>;
+  };
+}
+
+/**
+ * 「不消费 field.models」的框架共用的工厂集合:
+ * 摘掉 `models` 与 `attributes`, 后者换成按 AttrName 约束的那一份。
+ *
+ * 需要 models 的框架(如 Angular)不要用它, 直接组 `CompActionFactoriesOf` 即可。
+ */
+export type TypedComponentActionFactoriesOf<
+  Cfg = unknown,
+  AttrName extends string = string,
+> = Omit<CompActionFactoriesOf<CompTables, Cfg>, 'models' | 'attributes'> & {
+  attributes: TypedAttributesActionsFactory<AttrName>;
+};
+
+/**
+ * 「路径 + 可选组件 + actions」的 entry 工厂, 各框架共用一份运行时。
+ *
+ * component 省略或显式传 undefined 时**不下发 `setComponent`**:
+ * 字段保留 schema 自己的 `type`, 运行时由 builder 按 `globalConfig.types` 查默认组件,
+ * 与类型层 `SchemaTypeAt` 反推的表同源。
+ *
+ * 返回未标注类型, 由调用方 cast 成自己的 `DefineComponentEntry` ——
+ * 「组件 -> 表」是框架绑定层, 不在这里参数化。
+ */
+export function createDefineComponentEntry(typedActions: object): object {
+  return Object.assign((path: KeyPath, ...args: any[]): FieldEntry => {
+    const [component, actions] = args.length > 1 ? args : [undefined, args[0]];
+    return {
+      path,
+      actions:
+        component === undefined
+          ? (actions ?? [])
+          : [setComponent(component), ...(actions ?? [])],
+    };
+  }, typedActions);
+}
