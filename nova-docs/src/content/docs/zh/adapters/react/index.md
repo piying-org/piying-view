@@ -159,6 +159,21 @@ const field = convertToField(() => schema, injector /* 可选 */, () => options)
 | `useInputRangeModel`    | 范围滑块            |
 | `useSelectModel`        | 下拉选择（单选/多选） |
 
+### typedFieldComponentPipe — 路径 + 组件双强类型
+
+按「路径 + 组件」写配置，`inputs` 收非函数 prop，`outputs` 收函数 prop（**名字原样**，`onChange` 就是 `onChange`）。详见 [typedFieldComponentPipe（React）](zh/adapters/react/typed-field-component-pipe/)。
+
+```tsx
+import { typedFieldComponentPipe } from '@piying/view-react';
+
+const merged = typedFieldComponentPipe(schema, define, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: '请输入金额' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ onChange: (value) => {} })]),
+]);
+```
+
+> React 版**没有 `d.models`**；懒加载必须用 `React.lazy()` 包一层；class 属性写 `className`。
+
 ## 类与转换
 
 ### ReactSchemaHandle / ReactFormBuilder
@@ -180,10 +195,11 @@ import { PiResolvedViewFieldConfig } from '@piying/view-react';
 
 ## 完整导出
 
-`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingGroup`、`PiyingWrapper`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`CVA`、`useControlValueAccessor`、`useSignalToRef`、`useEffectSync`、`use-*Model` 系列、`convertToField`、`ReactSchemaHandle`、`ReactFormBuilder`、`PiResolvedViewFieldConfig`。
+`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingGroup`、`PiyingWrapper`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`CVA`、`useControlValueAccessor`、`useSignalToRef`、`useEffectSync`、`use-*Model` 系列、`typedFieldComponentPipe`、`convertToField`、`ReactSchemaHandle`、`ReactFormBuilder`、`PiResolvedViewFieldConfig`。
 
 ## 下一步
 
 - [字段模型绑定](zh/adapters/react/field-model-binding/) — use-*Model 详解
+- [typedFieldComponentPipe（React）](zh/adapters/react/typed-field-component-pipe/) — 路径 + 组件双强类型
 - [框架差异](zh/getting-started/framework-differences/) — 各框架 CVA / Signal 对比
 - [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig

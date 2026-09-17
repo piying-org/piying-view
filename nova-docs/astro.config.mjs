@@ -283,6 +283,11 @@ export default defineConfig({
                   'Typed Components',
                   '/adapters/vue/typed-component/',
                 ),
+                nav(
+                  'typedFieldComponentPipe',
+                  'typedFieldComponentPipe',
+                  '/adapters/vue/typed-field-component-pipe/',
+                ),
               ],
             },
             {
@@ -293,6 +298,11 @@ export default defineConfig({
                   '字段模型绑定',
                   'Field Model Binding',
                   '/adapters/react/field-model-binding/',
+                ),
+                nav(
+                  'typedFieldComponentPipe',
+                  'typedFieldComponentPipe',
+                  '/adapters/react/typed-field-component-pipe/',
                 ),
               ],
             },
@@ -305,11 +315,23 @@ export default defineConfig({
                   'Field Model Binding',
                   '/adapters/solid/field-model-binding/',
                 ),
+                nav(
+                  'typedFieldComponentPipe',
+                  'typedFieldComponentPipe',
+                  '/adapters/solid/typed-field-component-pipe/',
+                ),
               ],
             },
             {
               label: 'Svelte',
-              items: [nav('包 API 参考', 'Package API', '/adapters/svelte/')],
+              items: [
+                nav('包 API 参考', 'Package API', '/adapters/svelte/'),
+                nav(
+                  'typedFieldComponentPipe',
+                  'typedFieldComponentPipe',
+                  '/adapters/svelte/typed-field-component-pipe/',
+                ),
+              ],
             },
           ],
         },

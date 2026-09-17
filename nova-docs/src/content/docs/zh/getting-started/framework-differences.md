@@ -256,6 +256,14 @@ const wrappers = signalToState(() => field().wrappers());
 
 ---
 
+## typedFieldComponentPipe
+
+所有前端适配都提供了 `typedFieldComponentPipe`（「路径 + 组件」双强类型），函数签名完全一致。各框架的强类型能力差异（如懒加载要求）见各自页面：
+
+[Angular](zh/angular/typed-field-component-pipe/)・[Vue 3](zh/adapters/vue/typed-field-component-pipe/)・[React](zh/adapters/react/typed-field-component-pipe/)・[Solid](zh/adapters/solid/typed-field-component-pipe/)・[Svelte](zh/adapters/svelte/typed-field-component-pipe/)
+
+---
+
 ## 跨框架通用概念
 
 以下概念在所有框架中完全相同，Schema 定义无需修改：

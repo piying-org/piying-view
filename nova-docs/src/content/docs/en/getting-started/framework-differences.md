@@ -256,6 +256,14 @@ const wrappers = signalToState(() => field().wrappers());
 
 ---
 
+## typedFieldComponentPipe
+
+Every frontend adapter ships `typedFieldComponentPipe` ("path + component" strong typing) with an identical signature. Per-framework strong-typing capability differences (such as lazy-loading requirements) live on each page:
+
+[Angular](en/angular/typed-field-component-pipe/)・[Vue 3](en/adapters/vue/typed-field-component-pipe/)・[React](en/adapters/react/typed-field-component-pipe/)・[Solid](en/adapters/solid/typed-field-component-pipe/)・[Svelte](en/adapters/svelte/typed-field-component-pipe/)
+
+---
+
 ## Cross-Framework Concepts
 
 These concepts are identical in every framework and require no schema changes:

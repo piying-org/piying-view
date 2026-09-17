@@ -116,10 +116,10 @@ Schema 定义是固定的，但渲染顺序与位置可以动态调整。通过 
 
 | 文档                                  | 说明                                                                                                      |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [Vue](zh/adapters/vue/)                | `@piying/view-vue` + `@piying/view-vue2-legacy` 适配包 API：PiyingView/Field/useControlValueAccessor/signalToRef/typedComponent/VueSchemaHandle |
-| [React](zh/adapters/react/)            | `@piying/view-react` 适配包 API：Token/useControlValueAccessor/useSignalToRef/useEffectSync/use-*Model/ReactSchemaHandle |
-| [Solid](zh/adapters/solid/)            | `@piying/view-solid` 适配包 API：Token/useControlValueAccessor/createSignalConvert/useEffectSync/use-*Model/SolidSchemaHandle |
-| [Svelte](zh/adapters/svelte/)          | `@piying/view-svelte` 适配包 API：PiyingView/Field/signalToState/useControlValueAccessor/SvelteSchemaHandle |
+| [Vue](zh/adapters/vue/)                | `@piying/view-vue` + `@piying/view-vue2-legacy` 适配包 API：PiyingView/Field/useControlValueAccessor/signalToRef/typedComponent/[typedFieldComponentPipe](zh/adapters/vue/typed-field-component-pipe/)/VueSchemaHandle |
+| [React](zh/adapters/react/)            | `@piying/view-react` 适配包 API：Token/useControlValueAccessor/useSignalToRef/useEffectSync/use-*Model/[typedFieldComponentPipe](zh/adapters/react/typed-field-component-pipe/)/ReactSchemaHandle |
+| [Solid](zh/adapters/solid/)            | `@piying/view-solid` 适配包 API：Token/useControlValueAccessor/createSignalConvert/useEffectSync/use-*Model/[typedFieldComponentPipe](zh/adapters/solid/typed-field-component-pipe/)/SolidSchemaHandle |
+| [Svelte](zh/adapters/svelte/)          | `@piying/view-svelte` 适配包 API：PiyingView/Field/signalToState/useControlValueAccessor/[typedFieldComponentPipe](zh/adapters/svelte/typed-field-component-pipe/)/SvelteSchemaHandle |
 
 | 文档                                                        | 说明                                                                                                                                                                                |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

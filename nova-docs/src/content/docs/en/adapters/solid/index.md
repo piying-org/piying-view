@@ -139,6 +139,21 @@ import { convertToField } from '@piying/view-solid';
 const field = convertToField(() => schema, injector /* optional */, () => options);
 ```
 
+### typedFieldComponentPipe — path + component strong typing
+
+Write config by "path + component": `inputs` takes non-function props, `outputs` takes function props (**names kept verbatim** — `onChange` stays `onChange`). Details: [typedFieldComponentPipe (Solid)](en/adapters/solid/typed-field-component-pipe/).
+
+```tsx
+import { typedFieldComponentPipe } from '@piying/view-solid';
+
+const merged = typedFieldComponentPipe(schema, define, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: 'Enter amount' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ onChange: (value) => {} })]),
+]);
+```
+
+> The Solid version has **no `d.models`**; lazy components must be wrapped with `solid-js`'s `lazy()`; `classList` is an extra built-in prop.
+
 ## use-*Model Binding Hooks
 
 Bind native controls to `cvaa` in two directions. See [Field Model Binding](en/adapters/solid/field-model-binding/):
@@ -173,10 +188,11 @@ import { PiResolvedViewFieldConfig } from '@piying/view-solid';
 
 ## Full Exports
 
-`PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `createSignalConvert`, `useEffectSync`, the `use-*Model` family, `convertToField`, `SolidSchemaHandle`, `SolidFormBuilder`, `PiResolvedViewFieldConfig`.
+`PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `createSignalConvert`, `useEffectSync`, the `use-*Model` family, `typedFieldComponentPipe`, `convertToField`, `SolidSchemaHandle`, `SolidFormBuilder`, `PiResolvedViewFieldConfig`.
 
 ## Next Steps
 
 - [Field Model Binding](en/adapters/solid/field-model-binding/) — details on use-*Model hooks
+- [typedFieldComponentPipe (Solid)](en/adapters/solid/typed-field-component-pipe/) — path + component strong typing
 - [Framework Differences](en/getting-started/framework-differences/) — CVA / Signal comparison across frameworks
 - [Basic Field Definition](en/scenarios/basic-field/) — setComponent / formConfig

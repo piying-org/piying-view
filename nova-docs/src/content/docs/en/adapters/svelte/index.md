@@ -122,6 +122,21 @@ Svelte gets the field through `getContext` instead of dependency injection:
 
 Returns a function that returns the current state value when called (`() => dataRef`).
 
+### typedFieldComponentPipe — path + component strong typing
+
+Write config by "path + component": `inputs` takes non-function props, `outputs` takes function props (**names kept verbatim**). Note that **a Snippet is not an output**. Details: [typedFieldComponentPipe (Svelte)](en/adapters/svelte/typed-field-component-pipe/).
+
+```ts
+import { typedFieldComponentPipe } from '@piying/view-svelte';
+
+const merged = typedFieldComponentPipe(schema, define, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: 'Enter amount' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ onChange: (value) => {} })]),
+]);
+```
+
+> The Svelte version has **no `d.models`**: `bind:prop` is just a plain prop at the type level, and the runtime does not consume `field.models` either.
+
 ## Classes and Conversion
 
 ### SvelteSchemaHandle / SvelteFormBuilder
@@ -169,10 +184,11 @@ import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
 
 ## Full Exports
 
-`@piying/view-svelte` exports: `PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingViewGroup`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToState`, `useControlValueAccessor`, `convertToField`, `SvelteSchemaHandle`, `SvelteFormBuilder`, `PiResolvedViewFieldConfig`.
+`@piying/view-svelte` exports: `PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingViewGroup`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToState`, `useControlValueAccessor`, `typedFieldComponentPipe`, `convertToField`, `SvelteSchemaHandle`, `SvelteFormBuilder`, `PiResolvedViewFieldConfig`.
 
 ## Next Steps
 
+- [typedFieldComponentPipe (Svelte)](en/adapters/svelte/typed-field-component-pipe/) — path + component strong typing
 - [Framework Differences](en/getting-started/framework-differences/) — Svelte's getContext / signal conversion
 - [Basic Field Definition](en/scenarios/basic-field/) — setComponent / formConfig
 - [Field Model Binding (React)](en/adapters/react/field-model-binding/) — compare binding approaches across frameworks

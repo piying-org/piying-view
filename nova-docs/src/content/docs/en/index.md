@@ -116,10 +116,10 @@ Detailed reference for every Action, configuration item and helper; the logic is
 
 | Document                                  | Description                                                                                             |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [Vue](en/adapters/vue/)                     | `@piying/view-vue` + `@piying/view-vue2-legacy` adapter APIs: PiyingView/Field/useControlValueAccessor/signalToRef/typedComponent/VueSchemaHandle |
-| [React](en/adapters/react/)                 | `@piying/view-react` adapter APIs: Token/useControlValueAccessor/useSignalToRef/useEffectSync/use-*Model/ReactSchemaHandle |
-| [Solid](en/adapters/solid/)                 | `@piying/view-solid` adapter APIs: Token/useControlValueAccessor/createSignalConvert/useEffectSync/use-*Model/SolidSchemaHandle |
-| [Svelte](en/adapters/svelte/)               | `@piying/view-svelte` adapter APIs: PiyingView/Field/signalToState/useControlValueAccessor/SvelteSchemaHandle |
+| [Vue](en/adapters/vue/)                     | `@piying/view-vue` + `@piying/view-vue2-legacy` adapter APIs: PiyingView/Field/useControlValueAccessor/signalToRef/typedComponent/[typedFieldComponentPipe](en/adapters/vue/typed-field-component-pipe/)/VueSchemaHandle |
+| [React](en/adapters/react/)                 | `@piying/view-react` adapter APIs: Token/useControlValueAccessor/useSignalToRef/useEffectSync/use-*Model/[typedFieldComponentPipe](en/adapters/react/typed-field-component-pipe/)/ReactSchemaHandle |
+| [Solid](en/adapters/solid/)                 | `@piying/view-solid` adapter APIs: Token/useControlValueAccessor/createSignalConvert/useEffectSync/use-*Model/[typedFieldComponentPipe](en/adapters/solid/typed-field-component-pipe/)/SolidSchemaHandle |
+| [Svelte](en/adapters/svelte/)               | `@piying/view-svelte` adapter APIs: PiyingView/Field/signalToState/useControlValueAccessor/[typedFieldComponentPipe](en/adapters/svelte/typed-field-component-pipe/)/SvelteSchemaHandle |
 
 | Document                                                          | Description                                                                                                     |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -139,6 +139,21 @@ import { convertToField } from '@piying/view-solid';
 const field = convertToField(() => schema, injector /* 可选 */, () => options);
 ```
 
+### typedFieldComponentPipe — 路径 + 组件双强类型
+
+按「路径 + 组件」写配置，`inputs` 收非函数 prop，`outputs` 收函数 prop（**名字原样**，`onChange` 就是 `onChange`）。详见 [typedFieldComponentPipe（Solid）](zh/adapters/solid/typed-field-component-pipe/)。
+
+```tsx
+import { typedFieldComponentPipe } from '@piying/view-solid';
+
+const merged = typedFieldComponentPipe(schema, define, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: '请输入金额' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ onChange: (value) => {} })]),
+]);
+```
+
+> Solid 版**没有 `d.models`**；懒加载必须用 `solid-js` 的 `lazy()` 包一层；内置 prop 多了 `classList`。
+
 ## use-*Model 绑定 Hook
 
 将原生控件与 `cvaa` 双向绑定。详见 [字段模型绑定](zh/adapters/solid/field-model-binding/)：
@@ -173,10 +188,11 @@ import { PiResolvedViewFieldConfig } from '@piying/view-solid';
 
 ## 完整导出
 
-`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingGroup`、`PiyingWrapper`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`CVA`、`useControlValueAccessor`、`createSignalConvert`、`useEffectSync`、`use-*Model` 系列、`convertToField`、`SolidSchemaHandle`、`SolidFormBuilder`、`PiResolvedViewFieldConfig`。
+`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingGroup`、`PiyingWrapper`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`CVA`、`useControlValueAccessor`、`createSignalConvert`、`useEffectSync`、`use-*Model` 系列、`typedFieldComponentPipe`、`convertToField`、`SolidSchemaHandle`、`SolidFormBuilder`、`PiResolvedViewFieldConfig`。
 
 ## 下一步
 
 - [字段模型绑定](zh/adapters/solid/field-model-binding/) — use-*Model 详解
+- [typedFieldComponentPipe（Solid）](zh/adapters/solid/typed-field-component-pipe/) — 路径 + 组件双强类型
 - [框架差异](zh/getting-started/framework-differences/) — 各框架 CVA / Signal 对比
 - [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig

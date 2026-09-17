@@ -83,4 +83,11 @@ Valibot 官方 action（`v.minLength` / `v.check` / `v.transform` / `v.email` �
 
 - [Action 速查表](zh/api/action-cheatsheet/) — 命名空间与动词全览
 - [路径查询](zh/api/path-querying/) — `#` / `..` / `@别名`
-- [Angular：typedFieldComponentPipe](zh/angular/typed-field-component-pipe/) — 组件 + field 双强类型的 Angular 版
+
+组件版封装（每个框架一份，映射规则各不相同）：
+
+- [Angular](zh/angular/typed-field-component-pipe/) — `input()` / `output()` / `model()`，唯一开放 `models` 的框架
+- [Vue 3](zh/adapters/vue/typed-field-component-pipe/) — 从 `$props` 拆，emit 名去掉 `on` 前缀
+- [React](zh/adapters/react/typed-field-component-pipe/) — 函数 prop 即 output，名字原样
+- [Solid](zh/adapters/solid/typed-field-component-pipe/) — 与 React 同构，内置 key 多了 `classList`
+- [Svelte](zh/adapters/svelte/typed-field-component-pipe/) — 函数 prop 即 output，Snippet 不算

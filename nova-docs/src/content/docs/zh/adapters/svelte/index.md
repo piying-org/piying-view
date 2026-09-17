@@ -121,6 +121,21 @@ Svelte 通过 `getContext` 获取字段，而非依赖注入：
 
 返回一个函数，调用时返回当前状态值（`() => dataRef`）。
 
+### typedFieldComponentPipe — 路径 + 组件双强类型
+
+按「路径 + 组件」写配置，`inputs` 收非函数 prop，`outputs` 收函数 prop（**名字原样**）。特别注意：**Snippet 不算 output**。详见 [typedFieldComponentPipe（Svelte）](zh/adapters/svelte/typed-field-component-pipe/)。
+
+```ts
+import { typedFieldComponentPipe } from '@piying/view-svelte';
+
+const merged = typedFieldComponentPipe(schema, define, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: '请输入金额' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ onChange: (value) => {} })]),
+]);
+```
+
+> Svelte 版**没有 `d.models`**：`bind:prop` 在类型上只是普通 prop，运行时也不消费 `field.models`。
+
 ## 类与转换
 
 ### SvelteSchemaHandle / SvelteFormBuilder
@@ -168,10 +183,11 @@ import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
 
 ## 完整导出
 
-`@piying/view-svelte` 导出：`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingViewGroup`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToState`、`useControlValueAccessor`、`convertToField`、`SvelteSchemaHandle`、`SvelteFormBuilder`、`PiResolvedViewFieldConfig`。
+`@piying/view-svelte` 导出：`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingViewGroup`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToState`、`useControlValueAccessor`、`typedFieldComponentPipe`、`convertToField`、`SvelteSchemaHandle`、`SvelteFormBuilder`、`PiResolvedViewFieldConfig`。
 
 ## 下一步
 
+- [typedFieldComponentPipe（Svelte）](zh/adapters/svelte/typed-field-component-pipe/) — 路径 + 组件双强类型
 - [框架差异](zh/getting-started/framework-differences/) — Svelte 的 getContext / Signal 转换
 - [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig
 - [字段模型绑定（React）](zh/adapters/react/field-model-binding/) — 各框架绑定方式对比

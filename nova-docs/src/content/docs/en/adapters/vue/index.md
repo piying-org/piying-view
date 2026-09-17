@@ -136,6 +136,21 @@ const schema = v.object({
 });
 ```
 
+### typedFieldComponentPipe — path + component strong typing
+
+Write config by "path + component" so `inputs` / `outputs` keys and value types follow the Vue component. Details: [typedFieldComponentPipe (Vue 3)](en/adapters/vue/typed-field-component-pipe/).
+
+```typescript
+import { typedComponent, typedFieldComponentPipe } from '@piying/view-vue';
+
+const merged = typedFieldComponentPipe(schema, typeDefine, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: 'Enter amount' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ change: (value) => {} })]),
+]);
+```
+
+> The Vue version has **no `d.models`**: `v-model` is just the prop + `update:xxx` convention, and the runtime does not consume `field.models`.
+
 ### convertToField — schema conversion
 
 > 🧭 **Manual mode**: `convertToField` is the core entry point of manual mode — after obtaining `field` you must bind the render position manually with `PiyingFieldControlBind` / `PiyingFieldTemplate`. In automatic mode `PiyingView` calls it internally for you. See [Two Usage Modes](en/getting-started/two-modes/).
@@ -196,12 +211,13 @@ const copy = clone(originalObj);
 
 ## Full Exports
 
-`@piying/view-vue` exports: `PiyingView`, `PiyingFieldTemplate`, `PiyingViewGroup`, `PiyingFieldControlBind` (alias `Field`), `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToRef`, `useControlValueAccessor`, `typedComponent`, `convertToField`, `VueSchemaHandle`, `VueFormBuilder`, and the `VueSchema` type.
+`@piying/view-vue` exports: `PiyingView`, `PiyingFieldTemplate`, `PiyingViewGroup`, `PiyingFieldControlBind` (alias `Field`), `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToRef`, `useControlValueAccessor`, `typedComponent`, `typedFieldComponentPipe`, `convertToField`, `VueSchemaHandle`, `VueFormBuilder`, and the `VueSchema` type.
 
 > **Note**: Actions such as `rawConfig` / `actions` / `setComponent` must be imported from `@piying/view-core`; `@piying/view-vue` does not export them.
 
 ## Next Steps
 
 - [Vue Typed Components](en/adapters/vue/typed-component/) — details of typedComponent
+- [typedFieldComponentPipe (Vue 3)](en/adapters/vue/typed-field-component-pipe/) — path + component strong typing
 - [Framework Differences](en/getting-started/framework-differences/) — Vue's Field Token / CVA binding
 - [Basic Field Definition](en/scenarios/basic-field/) — setComponent / formConfig

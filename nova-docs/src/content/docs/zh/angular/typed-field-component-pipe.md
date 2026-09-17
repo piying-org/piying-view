@@ -6,6 +6,8 @@ title: "typedFieldComponentPipe — 组件 + field 双强类型"
 
 通用版见 [typedFieldPipe](zh/api/typed-field-pipe/)。
 
+> Angular 是**唯一开放 `models` 的框架** —— Angular 的 `model()` 是真正的双向信号通道，其他适配包都摘掉了 `d.models`。
+
 ## 输入
 
 1. schema

@@ -159,6 +159,21 @@ Bind native controls to `cvaa` in two directions. See [Field Model Binding](en/a
 | `useInputRangeModel`    | Range slider          |
 | `useSelectModel`        | Select (single/multiple) |
 
+### typedFieldComponentPipe — path + component strong typing
+
+Write config by "path + component": `inputs` takes non-function props, `outputs` takes function props (**names kept verbatim** — `onChange` stays `onChange`). Details: [typedFieldComponentPipe (React)](en/adapters/react/typed-field-component-pipe/).
+
+```tsx
+import { typedFieldComponentPipe } from '@piying/view-react';
+
+const merged = typedFieldComponentPipe(schema, define, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: 'Enter amount' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ onChange: (value) => {} })]),
+]);
+```
+
+> The React version has **no `d.models`**; lazy components must be wrapped with `React.lazy()`; the class attribute is `className`.
+
 ## Classes and Conversion
 
 ### ReactSchemaHandle / ReactFormBuilder
@@ -180,10 +195,11 @@ import { PiResolvedViewFieldConfig } from '@piying/view-react';
 
 ## Full Exports
 
-`PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `useSignalToRef`, `useEffectSync`, the `use-*Model` family, `convertToField`, `ReactSchemaHandle`, `ReactFormBuilder`, `PiResolvedViewFieldConfig`.
+`PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `useSignalToRef`, `useEffectSync`, the `use-*Model` family, `typedFieldComponentPipe`, `convertToField`, `ReactSchemaHandle`, `ReactFormBuilder`, `PiResolvedViewFieldConfig`.
 
 ## Next Steps
 
 - [Field Model Binding](en/adapters/react/field-model-binding/) — details on use-*Model hooks
+- [typedFieldComponentPipe (React)](en/adapters/react/typed-field-component-pipe/) — path + component strong typing
 - [Framework Differences](en/getting-started/framework-differences/) — CVA / Signal comparison across frameworks
 - [Basic Field Definition](en/scenarios/basic-field/) — setComponent / formConfig

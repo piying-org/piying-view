@@ -6,6 +6,8 @@ Angular only (`@piying/view-angular`). It adds one "component" argument on top o
 
 For the generic version see [typedFieldPipe](en/api/typed-field-pipe/).
 
+> Angular is the **only framework that exposes `models`** — Angular's `model()` is a real two-way signal channel, while every other adapter drops `d.models`.
+
 ## Input
 
 1. schema

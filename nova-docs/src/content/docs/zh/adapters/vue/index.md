@@ -136,6 +136,21 @@ const schema = v.object({
 });
 ```
 
+### typedFieldComponentPipe — 路径 + 组件双强类型
+
+按「路径 + 组件」写配置，`inputs` / `outputs` 的 key 与值类型跟着 Vue 组件走。详见 [typedFieldComponentPipe（Vue 3）](zh/adapters/vue/typed-field-component-pipe/)。
+
+```typescript
+import { typedComponent, typedFieldComponentPipe } from '@piying/view-vue';
+
+const merged = typedFieldComponentPipe(schema, typeDefine, (d) => [
+  d(['price'], 'amount', [d.inputs.patch({ placeholder: '请输入金额' })]),
+  d(['tags'], 'tags', [d.outputs.merge({ change: (value) => {} })]),
+]);
+```
+
+> Vue 版**没有 `d.models`**：`v-model` 就是 prop + `update:xxx` 的约定，运行时不消费 `field.models`。
+
 ### convertToField — Schema 转换
 
 > 🧭 **手动模式**：`convertToField` 是手动模式的核心入口，返回 `field` 后需用 `PiyingFieldControlBind` / `PiyingFieldTemplate` 手动绑定渲染位置。自动模式中 `PiyingView` 会在内部自动调用它，无需手动使用。详见 [两种使用模式](zh/getting-started/two-modes/)。
@@ -196,12 +211,13 @@ const copy = clone(originalObj);
 
 ## 完整导出
 
-`@piying/view-vue` 导出：`PiyingView`、`PiyingFieldTemplate`、`PiyingViewGroup`、`PiyingFieldControlBind`（别名 `Field`）、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToRef`、`useControlValueAccessor`、`typedComponent`、`convertToField`、`VueSchemaHandle`、`VueFormBuilder`、`VueSchema` 类型。
+`@piying/view-vue` 导出：`PiyingView`、`PiyingFieldTemplate`、`PiyingViewGroup`、`PiyingFieldControlBind`（别名 `Field`）、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToRef`、`useControlValueAccessor`、`typedComponent`、`typedFieldComponentPipe`、`convertToField`、`VueSchemaHandle`、`VueFormBuilder`、`VueSchema` 类型。
 
 > **注意**：`rawConfig` / `actions` / `setComponent` 等 Action 需从 `@piying/view-core` 导入，`@piying/view-vue` 不导出。
 
 ## 下一步
 
 - [Vue 强类型组件](zh/adapters/vue/typed-component/) — typedComponent 详解
+- [typedFieldComponentPipe（Vue 3）](zh/adapters/vue/typed-field-component-pipe/) — 路径 + 组件双强类型
 - [框架差异](zh/getting-started/framework-differences/) — Vue 的 Field Token / CVA 绑定
 - [基础字段定义](zh/scenarios/basic-field/) — setComponent / formConfig

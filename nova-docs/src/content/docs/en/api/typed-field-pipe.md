@@ -83,4 +83,11 @@ Official Valibot actions (`v.minLength` / `v.check` / `v.transform` / `v.email` 
 
 - [Action Cheatsheet](en/api/action-cheatsheet/) — all namespaces and verbs
 - [Path Querying](en/api/path-querying/) — `#` / `..` / `@alias`
-- [Angular: typedFieldComponentPipe](en/angular/typed-field-component-pipe/) — the Angular version with both component and field typing
+
+Component-aware wrappers (one per framework, each with its own mapping rules):
+
+- [Angular](en/angular/typed-field-component-pipe/) — `input()` / `output()` / `model()`; the only framework that exposes `models`
+- [Vue 3](en/adapters/vue/typed-field-component-pipe/) — split out of `$props`, emit names drop the `on` prefix
+- [React](en/adapters/react/typed-field-component-pipe/) — function props are outputs, names kept verbatim
+- [Solid](en/adapters/solid/typed-field-component-pipe/) — same shape as React, with `classList` added to the built-in keys
+- [Svelte](en/adapters/svelte/typed-field-component-pipe/) — function props are outputs, a Snippet is not
