@@ -1,3 +1,14 @@
+## [2.16.7](https://github.com/piying-org/piying-view/compare/2.16.6...2.16.7) (2026-09-17)
+
+### Bug Fixes
+
+* build ([6506d24](https://github.com/piying-org/piying-view/commit/6506d24835f805d0eb4383049eb13a1fd4b1fb50))
+* build ([26a8d2f](https://github.com/piying-org/piying-view/commit/26a8d2f2a914b7bffa46c6671fe4b52c1ab309ac))
+
+### Features
+
+* react/solid/svelte/vue Field typed ([41f7f5c](https://github.com/piying-org/piying-view/commit/41f7f5c695a320b3222aafaa897ca3948788acdb))
+
 ## [2.16.6](https://github.com/piying-org/piying-view/compare/2.16.5...2.16.6) (2026-09-16)
 
 ### Bug Fixes
