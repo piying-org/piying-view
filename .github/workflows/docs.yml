@@ -30,6 +30,8 @@ jobs:
           version: '11'
       - run: pnpm install
 
+      - run: npm run build:core
+
       - run: npm run build:angular
 
       - run: pnpm install

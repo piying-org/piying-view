@@ -7,9 +7,52 @@ import angular from '@analogjs/astro-angular';
 import tailwindcss from '@tailwindcss/vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { satteri } from '@astrojs/markdown-satteri';
+import starlightTypeDoc from 'starlight-typedoc';
 import mdastBaseLinks from './plugins/mdast-base-links.mjs';
 
 const base = '/piying-view/';
+
+// 自动生成的 API 文档，输出到 src/content/docs/<locale>/api-generated/<包名>/
+const apiDocOutput = 'api-generated';
+
+// 每个包一个独立 TypeDoc 实例，入口与 tsconfig 直接指向包自己现成的配置
+const apiDocPackages = [
+  {
+    name: 'view-core',
+    zh: '核心',
+    en: 'Core',
+    entryPoints: ['../projects/view-core/index.ts'],
+    tsconfig: '../projects/view-core/tsconfig.typedoc.json',
+  },
+  {
+    name: 'view-angular',
+    zh: 'Angular 适配',
+    en: 'Angular adapter',
+    entryPoints: ['../projects/view-angular/index.ts'],
+    tsconfig: '../projects/view-angular/tsconfig.typedoc.json',
+  },
+  {
+    name: 'view-angular-core',
+    zh: 'Angular 核心',
+    en: 'Angular core',
+    entryPoints: ['../projects/view-angular-core/index.ts'],
+    tsconfig: '../projects/view-angular-core/tsconfig.typedoc.json',
+  },
+  {
+    name: 'view-react',
+    zh: 'React 适配',
+    en: 'React adapter',
+    entryPoints: ['../packages/react/src/index.ts'],
+    tsconfig: '../packages/react/tsconfig.app.json',
+  },
+  {
+    name: 'view-solid',
+    zh: 'Solid 适配',
+    en: 'Solid adapter',
+    entryPoints: ['../packages/solid/src/index.ts'],
+    tsconfig: '../packages/solid/tsconfig.app.json',
+  },
+];
 
 // 侧边栏标签：中文为 label，英文通过 translations 提供
 // link 不需要带语言前缀，Starlight 会按当前语言自动补 zh/ 或 en/
@@ -24,6 +67,26 @@ const navHref = (path) => ({
   'zh-CN': `${base}zh/${path}`,
   en: `${base}en/${path}`,
 });
+
+// 侧边栏 autogenerate 的 directory 不带语言前缀，Starlight 会按当前语言去解析
+const apiDocSidebarItems = apiDocPackages.map(({ name, zh, en }) => ({
+  label: `@piying/${name}（${zh}）`,
+  translations: { en: `@piying/${name} (${en})` },
+  collapsed: true,
+  items: [{ autogenerate: { directory: `${apiDocOutput}/${name}`, collapsed: true } }],
+}));
+
+// 每个语言各跑一遍，生成物内部的交叉链接才能带上当前语言前缀
+const apiDocPlugins = ['zh', 'en'].flatMap((locale) =>
+  apiDocPackages.map(({ name, entryPoints, tsconfig }) =>
+    starlightTypeDoc({
+      entryPoints,
+      tsconfig,
+      output: `${locale}/${apiDocOutput}/${name}`,
+      typeDoc: { entryFileName: 'index.md' },
+    }),
+  ),
+);
 
 export default defineConfig({
   output: 'static',
@@ -71,6 +134,7 @@ export default defineConfig({
         en: { label: 'English', lang: 'en' },
       },
       plugins: [
+        ...apiDocPlugins,
         starlightThemeNova({
           nav: [
             {
@@ -247,6 +311,12 @@ export default defineConfig({
             nav('AbstractControl', 'AbstractControl', '/api/control-api/'),
             nav('Providers 服务注入', 'Providers', '/api/providers/'),
           ],
+        },
+        {
+          label: 'API 文档（自动生成）',
+          translations: { en: 'API Docs (Generated)' },
+          collapsed: true,
+          items: apiDocSidebarItems,
         },
         {
           label: 'Angular 专属',

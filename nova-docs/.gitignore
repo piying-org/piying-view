@@ -16,3 +16,6 @@ pnpm-debug.log*
 .DS_Store
 # astro
 .astro/
+# TypeDoc 自动生成的 API 文档（dev/build 时自动重建）
+src/content/docs/zh/api-generated/
+src/content/docs/en/api-generated/

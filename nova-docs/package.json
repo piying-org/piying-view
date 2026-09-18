@@ -11,6 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@analogjs/astro-angular": "^2.7.1",
     "@angular/cdk": "22.0.3",
     "@angular/common": "22.1.6",
     "@angular/compiler": "22.1.6",
@@ -20,7 +21,6 @@
     "@angular/platform-browser": "22.1.6",
     "@angular/platform-server": "22.1.6",
     "@angular/router": "22.1.6",
-    "@analogjs/astro-angular": "^2.7.1",
     "@astrojs/markdown-satteri": "0.4.1",
     "@astrojs/mdx": "^8.0.0",
     "@astrojs/starlight": "^0.42.0",
@@ -56,6 +56,9 @@
     "@angular/compiler-cli": "22.1.6",
     "@types/node": "^22.15.30",
     "dts-bundle-generator": "^9.5.1",
+    "starlight-typedoc": "^0.23.1",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.13.0",
     "typescript": "6.0.3",
     "vite-plugin-static-copy": "^4.1.1"
   }
