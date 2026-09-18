@@ -1,3 +1,9 @@
+## [2.16.9](https://github.com/piying-org/piying-view/compare/2.16.8...2.16.9) (2026-09-18)
+
+### Bug Fixes
+
+* type ([7a5140a](https://github.com/piying-org/piying-view/commit/7a5140aa77a370ba9e2f872f7499ebc9f7bd02da))
+
 ## [2.16.8](https://github.com/piying-org/piying-view/compare/2.16.7...2.16.8) (2026-09-17)
 
 ### Features
