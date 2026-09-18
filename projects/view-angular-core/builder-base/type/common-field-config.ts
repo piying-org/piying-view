@@ -20,7 +20,7 @@ import { FieldControl } from '../../field/field-control';
 import { FieldGroup } from '../../field/field-group';
 import { FieldLogicGroup } from '../../field/field-logic-group';
 import { AnyCoreSchemaHandle, CoreSchemaHandle } from '../../convert';
-import { KeyPath, Wrapper$, LazyImport } from '../../util';
+import { KeyPath, Wrapper$, LazyImport, ToKeyPath } from '../../util';
 import { CombineSignal } from '../../util/create-combine-signal';
 import { AsyncObjectSignal } from '../../util/create-async-object-signal';
 export interface FieldRenderConfig {
@@ -321,6 +321,136 @@ type GetResult<
       >
     : never;
 
+/* ---------- get 路径补全提示 ---------- */
+
+/** 别名 token: @别名 (逐层展开作用域, 避免联合类型取 keyof 只剩公共键) */
+type AliasPathToken<AliasMap> = AliasMap extends readonly (infer Scope)[]
+  ? Scope extends unknown
+    ? `@${Extract<keyof Scope, string>}`
+    : never
+  : never;
+
+/** 结构 key: 对象键 / 数组下标 / record 键 / intersect|union 成员下标 */
+type StructPathKey<S> = unknown extends S
+  ? string | number
+  :
+      | StructByArray<S>
+      | StructByEntries<S>
+      | StructByTuple<S>
+      | StructByRecord<S>
+      | StructByOptions<S>
+      | StructByNested<S>;
+
+type StructByArray<S> =
+  ItemOf<S> extends infer T ? ([T] extends [never] ? never : number) : never;
+
+type StructByEntries<S> =
+  EntriesOf<S> extends infer E
+    ? [E] extends [never]
+      ? never
+      : E extends unknown
+        ? Extract<keyof E, string | number>
+        : never
+    : never;
+
+type StructByTuple<S> = [S] extends [VsTupleHost] ? number : never;
+
+type StructByRecord<S> =
+  RecordValueOf<S> extends infer V
+    ? [V] extends [never]
+      ? never
+      : string | number
+    : never;
+
+type StructByOptions<S> =
+  OptionsOf<S> extends infer O ? ([O] extends [never] ? never : number) : never;
+
+type StructByNested<S> =
+  PipeOf<S> extends infer P
+    ? [P] extends [never]
+      ? WrappedOf<S> extends infer W
+        ? [W] extends [never]
+          ? never
+          : StructPathKey<W>
+        : never
+      : P extends readonly [infer F, ...any[]]
+        ? StructPathKey<F>
+        : never
+    : never;
+
+/**
+ * 子 schema 集合: 对象值 / 数组项 / tuple 项 / record 值 / intersect|union 成员。
+ * 先拦 never, 否则 CoreSchemaOf<never> 会退化成 any 而污染 token。
+ */
+type ChildSchemaOf<S> = [S] extends [never]
+  ? never
+  : CoreSchemaOf<S> extends infer C
+    ? [C] extends [never]
+      ? never
+      : C extends unknown
+        ?
+            | EntriesOf<C>[keyof EntriesOf<C>]
+            | ItemOf<C>
+            | ItemsOf<C>[number]
+            | RecordValueOf<C>
+            | OptionsOf<C>[number]
+        : never
+    : never;
+
+/** 逐层下钻收集后代 key, 保证 ['a','b','c'] 这类多层路径同样能补全 */
+type DeepStructPathKey<S, Depth extends readonly unknown[]> = unknown extends S
+  ? string | number
+  : Depth extends readonly [unknown, ...infer DR]
+    ?
+        | StructPathKey<S>
+        | ([ChildSchemaOf<S>] extends [never]
+            ? never
+            : DeepStructPathKey<ChildSchemaOf<S>, DR>)
+    : never;
+
+/** 补全递归深度上限, 超出后不再收集更深层 key */
+type PathSuggestDepth = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+/** any / unknown 会让 token 塌成 string | number, 参入结合前先把它们剔掉 */
+type ExcludeLooseSchema<T> = 0 extends 1 & T
+  ? never
+  : unknown extends T
+    ? never
+    : T;
+
+/** 当前节点可输入的路径片段 */
+export type FieldPathToken<S, AliasMap = {}> =
+  | '#'
+  | '..'
+  | AliasPathToken<AliasMap>
+  | DeepStructPathKey<S, PathSuggestDepth>;
+
+/**
+ * 三个 schema 分别剔除 any/unknown 后再合并。
+ * 必须先逐个剔除: `T | any` 会在创建结合时直接塌成 any。
+ */
+type TightSchemas<Schema, RootSchema, ParentSchema> =
+  | ExcludeLooseSchema<Schema>
+  | ExcludeLooseSchema<RootSchema>
+  | ExcludeLooseSchema<ParentSchema>;
+
+/**
+ * get 路径 token 集合。
+ * 除了自身, 还合并根级/父级 与别名, 因为 `#` / `..` 可以从当前节点跳到任意层。
+ * 三者都是 any/unknown 时退回宽松, 保证未绑定泛型的场景不收紧。
+ */
+type GetPathToken<Schema, RootSchema, ParentSchema, AliasMap> = [
+  TightSchemas<Schema, RootSchema, ParentSchema>,
+] extends [never]
+  ? string | number
+  : FieldPathToken<TightSchemas<Schema, RootSchema, ParentSchema>, AliasMap>;
+
+/** get 的 aliasNotFoundFn 参数 */
+type GetAliasNotFoundFn = (
+  name: string,
+  field: PiResolvedCommonViewFieldConfig<any, any>,
+) => PiResolvedCommonViewFieldConfig<any, any>;
+
 /* ---------- 控件类型细分(control 类型) ---------- */
 /**
  * 与运行时 schemaForEach 完全对齐的节点递归:
@@ -439,13 +569,19 @@ export type PiResolvedCommonViewFieldConfig<
   /** 外部传入引用 */
   readonly context?: any;
   arrayChild?: CoreSchemaHandle<any, any>;
-  get: <K extends KeyPath>(
-    keyPath: [...K],
-    aliasNotFoundFn?: (
-      name: string,
-      field: PiResolvedCommonViewFieldConfig<any, any>,
-    ) => PiResolvedCommonViewFieldConfig<any, any>,
-  ) => GetResult<Schema, RootSchema, ParentSchema, AliasMap, K> | undefined;
+  get: <
+    const K extends readonly GetPathToken<
+      Schema,
+      RootSchema,
+      ParentSchema,
+      AliasMap
+    >[],
+  >(
+    keyPath: K | KeyPath,
+    aliasNotFoundFn?: GetAliasNotFoundFn,
+  ) =>
+    | GetResult<Schema, RootSchema, ParentSchema, AliasMap, ToKeyPath<K>>
+    | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
