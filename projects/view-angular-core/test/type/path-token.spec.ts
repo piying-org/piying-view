@@ -115,15 +115,15 @@ describe('强类型推断: get 路径补全 token', () => {
     expect([t1, t2, t3, t4, t5, t6, t7].length).toBe(7);
   });
 
-  it('未知键仍然合法, 只是退化为宽松类型(向后兼容)', () => {
+  it('未知字面量键解析为 never', () => {
     const builder = createBuilder(root);
-    const unknownKey = builder.get(['zzz']);
-    expect(unknownKey).toBeUndefined();
-    const unknownValue = unknownKey?.form.control?.value;
-    expect(unknownValue).toBeUndefined();
+    const bad = builder.get(['zzz']);
+    const eq: Equal<typeof bad, undefined> = true;
+    expect(bad).toBeUndefined();
+    expect(eq).toBe(true);
   });
 
-  it('动态 KeyPath 变量仍然合法', () => {
+  it('动态 KeyPath 变量走通用返回', () => {
     const builder = createBuilder(root);
     builder.form.control?.updateValue({ aa: 'v1' });
     const path: KeyPath = ['aa'];

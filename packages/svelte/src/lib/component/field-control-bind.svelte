@@ -18,7 +18,7 @@
 
 	// path 的期望类型带了字面量联合(为了补全), 传进 get() 前先收敛成 KeyPath
 	const resolvedField = $derived(
-		props.path ? props.field.get(props.path as KeyPath)! : props.field
+		props.path ? props.field.get(props.path)! : props.field
 	);
 
 	const { cva, cvaa } = useControlValueAccessor();

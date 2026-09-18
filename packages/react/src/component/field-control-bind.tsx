@@ -31,7 +31,7 @@ export function Field<
 
   const resolvedField = useMemo(() => {
     const keyPath = path;
-    return keyPath ? field.get(keyPath as KeyPath) : field;
+    return keyPath ? field.get(keyPath) : field;
   }, [field, path]);
 
   const { cva, cvaa } = useControlValueAccessor();

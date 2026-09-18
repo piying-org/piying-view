@@ -321,6 +321,16 @@ type GetResult<
       >
     : never;
 
+/**
+ * 字面量路径但 K 已退化成约束(= 路径不在 token 集合内) → never。
+ * 与 undefined 联合后塔成 undefined, 让误用在属性访问处暴露。
+ */
+type GetFound<Schema, RootSchema, ParentSchema, AliasMap, K> = [
+  readonly GetPathToken<Schema, RootSchema, ParentSchema, AliasMap>[],
+] extends [K]
+  ? never
+  : GetResult<Schema, RootSchema, ParentSchema, AliasMap, ToKeyPath<K>>;
+
 /* ---------- get 路径补全提示 ---------- */
 
 /** 别名 token: @别名 (逐层展开作用域, 避免联合类型取 keyof 只剩公共键) */
@@ -384,18 +394,22 @@ type StructByNested<S> =
  */
 type ChildSchemaOf<S> = [S] extends [never]
   ? never
-  : CoreSchemaOf<S> extends infer C
-    ? [C] extends [never]
-      ? never
-      : C extends unknown
-        ?
-            | EntriesOf<C>[keyof EntriesOf<C>]
-            | ItemOf<C>
-            | ItemsOf<C>[number]
-            | RecordValueOf<C>
-            | OptionsOf<C>[number]
-        : never
+  : S extends unknown
+    ? ChildOfSingle<S>
     : never;
+
+type ChildOfSingle<S> = CoreSchemaOf<S> extends infer C
+  ? [C] extends [never]
+    ? never
+    : C extends unknown
+      ?
+          | EntriesOf<C>[keyof EntriesOf<C>]
+          | ItemOf<C>
+          | ItemsOf<C>[number]
+          | RecordValueOf<C>
+          | OptionsOf<C>[number]
+      : never
+  : never;
 
 /** 逐层下钻收集后代 key, 保证 ['a','b','c'] 这类多层路径同样能补全 */
 type DeepStructPathKey<S, Depth extends readonly unknown[]> = unknown extends S
@@ -411,12 +425,22 @@ type DeepStructPathKey<S, Depth extends readonly unknown[]> = unknown extends S
 /** 补全递归深度上限, 超出后不再收集更深层 key */
 type PathSuggestDepth = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
-/** any / unknown 会让 token 塌成 string | number, 参入结合前先把它们剔掉 */
+/**
+ * 剔除「无结构信息」的 schema, 否则 token 会退化成无意义的窄集合。
+ * 命中任一即视为未强类型化: any / unknown / v.any() / v.unknown() / 裸 BaseSchema。
+ * 裸 BaseSchema 的 type 是加宽 string(具体 schema 是字面量), 拿它当判据。
+ */
 type ExcludeLooseSchema<T> = 0 extends 1 & T
   ? never
   : unknown extends T
     ? never
-    : T;
+    : [T] extends [{ type: 'any' | 'unknown' }]
+      ? never
+      : [T] extends [{ readonly type: string }]
+        ? string extends T['type']
+          ? never
+          : T
+        : T;
 
 /** 当前节点可输入的路径片段 */
 export type FieldPathToken<S, AliasMap = {}> =
@@ -576,12 +600,13 @@ export type PiResolvedCommonViewFieldConfig<
       ParentSchema,
       AliasMap
     >[],
+    const W extends KeyPath = KeyPath,
   >(
-    keyPath: K | KeyPath,
+    keyPath: K | W,
     aliasNotFoundFn?: GetAliasNotFoundFn,
-  ) =>
-    | GetResult<Schema, RootSchema, ParentSchema, AliasMap, ToKeyPath<K>>
-    | undefined;
+  ) => string extends W[number]
+    ? PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined
+    : GetFound<Schema, RootSchema, ParentSchema, AliasMap, K> | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;

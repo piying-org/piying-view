@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import * as v from 'valibot';
 import { convertToField } from '@piying/view-angular';
 import { setAlias } from '@piying/view-angular-core';
-import type { FieldPathToken, InferAliasMap } from '@piying/view-angular-core';
+import type {
+  FieldPathToken,
+  InferAliasMap,
+  KeyPath,
+} from '@piying/view-angular-core';
 import { Equal } from '@piying/view-angular-core/test';
 
 const schema = v.object({
@@ -90,11 +94,14 @@ describe('convertToField: get 路径补全与强类型', () => {
     expect(eq).toBe(true);
   });
 
-  it('未知键 / 动态路径不会因补全约束而报错', () => {
+  it('未知字面量键解析为 never, 动态路径走通用返回', () => {
     const field = setup();
-    expect(field.get(['zzz'])).toBeUndefined();
+    const bad = field.get(['zzz']);
+    const eq: Equal<typeof bad, undefined> = true;
+    expect(bad).toBeUndefined();
+    expect(eq).toBe(true);
 
-    const path: (string | number)[] = ['aa'];
+    const path: KeyPath = ['aa'];
     expect(field.get(path)?.form.control?.value).toBe('v1');
   });
 });
