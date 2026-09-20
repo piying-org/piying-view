@@ -30,6 +30,9 @@ async function main() {
     }),
   ]);
 
+
+  await fs.promises.rm(path.join(absDir, 'type-check'), { recursive: true, force: true });
+
   // 重命名 static-injector.ts 为 index.ts
   let injectorDir = path.join(absDir, 'test/util/injector');
   let staticInjectorPath = path.join(injectorDir, 'static-injector.ts');

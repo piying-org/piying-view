@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "lib": ["ESNext", "DOM"],
+    "paths": {
+      "@piying/view-angular-core": ["../../view-angular-core/index.ts"],
+      "@piying/view-angular-core/adapter": ["../../view-angular-core/adapter"]
+    },
+    "types": []
+  },
+  "include": ["cases/**/*.ts"]
+}

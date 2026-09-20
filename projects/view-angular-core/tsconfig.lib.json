@@ -3,5 +3,5 @@
 {
   "extends": "../tsconfig.lib.json",
   "compilerOptions": {},
-  "exclude": ["**/*.spec.ts"]
+  "exclude": ["**/*.spec.ts", "type-check/**"]
 }
