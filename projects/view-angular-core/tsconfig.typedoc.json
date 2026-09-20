@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.lib.json",
   "compilerOptions": { "inlineSources": false },
-  "exclude": ["test", "**/*.spec.ts"]
+  "exclude": ["test", "**/*.spec.ts","type-check/**"]
 }
