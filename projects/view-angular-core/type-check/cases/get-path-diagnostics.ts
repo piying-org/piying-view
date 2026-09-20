@@ -18,13 +18,13 @@ const e1 = xxx.get(['nested', '#']);
 // @ts-expect-error 见上两行标记
 const e2 = xxx.get(['#', '#', 'text1']);
 
-// @expect-error 叶子之后再下钻
-//   pattern: '["number1", "number1"]' is not assignable
+// @expect-error 叶子之后再下钻: 叶子后只允许 '..'
+//   pattern: Type '"number1"' is not assignable
 // @ts-expect-error 见上两行标记
 const e3 = xxx.get(['number1', 'number1']);
 
 // @expect-error '#' 回到根后, 叶子再下钻
-//   pattern: '["#", "text1", "text1"]' is not assignable
+//   pattern: Type '"text1"' is not assignable
 // @ts-expect-error 见上两行标记
 const e4 = xxx.get(['#', 'text1', 'text1']);
 

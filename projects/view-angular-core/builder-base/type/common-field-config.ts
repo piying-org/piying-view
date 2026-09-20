@@ -413,19 +413,30 @@ type PathGate<
 
 /**
  * get 的入参形态。
- * K 承接常量字面量路径(交叉 PathGate 做合法性判定);
+ * 把首元素单独抽成 H 是关键: TS 会先推断非上下文敏感的首元素, 再把
+ * TailFor<H> 当成后续位置的上下文, 于是补全变成「按前缀收窄」——
+ * 叶子之后不补兄弟键/根级键, '#' 之后照样补根级键。
  * G 只用来承接「通用 KeyPath 变量」—— 一旦它被推断成常量元组,
- * 说明调用方写的是一条字面量路径, 直接抹掉这个分支, 逼回 K 去报错。
+ * 说明调用方写的是一条字面量路径, 直接抹掉这个分支, 逼回字面量去报错。
  */
 type GetArg<
   Schema,
   RootSchema,
   ParentSchema,
   AliasMap,
-  K extends readonly unknown[],
+  H,
+  T extends readonly unknown[],
   G extends KeyPath,
 > =
-  | (K & PathGate<Schema, RootSchema, ParentSchema, AliasMap, K>)
+  | readonly []
+  | (readonly [H, ...T] &
+      PathGate<
+        Schema,
+        RootSchema,
+        ParentSchema,
+        AliasMap,
+        readonly [H, ...T]
+      >)
   | (IsConstTuple<G> extends true ? never : G);
 
 /* ---------- get 路径补全提示 ---------- */
@@ -739,6 +750,92 @@ export type DotPathTokens<Schema, RootSchema, ParentSchema, AliasMap> = [
         PathLenCap
       >;
 
+/** 去掉一元组首位 */
+type DropFirst<T extends readonly unknown[]> = T extends readonly [
+  unknown,
+  ...infer R,
+]
+  ? R
+  : [];
+
+/** 路径首 token: # / ..(有余额时) / 当前层 key / 别名 */
+export type DotHeadToken<Schema, RootSchema, ParentSchema, AliasMap> = [
+  TightSchemas<Schema, RootSchema, ParentSchema>,
+] extends [never]
+  ? string | number
+  :
+      | "#"
+      | (IsRootLevel<Schema, RootSchema, ParentSchema> extends true ? never : "..")
+      | DownKeyAt<
+          Schema,
+          DeepStructPathKey<
+            TightSchemas<Schema, RootSchema, ParentSchema>,
+            PathSuggestDepth
+          >
+        >
+      | AliasPathToken<AliasMap>;
+
+/**
+ * 给定首 token 之后的尾段元组联合。
+ * 关键在于它把首元素当成「已确定」的条件 —— TS 会先推断非上下文敏感的
+ * 首元素, 再用 TailFor<H> 作为后续位置上下文, 于是补全变成「按前缀收窄」:
+ * 叶子之后不再补出兄弟键/根级键, 而 "#\" 之后照样补出根级键。
+ */
+export type TailFor<H, Schema, RootSchema, ParentSchema, AliasMap> = [
+  TightSchemas<Schema, RootSchema, ParentSchema>,
+] extends [never]
+  ? readonly (string | number)[]
+  : H extends "#"
+    ? DyckPaths<
+        RootSchema,
+        RootSchema,
+        RootSchema,
+        DeepStructPathKey<RootSchema, PathSuggestDepth>,
+        AliasMap,
+        [],
+        PathLenCap
+      >
+    : H extends ".."
+      ? DyckPaths<
+          ParentSchema,
+          any,
+          RootSchema,
+          DeepStructPathKey<
+            TightSchemas<Schema, RootSchema, ParentSchema>,
+            PathSuggestDepth
+          >,
+          AliasMap,
+          DropFirst<InitDepth<UpBudget<Schema, RootSchema, ParentSchema>>>,
+          PathLenCap
+        >
+      : H extends `@${infer A}`
+        ? LookupAliasScope<AliasMap, A> extends [
+            infer AS,
+            infer ASC extends readonly any[],
+          ]
+          ? DyckPaths<
+              AS,
+              any,
+              RootSchema,
+              DeepStructPathKey<AS, PathSuggestDepth>,
+              ASC,
+              [],
+              PathLenCap
+            >
+          : readonly (string | number)[]
+        : DyckPaths<
+            SubSchemaOrItem<Schema, H>,
+            Schema,
+            RootSchema,
+            DeepStructPathKey<
+              TightSchemas<Schema, RootSchema, ParentSchema>,
+              PathSuggestDepth
+            >,
+            PushItemScope<Schema, H, AliasMap>,
+            [unknown],
+            PathLenCap
+          >;
+
 /** 一元组深度; number(未知) 映射到上限 */
 type InitDepth<B extends readonly unknown[] | number> =
   B extends number ? PathLenCap : B;
@@ -900,16 +997,31 @@ export type PiResolvedCommonViewFieldConfig<
   readonly context?: any;
   arrayChild?: CoreSchemaHandle<any, any>;
   get: <
-    const K extends DotPathTokens<Schema, RootSchema, ParentSchema, AliasMap>,
+    const H extends DotHeadToken<Schema, RootSchema, ParentSchema, AliasMap>,
+    const T extends TailFor<H, Schema, RootSchema, ParentSchema, AliasMap>,
     const G extends KeyPath = never,
   >(
-    keyPath: GetArg<Schema, RootSchema, ParentSchema, AliasMap, K, G>,
+    keyPath: GetArg<Schema, RootSchema, ParentSchema, AliasMap, H, T, G>,
     aliasNotFoundFn?: GetAliasNotFoundFn,
-  ) => string extends K[number]
+  ) => string extends H
     ? PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined
-    : IsConstTuple<K> extends true
-      ? GetFound<Schema, RootSchema, ParentSchema, AliasMap, K> | undefined
-      : PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined;
+    : G extends readonly []
+      ? GetFound<
+          Schema,
+          RootSchema,
+          ParentSchema,
+          AliasMap,
+          readonly []
+        > | undefined
+      : IsConstTuple<G> extends true
+        ? GetFound<
+            Schema,
+            RootSchema,
+            ParentSchema,
+            AliasMap,
+            readonly [H, ...T]
+          > | undefined
+        : PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;

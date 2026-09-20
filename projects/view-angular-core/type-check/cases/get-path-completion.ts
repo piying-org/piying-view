@@ -30,8 +30,8 @@ const c4 = xxx.get(['nested', '<|>']);
 //   forbid: #
 const c5 = xxx.get(['nested', 'deep', '<|>']);
 
-// @complete '#' 后遇叶子: 补全走按位并集, 锁住「已知宽松度」
-//   snapshot: .., bb, cc, deep, nested, number1, text1
+// @complete '#' 后遇叶子: 尾段只按首 token('#') 收窄, 第二元不继续收窄
+//   snapshot: .., bb, deep
 const c6 = xxx.get(['#', 'text1', '<|>']);
 
 export { c1, c2, c3, c4, c5, c6 };
