@@ -1,3 +1,5 @@
+## [2.16.11](https://github.com/piying-org/piying-view/compare/2.16.10...2.16.11) (2026-09-20)
+
 ## [2.16.10](https://github.com/piying-org/piying-view/compare/2.16.9...2.16.10) (2026-09-18)
 
 ### Bug Fixes
