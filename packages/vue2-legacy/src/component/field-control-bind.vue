@@ -13,7 +13,7 @@ const props = defineProps<{
 const resolvedField = computed(() => {
   const keyPath = props.path;
   // 约束为弱类型(避开 Vue2 声明产出对自引用类型的爆炸), 故在此显式回到推导结果
-  return (keyPath ? props.field.get(keyPath) : props.field) as unknown as
+  return (keyPath ? props.field.get(keyPath as KeyPath) : props.field) as unknown as
     | PiFieldGet<S, P>
     | undefined;
 });

@@ -42,7 +42,7 @@ export function PiyingField<
 
   const resolvedField = createMemo(() => {
     const keyPath = path;
-    return keyPath ? field.get(keyPath)! : field;
+    return keyPath ? field.get(keyPath as KeyPath)! : field;
   });
 
   const { cva, cvaa } = useControlValueAccessor();

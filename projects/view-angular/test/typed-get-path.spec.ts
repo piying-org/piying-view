@@ -7,7 +7,7 @@ import type {
   InferAliasMap,
   KeyPath,
 } from '@piying/view-angular-core';
-import { Equal } from '@piying/view-angular-core/test';
+import { Equal, IsAny } from '@piying/view-angular-core/test';
 
 const schema = v.object({
   aa: v.string(),
@@ -94,14 +94,16 @@ describe('convertToField: get 路径补全与强类型', () => {
     expect(eq).toBe(true);
   });
 
-  it('未知字面量键解析为 never, 动态路径走通用返回', () => {
+  it('未知字面量键直接编译报错, 通用 KeyPath 走 get 拿通用类型', () => {
     const field = setup();
+    // @ts-expect-error 'zzz' 不在 token 集合内
     const bad = field.get(['zzz']);
-    const eq: Equal<typeof bad, undefined> = true;
     expect(bad).toBeUndefined();
-    expect(eq).toBe(true);
 
     const path: KeyPath = ['aa'];
-    expect(field.get(path)?.form.control?.value).toBe('v1');
+    const dyn = field.get(path);
+    const notAny: IsAny<typeof dyn> = false;
+    expect(dyn?.form.control?.value).toBe('v1');
+    expect(notAny).toBe(false);
   });
 });

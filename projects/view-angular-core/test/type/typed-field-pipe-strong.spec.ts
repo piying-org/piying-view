@@ -625,10 +625,9 @@ describe('强类型改造 - 监听 list 路径逐位强类型 (#19)', () => {
     // 编译期把错误路径归为 never, 运行时同样解析不到
     // (用原始 schema 建 builder, 避开这条注定解不到的 action)
     const self = createBuilder(listenRoot).get(['nested', 'age'])!;
+    // @ts-expect-error 'nope' 不在 token 集合内
     const nope = self.get(['..', 'nope']);
-    const eq: Equal<typeof nope, undefined> = true;
     expect(nope).toBeUndefined();
-    expect(eq).toBe(true);
     // 对照: 合法路径确实解析得到
     expect(self.get(['..', 'city'])!.fullPath).toEqual(['nested', 'city']);
     expect(merged).toBeTruthy();

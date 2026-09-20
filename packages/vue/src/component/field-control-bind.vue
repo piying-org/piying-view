@@ -14,7 +14,7 @@ const resolvedField = computed(() => {
   const keyPath = props.path;
   // 显式收敛为推导结果, 避免 `[...P]` 直接传入 get() 时声明产出递归爆炸;
   // path 的期望类型带了字面量联合(为了补全), 传进 get() 前同样先收敛成 KeyPath
-  return (keyPath ? props.field.get(keyPath) : props.field) as unknown as
+  return (keyPath ? props.field.get(keyPath as KeyPath) : props.field) as unknown as
     | PiFieldGet<S, P>
     | undefined;
 });

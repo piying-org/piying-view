@@ -22,7 +22,16 @@ export function fieldQuery(
     field = root;
     list = [{ field: root, level: 1 }];
   } else if (firstPath === '..') {
-    list = [{ field: field.parent!, level: 1 }];
+    const parent = field.parent;
+    // 根字段的 parent 是个只带 fullPath 的占位对象, 没有 get。
+    // 编译期已经拦住了越界上溯, 能走到这里就是调用方绕过类型硬写的,
+    // 属于写错, 直接抛错而不是静默返回 undefined。
+    if (!parent || typeof parent.get !== 'function') {
+      throw new Error(
+        `[piying-view] '..' 已到达根字段, 无法继续上溯; 请求路径: ${keyPath.join('.')}`,
+      );
+    }
+    list = [{ field: parent, level: 1 }];
   } else if (typeof firstPath === 'string' && firstPath.startsWith('@')) {
     const queryField = aliasMap.get(firstPath.slice(1));
     list = [{ field: queryField!, level: 1 }];

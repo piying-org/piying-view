@@ -1,12 +1,13 @@
 import * as v from 'valibot';
 import { setAlias } from '@piying/view-angular-core';
 import type {
+  DotPathTokens,
   FieldPathToken,
   InferAliasMap,
   KeyPath,
 } from '@piying/view-angular-core';
 import { createBuilder } from '../util/create-builder';
-import { Equal } from '../util/type-assert';
+import { Equal, IsAny, Val } from '../util/type-assert';
 
 const root = v.object({
   aa: v.string(),
@@ -38,11 +39,155 @@ describe('强类型推断: get 路径补全 token', () => {
     const bad: RootTok = 'zzz';
   });
 
-  it('特殊 token # / .. 与数字下标始终可用', () => {
+  it('特殊 token # / .. 与数字下标在公开 token 集合中可用', () => {
+    // FieldPathToken 是公开的原始 token 集合, AllowParent 默认 true
     const t1: RootTok = '#';
     const t2: RootTok = '..';
     const t3: RootTok = 0;
     expect([t1, t2, t3]).toEqual(['#', '..', 0]);
+  });
+
+  it('FieldPathToken 显式关闭 AllowParent 后不再包含 ..', () => {
+    type NoParentTok = FieldPathToken<
+      typeof root,
+      InferAliasMap<typeof root>,
+      false
+    >;
+    const t1: NoParentTok = '#';
+    const t2: NoParentTok = 'aa';
+    const t3: NoParentTok = 0;
+    expect([t1, t2, t3]).toEqual(['#', 'aa', 0]);
+    // @ts-expect-error 关掉 AllowParent 后 '..' 不在集合内
+    const bad: NoParentTok = '..';
+    expect(bad as unknown).toBe('..');
+  });
+
+  it('根级字段写 .. 直接编译报错', () => {
+    const builder = createBuilder(root);
+
+    // 越界路径在编译期就被拦住, 不该进入运行时, 所以只写不跑
+    const unreachable = () => {
+      // @ts-expect-error 根级没有父字段, '..' 越界
+      builder.get(['..']);
+      // @ts-expect-error 带剩余路径同样越界
+      builder.get(['..', 'aa']);
+      // @ts-expect-error '#' 落到根后, 再 '..' 依旧越界
+      builder.get(['#'])!.get(['..']);
+    };
+
+    expect(unreachable).toBeInstanceOf(Function);
+  });
+
+  it('下钻撑出额度, 超出后报错', () => {
+    type RootPath = DotPathTokens<typeof root, typeof root, any, {}>;
+
+    // 下钻一层 → 能上退一层
+    const ok1: RootPath = ['aa', '..'];
+    const ok2: RootPath = ['nested', 'deep', 'cc', '..', '..', '..'];
+    // '#' 重置到根, 之后又能重新下钻
+    const ok3: RootPath = ['aa', '..', '#', 'nested'];
+
+    // @ts-expect-error 未下钻就上退
+    const bad1: RootPath = ['..'];
+    // @ts-expect-error 下钻 1 层却上退 2 层
+    const bad2: RootPath = ['aa', '..', '..'];
+    // @ts-expect-error 下钻 2 层却上退 3 层
+    const bad3: RootPath = ['nested', 'deep', '..', '..', '..'];
+
+    expect(ok1.length + ok2.length + ok3.length).toBe(12);
+    expect([bad1 as unknown, bad2 as unknown, bad3 as unknown].length).toBe(3);
+  });
+
+  it("'#' 重置余额后再上退: 调用处直接编译报错", () => {
+    const builder = createBuilder(root);
+    // '#' 把余额清零, 再上退就是越界
+    const unreachable = () => {
+      // @ts-expect-error '#' 之后上退越界
+      builder.get(['aa', '..', '#', '..', '..']);
+    };
+    expect(unreachable).toBeInstanceOf(Function);
+  });
+
+  it("'#' 在根级仍合法(空操作), 结果层解得出根字段", () => {
+    const builder = createBuilder(root);
+    builder.form.control?.updateValue({
+      aa: 'v1',
+      nested: { bb: 2, deep: { cc: 'v3' } },
+      list: [{ dd: 'v4' }],
+    });
+
+    const viaHash = builder.get(['#'])!;
+    const viaHashEq: Equal<
+      Val<typeof viaHash.form.control>,
+      v.InferOutput<typeof root>
+    > = true;
+    expect(viaHash.fullPath).toEqual([]);
+    expect(viaHashEq).toBe(true);
+
+    // 带后续路径照常下钻
+    expect(builder.get(['#', 'nested', 'deep', 'cc'])!.form.control!.value).toBe(
+      'v3',
+    );
+    // 先下钻再 '#' 回到根
+    expect(builder.get(['nested', '#'])!.fullPath).toEqual([]);
+  });
+
+  it('非根级 .. 不受影响, 且能逐级上溯到根后被止住', () => {
+    const builder = createBuilder(root);
+    builder.form.control?.updateValue({
+      aa: 'v1',
+      nested: { bb: 2, deep: { cc: 'v3' } },
+      list: [{ dd: 'v4' }],
+    });
+
+    // 子级 '..' 回到根
+    const child = builder.get(['nested'])!;
+    const toRoot = child.get(['..'])!;
+    const toRootEq: Equal<
+      Val<typeof toRoot.form.control>,
+      v.InferOutput<typeof root>
+    > = true;
+    expect(toRoot.fullPath).toEqual([]);
+    expect(toRootEq).toBe(true);
+
+    // 到了根之后不能再往上退(编译期拦住, 不执行)
+    const unreachableAfterRoot = () => {
+      // @ts-expect-error 已在根, 上溯越界
+      toRoot.get(['..']);
+    };
+    expect(unreachableAfterRoot).toBeInstanceOf(Function);
+
+    // 孙级 '..' 拿父级(deep), 类型依旧精确
+    const grand = builder.get(['nested', 'deep', 'cc'])!;
+    const parent = grand.get(['..'])!;
+    const parentEq: Equal<
+      Val<typeof parent.form.control>,
+      { cc: string }
+    > = true;
+    expect(parent.fullPath).toEqual(['nested', 'deep']);
+    expect(parentEq).toBe(true);
+
+    // 多级上溯仍然可用
+    const two = grand.get(['..', '..'])!;
+    expect(two.fullPath).toEqual(['nested']);
+    const three = grand.get(['..', '..', '..'])!;
+    expect(three.fullPath).toEqual([]);
+  });
+
+  it('别名落点不是根时, 其 .. 仍可用', () => {
+    const builder = createBuilder(root);
+    builder.form.control?.updateValue({ list: [{ dd: 'v4' }] });
+
+    const item = builder.get(['list', 0])!;
+    const aliased = item.get(['@ddAlias'])!;
+    expect(aliased.fullPath).toEqual(['list', 0, 'dd']);
+
+    // 别名字段的父级是数组项, 不是根
+    const up = aliased.get(['..'])!;
+    expect(up.fullPath).toEqual(['list', 0]);
+    // 别名跳转会丢失父链信息, 类型落回宽松而不是报错
+    const upLoose: IsAny<Val<typeof up.form.control>> = true;
+    expect(upLoose).toBe(true);
   });
 
   it('别名 token 按作用域进入补全集合', () => {
@@ -115,21 +260,68 @@ describe('强类型推断: get 路径补全 token', () => {
     expect([t1, t2, t3, t4, t5, t6, t7].length).toBe(7);
   });
 
-  it('未知字面量键解析为 never', () => {
+  it('未知字面量键直接编译报错', () => {
     const builder = createBuilder(root);
+    // @ts-expect-error 'zzz' 不在 token 集合内
     const bad = builder.get(['zzz']);
-    const eq: Equal<typeof bad, undefined> = true;
     expect(bad).toBeUndefined();
-    expect(eq).toBe(true);
   });
 
-  it('动态 KeyPath 变量走通用返回', () => {
+  it('叶子之后再下钻: 补全集合不再给出任何字段键', () => {
+    type RootPath = DotPathTokens<typeof root, typeof root, any, {}>;
+
+    // 叶子自身 / 叶子之后上溯呷根, 依旧合法
+    const ok1: RootPath = ['aa'];
+    const ok2: RootPath = ['aa', '..'];
+    const ok3: RootPath = ['aa', '#'];
+
+    // @ts-expect-error aa 是叶子, 第 2 位不该有字段键
+    const bad1: RootPath = ['aa', 'aa'];
+    // @ts-expect-error aa 是叶子, 第 2 位不该有兄弟键
+    const bad2: RootPath = ['aa', 'nested'];
+    // @ts-expect-error deep 是叶子, 第 4 位不该有字段键
+    const bad3: RootPath = ['nested', 'deep', 'cc', 'cc'];
+
+    expect([ok1.length, ok2.length, ok3.length]).toEqual([1, 2, 2]);
+    expect([bad1 as unknown, bad2 as unknown, bad3 as unknown].length).toBe(3);
+  });
+
+  it('叶子之后再下钻: 调用处直接编译报错', () => {
+    const builder = createBuilder(root);
+    const unreachable = () => {
+      // @ts-expect-error '#' 之后 aa 仍是叶子, 再下钻解不出字段
+      builder.get(['#', 'aa', 'aa']);
+    };
+    expect(unreachable).toBeInstanceOf(Function);
+  });
+
+  it('叶子之后再下钻: 运行时同样查不到字段', () => {
+    const builder = createBuilder(root);
+    builder.form.control?.updateValue({
+      aa: 'v1',
+      nested: { bb: 2, deep: { cc: 'v3' } },
+      list: [{ dd: 'v4' }],
+    });
+    expect(builder.get(['aa', 'aa'] as any)).toBeUndefined();
+    expect(builder.get(['nested', 'bb', 'x'] as any)).toBeUndefined();
+    expect(builder.get(['nested', 'deep', 'cc', 'cc'] as any)).toBeUndefined();
+  });
+
+  it('根级上溯越界: 运行时直接抛错', () => {
+    const builder = createBuilder(root);
+    expect(() => builder.get(['..'] as any)).toThrowError(/无法继续上溯/);
+    expect(() => builder.get(['#', '..'] as any)).toThrowError(/无法继续上溯/);
+  });
+
+  it('动态 KeyPath 变量走 get, 拿通用字段类型', () => {
     const builder = createBuilder(root);
     builder.form.control?.updateValue({ aa: 'v1' });
     const path: KeyPath = ['aa'];
     const field = builder.get(path);
+    const notAny: IsAny<typeof field> = false;
     expect(field?.keyPath).toEqual(['aa']);
     expect(field?.form.control?.value).toBe('v1');
+    expect(notAny).toBe(false);
   });
 
   it('schema 为 any 时不收紧路径', () => {

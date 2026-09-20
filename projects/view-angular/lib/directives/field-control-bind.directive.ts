@@ -35,7 +35,7 @@ export class PiyingFieldControlBindDirective<
     const base =
       this.formControl() as unknown as _PiResolvedCommonViewFieldConfig;
     const keyPath = this.path();
-    return (keyPath ? base.get(keyPath) : base) as
+    return (keyPath ? base.get(keyPath as KeyPath) : base) as
       | _PiResolvedCommonViewFieldConfig
       | undefined;
   });

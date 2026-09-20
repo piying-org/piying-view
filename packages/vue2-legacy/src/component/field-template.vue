@@ -28,7 +28,7 @@ const props = defineProps<{
 
 const field = computed(() => {
   const keyPath = props.path;
-  return keyPath ? props.field.get(keyPath)! : props.field;
+  return keyPath ? props.field.get(keyPath as KeyPath)! : props.field;
 });
 const injector = vInject(InjectorToken)!;
 

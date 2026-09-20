@@ -18,7 +18,7 @@ export interface PiyingFieldTemplateProps {
 export function PiyingFieldTemplate(props: PiyingFieldTemplateProps) {
   const keyPath = props.path;
   const field = useMemo(() => {
-    return keyPath ? props.field.get(keyPath)! : props.field;
+    return keyPath ? props.field.get(keyPath as KeyPath)! : props.field;
   }, [props.field, keyPath]);
 
   const fieldInputs = useSignalToRef(field, (field) => ({

@@ -7,8 +7,8 @@ import {
   ItemsOf,
   OptionsOf,
   PipeOf,
-  RecordValueOf,
   RestOf,
+  ValueNodeOf,
   VsArrayLikeHost,
   VsEntriesHost,
   VsTupleHost,
@@ -207,7 +207,7 @@ type SubByTuple<S, K> = [S] extends [VsTupleHost]
   : SubByRecord<S, K>;
 
 type SubByRecord<S, K> =
-  RecordValueOf<S> extends infer V
+  ValueNodeOf<S> extends infer V
     ? [V] extends [never]
       ? SubByPipe<S, K>
       : V
@@ -256,10 +256,34 @@ type ItemByWrapped<S, I> =
       ? never
       : ItemSchema<W, I>
     : never;
-/** 子 schema 取不到时回退到 intersect/union 成员, 仍取不到则 any(保持宽松) */
+/**
+ * 类型层看不清内部结构的 schema: 下钻结果只能保持宽松(any)。
+ * lazy 的 getter 在类型层解不出来, 必须算进来,
+ * 否则 `['lazyField', 'child']` 这类合法路径会被误判成「查不到」。
+ */
+type NavOpaque<S> = 0 extends 1 & S
+  ? true
+  : unknown extends S
+    ? true
+    : [S] extends [v.LazySchema<any> | v.AnySchema | v.UnknownSchema]
+      ? true
+      : [S] extends [{ readonly type: string }]
+        ? string extends S['type']
+          ? true
+          : false
+        : false;
+
+/**
+ * 子 schema 取不到时回退到 intersect/union 成员;
+ * 仍取不到时区分两种情况:
+ * - 结构看不清(any / unknown / lazy / 裸 BaseSchema) → any, 保持宽松;
+ * - 明确是叶子(如 v.number()) → never, 让「查得过深」的路径解不出字段。
+ */
 type SubSchemaOrItem<S, K> = [SubSchema<S, K>] extends [never]
   ? [ItemSchema<S, K>] extends [never]
-    ? any
+    ? NavOpaque<CoreSchemaOf<S>> extends true
+      ? any
+      : never
     : ItemSchema<S, K>
   : SubSchema<S, K>;
 
@@ -290,13 +314,15 @@ type Resolve<
           : [any, any, AliasMap]
         : Path extends [infer K, ...infer Rest]
           ? Rest extends KeyPath
-            ? Resolve<
-                SubSchemaOrItem<Schema, K>,
-                RootSchema,
-                Schema,
-                PushItemScope<Schema, K, AliasMap>,
-                Rest
-              >
+            ? [SubSchemaOrItem<Schema, K>] extends [never]
+              ? never
+              : Resolve<
+                  SubSchemaOrItem<Schema, K>,
+                  RootSchema,
+                  Schema,
+                  PushItemScope<Schema, K, AliasMap>,
+                  Rest
+                >
             : [any, Schema, AliasMap]
           : [any, Schema, AliasMap];
 
@@ -308,28 +334,99 @@ type GetResult<
   AliasMap,
   Path extends KeyPath,
 > =
-  Resolve<Schema, RootSchema, ParentSchema, AliasMap, Path> extends [
-    infer SelfSchema,
-    infer ResultParentSchema,
-    infer ResultAliasMap,
-  ]
-    ? _PiResolvedCommonViewFieldConfig<
-        SelfSchema,
-        RootSchema,
-        ResultParentSchema,
-        ResultAliasMap
-      >
+  Resolve<Schema, RootSchema, ParentSchema, AliasMap, Path> extends infer R
+    ? // Resolve 解不出时返回 never, 而 never 能匹配任意元组,
+      // 必须先用 [R] 拦下, 否则会当成解到了字段
+      [R] extends [never]
+      ? never
+      : R extends [
+          infer SelfSchema,
+          infer ResultParentSchema,
+          infer ResultAliasMap,
+        ]
+        ? _PiResolvedCommonViewFieldConfig<
+            SelfSchema,
+            RootSchema,
+            ResultParentSchema,
+            ResultAliasMap
+          >
+        : never
     : never;
 
 /**
  * 字面量路径但 K 已退化成约束(= 路径不在 token 集合内) → never。
  * 与 undefined 联合后塔成 undefined, 让误用在属性访问处暴露。
  */
-type GetFound<Schema, RootSchema, ParentSchema, AliasMap, K> = [
-  readonly GetPathToken<Schema, RootSchema, ParentSchema, AliasMap>[],
-] extends [K]
+type GetFound<
+  Schema,
+  RootSchema,
+  ParentSchema,
+  AliasMap,
+  W extends readonly unknown[],
+> = [
+  AllTokensValid<
+    W,
+    GetPathToken<Schema, RootSchema, ParentSchema, AliasMap>
+  >,
+] extends [false]
   ? never
-  : GetResult<Schema, RootSchema, ParentSchema, AliasMap, ToKeyPath<K>>;
+  : [
+      BalanceOk<ToKeyPath<W>, UpBudget<Schema, RootSchema, ParentSchema>>,
+    ] extends [true]
+    ? GetResult<Schema, RootSchema, ParentSchema, AliasMap, ToKeyPath<W>>
+    : never;
+
+/** 路径非法时落在实参类型上的错误标记 */
+export interface PiPathNotResolvable {
+  readonly __piPathNotResolvable:
+    | '该路径在当前 schema 上解不出字段: 下钻过深 / 上溯越界'
+    | unknown;
+}
+
+/**
+ * 常量元组 vs 通用数组。
+ * 常量元组的 length 是具体字面量(1/2/3...), 通用数组的 length 是 number。
+ * 这是唯一能把「写死的字面量路径」和「运行时拼出来的 KeyPath」分开的类型判据。
+ */
+type IsConstTuple<T extends { readonly length: number }> =
+  number extends T['length'] ? false : true;
+
+/**
+ * 调用处闸门。
+ * 补全用的 DotPathTokens 是「按位并集」的近似 —— '#' 之后为了不把根级 key
+ * 混进前面位置的补全, 尾段只能放宽成 LooseKeyPath。
+ * 真实合法性在这里判定: 解不出字段就让调用处直接编译报错。
+ */
+type PathGate<
+  Schema,
+  RootSchema,
+  ParentSchema,
+  AliasMap,
+  K extends readonly unknown[],
+> = // schema 本身就是 any 时根本无从判定, 直接放行;
+// 否则内部转发点(泛型未实例化)会被这个交叉卡住。
+0 extends 1 & Schema
+  ? unknown
+  : [GetFound<Schema, RootSchema, ParentSchema, AliasMap, K>] extends [never]
+    ? PiPathNotResolvable
+    : unknown;
+
+/**
+ * get 的入参形态。
+ * K 承接常量字面量路径(交叉 PathGate 做合法性判定);
+ * G 只用来承接「通用 KeyPath 变量」—— 一旦它被推断成常量元组,
+ * 说明调用方写的是一条字面量路径, 直接抹掉这个分支, 逼回 K 去报错。
+ */
+type GetArg<
+  Schema,
+  RootSchema,
+  ParentSchema,
+  AliasMap,
+  K extends readonly unknown[],
+  G extends KeyPath,
+> =
+  | (K & PathGate<Schema, RootSchema, ParentSchema, AliasMap, K>)
+  | (IsConstTuple<G> extends true ? never : G);
 
 /* ---------- get 路径补全提示 ---------- */
 
@@ -366,7 +463,7 @@ type StructByEntries<S> =
 type StructByTuple<S> = [S] extends [VsTupleHost] ? number : never;
 
 type StructByRecord<S> =
-  RecordValueOf<S> extends infer V
+  ValueNodeOf<S> extends infer V
     ? [V] extends [never]
       ? never
       : string | number
@@ -406,7 +503,7 @@ type ChildOfSingle<S> = CoreSchemaOf<S> extends infer C
           | EntriesOf<C>[keyof EntriesOf<C>]
           | ItemOf<C>
           | ItemsOf<C>[number]
-          | RecordValueOf<C>
+          | ValueNodeOf<C>
           | OptionsOf<C>[number]
       : never
   : never;
@@ -442,10 +539,198 @@ type ExcludeLooseSchema<T> = 0 extends 1 & T
           : T
         : T;
 
+/** 严格相等: 判断两个 schema 是否为同一类型 */
+type SameSchema<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+    ? true
+    : false;
+
+/**
+ * 是否处于根级: 既没有父级 schema, 自身又就是根 schema。
+ * 根级没有上层, `..` 不该出现在补全里。
+ * 只看 ParentSchema 不够 —— `get(['..'])` 的结果 ParentSchema 也是 any,
+ * 但它不是根, 还能继续往上退。
+ */
+type IsRootLevel<Schema, RootSchema, ParentSchema> = [
+  ExcludeLooseSchema<ParentSchema>,
+] extends [never]
+  ? SameSchema<Schema, RootSchema>
+  : false;
+
+/** 深度搜索上限, 一元组 */
+type DepthCap = [1, 1, 1, 1, 1, 1, 1, 1];
+
+/** 深度恰好为 N 长度的节点中, 是否存在与 Target 同构的节点 */
+type AtDepth<Root, Target, N extends readonly unknown[]> = Root extends unknown
+  ? N extends readonly [unknown, ...infer NR]
+    ? AtDepth<ChildSchemaOf<Root>, Target, NR>
+    : SameSchema<Root, Target>
+  : never;
+
+/** Target 在根树中的最大深度(一元组); 找不到返回 never */
+type DepthOf<Root, Target, N extends readonly unknown[]> =
+  true extends AtDepth<Root, Target, N>
+    ? N
+    : N extends readonly [unknown, ...infer NR]
+      ? DepthOf<Root, Target, NR>
+      : never;
+
+/**
+ * 当前字段还能上溯几层(一元组长度)。
+ * 用 ParentSchema 在根树中的深度 + 1 得出, 无需给字段类型加新泛型。
+ * number 表示未知/不限制, 避免误伤拿不到 schema 的场景。
+ */
+type UpBudget<Schema, RootSchema, ParentSchema> = [
+  TightSchemas<Schema, RootSchema, ParentSchema>,
+] extends [never]
+  ? number
+  : IsRootLevel<Schema, RootSchema, ParentSchema> extends true
+    ? []
+    : [ExcludeLooseSchema<ParentSchema>] extends [never]
+      ? number
+      : [DepthOf<RootSchema, ParentSchema, DepthCap>] extends [never]
+        ? number
+        : [unknown, ...DepthOf<RootSchema, ParentSchema, DepthCap>];
+
+/**
+ * 位置化路径约束: 前 N 个位置允许上溯 token, 预算用尽后不再给。
+ * 必须保持「带 rest 元素的元组并集」形态 —— 纯递归元组并集会掉掉补全。
+ */
+type DotPath<Budget, TDot, TNo> =
+  | readonly TNo[]
+  | (Budget extends readonly [unknown, ...infer BRest]
+      ? readonly [TDot, ...DotPath<BRest, TDot, TNo>]
+      : Budget extends number
+        ? readonly TDot[]
+        : never);
+
+/**
+ * 路径长度上限(一元组)。同时决定枚举规模:
+ * 上限 8 → 约 2k 个联合成员, 上限 10 → 约 12k, 远低于 TS 的 10 万上限。
+ */
+type PathLenCap = [1, 1, 1, 1, 1, 1, 1, 1];
+
+/** '#' 之后的宽松尾段: 不参与逐位补全, 合法性交给 AllTokensValid + BalanceOk 兜底 */
+type LooseKeyPath = readonly (string | number)[];
+
+/**
+ * 本层可写的 key。
+ * 层级 schema 拿不准(any / unknown) 时回退到合并 token 集, 保持宽松。
+ */
+type DownKeyAt<Cur, Fallback> = [ExcludeLooseSchema<Cur>] extends [never]
+  ? Fallback
+  : StructPathKey<Cur>;
+
+/**
+ * 精确枚举合法路径(Dyck 语言): 任意前缀里 '..' 的个数不能超过已下钻的层数。
+ * Cur = 当前层 schema 集合; Up = 上一层 schema('..' 的落点); Root = 根 schema。
+ * D = 当前深度(一元组); L = 剩余长度预算。
+ *
+ * 下钻段的 token 逐层随 Cur 收窄 —— 叶子之后不再补出任何 key。
+ * '#' 段之后改用 LooseKeyPath: 编辑器按「位」取并集, 不会按已写内容收窄,
+ * 留着「'#' + 根级 key」就会把根级 key 混进第 2 位的补全里。
+ * '#' 之后能不能真解出字段, 由结果层的 BalanceOk / AllTokensValid 决定。
+ */
+type DyckPaths<
+  Cur,
+  Up,
+  Root,
+  Fallback,
+  AliasMap,
+  D extends readonly unknown[],
+  L extends readonly unknown[],
+> =
+  | readonly []
+  | (L extends readonly [unknown, ...infer LRest]
+      ?
+        | readonly [
+            DownKeyAt<Cur, Fallback> | AliasPathToken<AliasMap>,
+            ...DyckPaths<
+              ChildSchemaOf<Cur>,
+              Up,
+              Root,
+              Fallback,
+              AliasMap,
+              [...D, unknown],
+              LRest
+            >,
+          ]
+        | (D extends readonly [unknown, ...infer DR]
+            ? readonly [
+                '..',
+                ...DyckPaths<Up, any, Root, Fallback, AliasMap, DR, LRest>,
+              ]
+            : never)
+        | readonly ['#', ...LooseKeyPath]
+      : never);
+
+/** 预算封顶, 避免无限增长 */
+type GrowBudget<B extends readonly unknown[]> =
+  B['length'] extends DepthCap['length'] ? B : [unknown, ...B];
+
+/**
+ * 逐位校验上溯余额: 遇普通键下钻一层(余额 +1), 遇 '..' 上退一层(余额 -1)。
+ * 余额不够就解析不到。补全用的是位置化近似, 这里才是真实语义。
+ */
+type BalanceOk<
+  Path extends readonly unknown[],
+  B extends readonly unknown[] | number,
+> = B extends number ? true : B extends readonly unknown[] ? BalanceTuple<Path, B>
+  : never;
+
+type BalanceTuple<Path extends readonly unknown[], B extends readonly unknown[]> =
+  Path extends readonly [infer H, ...infer Rest]
+    ? H extends '..'
+      ? B extends readonly [unknown, ...infer BR]
+        ? BalanceTuple<Rest, BR>
+        : false
+      : H extends '#'
+        ? BalanceTuple<Rest, []>
+        : BalanceTuple<Rest, GrowBudget<B>>
+    : true;
+
+/**
+ * 路径每一位都必须是合法 token, 否则整条路径解不出来。
+ * '..' 不在此列 —— 它语法上总是存在, 能不能走由 BalanceOk 的余额说了算。
+ */
+type AllTokensValid<Path extends readonly unknown[], Tok> =
+  Path extends readonly [infer H, ...infer Rest]
+    ? H extends '..' | Tok
+      ? AllTokensValid<Rest, Tok>
+      : false
+    : true;
+
+/** get 路径的位置化约束 */
+/**
+ * get 路径的约束: 精确枚举合法路径。
+ * 初始深度 = 当前字段距根的层数; 深度未知时取上限, 宁松勿紧。
+ * Fallback = 层级 schema 拿不准时使用的合并 token 集(自身/根/父 逐层展开)。
+ */
+export type DotPathTokens<Schema, RootSchema, ParentSchema, AliasMap> = [
+  TightSchemas<Schema, RootSchema, ParentSchema>,
+] extends [never]
+  ? readonly (string | number)[]
+  : DyckPaths<
+      Schema,
+      ParentSchema,
+      RootSchema,
+      DeepStructPathKey<
+        TightSchemas<Schema, RootSchema, ParentSchema>,
+        PathSuggestDepth
+      >,
+      AliasMap,
+      InitDepth<UpBudget<Schema, RootSchema, ParentSchema>>,
+      PathLenCap
+    >;
+
+/** 一元组深度; number(未知) 映射到上限 */
+type InitDepth<B extends readonly unknown[] | number> =
+  B extends number ? PathLenCap : B;
+
 /** 当前节点可输入的路径片段 */
-export type FieldPathToken<S, AliasMap = {}> =
+export type FieldPathToken<S, AliasMap = {}, AllowParent = true> =
   | '#'
-  | '..'
+  | (AllowParent extends true ? '..' : never)
   | AliasPathToken<AliasMap>
   | DeepStructPathKey<S, PathSuggestDepth>;
 
@@ -462,12 +747,17 @@ type TightSchemas<Schema, RootSchema, ParentSchema> =
  * get 路径 token 集合。
  * 除了自身, 还合并根级/父级 与别名, 因为 `#` / `..` 可以从当前节点跳到任意层。
  * 三者都是 any/unknown 时退回宽松, 保证未绑定泛型的场景不收紧。
+ * 根级字段没有上层, 不给 `..`。
  */
 type GetPathToken<Schema, RootSchema, ParentSchema, AliasMap> = [
   TightSchemas<Schema, RootSchema, ParentSchema>,
 ] extends [never]
   ? string | number
-  : FieldPathToken<TightSchemas<Schema, RootSchema, ParentSchema>, AliasMap>;
+  : FieldPathToken<
+      TightSchemas<Schema, RootSchema, ParentSchema>,
+      AliasMap,
+      IsRootLevel<Schema, RootSchema, ParentSchema> extends true ? false : true
+    >;
 
 /** get 的 aliasNotFoundFn 参数 */
 type GetAliasNotFoundFn = (
@@ -594,19 +884,16 @@ export type PiResolvedCommonViewFieldConfig<
   readonly context?: any;
   arrayChild?: CoreSchemaHandle<any, any>;
   get: <
-    const K extends readonly GetPathToken<
-      Schema,
-      RootSchema,
-      ParentSchema,
-      AliasMap
-    >[],
-    const W extends KeyPath = KeyPath,
+    const K extends DotPathTokens<Schema, RootSchema, ParentSchema, AliasMap>,
+    const G extends KeyPath = never,
   >(
-    keyPath: K | W,
+    keyPath: GetArg<Schema, RootSchema, ParentSchema, AliasMap, K, G>,
     aliasNotFoundFn?: GetAliasNotFoundFn,
-  ) => string extends W[number]
+  ) => string extends K[number]
     ? PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined
-    : GetFound<Schema, RootSchema, ParentSchema, AliasMap, K> | undefined;
+    : IsConstTuple<K> extends true
+      ? GetFound<Schema, RootSchema, ParentSchema, AliasMap, K> | undefined
+      : PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;

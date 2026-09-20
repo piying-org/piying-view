@@ -27,7 +27,7 @@ export class PiyingFieldTemplateDirective<
   #resolved = computed<PiResolvedViewFieldConfig | undefined>(() => {
     const base = this.fieldTemplate() as unknown as PiResolvedViewFieldConfig;
     const keyPath = this.path();
-    return (keyPath ? base.get(keyPath) : base) as
+    return (keyPath ? base.get(keyPath as KeyPath) : base) as
       | PiResolvedViewFieldConfig
       | undefined;
   });
