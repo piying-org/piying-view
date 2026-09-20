@@ -1,3 +1,10 @@
+## [2.16.13](https://github.com/piying-org/piying-view/compare/2.16.12...2.16.13) (2026-09-20)
+
+### Bug Fixes
+
+* docs build ([b8ae21e](https://github.com/piying-org/piying-view/commit/b8ae21e7e35f9983e9575fdd0b16e4a56b38f132))
+* path typed ([bf2370b](https://github.com/piying-org/piying-view/commit/bf2370bcb54eed40d2ba16f5af3524718d2dac5f))
+
 ## [2.16.12](https://github.com/piying-org/piying-view/compare/2.16.11...2.16.12) (2026-09-20)
 
 ### Bug Fixes
