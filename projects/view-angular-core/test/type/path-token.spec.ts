@@ -84,8 +84,6 @@ describe('强类型推断: get 路径补全 token', () => {
     // 下钻一层 → 能上退一层
     const ok1: RootPath = ['aa', '..'];
     const ok2: RootPath = ['nested', 'deep', 'cc', '..', '..', '..'];
-    // '#' 重置到根, 之后又能重新下钻
-    const ok3: RootPath = ['aa', '..', '#', 'nested'];
 
     // @ts-expect-error 未下钻就上退
     const bad1: RootPath = ['..'];
@@ -93,9 +91,13 @@ describe('强类型推断: get 路径补全 token', () => {
     const bad2: RootPath = ['aa', '..', '..'];
     // @ts-expect-error 下钻 2 层却上退 3 层
     const bad3: RootPath = ['nested', 'deep', '..', '..', '..'];
+    // @ts-expect-error '#' 只允许出现在第 0 位
+    const bad4: RootPath = ['aa', '..', '#', 'nested'];
 
-    expect(ok1.length + ok2.length + ok3.length).toBe(12);
-    expect([bad1 as unknown, bad2 as unknown, bad3 as unknown].length).toBe(3);
+    expect(ok1.length + ok2.length).toBe(8);
+    expect(
+      [bad1 as unknown, bad2 as unknown, bad3 as unknown, bad4 as unknown].length,
+    ).toBe(4);
   });
 
   it("'#' 重置余额后再上退: 调用处直接编译报错", () => {
@@ -128,8 +130,10 @@ describe('强类型推断: get 路径补全 token', () => {
     expect(builder.get(['#', 'nested', 'deep', 'cc'])!.form.control!.value).toBe(
       'v3',
     );
-    // 先下钻再 '#' 回到根
-    expect(builder.get(['nested', '#'])!.fullPath).toEqual([]);
+    // '#' 不在第 0 位: 字面量元组被类型拦住,
+    // 但运行时不约束 —— 走通用 KeyPath 依旧能解出根字段
+    const midHash: KeyPath = ['nested', '#'];
+    expect(builder.get(midHash)!.fullPath).toEqual([]);
   });
 
   it('非根级 .. 不受影响, 且能逐级上溯到根后被止住', () => {
@@ -270,20 +274,24 @@ describe('强类型推断: get 路径补全 token', () => {
   it('叶子之后再下钻: 补全集合不再给出任何字段键', () => {
     type RootPath = DotPathTokens<typeof root, typeof root, any, {}>;
 
-    // 叶子自身 / 叶子之后上溯呷根, 依旧合法
+    // 叶子自身 / 叶子之后上溯回根, 依旧合法
     const ok1: RootPath = ['aa'];
     const ok2: RootPath = ['aa', '..'];
-    const ok3: RootPath = ['aa', '#'];
 
     // @ts-expect-error aa 是叶子, 第 2 位不该有字段键
     const bad1: RootPath = ['aa', 'aa'];
     // @ts-expect-error aa 是叶子, 第 2 位不该有兄弟键
     const bad2: RootPath = ['aa', 'nested'];
+    // @ts-expect-error '#' 只允许出现在第 0 位
+    const badHash: RootPath = ['aa', '#'];
     // @ts-expect-error deep 是叶子, 第 4 位不该有字段键
     const bad3: RootPath = ['nested', 'deep', 'cc', 'cc'];
 
-    expect([ok1.length, ok2.length, ok3.length]).toEqual([1, 2, 2]);
-    expect([bad1 as unknown, bad2 as unknown, bad3 as unknown].length).toBe(3);
+    expect([ok1.length, ok2.length]).toEqual([1, 2]);
+    expect(
+      [bad1 as unknown, bad2 as unknown, badHash as unknown, bad3 as unknown]
+        .length,
+    ).toBe(4);
   });
 
   it('叶子之后再下钻: 调用处直接编译报错', () => {

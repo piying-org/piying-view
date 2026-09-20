@@ -610,9 +610,6 @@ type DotPath<Budget, TDot, TNo> =
  */
 type PathLenCap = [1, 1, 1, 1, 1, 1, 1, 1];
 
-/** '#' 之后的宽松尾段: 不参与逐位补全, 合法性交给 AllTokensValid + BalanceOk 兜底 */
-type LooseKeyPath = readonly (string | number)[];
-
 /**
  * 本层可写的 key。
  * 层级 schema 拿不准(any / unknown) 时回退到合并 token 集, 保持宽松。
@@ -627,9 +624,7 @@ type DownKeyAt<Cur, Fallback> = [ExcludeLooseSchema<Cur>] extends [never]
  * D = 当前深度(一元组); L = 剩余长度预算。
  *
  * 下钻段的 token 逐层随 Cur 收窄 —— 叶子之后不再补出任何 key。
- * '#' 段之后改用 LooseKeyPath: 编辑器按「位」取并集, 不会按已写内容收窄,
- * 留着「'#' + 根级 key」就会把根级 key 混进第 2 位的补全里。
- * '#' 之后能不能真解出字段, 由结果层的 BalanceOk / AllTokensValid 决定。
+ * 本类型不含 '#' 段: '#' 只允许出现在路径第 0 位, 由 DotPathTokens 单独拼。
  */
 type DyckPaths<
   Cur,
@@ -661,7 +656,6 @@ type DyckPaths<
                 ...DyckPaths<Up, any, Root, Fallback, AliasMap, DR, LRest>,
               ]
             : never)
-        | readonly ['#', ...LooseKeyPath]
       : never);
 
 /** 预算封顶, 避免无限增长 */
@@ -692,36 +686,58 @@ type BalanceTuple<Path extends readonly unknown[], B extends readonly unknown[]>
 /**
  * 路径每一位都必须是合法 token, 否则整条路径解不出来。
  * '..' 不在此列 —— 它语法上总是存在, 能不能走由 BalanceOk 的余额说了算。
+ * '#' 只允许出现在第 0 位, 出现在后面一律非法。
  */
-type AllTokensValid<Path extends readonly unknown[], Tok> =
-  Path extends readonly [infer H, ...infer Rest]
-    ? H extends '..' | Tok
-      ? AllTokensValid<Rest, Tok>
+type AllTokensValid<
+  Path extends readonly unknown[],
+  Tok,
+  NotFirst extends boolean = false,
+> = Path extends readonly [infer H, ...infer Rest]
+  ? [H] extends ['#']
+    ? NotFirst extends true
+      ? false
+      : AllTokensValid<Rest, Tok, true>
+    : H extends '..' | Tok
+      ? AllTokensValid<Rest, Tok, true>
       : false
-    : true;
+  : true;
 
 /** get 路径的位置化约束 */
 /**
  * get 路径的约束: 精确枚举合法路径。
  * 初始深度 = 当前字段距根的层数; 深度未知时取上限, 宁松勿紧。
  * Fallback = 层级 schema 拿不准时使用的合并 token 集(自身/根/父 逐层展开)。
+ * '#' 段只在最外层出现一次, 其后按根 schema 逐层下钻。
  */
 export type DotPathTokens<Schema, RootSchema, ParentSchema, AliasMap> = [
   TightSchemas<Schema, RootSchema, ParentSchema>,
 ] extends [never]
   ? readonly (string | number)[]
-  : DyckPaths<
-      Schema,
-      ParentSchema,
-      RootSchema,
-      DeepStructPathKey<
-        TightSchemas<Schema, RootSchema, ParentSchema>,
-        PathSuggestDepth
-      >,
-      AliasMap,
-      InitDepth<UpBudget<Schema, RootSchema, ParentSchema>>,
-      PathLenCap
-    >;
+  :
+    | readonly [
+        '#',
+        ...DyckPaths<
+          RootSchema,
+          RootSchema,
+          RootSchema,
+          DeepStructPathKey<RootSchema, PathSuggestDepth>,
+          AliasMap,
+          [],
+          PathLenCap
+        >,
+      ]
+    | DyckPaths<
+        Schema,
+        ParentSchema,
+        RootSchema,
+        DeepStructPathKey<
+          TightSchemas<Schema, RootSchema, ParentSchema>,
+          PathSuggestDepth
+        >,
+        AliasMap,
+        InitDepth<UpBudget<Schema, RootSchema, ParentSchema>>,
+        PathLenCap
+      >;
 
 /** 一元组深度; number(未知) 映射到上限 */
 type InitDepth<B extends readonly unknown[] | number> =

@@ -150,7 +150,6 @@ describe('Field - get 过深路径不得退化成 any', () => {
 
   it('运行时: 根级再上退直接抛错', () => {
     const field = makeField();
-
     expect(() => field.get(['..'] as any)).toThrowError(/无法继续上溯/);
     expect(() => field.get(['#', '..'] as any)).toThrowError(/无法继续上溯/);
   });
@@ -179,11 +178,14 @@ describe('Field - get 过深路径不得退化成 any', () => {
   it('类型: 叶子之后的补全集合里没有字段键, 只剩 # / ..', () => {
     type Tok = DotPathTokens<typeof Schema, typeof Schema, any, {}>;
 
-    const ok: Tok[] = [['number1'], ['number1', '..'], ['number1', '#']];
+    const ok: Tok[] = [['number1'], ['number1', '..']];
     // @ts-expect-error 叶子之后没有字段键
     const bad: Tok = ['number1', 'number1'];
+    // @ts-expect-error '#' 只允许出现在第 0 位
+    const badHash: Tok = ['number1', '#'];
 
-    expect(ok.length).toBe(3);
+    expect(ok.length).toBe(2);
     expect(bad).toEqual(['number1', 'number1']);
+    expect(badHash).toEqual(['number1', '#']);
   });
 });
