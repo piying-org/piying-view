@@ -1,6 +1,6 @@
 {
   "name": "piying-view",
-  "version": "2.16.11",
+  "version": "2.16.12",
   "repository": {
     "url": "https://github.com/piying-org/piying-view"
   },
@@ -17,13 +17,14 @@
     "build:angular":"ng build view-angular && ng build view-angular-core",
     "build": "rimraf ./dist && npm run create-view-core && npm run build:angular && ng build view-core && npm run build -ws --if-present",
     "test": "ng test test-view-angular --no-watch --no-progress --browsers=ChromeHeadless",
+    "test:typecheck": "tsx ./projects/view-angular-core/type-check/harness/run.ts",
     "test:vue2-legacy": "npm run test -w packages/vue2-legacy",
     "test:vue": "npm run test -w packages/vue",
     "test:react": "npm run test -w packages/react",
     "test:svelte": "npm run test -w packages/svelte",
     "test:solid": "npm run test -w packages/solid",
     "test:all": "ng test view-angular --no-watch&& ng test view-angular-core --no-watch&& ng test view-core --no-watch && npm run test -ws --if-present -- --watch=false",
-    "test:ci": "ng test view-angular --no-watch --no-progress --browsers=ChromeHeadless && ng test view-angular-core --no-watch --no-progress --browsers=ChromeHeadless && ng test view-core --no-watch --no-progress --browsers=ChromeHeadless  && npm run test -ws --if-present -- --watch=false",
+    "test:ci": "npm run test:typecheck && ng test view-angular --no-watch --no-progress --browsers=ChromeHeadless && ng test view-angular-core --no-watch --no-progress --browsers=ChromeHeadless && ng test view-core --no-watch --no-progress --browsers=ChromeHeadless  && npm run test -ws --if-present -- --watch=false",
     "coverage": "ng test test-view-angular --code-coverage --no-watch --no-progress --browsers=ChromeHeadless",
     "lint": "eslint --fix ./projects && prettier ./projects --write && npm run lint -ws --if-present",
     "publish-only": "tsx ./script/change-version.ts && tsx ./script/publish.ts",
