@@ -44,19 +44,51 @@ import { PiyingView } from '@piying/view-react';
 
 ### PiyingFieldTemplate
 
-渲染字段模板：
+> 🧭 **手动模式**：属于 [两种使用模式](zh/getting-started/two-modes/) 中的模式二。只手动**渲染位置**，字段内部仍全自动渲染。
+
+把「包装器链 + 组件 + 递归子字段」整棵树渲染到指定位置：
 
 ```tsx
 import { PiyingFieldTemplate } from '@piying/view-react';
+
+<PiyingFieldTemplate field={field} path={['k2']} />;
 ```
 
-### Field
+| Props | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig`（必填） | 要渲染的字段配置 |
+| `path` | `KeyPath`（可选） | 定位子字段；不传则渲染整个根字段 |
 
-字段控件绑定组件（将字段绑定为表单控件）：
+> 完整渲染管线、懒加载与常见坑见 [PiyingFieldTemplate（字段渲染）](zh/adapters/field-template/)。
+
+### PiyingField
+
+> 🧭 **手动模式**：同 `PiyingFieldTemplate`，属于模式二（手动绑定）。
+
+字段绑定：把字段的 `FieldControl` 接到**你手写的控件**上，通过 `children` 渲染函数暴露 `cvaa` / `field`：
 
 ```tsx
-import { Field } from '@piying/view-react';
+import { PiyingField } from '@piying/view-react';
+
+<PiyingField field={field} path={['text1']}>
+  {({ cvaa }) => (
+    <input
+      value={cvaa.value ?? ''}
+      disabled={cvaa.disabled}
+      onChange={(e) => cvaa.valueChange(e.target.value)}
+      onBlur={cvaa.touchedChange}
+    />
+  )}
+</PiyingField>;
 ```
+
+| Props | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig`（必填） | 字段配置 |
+| `path` | `KeyPath`（可选） | 定位**叶子**子字段再绑定 |
+| `children` | `({ cvaa, field }) => ReactNode` | 渲染作用域，类型跟着 `path` 推导 |
+
+> 完整说明（含 `cvaa` 成员、错误码、与 `PiyingFieldTemplate` 对比）见 [PiyingField（字段绑定）](zh/adapters/field/)。
 
 ### PiyingGroup
 
@@ -195,7 +227,7 @@ import { PiResolvedViewFieldConfig } from '@piying/view-react';
 
 ## 完整导出
 
-`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingGroup`、`PiyingWrapper`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`CVA`、`useControlValueAccessor`、`useSignalToRef`、`useEffectSync`、`use-*Model` 系列、`typedFieldComponentPipe`、`convertToField`、`ReactSchemaHandle`、`ReactFormBuilder`、`PiResolvedViewFieldConfig`。
+`PiyingView`、`PiyingFieldTemplate`、`PiyingField`、`PiyingGroup`、`PiyingWrapper`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`CVA`、`useControlValueAccessor`、`useSignalToRef`、`useEffectSync`、`use-*Model` 系列、`typedFieldComponentPipe`、`convertToField`、`ReactSchemaHandle`、`ReactFormBuilder`、`PiResolvedViewFieldConfig`。
 
 ## 下一步
 

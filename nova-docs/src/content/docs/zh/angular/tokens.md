@@ -33,7 +33,7 @@ export class MyInputComponent {
 
 ## PI_VIEW_FIELD_TEMPLATE_REF_TOKEN
 
-字段模板引用（`TemplateRef`）。在 `PiyingView` / `PiyingViewGroupBase` 中提供/注入，用于渲染字段模板。
+字段模板引用（`TemplateRef`）。在 `PiyingView` / `PiyingViewGroupBase` 中提供/注入，用于渲染字段。
 
 ## PI_COMPONENT_REF_TOKEN
 

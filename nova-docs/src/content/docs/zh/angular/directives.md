@@ -1,5 +1,5 @@
 ---
-title: "指令 — 字段模板 / 控件绑定等"
+title: "指令 — 字段渲染 / 字段绑定等"
 ---
 
 本文介绍 `@piying/view-angular` 提供的指令：`InsertFieldDirective`、`PiyingFieldTemplateDirective`、`PiyingFieldControlBindDirective`、`AttributesDirective` / `EventsDirective`。
@@ -35,7 +35,7 @@ export class MyWrapperComponent {}
 
 ## PiyingFieldTemplateDirective
 
-渲染字段模板的指令，`selector: '[fieldTemplate]'`，`standalone`，`exportAs: 'fieldTemplate'`，继承 `DynamicCreateDirective`：
+渲染字段的指令，`selector: '[fieldTemplate]'`，`standalone`，`exportAs: 'fieldTemplate'`，继承 `DynamicCreateDirective`：
 
 ```html
 <ng-container [fieldTemplate]="field" [path]="keyPath"></ng-container>
@@ -104,3 +104,6 @@ import { AttributesDirective, EventsDirective } from '@piying/view-angular';
 
 - [组件](zh/angular/components/) — PiyingView / PiyingViewGroup
 - [Angular API 参考](zh/angular/api/) — 全部公开 API 索引
+- [PiyingFieldTemplate（字段渲染）](zh/adapters/field-template/) — 跨框架的统一渲染管线
+- [PiyingField（字段绑定）](zh/adapters/field/) — 跨框架的统一字段绑定语义
+- [适配器总览](zh/adapters/) — 适配器分层与渲染链路

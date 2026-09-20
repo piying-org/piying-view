@@ -26,13 +26,34 @@ import { PiyingView } from '@piying/view-vue';
 
 ### PiyingFieldTemplate
 
-> 🧭 **Manual mode**: this belongs to mode two (manual binding) of [Two Usage Modes](en/getting-started/two-modes/). `PiyingView` is the automatic-mode entry point, while `PiyingFieldTemplate` / `PiyingFieldControlBind` / `convertToField` are the manual-binding tools of manual mode.
+> 🧭 **Manual mode**: this belongs to mode two (manual binding) of [Two Usage Modes](en/getting-started/two-modes/). `PiyingView` is the automatic-mode entry point, while `PiyingFieldTemplate` / `PiyingField` / `convertToField` are the manual-binding tools of manual mode.
 
-Renders a single field template, located by `field` / `path` (rendering inside the template stays fully automatic):
+Renders the whole "wrapper chain + component + recursive children" tree at the chosen position:
 
 ```vue
-<piying-field-template :field="field" :path="keyPath" />
+<template>
+  <!-- Render the whole root field -->
+  <PiyingFieldTemplate :field="field" />
+
+  <!-- Place only the child field k2 here -->
+  <div class="k2-slot">
+    <PiyingFieldTemplate :field="field" :path="['k2']" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { PiyingFieldTemplate, convertToField } from '@piying/view-vue';
+
+const field = convertToField(() => schema, undefined, () => options);
+</script>
 ```
+
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | The field config to render |
+| `path` | `KeyPath` (optional) | Locate a child field; omit it to render the whole root field |
+
+> Lazy loading is built in (`defineAsyncComponent` + `getLazyImport`). Full rendering pipeline and pitfalls: [PiyingFieldTemplate (Rendering)](en/adapters/field-template/).
 
 ### PiyingViewGroup
 
@@ -51,24 +72,47 @@ options = {
 };
 ```
 
-### PiyingFieldControlBind (alias Field)
+### PiyingField
 
 > 🧭 **Manual mode**: like `PiyingFieldTemplate`, this belongs to mode two (manual binding).
 
-Field control binding component: binds the field as a form control and exposes `cvaa`:
+Control binding: binds the field as a form control and exposes `cvaa`:
 
 ```vue
-<piying-field-control-bind :field="field">
-  <template #default="{ cvaa, field }">
-    <!-- custom control, bind value/events with cvaa -->
-  </template>
-</piying-field-control-bind>
+<template>
+  <PiyingField :field="field" :path="['text1']" v-slot="{ cvaa, field: f }">
+    <input
+      type="text"
+      :value="unref(cvaa.value) ?? ''"
+      :disabled="unref(cvaa.disabled)"
+      @input="(e) => cvaa.valueChange((e.target as HTMLInputElement).value)"
+      @blur="cvaa.touchedChange"
+    />
+  </PiyingField>
+</template>
+
+<script setup lang="ts">
+import { unref } from 'vue';
+import { PiyingField, convertToField } from '@piying/view-vue';
+
+const field = convertToField(() => schema, undefined, () => options);
+</script>
 ```
 
+> ⚠️ In Vue `cvaa.value` is a `ShallowRef`; slot props are not auto-unwrapped, so use `unref()`.
+
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | Field config |
+| `path` | `KeyPath` (optional) | Locate a **leaf** child field and bind that |
+| Default slot | `{ cvaa, field }` | Render scope; types follow the `path` |
+
 ```typescript
-import { PiyingFieldControlBind, Field } from '@piying/view-vue';
-// Field is an alias of PiyingFieldControlBind
+import { PiyingField, PiyingFieldControlBind } from '@piying/view-vue';
+// both refer to the same component
 ```
+
+> Full details (`cvaa` members, error codes, comparison with `PiyingFieldTemplate`): [PiyingField (Binding)](en/adapters/field/).
 
 ## Token
 
@@ -153,7 +197,7 @@ const merged = typedFieldComponentPipe(schema, typeDefine, (d) => [
 
 ### convertToField — schema conversion
 
-> 🧭 **Manual mode**: `convertToField` is the core entry point of manual mode — after obtaining `field` you must bind the render position manually with `PiyingFieldControlBind` / `PiyingFieldTemplate`. In automatic mode `PiyingView` calls it internally for you. See [Two Usage Modes](en/getting-started/two-modes/).
+> 🧭 **Manual mode**: `convertToField` is the core entry point of manual mode — after obtaining `field` you must bind the render position manually with `PiyingField` / `PiyingFieldTemplate`. In automatic mode `PiyingView` calls it internally for you. See [Two Usage Modes](en/getting-started/two-modes/).
 
 ```typescript
 import { convertToField } from '@piying/view-vue';
@@ -211,7 +255,7 @@ const copy = clone(originalObj);
 
 ## Full Exports
 
-`@piying/view-vue` exports: `PiyingView`, `PiyingFieldTemplate`, `PiyingViewGroup`, `PiyingFieldControlBind` (alias `Field`), `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToRef`, `useControlValueAccessor`, `typedComponent`, `typedFieldComponentPipe`, `convertToField`, `VueSchemaHandle`, `VueFormBuilder`, and the `VueSchema` type.
+`@piying/view-vue` exports: `PiyingView`, `PiyingFieldTemplate`, `PiyingViewGroup`, `PiyingField` (alias `PiyingFieldControlBind`), `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToRef`, `useControlValueAccessor`, `typedComponent`, `typedFieldComponentPipe`, `convertToField`, `VueSchemaHandle`, `VueFormBuilder`, and the `VueSchema` type.
 
 > **Note**: Actions such as `rawConfig` / `actions` / `setComponent` must be imported from `@piying/view-core`; `@piying/view-vue` does not export them.
 

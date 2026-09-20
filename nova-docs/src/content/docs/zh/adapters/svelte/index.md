@@ -27,7 +27,9 @@ title: 'Svelte 包 API 参考（@piying/view-svelte）'
 
 ### PiyingFieldTemplate
 
-渲染字段模板：
+> 🧭 **手动模式**：属于 [两种使用模式](zh/getting-started/two-modes/) 中的模式二。只手动**渲染位置**，字段内部仍全自动渲染。
+
+把「包装器链 + 组件 + 递归子字段」整棵树渲染到指定位置：
 
 ```svelte
 <script>
@@ -37,19 +39,45 @@ title: 'Svelte 包 API 参考（@piying/view-svelte）'
 <PiyingFieldTemplate {field} {path} />
 ```
 
-### Field
+| Props | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig`（必填） | 要渲染的字段配置 |
+| `path` | `KeyPath`（可选） | 定位子字段；不传则渲染整个根字段 |
 
-字段控件绑定组件，将字段绑定为表单控件并暴露 `cvaa`：
+> 完整渲染管线、懒加载与常见坑见 [PiyingFieldTemplate（字段渲染）](zh/adapters/field-template/)。
+
+### PiyingField
+
+> 🧭 **手动模式**：同 `PiyingFieldTemplate`，属于模式二（手动绑定）。
+
+字段绑定：把字段的 `FieldControl` 接到**你手写的控件**上，通过 `children` snippet 暴露 `cvaa` / `field`：
 
 ```svelte
-<script>
-  import { Field } from '@piying/view-svelte';
+<script lang="ts">
+  import { PiyingField } from '@piying/view-svelte';
+  let { field } = $props();
 </script>
 
-<Field {field}>
-  <!-- 通过 slot props 获取 cvaa / field -->
-</Field>
+<PiyingField {field} path={['text1']}>
+  {#snippet children(cvaa, f)}
+    <input
+      type="text"
+      value={cvaa.value ?? ''}
+      disabled={cvaa.disabled}
+      oninput={(e) => cvaa.valueChange(e.currentTarget.value)}
+      onblur={cvaa.touchedChange}
+    />
+  {/snippet}
+</PiyingField>
 ```
+
+| Props | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig`（必填） | 字段配置 |
+| `path` | `KeyPath`（可选） | 定位**叶子**子字段再绑定 |
+| `children` | `(cvaa, field) => any` | snippet 参数，类型跟着 `path` 推导 |
+
+> 完整说明（含 `cvaa` 成员、错误码、与 `PiyingFieldTemplate` 对比）见 [PiyingField（字段绑定）](zh/adapters/field/)。
 
 ### PiyingViewGroup
 
@@ -183,7 +211,7 @@ import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
 
 ## 完整导出
 
-`@piying/view-svelte` 导出：`PiyingView`、`PiyingFieldTemplate`、`Field`、`PiyingViewGroup`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToState`、`useControlValueAccessor`、`typedFieldComponentPipe`、`convertToField`、`SvelteSchemaHandle`、`SvelteFormBuilder`、`PiResolvedViewFieldConfig`。
+`@piying/view-svelte` 导出：`PiyingView`、`PiyingFieldTemplate`、`PiyingField`、`PiyingViewGroup`、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToState`、`useControlValueAccessor`、`typedFieldComponentPipe`、`convertToField`、`SvelteSchemaHandle`、`SvelteFormBuilder`、`PiResolvedViewFieldConfig`。
 
 ## 下一步
 

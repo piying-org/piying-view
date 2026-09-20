@@ -44,19 +44,51 @@ import { PiyingView } from '@piying/view-react';
 
 ### PiyingFieldTemplate
 
-Renders a field template:
+> 🧭 **Manual mode**: belongs to mode two of [Two Usage Modes](en/getting-started/two-modes/). Only the **render position** is manual; the field still renders fully automatically inside.
+
+Renders the whole "wrapper chain + component + recursive children" tree at the chosen position:
 
 ```tsx
 import { PiyingFieldTemplate } from '@piying/view-react';
+
+<PiyingFieldTemplate field={field} path={['k2']} />;
 ```
 
-### Field
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | The field config to render |
+| `path` | `KeyPath` (optional) | Locate a child field; omit it to render the whole root field |
 
-Field control binding component (binds a field as a form control):
+> Full rendering pipeline, lazy loading and pitfalls: [PiyingFieldTemplate (Rendering)](en/adapters/field-template/).
+
+### PiyingField
+
+> 🧭 **Manual mode**: like `PiyingFieldTemplate`, this belongs to mode two (manual binding).
+
+Control binding component: connects the field's `FieldControl` to **a control you wrote yourself**, exposing `cvaa` / `field` through a `children` render function:
 
 ```tsx
-import { Field } from '@piying/view-react';
+import { PiyingField } from '@piying/view-react';
+
+<PiyingField field={field} path={['text1']}>
+  {({ cvaa }) => (
+    <input
+      value={cvaa.value ?? ''}
+      disabled={cvaa.disabled}
+      onChange={(e) => cvaa.valueChange(e.target.value)}
+      onBlur={cvaa.touchedChange}
+    />
+  )}
+</PiyingField>;
 ```
+
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | Field config |
+| `path` | `KeyPath` (optional) | Locate a **leaf** child field and bind that |
+| `children` | `({ cvaa, field }) => ReactNode` | Render scope; types follow the `path` |
+
+> Full details (`cvaa` members, error codes, comparison with `PiyingFieldTemplate`): [PiyingField (Binding)](en/adapters/field/).
 
 ### PiyingGroup
 
@@ -195,7 +227,7 @@ import { PiResolvedViewFieldConfig } from '@piying/view-react';
 
 ## Full Exports
 
-`PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `useSignalToRef`, `useEffectSync`, the `use-*Model` family, `typedFieldComponentPipe`, `convertToField`, `ReactSchemaHandle`, `ReactFormBuilder`, `PiResolvedViewFieldConfig`.
+`PiyingView`, `PiyingFieldTemplate`, `PiyingField`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `useSignalToRef`, `useEffectSync`, the `use-*Model` family, `typedFieldComponentPipe`, `convertToField`, `ReactSchemaHandle`, `ReactFormBuilder`, `PiResolvedViewFieldConfig`.
 
 ## Next Steps
 

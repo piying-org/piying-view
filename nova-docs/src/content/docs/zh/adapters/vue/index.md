@@ -26,13 +26,34 @@ import { PiyingView } from '@piying/view-vue';
 
 ### PiyingFieldTemplate
 
-> 🧭 **手动模式**：属于 [两种使用模式](zh/getting-started/two-modes/) 中的模式二（手动绑定）。`PiyingView` 是自动模式入口，而 `PiyingFieldTemplate` / `PiyingFieldControlBind` / `convertToField` 是手动模式的手动绑定工具。
+> 🧭 **手动模式**：属于 [两种使用模式](zh/getting-started/two-modes/) 中的模式二（手动绑定）。`PiyingView` 是自动模式入口，而 `PiyingFieldTemplate` / `PiyingField` / `convertToField` 是手动模式的手动绑定工具。
 
-渲染单个字段模板，通过 `field` / `path` 定位（模板内部仍全自动渲染）：
+渲染字段（组件 + 包装器链 + 递归子字段），通过 `field` / `path` 定位，渲染到指定位置：
 
 ```vue
-<piying-field-template :field="field" :path="keyPath" />
+<template>
+  <!-- 渲染整个根字段 -->
+  <PiyingFieldTemplate :field="field" />
+
+  <!-- 只把子字段 k2 摆到这里 -->
+  <div class="k2-slot">
+    <PiyingFieldTemplate :field="field" :path="['k2']" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { PiyingFieldTemplate, convertToField } from '@piying/view-vue';
+
+const field = convertToField(() => schema, undefined, () => options);
+</script>
 ```
+
+| Props | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig`（必填） | 要渲染的字段配置 |
+| `path` | `KeyPath`（可选） | 定位子字段；不传则渲染整个根字段 |
+
+> 懒加载内置支持（`defineAsyncComponent` + `getLazyImport`）。完整渲染管线与常见坑见 [PiyingFieldTemplate（字段渲染）](zh/adapters/field-template/)。
 
 ### PiyingViewGroup
 
@@ -51,24 +72,47 @@ options = {
 };
 ```
 
-### PiyingFieldControlBind（别名 Field）
+### PiyingField
 
 > 🧭 **手动模式**：同 `PiyingFieldTemplate`，属于模式二（手动绑定）。
 
-字段控件绑定组件，将字段绑定为表单控件并暴露 `cvaa`：
+字段绑定，将字段绑定为表单控件并暴露 `cvaa`：
 
 ```vue
-<piying-field-control-bind :field="field">
-  <template #default="{ cvaa, field }">
-    <!-- 自定义控件，使用 cvaa 绑定值/事件 -->
-  </template>
-</piying-field-control-bind>
+<template>
+  <PiyingField :field="field" :path="['text1']" v-slot="{ cvaa, field: f }">
+    <input
+      type="text"
+      :value="unref(cvaa.value) ?? ''"
+      :disabled="unref(cvaa.disabled)"
+      @input="(e) => cvaa.valueChange((e.target as HTMLInputElement).value)"
+      @blur="cvaa.touchedChange"
+    />
+  </PiyingField>
+</template>
+
+<script setup lang="ts">
+import { unref } from 'vue';
+import { PiyingField, convertToField } from '@piying/view-vue';
+
+const field = convertToField(() => schema, undefined, () => options);
+</script>
 ```
 
+> ⚠️ Vue 的 `cvaa.value` 是 `ShallowRef`，插槽里不会自动解包，需要 `unref()`。
+
+| Props | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig`（必填） | 字段配置 |
+| `path` | `KeyPath`（可选） | 定位**叶子**子字段再绑定 |
+| 默认插槽 | `{ cvaa, field }` | 渲染作用域，类型跟着 `path` 推导 |
+
 ```typescript
-import { PiyingFieldControlBind, Field } from '@piying/view-vue';
-// Field 是 PiyingFieldControlBind 的别名
+import { PiyingField, PiyingFieldControlBind } from '@piying/view-vue';
+// 两者指向同一组件
 ```
+
+> 完整说明（含 `cvaa` 成员、错误码、与 `PiyingFieldTemplate` 对比）见 [PiyingField（字段绑定）](zh/adapters/field/)。
 
 ## Token
 
@@ -153,7 +197,7 @@ const merged = typedFieldComponentPipe(schema, typeDefine, (d) => [
 
 ### convertToField — Schema 转换
 
-> 🧭 **手动模式**：`convertToField` 是手动模式的核心入口，返回 `field` 后需用 `PiyingFieldControlBind` / `PiyingFieldTemplate` 手动绑定渲染位置。自动模式中 `PiyingView` 会在内部自动调用它，无需手动使用。详见 [两种使用模式](zh/getting-started/two-modes/)。
+> 🧭 **手动模式**：`convertToField` 是手动模式的核心入口，返回 `field` 后需用 `PiyingField` / `PiyingFieldTemplate` 手动绑定渲染位置。自动模式中 `PiyingView` 会在内部自动调用它，无需手动使用。详见 [两种使用模式](zh/getting-started/two-modes/)。
 
 ```typescript
 import { convertToField } from '@piying/view-vue';
@@ -211,7 +255,7 @@ const copy = clone(originalObj);
 
 ## 完整导出
 
-`@piying/view-vue` 导出：`PiyingView`、`PiyingFieldTemplate`、`PiyingViewGroup`、`PiyingFieldControlBind`（别名 `Field`）、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToRef`、`useControlValueAccessor`、`typedComponent`、`typedFieldComponentPipe`、`convertToField`、`VueSchemaHandle`、`VueFormBuilder`、`VueSchema` 类型。
+`@piying/view-vue` 导出：`PiyingView`、`PiyingFieldTemplate`、`PiyingViewGroup`、`PiyingField`（别名 `PiyingFieldControlBind`）、`PI_VIEW_FIELD_TOKEN`、`InjectorToken`、`signalToRef`、`useControlValueAccessor`、`typedComponent`、`typedFieldComponentPipe`、`convertToField`、`VueSchemaHandle`、`VueFormBuilder`、`VueSchema` 类型。
 
 > **注意**：`rawConfig` / `actions` / `setComponent` 等 Action 需从 `@piying/view-core` 导入，`@piying/view-vue` 不导出。
 

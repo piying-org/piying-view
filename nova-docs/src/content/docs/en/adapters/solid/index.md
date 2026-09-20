@@ -44,19 +44,51 @@ import { PiyingView } from '@piying/view-solid';
 
 ### PiyingFieldTemplate
 
-Renders a field template:
+> 🧭 **Manual mode**: belongs to mode two of [Two Usage Modes](en/getting-started/two-modes/). Only the **render position** is manual; the field still renders fully automatically inside.
+
+Renders the whole "wrapper chain + component + recursive children" tree at the chosen position:
 
 ```tsx
 import { PiyingFieldTemplate } from '@piying/view-solid';
+
+<PiyingFieldTemplate field={field} path={['k2']} />;
 ```
 
-### Field
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | The field config to render |
+| `path` | `KeyPath` (optional) | Locate a child field; omit it to render the whole root field |
 
-Field control binding component (binds a field as a form control):
+> Full rendering pipeline, lazy loading and pitfalls: [PiyingFieldTemplate (Rendering)](en/adapters/field-template/).
+
+### PiyingField
+
+> 🧭 **Manual mode**: like `PiyingFieldTemplate`, this belongs to mode two (manual binding).
+
+Control binding component: connects the field's `FieldControl` to **a control you wrote yourself**, exposing `cvaa` / `field` through a `children` render function:
 
 ```tsx
-import { Field } from '@piying/view-solid';
+import { PiyingField } from '@piying/view-solid';
+
+<PiyingField field={field} path={['text1']}>
+  {({ cvaa }) => (
+    <input
+      value={cvaa.value() ?? ''}
+      disabled={cvaa.disabled()}
+      onInput={(e) => cvaa.valueChange(e.currentTarget.value)}
+      onBlur={cvaa.touchedChange}
+    />
+  )}
+</PiyingField>;
 ```
+
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | Field config |
+| `path` | `KeyPath` (optional) | Locate a **leaf** child field and bind that |
+| `children` | `({ cvaa, field }) => JSX.Element` | Render scope; types follow the `path` |
+
+> Full details (`cvaa` members, error codes, comparison with `PiyingFieldTemplate`): [PiyingField (Binding)](en/adapters/field/).
 
 ### PiyingGroup
 
@@ -188,7 +220,7 @@ import { PiResolvedViewFieldConfig } from '@piying/view-solid';
 
 ## Full Exports
 
-`PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `createSignalConvert`, `useEffectSync`, the `use-*Model` family, `typedFieldComponentPipe`, `convertToField`, `SolidSchemaHandle`, `SolidFormBuilder`, `PiResolvedViewFieldConfig`.
+`PiyingView`, `PiyingFieldTemplate`, `PiyingField`, `PiyingGroup`, `PiyingWrapper`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `CVA`, `useControlValueAccessor`, `createSignalConvert`, `useEffectSync`, the `use-*Model` family, `typedFieldComponentPipe`, `convertToField`, `SolidSchemaHandle`, `SolidFormBuilder`, `PiResolvedViewFieldConfig`.
 
 ## Next Steps
 

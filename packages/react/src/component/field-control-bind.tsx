@@ -20,7 +20,7 @@ export interface FieldControlBindProps<
   children: (props: FieldControlBindScope<S, P>) => React.ReactNode;
 }
 
-export function Field<
+export function PiyingField<
   S extends PiResolvedViewFieldConfig = PiResolvedViewFieldConfig,
   P extends KeyPath = [],
 >(props: FieldControlBindProps<S, P>) {
@@ -66,3 +66,6 @@ export function Field<
     field: resolvedField as unknown as FieldControlBindScope<S, P>['field'],
   });
 }
+
+/** @deprecated 已废弃，请使用 {@link PiyingField} */
+export const Field = PiyingField;

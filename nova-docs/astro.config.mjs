@@ -345,6 +345,23 @@ export default defineConfig({
           translations: { en: 'Framework Adapters' },
           items: [
             {
+              label: '适配器与渲染组件',
+              translations: { en: 'Adapter & Rendering Components' },
+              items: [
+                nav('适配器总览', 'Adapter Overview', '/adapters/'),
+                nav(
+                  'PiyingField（字段绑定）',
+                  'PiyingField (Binding)',
+                  '/adapters/field/',
+                ),
+                nav(
+                  'PiyingFieldTemplate（字段渲染）',
+                  'PiyingFieldTemplate (Rendering)',
+                  '/adapters/field-template/',
+                ),
+              ],
+            },
+            {
               label: 'Vue',
               items: [
                 nav('包 API 参考', 'Package API', '/adapters/vue/'),

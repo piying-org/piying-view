@@ -27,7 +27,9 @@ This page documents the public API of the Svelte package `@piying/view-svelte`. 
 
 ### PiyingFieldTemplate
 
-Renders a field template:
+> 🧭 **Manual mode**: belongs to mode two of [Two Usage Modes](en/getting-started/two-modes/). Only the **render position** is manual; the field still renders fully automatically inside.
+
+Renders the whole "wrapper chain + component + recursive children" tree at the chosen position:
 
 ```svelte
 <script>
@@ -37,19 +39,45 @@ Renders a field template:
 <PiyingFieldTemplate {field} {path} />
 ```
 
-### Field
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | The field config to render |
+| `path` | `KeyPath` (optional) | Locate a child field; omit it to render the whole root field |
 
-Field control binding component: binds the field as a form control and exposes `cvaa`:
+> Full rendering pipeline, lazy loading and pitfalls: [PiyingFieldTemplate (Rendering)](en/adapters/field-template/).
+
+### PiyingField
+
+> 🧭 **Manual mode**: like `PiyingFieldTemplate`, this belongs to mode two (manual binding).
+
+Control binding component: connects the field's `FieldControl` to **a control you wrote yourself**, exposing `cvaa` / `field` through a `children` snippet:
 
 ```svelte
-<script>
-  import { Field } from '@piying/view-svelte';
+<script lang="ts">
+  import { PiyingField } from '@piying/view-svelte';
+  let { field } = $props();
 </script>
 
-<Field {field}>
-  <!-- get cvaa / field through slot props -->
-</Field>
+<PiyingField {field} path={['text1']}>
+  {#snippet children(cvaa, f)}
+    <input
+      type="text"
+      value={cvaa.value ?? ''}
+      disabled={cvaa.disabled}
+      oninput={(e) => cvaa.valueChange(e.currentTarget.value)}
+      onblur={cvaa.touchedChange}
+    />
+  {/snippet}
+</PiyingField>
 ```
+
+| Props | Type | Description |
+| --- | --- | --- |
+| `field` | `PiResolvedViewFieldConfig` (required) | Field config |
+| `path` | `KeyPath` (optional) | Locate a **leaf** child field and bind that |
+| `children` | `(cvaa, field) => any` | Snippet parameters; types follow the `path` |
+
+> Full details (`cvaa` members, error codes, comparison with `PiyingFieldTemplate`): [PiyingField (Binding)](en/adapters/field/).
 
 ### PiyingViewGroup
 
@@ -184,7 +212,7 @@ import type { PiResolvedViewFieldConfig } from '@piying/view-svelte';
 
 ## Full Exports
 
-`@piying/view-svelte` exports: `PiyingView`, `PiyingFieldTemplate`, `Field`, `PiyingViewGroup`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToState`, `useControlValueAccessor`, `typedFieldComponentPipe`, `convertToField`, `SvelteSchemaHandle`, `SvelteFormBuilder`, `PiResolvedViewFieldConfig`.
+`@piying/view-svelte` exports: `PiyingView`, `PiyingFieldTemplate`, `PiyingField`, `PiyingViewGroup`, `PI_VIEW_FIELD_TOKEN`, `InjectorToken`, `signalToState`, `useControlValueAccessor`, `typedFieldComponentPipe`, `convertToField`, `SvelteSchemaHandle`, `SvelteFormBuilder`, `PiResolvedViewFieldConfig`.
 
 ## Next Steps
 

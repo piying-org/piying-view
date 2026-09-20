@@ -1,5 +1,5 @@
 ---
-title: "Directives — Field Template / Control Binding and More"
+title: "Directives — Field Rendering / Field Binding and More"
 ---
 
 This page covers the directives provided by `@piying/view-angular`: `InsertFieldDirective`, `PiyingFieldTemplateDirective`, `PiyingFieldControlBindDirective`, `AttributesDirective` / `EventsDirective`.
@@ -104,3 +104,6 @@ import { AttributesDirective, EventsDirective } from '@piying/view-angular';
 
 - [Components](en/angular/components/) — PiyingView / PiyingViewGroup
 - [Angular API Reference](en/angular/api/) — index of all public APIs
+- [PiyingFieldTemplate (Rendering)](en/adapters/field-template/) — the cross-framework rendering pipeline
+- [PiyingField (Binding)](en/adapters/field/) — the cross-framework binding semantics
+- [Adapter Overview](en/adapters/) — adapter layering and the rendering chain

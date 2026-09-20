@@ -2,8 +2,10 @@ import PiyingView from './component/piying-view.svelte';
 export { PiyingView };
 import PiyingFieldTemplate from './component/field-template.svelte';
 export { PiyingFieldTemplate };
-import Field from './component/field-control-bind.svelte';
-export { Field };
+import PiyingField from './component/field-control-bind.svelte';
+export { PiyingField };
+/** @deprecated 已废弃，请使用 {@link PiyingField} */
+export const Field = PiyingField;
 import PiyingViewGroup from './component/group.svelte';
 export { PiyingViewGroup };
 export * from './type';
