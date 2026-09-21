@@ -1,3 +1,9 @@
+## [2.16.14](https://github.com/piying-org/piying-view/compare/2.16.13...2.16.14) (2026-09-21)
+
+### Bug Fixes
+
+* schema default component ([887bb6f](https://github.com/piying-org/piying-view/commit/887bb6fdcf6c180ef3bf095efe73d8ef66eeb759))
+
 ## [2.16.13](https://github.com/piying-org/piying-view/compare/2.16.12...2.16.13) (2026-09-20)
 
 ### Bug Fixes
