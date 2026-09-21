@@ -69,7 +69,8 @@ export function parseAssertions(text: string): Assertion[] {
 
     const sp = head.indexOf(' ');
     const keyword = sp < 0 ? head : head.slice(0, sp);
-    const name = (sp < 0 ? '' : head.slice(sp + 1)).trim() || `(未命名 @${keyword})`;
+    const name =
+      (sp < 0 ? '' : head.slice(sp + 1)).trim() || `(未命名 @${keyword})`;
 
     // 收集紧随其后的 "key: value" 子注释行
     const props = new Map<string, string>();

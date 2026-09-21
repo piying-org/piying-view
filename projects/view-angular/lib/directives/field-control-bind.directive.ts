@@ -28,7 +28,7 @@ export class PiyingFieldControlBindDirective<
   P extends KeyPath = [],
 > extends FieldControlBase {
   formControl = input.required<S>();
-  path = input<[...P]| PiFieldBindPath<S>>();
+  path = input<[...P] | PiFieldBindPath<S>>();
 
   /** 运行时解析结果(宽松类型), 供内部逻辑使用 */
   #resolved = computed<_PiResolvedCommonViewFieldConfig | undefined>(() => {

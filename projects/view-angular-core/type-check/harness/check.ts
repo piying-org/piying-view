@@ -40,9 +40,7 @@ function checkExpectError(
   a: ExpectErrorAssertion,
   checker: FileChecker,
 ): CaseResult {
-  const hits = checker
-    .diagnostics()
-    .filter((d) => d.line === a.line);
+  const hits = checker.diagnostics().filter((d) => d.line === a.line);
   const matched = a.pattern
     ? hits.filter((d) => d.message.includes(a.pattern as string))
     : hits;

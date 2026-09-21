@@ -35,7 +35,9 @@ const files = findCaseFiles(casesDir).filter(
 );
 
 if (!files.length) {
-  console.error(`没找到用例文件 (${casesDir}${filter ? ` 过滤: ${filter}` : ''})`);
+  console.error(
+    `没找到用例文件 (${casesDir}${filter ? ` 过滤: ${filter}` : ''})`,
+  );
   process.exit(1);
 }
 

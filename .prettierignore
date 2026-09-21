@@ -1,0 +1,4 @@
+# 补全/诊断 fixture: 游标 `<|>` 是故意非正常代码
+# (对象 key 位置缺 value 是真语法错误), TS LanguageService 容错吃得下所以补全正常,
+# prettier 吃不下 —— 格式化工具给测试让路, 不要为了它把测试输入改得不自然
+projects/view-angular-core/type-check/cases/**

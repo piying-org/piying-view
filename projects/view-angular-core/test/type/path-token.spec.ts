@@ -96,7 +96,8 @@ describe('强类型推断: get 路径补全 token', () => {
 
     expect(ok1.length + ok2.length).toBe(8);
     expect(
-      [bad1 as unknown, bad2 as unknown, bad3 as unknown, bad4 as unknown].length,
+      [bad1 as unknown, bad2 as unknown, bad3 as unknown, bad4 as unknown]
+        .length,
     ).toBe(4);
   });
 
@@ -127,9 +128,9 @@ describe('强类型推断: get 路径补全 token', () => {
     expect(viaHashEq).toBe(true);
 
     // 带后续路径照常下钻
-    expect(builder.get(['#', 'nested', 'deep', 'cc'])!.form.control!.value).toBe(
-      'v3',
-    );
+    expect(
+      builder.get(['#', 'nested', 'deep', 'cc'])!.form.control!.value,
+    ).toBe('v3');
     // '#' 不在第 0 位: 字面量元组被类型拦住,
     // 但运行时不约束 —— 走通用 KeyPath 依旧能解出根字段
     const midHash: KeyPath = ['nested', '#'];

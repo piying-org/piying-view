@@ -8,7 +8,7 @@ import type {
   KeyPath,
   PiCommonConfig,
   PiTypeConfig,
-  SchemaTypeAt,
+  ComponentKeyAt,
   TightenEmpty,
   TypedComponentActionFactoriesOf,
   TypesOf,
@@ -92,20 +92,24 @@ export type ComponentOf<Cfg, K> = K extends keyof TypesOf<Cfg>
   : K;
 
 /**
- * 省略 component 时的默认组件: 拿该路径 schema 的 `type` 去配置的 `types` 里查。
+ * 省略 component 时的默认组件。
  *
- * 没注册时落到 never(= 宽松表), 而不是把 'string' 这种字串当成组件传下去 ——
- * 后者会让表退化成 `Record<string, never>` 把 input/output 封死。
+ * - string 标识: 拿它去配置的 `types` 里查, 没注册时落到 never(= 宽松表),
+ *   而不是把 'string' 这种字串当成组件传下去 ——
+ *   后者会让表退化成 `Record<string, never>` 把 input/output 封死;
+ * - 非 string 标识(`setComponent(组件类)`): 运行时不查配置, 这里直接把组件类用上。
  */
-type DefaultComponentOf<Cfg, K extends string> = K extends keyof TypesOf<Cfg>
-  ? ComponentOf<Cfg, K>
-  : never;
+type DefaultComponentOf<Cfg, K> = K extends string
+  ? K extends keyof TypesOf<Cfg>
+    ? ComponentOf<Cfg, K>
+    : never
+  : K;
 
 type DefaultTables<
   Root extends v.BaseSchema<any, any, any>,
   Cfg,
   P extends KeyPath,
-> = TablesOfComponent<DefaultComponentOf<Cfg, SchemaTypeAt<Root, P>>>;
+> = TablesOfComponent<DefaultComponentOf<Cfg, ComponentKeyAt<Root, P>>>;
 
 /**
  * 定义单条 entry: 路径 + 组件 + 该路径下的 actions。

@@ -47,7 +47,9 @@ export function createFileChecker(
     getScriptVersion: () => '1',
     getScriptSnapshot: (f) => {
       const content = norm(f) === key ? text : ts.sys.readFile(f);
-      return content === undefined ? undefined : ts.ScriptSnapshot.fromString(content);
+      return content === undefined
+        ? undefined
+        : ts.ScriptSnapshot.fromString(content);
     },
     getCurrentDirectory: () => currentDir,
     getCompilationSettings: () => options,
@@ -70,13 +72,11 @@ export function createFileChecker(
       return (info?.entries ?? []).map((e) => e.name).sort();
     },
     diagnostics: () =>
-      program
-        .getSemanticDiagnostics(sf)
-        .map((d) => ({
-          start: d.start ?? 0,
-          line: sf ? sf.getLineAndCharacterOfPosition(d.start ?? 0).line + 1 : 0,
-          message: ts.flattenDiagnosticMessageText(d.messageText, ' '),
-        })),
+      program.getSemanticDiagnostics(sf).map((d) => ({
+        start: d.start ?? 0,
+        line: sf ? sf.getLineAndCharacterOfPosition(d.start ?? 0).line + 1 : 0,
+        message: ts.flattenDiagnosticMessageText(d.messageText, ' '),
+      })),
     dispose: () => service.dispose(),
   };
 }

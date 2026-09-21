@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  output,
+  signal,
+} from '@angular/core';
 import * as v from 'valibot';
 import { NFCSchema, type PiFieldAtPath } from '@piying/view-angular-core';
 import { typedComponent } from '../lib/util/typed-component';

@@ -195,8 +195,8 @@ export interface CompModelActionsFactory<
 /**
  * outputChange 的单条监听项: 只有「监听自身(list 缺省)」才锁 output 名。
  *
- * 跨字段时 list 只是 schema 路径, 类型层拿不到目标组件
- * (`setComponent('radio')` 的 key 没进类型, 字段类型上的组件位是 any),
+ * 跨字段时 list 只是 schema 路径, 目标组件还可能被那条 entry 显式改写
+ * (d(['other'], 'otherComp', [...]) 这种写法从当前字段类型里看不全),
  * 硬按本条 entry 的组件约束会误报, 所以放开成 string。
  */
 export type CompOutputChangeEntry<F, OutputName extends string = string> =
@@ -352,6 +352,85 @@ export type CompActionFactoriesOf<
 /** 兼容直接传 fieldGlobalConfig, 也兼容 typedComponent() 的返回值 */
 export type UnwrapConfig<C> = C extends { define: infer D } ? D : C;
 
+/** `setComponent('xxx')` 落到 schema 上的就是 valibot-visit 的 defineType 动作 */
+type DefineTypeShape = {
+  readonly type: 'defineType';
+  readonly value: string;
+};
+
+/**
+ * `setComponent(组件类)` 走的是 rawConfig 分支, 组件本身留在 `__type` 上。
+ *
+ * 运行时 builder 对非 string 的 `field.type` 不查配置, 直接拿来当组件用。
+ */
+type ComponentInstanceShape = {
+  readonly __type: unknown;
+};
+
+/**
+ * 显式组件标识的包装, rank 表达跨形态优先级。
+ *
+ * 运行时 `#getDefineType`(处理 string 版 defineType) 先跑, 组件类走的 `rawConfig`
+ * 要到 initMetadata 才执行, 所以**组件类总是盖过 string, 与书写顺序无关**;
+ * 同一形态内部仍是后写覆盖先写。
+ */
+type NoExplicitKey = {
+  readonly rank: -1;
+  readonly key: never;
+};
+type StringKey<K extends string> = {
+  readonly rank: 0;
+  readonly key: K;
+};
+type ClassKey<C> = {
+  readonly rank: 1;
+  readonly key: C;
+};
+
+type RankOf<T> = T extends { readonly rank: infer R } ? R : -1;
+
+/** 两个候选取优: rank 大者胜, 同 rank 取 a(在 pipe 里更靠尾) */
+type BetterKey<A, B> = [RankOf<A>] extends [1]
+  ? A
+  : [RankOf<B>] extends [1]
+    ? B
+    : [RankOf<A>] extends [0]
+      ? A
+      : [RankOf<B>] extends [0]
+        ? B
+        : A;
+
+/**
+ * 只找「显式写下的组件标识」(setComponent), 找不到返回 NoExplicitKey。
+ *
+ * 与运行时同构: pipe 成员、wrapped 内层都要往里看, 但绝不回落到 schema 自身的 `type`。
+ */
+type ExplicitComponentKeyOf<S> = S extends ComponentInstanceShape
+  ? ClassKey<S['__type']>
+  : S extends DefineTypeShape
+    ? StringKey<S['value']>
+    : S extends VsPipeHost
+      ? PipeOf<S> extends readonly unknown[]
+        ? ExplicitComponentKeyInPipe<PipeOf<S>>
+        : NoExplicitKey
+      : S extends VsWrappedHost
+        ? ExplicitComponentKeyOf<WrappedOf<S>>
+        : NoExplicitKey;
+
+/** 从尾往头扫, 同 rank 时尾部那个赢 */
+type ExplicitComponentKeyInPipe<P extends readonly unknown[]> =
+  P extends readonly [...infer Rest, infer Last]
+    ? BetterKey<ExplicitComponentKeyOf<Last>, ExplicitComponentKeyInPipe<Rest>>
+    : NoExplicitKey;
+
+/** 没有 setComponent 时, 才回落到 schema 节点自身的 `type` */
+type BuiltinTypeOf<S> =
+  PlainSchemaOf<S> extends { readonly type: infer T }
+    ? T extends string
+      ? T
+      : never
+    : never;
+
 /**
  * 剥到「决定 type 的那一层」, 与 valibot-visit 的 flatSchema + defineSchema 对齐:
  * - pipe 只看首成员, 其余成员是校验/转换, 不参与 type;
@@ -370,19 +449,40 @@ type PlainSchemaOf<S> = S extends VsPipeHost
     : S;
 
 /**
- * 该路径 schema 节点的「运行时 type」, 也就是配置 `types` 的默认 key。
+ * 显式 setComponent 优先, 否则用 schema 自身的 type。
+ * 先用 infer 把递归结果落一次, 避免同一个递归类型被求值两次。
+ */
+type ComponentKeyOfNode<S> =
+  ExplicitComponentKeyOf<S> extends infer E
+    ? [E] extends [NoExplicitKey]
+      ? BuiltinTypeOf<S>
+      : E extends { readonly key: infer K }
+        ? K
+        : never
+    : never;
+
+/**
+ * 该路径最终生效的「组件标识」:
+ * - `setComponent('radio')` -> 'radio', 运行时拿它去 `globalConfig.types` 查组件;
+ * - `setComponent(SomeComponent)` -> SomeComponent, 运行时不查配置直接用它;
+ * - 都没写 -> schema 自身的 `type`(如 'string')。
+ */
+export type ComponentKeyAt<
+  Root extends v.BaseSchema<any, any, any>,
+  P extends KeyPath,
+> = ComponentKeyOfNode<PiFieldScopeOf<PiFieldAtPath<Root, P>>['schema']>;
+
+/**
+ * 该路径的 string 型组件 key, 也就是配置 `types` 的 key。
  *
- * 运行时 `builder` 就是拿 `field.type` 去 `globalConfig.types` 里查组件,
- * 而 `field.type` 直接来自 schema 节点的 `type` 字段(见 defineSchema)。
- * 所以「不指定组件」时, 类型层用同一个值去查配置, 两边不会跑偏。
+ * `setComponent(组件类)` 这种不查配置的形态在这里落到 never,
+ * 需要完整标识(含组件类)时用 `ComponentKeyAt`。
  */
 export type SchemaTypeAt<
   Root extends v.BaseSchema<any, any, any>,
   P extends KeyPath,
 > =
-  PlainSchemaOf<PiFieldScopeOf<PiFieldAtPath<Root, P>>['schema']> extends {
-    readonly type: infer T;
-  }
+  ComponentKeyAt<Root, P> extends infer T
     ? T extends string
       ? T
       : never

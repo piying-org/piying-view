@@ -100,7 +100,9 @@ export type AnyOutputListenList<OutputName extends string = string> =
 export type AnyOutputsHandlerMap = Record<string, (...args: any[]) => any>;
 
 /** 监听项 E -> 它监听的 output 名 */
-type OutputNameOf<E> = E extends { output: infer N extends string } ? N : string;
+type OutputNameOf<E> = E extends { output: infer N extends string }
+  ? N
+  : string;
 
 /** output 名 -> 该 output 被 emit 时的参数元组 */
 type EmitArgsOf<Outputs, Name> = Name extends keyof Outputs

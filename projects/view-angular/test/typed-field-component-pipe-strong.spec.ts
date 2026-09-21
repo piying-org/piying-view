@@ -486,9 +486,7 @@ describe('强类型改造 - models (#13)', () => {
       d(['e'], 'models1', [
         d.models.patch({ input1: signal(0), input2: signal(0) }),
       ]),
-      d(['e'], 'models1', [
-        d.models.patchAsync({ input1: () => signal(0) }),
-      ]),
+      d(['e'], 'models1', [d.models.patchAsync({ input1: () => signal(0) })]),
       d(['e'], 'models1', [d.models.remove(['input1', 'input2'])]),
     ]);
 
@@ -539,9 +537,7 @@ describe('强类型改造 - wrappers key (#14)', () => {
       d(['num'], 'test1', [d.wrappers.set(['wrapper1'])]),
       d(['num'], 'test1', [d.wrappers.patch(['wrapper1'])]),
       d(['num'], 'test1', [d.wrappers.remove(['wrapper1'])]),
-      d(['num'], 'test1', [
-        d.wrappers.set([{ type: Wrapper1Component }]),
-      ]),
+      d(['num'], 'test1', [d.wrappers.set([{ type: Wrapper1Component }])]),
     ]);
 
     const bad = typedFieldComponentPipe(numOnly, wrapperDefine, (d) => [

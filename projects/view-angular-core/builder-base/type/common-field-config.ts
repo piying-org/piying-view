@@ -340,10 +340,10 @@ type GetResult<
       [R] extends [never]
       ? never
       : R extends [
-          infer SelfSchema,
-          infer ResultParentSchema,
-          infer ResultAliasMap,
-        ]
+            infer SelfSchema,
+            infer ResultParentSchema,
+            infer ResultAliasMap,
+          ]
         ? _PiResolvedCommonViewFieldConfig<
             SelfSchema,
             RootSchema,
@@ -364,15 +364,12 @@ type GetFound<
   AliasMap,
   W extends readonly unknown[],
 > = [
-  AllTokensValid<
-    W,
-    GetPathToken<Schema, RootSchema, ParentSchema, AliasMap>
-  >,
+  AllTokensValid<W, GetPathToken<Schema, RootSchema, ParentSchema, AliasMap>>,
 ] extends [false]
   ? never
   : [
-      BalanceOk<ToKeyPath<W>, UpBudget<Schema, RootSchema, ParentSchema>>,
-    ] extends [true]
+        BalanceOk<ToKeyPath<W>, UpBudget<Schema, RootSchema, ParentSchema>>,
+      ] extends [true]
     ? GetResult<Schema, RootSchema, ParentSchema, AliasMap, ToKeyPath<W>>
     : never;
 
@@ -404,12 +401,12 @@ type PathGate<
   AliasMap,
   K extends readonly unknown[],
 > = // schema 本身就是 any 时根本无从判定, 直接放行;
-// 否则内部转发点(泛型未实例化)会被这个交叉卡住。
-0 extends 1 & Schema
-  ? unknown
-  : [GetFound<Schema, RootSchema, ParentSchema, AliasMap, K>] extends [never]
-    ? PiPathNotResolvable
-    : unknown;
+  // 否则内部转发点(泛型未实例化)会被这个交叉卡住。
+  0 extends 1 & Schema
+    ? unknown
+    : [GetFound<Schema, RootSchema, ParentSchema, AliasMap, K>] extends [never]
+      ? PiPathNotResolvable
+      : unknown;
 
 /**
  * get 的入参形态。
@@ -430,13 +427,7 @@ type GetArg<
 > =
   | readonly []
   | (readonly [H, ...T] &
-      PathGate<
-        Schema,
-        RootSchema,
-        ParentSchema,
-        AliasMap,
-        readonly [H, ...T]
-      >)
+      PathGate<Schema, RootSchema, ParentSchema, AliasMap, readonly [H, ...T]>)
   | (IsConstTuple<G> extends true ? never : G);
 
 /* ---------- get 路径补全提示 ---------- */
@@ -506,18 +497,19 @@ type ChildSchemaOf<S> = [S] extends [never]
     ? ChildOfSingle<S>
     : never;
 
-type ChildOfSingle<S> = CoreSchemaOf<S> extends infer C
-  ? [C] extends [never]
-    ? never
-    : C extends unknown
-      ?
-          | EntriesOf<C>[keyof EntriesOf<C>]
-          | ItemOf<C>
-          | ItemsOf<C>[number]
-          | ValueNodeOf<C>
-          | OptionsOf<C>[number]
-      : never
-  : never;
+type ChildOfSingle<S> =
+  CoreSchemaOf<S> extends infer C
+    ? [C] extends [never]
+      ? never
+      : C extends unknown
+        ?
+            | EntriesOf<C>[keyof EntriesOf<C>]
+            | ItemOf<C>
+            | ItemsOf<C>[number]
+            | ValueNodeOf<C>
+            | OptionsOf<C>[number]
+        : never
+    : never;
 
 /** 逐层下钻收集后代 key, 保证 ['a','b','c'] 这类多层路径同样能补全 */
 type DeepStructPathKey<S, Depth extends readonly unknown[]> = unknown extends S
@@ -649,24 +641,24 @@ type DyckPaths<
   | readonly []
   | (L extends readonly [unknown, ...infer LRest]
       ?
-        | readonly [
-            DownKeyAt<Cur, Fallback> | AliasPathToken<AliasMap>,
-            ...DyckPaths<
-              ChildSchemaOf<Cur>,
-              Up,
-              Root,
-              Fallback,
-              AliasMap,
-              [...D, unknown],
-              LRest
-            >,
-          ]
-        | (D extends readonly [unknown, ...infer DR]
-            ? readonly [
-                '..',
-                ...DyckPaths<Up, any, Root, Fallback, AliasMap, DR, LRest>,
-              ]
-            : never)
+          | readonly [
+              DownKeyAt<Cur, Fallback> | AliasPathToken<AliasMap>,
+              ...DyckPaths<
+                ChildSchemaOf<Cur>,
+                Up,
+                Root,
+                Fallback,
+                AliasMap,
+                [...D, unknown],
+                LRest
+              >,
+            ]
+          | (D extends readonly [unknown, ...infer DR]
+              ? readonly [
+                  '..',
+                  ...DyckPaths<Up, any, Root, Fallback, AliasMap, DR, LRest>,
+                ]
+              : never)
       : never);
 
 /** 预算封顶, 避免无限增长 */
@@ -680,19 +672,24 @@ type GrowBudget<B extends readonly unknown[]> =
 type BalanceOk<
   Path extends readonly unknown[],
   B extends readonly unknown[] | number,
-> = B extends number ? true : B extends readonly unknown[] ? BalanceTuple<Path, B>
-  : never;
+> = B extends number
+  ? true
+  : B extends readonly unknown[]
+    ? BalanceTuple<Path, B>
+    : never;
 
-type BalanceTuple<Path extends readonly unknown[], B extends readonly unknown[]> =
-  Path extends readonly [infer H, ...infer Rest]
-    ? H extends '..'
-      ? B extends readonly [unknown, ...infer BR]
-        ? BalanceTuple<Rest, BR>
-        : false
-      : H extends '#'
-        ? BalanceTuple<Rest, []>
-        : BalanceTuple<Rest, GrowBudget<B>>
-    : true;
+type BalanceTuple<
+  Path extends readonly unknown[],
+  B extends readonly unknown[],
+> = Path extends readonly [infer H, ...infer Rest]
+  ? H extends '..'
+    ? B extends readonly [unknown, ...infer BR]
+      ? BalanceTuple<Rest, BR>
+      : false
+    : H extends '#'
+      ? BalanceTuple<Rest, []>
+      : BalanceTuple<Rest, GrowBudget<B>>
+  : true;
 
 /**
  * 路径每一位都必须是合法 token, 否则整条路径解不出来。
@@ -725,30 +722,30 @@ export type DotPathTokens<Schema, RootSchema, ParentSchema, AliasMap> = [
 ] extends [never]
   ? readonly (string | number)[]
   :
-    | readonly [
-        '#',
-        ...DyckPaths<
+      | readonly [
+          '#',
+          ...DyckPaths<
+            RootSchema,
+            RootSchema,
+            RootSchema,
+            DeepStructPathKey<RootSchema, PathSuggestDepth>,
+            AliasMap,
+            [],
+            PathLenCap
+          >,
+        ]
+      | DyckPaths<
+          Schema,
+          ParentSchema,
           RootSchema,
-          RootSchema,
-          RootSchema,
-          DeepStructPathKey<RootSchema, PathSuggestDepth>,
+          DeepStructPathKey<
+            TightSchemas<Schema, RootSchema, ParentSchema>,
+            PathSuggestDepth
+          >,
           AliasMap,
-          [],
+          InitDepth<UpBudget<Schema, RootSchema, ParentSchema>>,
           PathLenCap
-        >,
-      ]
-    | DyckPaths<
-        Schema,
-        ParentSchema,
-        RootSchema,
-        DeepStructPathKey<
-          TightSchemas<Schema, RootSchema, ParentSchema>,
-          PathSuggestDepth
-        >,
-        AliasMap,
-        InitDepth<UpBudget<Schema, RootSchema, ParentSchema>>,
-        PathLenCap
-      >;
+        >;
 
 /** 去掉一元组首位 */
 type DropFirst<T extends readonly unknown[]> = T extends readonly [
@@ -764,8 +761,10 @@ export type DotHeadToken<Schema, RootSchema, ParentSchema, AliasMap> = [
 ] extends [never]
   ? string | number
   :
-      | "#"
-      | (IsRootLevel<Schema, RootSchema, ParentSchema> extends true ? never : "..")
+      | '#'
+      | (IsRootLevel<Schema, RootSchema, ParentSchema> extends true
+          ? never
+          : '..')
       | DownKeyAt<
           Schema,
           DeepStructPathKey<
@@ -785,7 +784,7 @@ export type TailFor<H, Schema, RootSchema, ParentSchema, AliasMap> = [
   TightSchemas<Schema, RootSchema, ParentSchema>,
 ] extends [never]
   ? readonly (string | number)[]
-  : H extends "#"
+  : H extends '#'
     ? DyckPaths<
         RootSchema,
         RootSchema,
@@ -795,7 +794,7 @@ export type TailFor<H, Schema, RootSchema, ParentSchema, AliasMap> = [
         [],
         PathLenCap
       >
-    : H extends ".."
+    : H extends '..'
       ? DyckPaths<
           ParentSchema,
           any,
@@ -837,8 +836,9 @@ export type TailFor<H, Schema, RootSchema, ParentSchema, AliasMap> = [
           >;
 
 /** 一元组深度; number(未知) 映射到上限 */
-type InitDepth<B extends readonly unknown[] | number> =
-  B extends number ? PathLenCap : B;
+type InitDepth<B extends readonly unknown[] | number> = B extends number
+  ? PathLenCap
+  : B;
 
 /** 当前节点可输入的路径片段 */
 export type FieldPathToken<S, AliasMap = {}, AllowParent = true> =
@@ -1006,22 +1006,22 @@ export type PiResolvedCommonViewFieldConfig<
   ) => string extends H
     ? PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined
     : G extends readonly []
-      ? GetFound<
-          Schema,
-          RootSchema,
-          ParentSchema,
-          AliasMap,
-          readonly []
-        > | undefined
+      ?
+          | GetFound<Schema, RootSchema, ParentSchema, AliasMap, readonly []>
+          | undefined
       : IsConstTuple<G> extends true
-        ? GetFound<
-            Schema,
-            RootSchema,
-            ParentSchema,
-            AliasMap,
-            readonly [H, ...T]
-          > | undefined
-        : PiResolvedCommonViewFieldConfig<any, any, any, any, any, any> | undefined;
+        ?
+            | GetFound<
+                Schema,
+                RootSchema,
+                ParentSchema,
+                AliasMap,
+                readonly [H, ...T]
+              >
+            | undefined
+        :
+            | PiResolvedCommonViewFieldConfig<any, any, any, any, any, any>
+            | undefined;
   action: {
     set: (value: any, index?: any) => boolean;
     remove: (index: any) => void;
