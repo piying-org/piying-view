@@ -24,6 +24,7 @@ import {
 } from '../builder-base/find-config';
 import { CoreSchemaHandle } from './handle/core.schema-handle';
 import { FieldGroup } from '../field/field-group';
+export { convertCore } from '@piying/valibot-visit';
 
 import { ConvertOptions } from '@piying/valibot-visit';
 import { PiCommonConfig, FormBuilder } from '../builder-base';

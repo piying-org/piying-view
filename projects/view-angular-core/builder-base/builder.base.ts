@@ -57,7 +57,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
 
   #allFieldInitHookList: (() => void)[] = [];
   buildRoot(item: BuildRootInputItem<SchemaHandle>) {
-    const field = this.#buildControl(
+    const field = this.buildControl(
       {
         type: 'root',
         field: { fullPath: [], injector: this.#injector },
@@ -85,7 +85,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       ),
     );
     for (let index = 0; index < item.fields.length; index++) {
-      this.#buildControl(item, item.fields[index], index);
+      this.buildControl(item, item.fields[index], index);
     }
     if (item.type === 'group') {
       this.#buildGroup(item);
@@ -104,7 +104,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     return;
   }
 
-  #buildControl(
+  protected buildControl(
     parent:
       | BuildGroupItem<SchemaHandle>
       | BuildArrayItem<SchemaHandle>
@@ -369,7 +369,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
     // 单独一项
     field: AnyCoreSchemaHandle,
   ) {
-    const result = this.#buildControl(parent, field as any, 0);
+    const result = this.buildControl(parent, field as any, 0);
     this.#allFieldInitHookList.push(() => this.allFieldInitHookCall());
     return result;
   }
@@ -384,10 +384,12 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
         list: _PiResolvedCommonViewFieldConfig[],
         index: number,
         initValue: boolean,
+        // 可选：item 专属 handle，缺省用共享模板
+        itemField?: SchemaHandle,
       ) => {
         const result = this.#createArrayItem(
           buildItem,
-          templateField,
+          itemField ?? this.resolveArrayItemField(buildItem, index),
           fixedLength + index,
         );
         list[index] = result;
@@ -455,6 +457,15 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       };
     }
   }
+
+  /** 缺省返回共享模板 */
+  protected resolveArrayItemField(
+    buildItem: BuildArrayItem<SchemaHandle>,
+    _index: number,
+  ): SchemaHandle {
+    return buildItem.templateField;
+  }
+
   #createArrayItem(
     parent: BuildGroupItem<SchemaHandle> | BuildArrayItem<SchemaHandle>,
     // 单独一项
@@ -479,7 +490,7 @@ export class FormBuilder<SchemaHandle extends CoreSchemaHandle<any, any>> {
       injector.destroy();
     });
     const instance = injector.get(Builder);
-    const result = instance.#buildControl(
+    const result = instance.buildControl(
       { ...parent, skipAppend: true },
       field,
       index,
