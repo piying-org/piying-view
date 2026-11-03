@@ -47,11 +47,23 @@ export default class JsonSchemaViewRC extends BaseControl {
               );
             }
             if (type !== 'object') {
-              const labelWrapper = type === 'array' ? 'label' : 'control-label';
               result = v.pipe(
                 result,
-                actions.wrappers.set(['tooltip', labelWrapper, 'validator']),
+                actions.wrappers.set(['tooltip', 'control-label', 'validator']),
               );
+            }
+            // array-rw 靠 minLength/maxLength 控制初始行数与增删按钮的可用范围
+            if (type === 'array') {
+              const inputs: Record<string, number> = {};
+              if (typeof jSchema.minItems === 'number') {
+                inputs['minLength'] = jSchema.minItems;
+              }
+              if (typeof jSchema.maxItems === 'number') {
+                inputs['maxLength'] = jSchema.maxItems;
+              }
+              if (Object.keys(inputs).length) {
+                result = v.pipe(result, actions.inputs.patch(inputs));
+              }
             }
             return result;
           },

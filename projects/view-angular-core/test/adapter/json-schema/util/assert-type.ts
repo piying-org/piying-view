@@ -10,6 +10,7 @@ import {
   ObjectSchema,
   ObjectWithRestSchema,
   PicklistSchema,
+  StrictTupleSchema,
   StringSchema,
   TupleSchema,
   TupleWithRestSchema,
@@ -20,6 +21,7 @@ export type TypeMap = {
   loose_object: LooseObjectSchema<any, any>;
   object_with_rest: ObjectWithRestSchema<any, any, any>;
   tuple: TupleSchema<any, any>;
+  strict_tuple: StrictTupleSchema<any, any>;
   loose_tuple: LooseTupleSchema<any, any>;
   tuple_with_rest: TupleWithRestSchema<any, any, any>;
   string: StringSchema<any>;

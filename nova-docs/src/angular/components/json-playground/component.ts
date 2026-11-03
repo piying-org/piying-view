@@ -30,6 +30,13 @@ const DEFAULT_JSON = `{
         "items": { "type": "string", "title": "标签", "enum": ["A", "B", "C"] }
       },
       "agree": { "type": "boolean", "title": "同意协议" },
+      "schematicCollections": {
+        "type": "array",
+        "description": "The list of schematic collections to use.",
+        "items": { "type": "string" },
+        "minItems": 1,
+        "maxItems": 3
+      },
       "address": {
         "type": "object",
         "title": "地址",

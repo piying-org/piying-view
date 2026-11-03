@@ -11,8 +11,16 @@ import { PiyingViewGroupBase } from '@piying/view-angular';
 export default class ArrayRWComponent extends PiyingViewGroupBase {
   initItem = input<(index: number | undefined) => any>();
   minLength = input<number>();
+  maxLength = input<number>();
   fixedLength = input<number>();
   isFixedLength$$ = computed(() => typeof this.fixedLength() === 'number');
+  canAdd$$ = computed(() => {
+    const maxLength = this.maxLength();
+    if (typeof maxLength !== 'number') {
+      return true;
+    }
+    return (this.field$$().children!() ?? []).length < maxLength;
+  });
   ngOnInit(): void {}
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['minLength']) {

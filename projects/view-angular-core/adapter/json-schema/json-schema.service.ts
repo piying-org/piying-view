@@ -43,6 +43,15 @@ export function jsonSchemaToValibot(
   return new JsonSchemaToValibot(schema, options).convert() as ResolvedSchema;
 }
 const Schema2012 = 'https://json-schema.org/draft/2020-12/schema';
+
+/**
+ * items / additionalItems / prefixItems 在不同草案下形态完全不同，必须先定草案再转换：
+ * - draft-04/06/07、2019-09：items 可以是 schema 或 schema 数组（数组即元组），additionalItems 仅在 items 为数组时有效
+ * - 2020-12：prefixItems（必须非空数组）+ items（只能单个 schema），additionalItems 已移除
+ * 依据：draft-07 6.4.1/6.4.2、2020-12 10.3.1.1/10.3.1.2
+ */
+type Draft = '2020-12' | 'legacy' | 'unknown';
+
 const TypeMap: Record<string, typeof BaseTypeService> = {
   number: NumberTypeService,
   integer: IntegerTypeService,
@@ -59,10 +68,32 @@ export class JsonSchemaToValibot {
   root;
   options;
   cacheSchema = new Map();
+  #draft: Draft | undefined;
   constructor(root: JSONSchemaRaw, options?: J2VOptions) {
     this.root = root;
     this.options = options;
+    this.#draft = this.#detectDraft(root);
     root.$schema ??= Schema2012;
+  }
+
+  /**
+   * 归一化 $schema 后识别草案：尾部 # 与 http/https 差异不影响草案判定
+   */
+  #detectDraft(root: JSONSchemaRaw): Draft {
+    const uri = isString(root?.$schema)
+      ? root.$schema.trim().replace(/#$/, '')
+      : '';
+    if (!uri) {
+      return 'unknown';
+    }
+    if (/draft[/-]2020-12/.test(uri)) {
+      return '2020-12';
+    }
+    if (/draft[/-](?:2019-09|0[467])/.test(uri)) {
+      return 'legacy';
+    }
+    // 无法识别的草案声明，同样退到按形状猜测
+    return 'unknown';
   }
   convert() {
     const Service = TypeMap['common'];
@@ -94,6 +125,12 @@ export class JsonSchemaToValibot {
         resolved.exclusiveMinimum = resolved.minimum;
         delete resolved.minimum;
       }
+    }
+
+    if (!type.types.includes('array')) {
+      delete resolved.uniqueItems;
+      delete resolved.minItems;
+      delete resolved.maxItems;
     }
     return resolved;
   }
@@ -223,18 +260,17 @@ export class JsonSchemaToValibot {
   }
 
   #arrayCompatible(schema: JsonSchemaDraft202012Object) {
-    if (this.root.$schema !== Schema2012 || !isNil(schema.additionalItems)) {
-      if (!isNil(schema.items) || !isNil(schema.additionalItems)) {
-        // 2019-09
-        schema.prefixItems = schema.items as
-          | JsonSchemaDraft202012[]
-          | undefined;
-        schema.items = schema.additionalItems as
-          | JsonSchemaDraft202012
-          | undefined;
-      }
+    if (this.#draft === '2020-12') {
+      return;
     }
-    return;
+    if (Array.isArray(schema.items)) {
+      if (schema.items.length) {
+        schema.prefixItems = schema.items;
+      }
+      schema.items = schema.additionalItems as JsonSchemaDraft202012;
+      return;
+    }
+    delete schema.additionalItems;
   }
 
   resolveSchema2(schema: JsonSchemaDraft202012Object) {

@@ -49,10 +49,10 @@ describe('json-schema', () => {
     } as JsonSchemaDraft202012Object;
     const Define = jsonSchemaToValibot(jsonSchema);
     let input = [1, '1', 1];
-    const instance = assertType(Define, 'tuple');
+    // items: false 表示 prefixItems 之外不允许多余元素，多出的一个必须报错
+    assertType(Define, 'strict_tuple');
     let result = v.safeParse(Define, input);
-    expect(result.success).toBeTrue();
-    expect(result.output).toEqual([1, '1']);
+    expect(result.success).toBeFalse();
     input = [1, '1'];
     result = v.safeParse(Define, input);
     expect(result.success).toBeTrue();

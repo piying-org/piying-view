@@ -53,12 +53,12 @@ export class ArrayTypeService extends BaseTypeService {
         const result = jSchemaToVSchema(schema.items);
         parent = v.tupleWithRest(fixedList, result!);
       } else if (schema.items === false) {
-        parent = v.tuple(fixedList);
+        parent = v.strictTuple(fixedList);
       } else {
         parent = v.looseTuple(fixedList);
       }
     } else if (isBoolean(schema.items)) {
-      parent = schema.items ? v.array(v.any()) : v.tuple([]);
+      parent = schema.items ? v.array(v.any()) : v.strictTuple([]);
     } else if (schema.items) {
       const result = jSchemaToVSchema(schema.items);
       parent = v.array(result);
