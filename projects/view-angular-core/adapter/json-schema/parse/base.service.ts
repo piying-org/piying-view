@@ -46,14 +46,21 @@ export class BaseTypeService {
   isOptional() {
     return this.schema.__resolved.type.optional;
   }
+  isNullable() {
+    return !!this.schema.__resolved.type.nullable;
+  }
   parseBase(actionList: BaseAction[]): ResolvedSchema {
     const Define = v.pipe(
       this.getBaseDefine(),
       ...this.getAllActionList(actionList),
     );
-    const OptDefine = this.isOptional()
-      ? v.optional(Define, this.schema.default)
-      : Define;
+    let OptDefine: ResolvedSchema = Define;
+    if (this.isNullable()) {
+      OptDefine = v.nullable(OptDefine) as ResolvedSchema;
+    }
+    if (this.isOptional()) {
+      OptDefine = v.optional(OptDefine, this.schema.default) as ResolvedSchema;
+    }
     return OptDefine;
   }
   parse(actionList: BaseAction[]): ResolvedSchema {

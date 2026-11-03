@@ -14,6 +14,8 @@ export type ResolvedJsonSchema = JSONSchemaNoRef & {
     type: {
       types: Extract<JsonSchemaDraft202012Object['type'], any[]>;
       optional: boolean;
+      /** type 数组里含 null：值允许为 null，与 optional（允许缺失）是两个维度 */
+      nullable?: boolean;
     };
     isResolved: boolean;
   };

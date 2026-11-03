@@ -37,4 +37,29 @@ describe('json-schema-compatible', () => {
     result = v.safeParse(Define, 5);
     expect(result.success).toBeTrue();
   });
+  it('type-array-null', async () => {
+    // type 数组里的 null 是「值可为 null」，不是「可缺失」，必须走 nullable
+    const Define = jsonSchemaToValibot({
+      type: ['null', 'string'],
+    } as any);
+    expect(v.safeParse(Define, null).success).toBeTrue();
+    expect(v.safeParse(Define, 'abc').success).toBeTrue();
+    expect(v.safeParse(Define, 123).success).toBeFalse();
+  });
+  it('type-array-null-with-constraints', async () => {
+    const Define = jsonSchemaToValibot({
+      type: ['null', 'number'],
+      minimum: 5,
+    } as any);
+    expect(v.safeParse(Define, null).success).toBeTrue();
+    expect(v.safeParse(Define, 1).success).toBeFalse();
+    expect(v.safeParse(Define, 5).success).toBeTrue();
+  });
+  it('guess-array-by-min-items', async () => {
+    // 无 type 时 minItems/maxItems 也是 array 的推断线索
+    const Define = jsonSchemaToValibot({ minItems: 2 } as any);
+    expect(assertType(Define, 'array').type).toEqual('array');
+    expect(v.safeParse(Define, ['a']).success).toBeFalse();
+    expect(v.safeParse(Define, ['a', 'b']).success).toBeTrue();
+  });
 });

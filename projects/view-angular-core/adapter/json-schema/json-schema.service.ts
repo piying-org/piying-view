@@ -206,11 +206,14 @@ export class JsonSchemaToValibot {
       return {
         types: type,
         optional: optional || nullIndex !== -1,
+        nullable: nullIndex !== -1,
       };
     }
     if (
       schema.items ||
       schema.prefixItems ||
+      isNumber(schema.minItems) ||
+      isNumber(schema.maxItems) ||
       isNumber(schema.minContains) ||
       isNumber(schema.maxContains) ||
       !isNil(schema.contains) ||
