@@ -26,3 +26,7 @@
 @import 'starlight-theme-nova/tailwind.css';
 
 @import 'material-icons/iconfont/filled.css';
+
+.select[multiple]{
+  display: block;
+}
