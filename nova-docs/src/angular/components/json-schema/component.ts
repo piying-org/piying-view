@@ -47,13 +47,10 @@ export default class JsonSchemaViewRC extends BaseControl {
               );
             }
             if (type !== 'object') {
+              const labelWrapper = type === 'array' ? 'label' : 'control-label';
               result = v.pipe(
                 result,
-                actions.wrappers.set([
-                  'tooltip',
-                  'jsonschema-label',
-                  'validator',
-                ]),
+                actions.wrappers.set(['tooltip', labelWrapper, 'validator']),
               );
             }
             return result;

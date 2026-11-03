@@ -11,6 +11,7 @@ import { FormlyFieldWC } from './wrapper/formly-field-wrapper/component';
 import { JoinItemWC } from './wrapper/join-wrapper/component';
 import { PanelWC } from './wrapper/panel-wrapper/component';
 import { TooltipWC } from './wrapper/tooltip/component';
+import { ControlLabelWC } from './wrapper/control-label/component';
 import { DemoNFCC } from './demo';
 import { LogNFCC } from './log';
 import { SimpleInputC } from './simple-input';
@@ -277,8 +278,8 @@ export const FieldGlobalConfig = {
     label: {
       type: LabelWC,
     },
-    'jsonschema-label': {
-      type: LabelWC,
+    'control-label': {
+      type: ControlLabelWC,
     },
     tooltip: {
       type: TooltipWC,
