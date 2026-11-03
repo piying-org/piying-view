@@ -125,6 +125,13 @@ export default defineConfig({
         en: 'Piying-View Docs',
       },
       customCss: ['./src/styles/global.css'],
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/piying-org/piying-view',
+        },
+      ],
       components: {
         PageTitle: './src/overrides/starlight/PageTitle.astro',
       },
